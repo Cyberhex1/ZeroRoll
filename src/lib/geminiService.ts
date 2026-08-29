@@ -10,6 +10,7 @@ import {
 } from '../types';
 import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomScenarios';
 import { generateDynamicSeedlist, CategorySeedInfo } from './seedlists';
+import firebaseConfig from '../../firebase-applet-config.json';
 
 function resolveGeminiModelName(model?: string): string {
   if (!model) return 'gemini-2.5-flash';
@@ -25,6 +26,7 @@ export function getStoredApiKey(): string {
     if (custom && custom.trim()) return custom.trim();
     const envKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
     if (envKey && envKey.trim()) return envKey.trim();
+    if (firebaseConfig && firebaseConfig.apiKey) return firebaseConfig.apiKey.trim();
   } catch (_) {}
   return '';
 }
@@ -218,10 +220,12 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
       };
     } catch (err: any) {
       console.warn('Gemini API execution error:', err);
+      // We explicitly throw here so the UI can display API errors (e.g., "API Not Enabled")
+      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate content'}`);
     }
   }
 
-  // Fallback procedural turn
+  // Fallback procedural turn if NO api key is provided at all
   return generateProceduralTurn(category, contents, characterState, diceRoll, targetModel);
 }
 
@@ -304,12 +308,13 @@ Output MUST be strictly valid JSON matching this schema:
           }
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Gemini Scenario generation error:', err);
+      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate scenario'}`);
     }
   }
 
-  // Fallback to high-entropy procedural generator
+  // Fallback to high-entropy procedural generator if NO key provided
   const scenario = generateRandomScenarioSetup(category);
   if (characterName) scenario.heroName = characterName;
   if (classRole) scenario.roleClass = classRole;
@@ -401,12 +406,13 @@ Output MUST be strictly valid JSON matching this schema:
       if (seedlist && seedlist.coreThemes) {
         return { seedlist };
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Gemini Seedlist generation error:', err);
+      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate seedlist'}`);
     }
   }
 
-  // Fallback to dynamic procedural seedlist
+  // Fallback to dynamic procedural seedlist if NO key provided
   const seedlist = generateDynamicSeedlist(category);
   return { seedlist };
 }
@@ -432,10 +438,13 @@ Output ONLY the generated ${fieldType} text with no extra commentary or quotes.`
 
       const text = res.text?.trim().replace(/^["']|["']$/g, '');
       if (text && text.length > 1) return text;
-    } catch (e) {}
+    } catch (err: any) {
+      console.warn('Gemini Roll Field error:', err);
+      throw new Error(`Gemini AI Error: ${err.message || 'Failed to roll field'}`);
+    }
   }
 
-  // Fallback
+  // Fallback if NO key provided
   const setup = generateRandomScenarioSetup(category);
   if (fieldType === 'title') return setup.title;
   if (fieldType === 'heroName') return setup.heroName;
@@ -475,10 +484,13 @@ Output ONLY the raw <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg
         const clean = text.replace(/```xml|```svg|```/g, '').trim();
         return { avatarUrl: `data:image/svg+xml;utf8,${encodeURIComponent(clean)}` };
       }
-    } catch (_) {}
+    } catch (err: any) {
+      console.warn('Gemini Avatar generation error:', err);
+      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate avatar'}`);
+    }
   }
 
-  // Beautiful geometric avatar fallback
+  // Beautiful geometric avatar fallback if NO key provided
   const initials = (characterName || 'H').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const palettes: Record<string, [string, string, string]> = {
     fantasy: ['#0f172a', '#1e3a5f', '#10b981'],

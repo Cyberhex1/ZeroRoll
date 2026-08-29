@@ -1,5 +1,5 @@
-import { getAI, getGenerativeModel, AgentPlatformBackend } from 'firebase/ai';
-import { app } from './firebase';
+import { GoogleGenAI } from '@google/genai';
+import firebaseConfig from '../../firebase-applet-config.json';
 import { 
   ExperienceCategory, 
   InventoryItem, 
@@ -15,17 +15,30 @@ import { generateDynamicSeedlist, CategorySeedInfo } from './seedlists';
 function resolveGeminiModelName(model?: string): string {
   if (!model) return 'gemini-2.5-flash';
   const clean = model.replace('models/', '');
-  if (clean.includes('pro')) return 'gemini-2.5-pro';
+  if (clean.includes('pro')) return 'gemini-3.1-pro-preview';
   if (clean.includes('lite')) return 'gemini-2.5-flash';
   return 'gemini-2.5-flash';
 }
 
 export function getStoredApiKey(): string {
+  try {
+    const custom = localStorage.getItem('dnd_gemini_api_key');
+    if (custom && custom.trim()) return custom.trim();
+    const envKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
+    if (envKey && envKey.trim()) return envKey.trim();
+    if (firebaseConfig && firebaseConfig.apiKey) return firebaseConfig.apiKey.trim();
+  } catch (_) {}
   return '';
 }
 
 export function saveStoredApiKey(apiKey: string): void {
-  // Deprecated
+  try {
+    if (apiKey && apiKey.trim()) {
+      localStorage.setItem('dnd_gemini_api_key', apiKey.trim());
+    } else {
+      localStorage.removeItem('dnd_gemini_api_key');
+    }
+  } catch (_) {}
 }
 
 export function getCustomApiKey(): string {
@@ -33,7 +46,7 @@ export function getCustomApiKey(): string {
 }
 
 export function hasActiveGeminiKey(): boolean {
-  return true;
+  return getStoredApiKey().length > 5;
 }
 
 export interface ActionTurnResult {
@@ -57,11 +70,13 @@ export async function executeActionTurn(params: {
   diceRoll?: DiceRollResult;
 }): Promise<ActionTurnResult> {
   const { contents, category, model, systemInstruction, characterState, diceRoll } = params;
-    const targetModel = resolveGeminiModelName(model);
+    const apiKey = getStoredApiKey();
+  const targetModel = resolveGeminiModelName(model);
 
   // 1. Direct client-side Gemini AI Execution
-  try {
-    const ai = getAI(app, { backend: new AgentPlatformBackend() });
+  if (apiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
 
       const promptInstruction = systemInstruction || `You are the master narrative author and Game Master for an interactive tabletop campaign in the "${category}" genre with D&D 5e mechanics.
 Address the player as "you". Keep the narrative in present tense.
@@ -104,14 +119,16 @@ ${contents}
 
 ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}`;
 
-      const aiModel = getGenerativeModel(ai, { 
+      const response = await ai.models.generateContent({
         model: targetModel,
-        generationConfig: { temperature: 0.9 },
-        systemInstruction: promptInstruction
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        config: {
+          systemInstruction: promptInstruction,
+          temperature: 0.9
+        }
       });
-      const response = await aiModel.generateContent(userMessage);
 
-      let text = response.response.text() || '';
+      let text = response.text || '';
       let suggestedActions: string[] = [];
       let courseChangeAlert: any = null;
       let requiredCheck: any = null;
@@ -202,11 +219,13 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
         modelUsed: `${targetModel} (Gemini AI Engine)`
       };
     } catch (err: any) {
-      console.warn('Vertex AI API execution error:', err);
+      console.warn('Gemini API execution error:', err);
+      // We explicitly throw here so the UI can display API errors (e.g., "API Not Enabled")
       throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate content'}`);
     }
+  }
 
-  // Fallback procedural turn if Vertex AI fails
+  // Fallback procedural turn if NO api key is provided at all
   return generateProceduralTurn(category, contents, characterState, diceRoll, targetModel);
 }
 
@@ -221,14 +240,12 @@ export async function generateScenarioAI(params: {
   raceOrigin?: string;
 }): Promise<{ scenario: RandomizedScenarioData }> {
   const { category, model, characterName, classRole, raceOrigin } = params;
+  const apiKey = getStoredApiKey();
   const targetModel = resolveGeminiModelName(model);
 
-  try {
-    const ai = getAI(app, { backend: new AgentPlatformBackend() });
-    const aiModel = getGenerativeModel(ai, { 
-      model: targetModel,
-      generationConfig: { temperature: 1.0 }
-    });
+  if (apiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
       const prompt = `You are a master tabletop RPG Game Master and worldbuilder.
 Generate a COMPLETELY ORIGINAL, randomized starting campaign setup for a "${category}" tabletop roleplaying experience.
 Every single field MUST be uniquely invented and fresh (Act 1, Scene 1 opening).
@@ -265,8 +282,16 @@ Output MUST be strictly valid JSON matching this schema:
   "startingHp": 12
 }`;
 
-      const response = await aiModel.generateContent(prompt);
-      const text = response.response.text() || '{}';
+      const response = await ai.models.generateContent({
+        model: targetModel,
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: {
+          responseMimeType: 'application/json',
+          temperature: 1.0
+        }
+      });
+
+      const text = response.text || '{}';
       const scenario = JSON.parse(text);
       if (scenario && scenario.title && scenario.hookText) {
         return {
@@ -284,11 +309,12 @@ Output MUST be strictly valid JSON matching this schema:
         };
       }
     } catch (err: any) {
-      console.warn('Vertex AI Scenario generation error:', err);
+      console.warn('Gemini Scenario generation error:', err);
       throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate scenario'}`);
     }
+  }
 
-  // Fallback to high-entropy procedural generator if Vertex AI fails
+  // Fallback to high-entropy procedural generator if NO key provided
   const scenario = generateRandomScenarioSetup(category);
   if (characterName) scenario.heroName = characterName;
   if (classRole) scenario.roleClass = classRole;
@@ -304,14 +330,12 @@ export async function generateSeedlistAI(params: {
   model: string;
 }): Promise<{ seedlist: CategorySeedInfo }> {
   const { category, model } = params;
+  const apiKey = getStoredApiKey();
   const targetModel = resolveGeminiModelName(model);
 
-  try {
-    const ai = getAI(app, { backend: new AgentPlatformBackend() });
-    const aiModel = getGenerativeModel(ai, { 
-      model: targetModel,
-      generationConfig: { temperature: 1.0 }
-    });
+  if (apiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
       const prompt = `You are a creative director for tabletop RPGs. Generate a fresh, highly imaginative brainstorm seedlist for the "${category}" genre.
 Invent completely NEW tropes, themes, hooks, and 3 full starting presets.
 
@@ -368,18 +392,27 @@ Output MUST be strictly valid JSON matching this schema:
   ]
 }`;
 
-      const response = await aiModel.generateContent(prompt);
-      const text = response.response.text() || '{}';
+      const response = await ai.models.generateContent({
+        model: targetModel,
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: {
+          responseMimeType: 'application/json',
+          temperature: 1.0
+        }
+      });
+
+      const text = response.text || '{}';
       const seedlist = JSON.parse(text);
       if (seedlist && seedlist.coreThemes) {
         return { seedlist };
       }
     } catch (err: any) {
-      console.warn('Vertex AI Seedlist generation error:', err);
+      console.warn('Gemini Seedlist generation error:', err);
       throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate seedlist'}`);
     }
+  }
 
-  // Fallback to dynamic procedural seedlist if Vertex AI fails
+  // Fallback to dynamic procedural seedlist if NO key provided
   const seedlist = generateDynamicSeedlist(category);
   return { seedlist };
 }
@@ -388,26 +421,30 @@ Output MUST be strictly valid JSON matching this schema:
  * Rolls an individual field (Title, Name, Role, Race, Hook) with Gemini AI.
  */
 export async function rollSingleFieldAI(category: ExperienceCategory, fieldType: 'title' | 'heroName' | 'roleClass' | 'raceOrigin' | 'hook', model = 'gemini-2.5-flash'): Promise<string> {
+  const apiKey = getStoredApiKey();
   const targetModel = resolveGeminiModelName(model);
 
-  try {
-    const ai = getAI(app, { backend: new AgentPlatformBackend() });
-    const aiModel = getGenerativeModel(ai, { 
-      model: targetModel,
-      generationConfig: { temperature: 1.0 }
-    });
+  if (apiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
       const prompt = `You are a tabletop RPG generator. Generate a SINGLE unique, imaginative "${fieldType}" for a "${category}" campaign.
 Output ONLY the generated ${fieldType} text with no extra commentary or quotes.`;
 
-      const res = await aiModel.generateContent(prompt);
-      const text = res.response.text()?.trim().replace(/^["']|["']$/g, '');
+      const res = await ai.models.generateContent({
+        model: targetModel,
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: { temperature: 1.0 }
+      });
+
+      const text = res.text?.trim().replace(/^["']|["']$/g, '');
       if (text && text.length > 1) return text;
     } catch (err: any) {
-      console.warn('Vertex AI Roll Field error:', err);
+      console.warn('Gemini Roll Field error:', err);
       throw new Error(`Gemini AI Error: ${err.message || 'Failed to roll field'}`);
     }
+  }
 
-  // Fallback if Vertex AI fails
+  // Fallback if NO key provided
   const setup = generateRandomScenarioSetup(category);
   if (fieldType === 'title') return setup.title;
   if (fieldType === 'heroName') return setup.heroName;
@@ -427,28 +464,33 @@ export async function generateAvatarAI(params: {
   physicalDescription?: string;
 }): Promise<{ avatarUrl: string }> {
   const { characterName, roleClass, raceOrigin, category, physicalDescription } = params;
-  try {
-    const ai = getAI(app, { backend: new AgentPlatformBackend() });
-    const aiModel = getGenerativeModel(ai, { 
-      model: 'gemini-2.5-flash',
-      generationConfig: { temperature: 0.8 }
-    });
+  const apiKey = getStoredApiKey();
+
+  if (apiKey) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
       const prompt = `Generate a stylized SVG character portrait for a ${raceOrigin} ${roleClass} named ${characterName} in the "${category}" genre.
 Physical details: ${physicalDescription || 'Keen observant eyes, tailored iconic travel gear'}.
 Output ONLY the raw <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">...</svg> tag without markdown codeblocks.`;
 
-      const res = await aiModel.generateContent(prompt);
-      const text = res.response.text()?.trim() || '';
+      const res = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: { temperature: 0.8 }
+      });
+
+      const text = res.text?.trim() || '';
       if (text.includes('<svg') && text.includes('</svg>')) {
         const clean = text.replace(/```xml|```svg|```/g, '').trim();
         return { avatarUrl: `data:image/svg+xml;utf8,${encodeURIComponent(clean)}` };
       }
-  } catch (err: any) {
-    console.warn('Vertex AI Avatar generation error:', err);
-    throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate avatar'}`);
+    } catch (err: any) {
+      console.warn('Gemini Avatar generation error:', err);
+      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate avatar'}`);
+    }
   }
 
-  // Beautiful geometric avatar fallback if Vertex AI fails
+  // Beautiful geometric avatar fallback if NO key provided
   const initials = (characterName || 'H').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const palettes: Record<string, [string, string, string]> = {
     fantasy: ['#0f172a', '#1e3a5f', '#10b981'],

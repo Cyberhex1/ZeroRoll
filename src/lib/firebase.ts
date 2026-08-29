@@ -16,6 +16,8 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInAnonymously,
@@ -162,7 +164,7 @@ export async function testFirestoreConnection(): Promise<boolean> {
   }
 }
 
-// Google Sign In
+// Google Sign In (Popup)
 export async function signInWithGoogle(): Promise<User | null> {
   try {
     const result = await signInWithPopup(auth, googleProvider);
@@ -175,6 +177,30 @@ export async function signInWithGoogle(): Promise<User | null> {
     console.error('Google Auth Error:', error);
     throw error;
   }
+}
+
+// Google Sign In (Redirect fallback - works when popups/third-party cookies are blocked)
+export async function signInWithGoogleRedirect(): Promise<void> {
+  try {
+    await signInWithRedirect(auth, googleProvider);
+  } catch (error: any) {
+    console.error('Google Redirect Auth Error:', error);
+    throw error;
+  }
+}
+
+// Check redirect login results on app startup
+export async function checkRedirectAuthResult(): Promise<User | null> {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result?.user) {
+      await syncUserRecord(result.user);
+      return result.user;
+    }
+  } catch (error: any) {
+    console.warn('Redirect auth check error:', error);
+  }
+  return null;
 }
 
 // Email & Password Sign In

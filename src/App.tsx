@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { auth, signInWithGoogle, logoutUser, saveExperienceToCloud, subscribeToUserExperiences, deleteExperienceFromCloud, saveUserProfileToCloud, loadUserProfileFromCloud } from './lib/firebase';
+import { auth, signInWithGoogle, signInWithGoogleRedirect, checkRedirectAuthResult, logoutUser, saveExperienceToCloud, subscribeToUserExperiences, deleteExperienceFromCloud, saveUserProfileToCloud, loadUserProfileFromCloud } from './lib/firebase';
 import { Navbar } from './components/Navbar';
 import { CategoriesGrid } from './components/CategoriesGrid';
 import { ExperienceView } from './components/ExperienceView';
@@ -75,6 +75,9 @@ export default function App() {
 
   // Sync profile when auth state changes
   useEffect(() => {
+    // Process redirect sign-in if returning from Google redirect
+    checkRedirectAuthResult();
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
 

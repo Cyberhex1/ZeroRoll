@@ -13,11 +13,12 @@ import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomSce
 import { generateDynamicSeedlist, CategorySeedInfo } from './seedlists';
 
 function resolveGeminiModelName(model?: string): string {
-  if (!model) return 'gemini-1.5-flash';
+  if (!model) return 'gemini-3.6-flash';
   const clean = model.replace('models/', '');
-  if (clean.includes('pro')) return 'gemini-1.5-pro';
-  if (clean.includes('flash')) return 'gemini-1.5-flash';
-  return 'gemini-1.5-flash';
+  if (clean.includes('pro')) return 'gemini-3.1-pro-preview';
+  if (clean.includes('lite')) return 'gemini-3.1-flash-lite';
+  if (clean.includes('3.7')) return 'gemini-3.7-flash';
+  return 'gemini-3.6-flash';
 }
 
 async function callGeminiWithRetry(fn: () => Promise<any>, retries = 3, delay = 3000): Promise<any> {
@@ -494,7 +495,7 @@ Physical details: ${physicalDescription || 'Keen observant eyes, tailored iconic
 Output ONLY the raw <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">...</svg> tag without markdown codeblocks.`;
 
       const res = await callGeminiWithRetry(() => ai.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-3.6-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: { temperature: 0.8 }
       }));

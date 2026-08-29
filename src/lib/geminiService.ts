@@ -21,19 +21,18 @@ function resolveGeminiModelName(model?: string): string {
   return 'gemini-3.6-flash';
 }
 
-async function callGeminiWithRetry(fn: () => Promise<any>, retries = 3, delay = 3000): Promise<any> {
+async function callGeminiWithRetry(fn: () => Promise<any>, retries = 2, delay = 1500): Promise<any> {
   try {
     return await fn();
   } catch (err: any) {
     const isRetryable = err?.status === 503 || err?.status === 429 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand') || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED');
     if (retries > 0 && isRetryable) {
       let waitMs = delay;
-      // Extract exact delay if provided by the API (e.g. "Please retry in 27.2s")
       const delayMatch = err?.message?.match(/retry in ([\d\.]+)s/);
       if (delayMatch && delayMatch[1]) {
-        waitMs = Math.ceil(parseFloat(delayMatch[1]) * 1000) + 1500; // Add 1.5s buffer
+        waitMs = Math.min(Math.ceil(parseFloat(delayMatch[1]) * 1000), 5000);
       }
-      console.log(`[Gemini API] Rate limited. Waiting ${Math.round(waitMs / 1000)}s before retry...`);
+      console.log(`[Gemini API] Retrying in ${waitMs}ms...`);
       await new Promise(r => setTimeout(r, waitMs));
       return callGeminiWithRetry(fn, retries - 1, delay * 2);
     }

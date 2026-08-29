@@ -713,11 +713,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       </label>
                       <button
                         type="button"
+                        disabled={isGeneratingScenario}
                         onClick={() => handleRandomizeHook(selectedCategoryModal)}
-                        className="text-[10px] font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1"
+                        className="text-[10px] font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1 disabled:opacity-50"
                         title="Roll a fresh Act 1 Scene 1 starting hook"
                       >
-                        <Dice5 className="w-3 h-3" />
+                        <RefreshCw className={`w-3 h-3 ${isGeneratingScenario ? 'animate-spin' : ''}`} />
                         Roll Hook
                       </button>
                     </div>

@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "Experience": {
+      "title": "Experience",
+      "description": "An interactive TTRPG session (campaign narrative, map, character state, and logs)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "model": { "type": "string" },
+        "customSystemPrompt": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "character": { "type": "object" },
+        "gameWorldState": { "type": "object" },
+        "logs": { "type": "array" },
+        "mapData": { "type": "object" }
+      },
+      "required": ["userId", "title", "category", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User profile settings and preferred Gemini model credentials",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "preferredModel": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid"]
+    }
+  },
+  "firestore": {
+    "/experiences/{experienceId}": {
+      "schema": "Experience",
+      "description": "User-authored game experience sessions synced across devices"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User account settings and preferences"
+    }
+  }
+}

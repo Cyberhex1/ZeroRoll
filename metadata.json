@@ -1,0 +1,6 @@
+{
+  "name": "Roll Zero0",
+  "description": "An interactive AI-powered D&D tabletop experience featuring customizable Gemini models, interactive tactical map grids, real-time rules adjudication, and cross-platform session saves.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -12,21 +12,39 @@ import {
 import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomScenarios';
 import { generateDynamicSeedlist, CategorySeedInfo } from './seedlists';
 
+export const FALLBACK_MODELS = [
+  'gemini-3.5-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-3.6-flash'
+];
+
 function resolveGeminiModelName(model?: string): string {
-  if (!model) return 'gemini-3.6-flash';
+  if (!model) return 'gemini-3.5-flash';
   const clean = model.replace('models/', '');
   if (clean.includes('pro')) return 'gemini-3.1-pro-preview';
   if (clean.includes('lite')) return 'gemini-3.1-flash-lite';
+  if (clean.includes('3.6')) return 'gemini-3.6-flash';
   if (clean.includes('3.7')) return 'gemini-3.7-flash';
-  return 'gemini-3.6-flash';
+  return 'gemini-3.5-flash';
 }
 
-async function callGeminiWithRetry(fn: () => Promise<any>, retries = 2, delay = 1500): Promise<any> {
+async function callGeminiWithRetry(fn: (modelName?: string) => Promise<any>, retries = 2, delay = 1500, modelIndex = 0): Promise<any> {
+  const currentModel = FALLBACK_MODELS[modelIndex] || 'gemini-3.5-flash';
   try {
-    return await fn();
+    return await fn(currentModel);
   } catch (err: any) {
-    const isRetryable = err?.status === 503 || err?.status === 429 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand') || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED');
-    if (retries > 0 && isRetryable) {
+    const isQuotaExhausted = err?.status === 429 || err?.message?.includes('RESOURCE_EXHAUSTED') || err?.message?.includes('quota');
+    const isUnavailable = err?.status === 503 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand');
+    
+    // If quota is exhausted on this specific model, cascade to the next model immediately!
+    if (isQuotaExhausted && modelIndex + 1 < FALLBACK_MODELS.length) {
+      const nextModel = FALLBACK_MODELS[modelIndex + 1];
+      console.log(`[Gemini API] Quota reached on ${currentModel}. Cascading to fallback model: ${nextModel}`);
+      return callGeminiWithRetry(fn, retries, delay, modelIndex + 1);
+    }
+
+    if (retries > 0 && (isUnavailable || isQuotaExhausted)) {
       let waitMs = delay;
       const delayMatch = err?.message?.match(/retry in ([\d\.]+)s/);
       if (delayMatch && delayMatch[1]) {
@@ -34,7 +52,7 @@ async function callGeminiWithRetry(fn: () => Promise<any>, retries = 2, delay = 
       }
       console.log(`[Gemini API] Retrying in ${waitMs}ms...`);
       await new Promise(r => setTimeout(r, waitMs));
-      return callGeminiWithRetry(fn, retries - 1, delay * 2);
+      return callGeminiWithRetry(fn, retries - 1, delay * 2, modelIndex);
     }
     throw err;
   }
@@ -139,8 +157,8 @@ ${contents}
 
 ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}`;
 
-      const response = await callGeminiWithRetry(() => ai.models.generateContent({
-        model: targetModel,
+      const response = await callGeminiWithRetry((m) => ai.models.generateContent({
+        model: m || targetModel,
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
         config: {
           systemInstruction: promptInstruction,
@@ -302,8 +320,8 @@ Output MUST be strictly valid JSON matching this schema:
   "startingHp": 12
 }`;
 
-      const response = await callGeminiWithRetry(() => ai.models.generateContent({
-        model: targetModel,
+      const response = await callGeminiWithRetry((m) => ai.models.generateContent({
+        model: m || targetModel,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: {
           responseMimeType: 'application/json',
@@ -412,8 +430,8 @@ Output MUST be strictly valid JSON matching this schema:
   ]
 }`;
 
-      const response = await callGeminiWithRetry(() => ai.models.generateContent({
-        model: targetModel,
+      const response = await callGeminiWithRetry((m) => ai.models.generateContent({
+        model: m || targetModel,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: {
           responseMimeType: 'application/json',
@@ -450,8 +468,8 @@ export async function rollSingleFieldAI(category: ExperienceCategory, fieldType:
       const prompt = `You are a tabletop RPG generator. Generate a SINGLE unique, imaginative "${fieldType}" for a "${category}" campaign.
 Output ONLY the generated ${fieldType} text with no extra commentary or quotes.`;
 
-      const res = await callGeminiWithRetry(() => ai.models.generateContent({
-        model: targetModel,
+      const res = await callGeminiWithRetry((m) => ai.models.generateContent({
+        model: m || targetModel,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: { temperature: 1.0 }
       }));
@@ -493,8 +511,8 @@ export async function generateAvatarAI(params: {
 Physical details: ${physicalDescription || 'Keen observant eyes, tailored iconic travel gear'}.
 Output ONLY the raw <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">...</svg> tag without markdown codeblocks.`;
 
-      const res = await callGeminiWithRetry(() => ai.models.generateContent({
-        model: 'gemini-3.6-flash',
+      const res = await callGeminiWithRetry((m) => ai.models.generateContent({
+        model: m || 'gemini-3.5-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: { temperature: 0.8 }
       }));

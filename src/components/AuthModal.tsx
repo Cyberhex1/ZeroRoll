@@ -60,9 +60,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     resetState();
     setIsLoading(true);
     try {
-      await signInWithGoogle();
-      if (onSuccess) onSuccess();
-      onClose();
+      await signInWithGoogleRedirect();
+      // Note: onSuccess and onClose won't fire here because the page redirects
     } catch (err: any) {
       const msg = getFriendlyAuthErrorMessage(err);
       setErrorMsg(msg);
@@ -264,18 +263,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
               <span>Continue with Google</span>
             </button>
-
-            <div className="flex justify-center">
-              <button
-                type="button"
-                onClick={handleGoogleRedirectSignIn}
-                disabled={isLoading}
-                className="text-[10px] text-amber-400/80 hover:text-amber-300 hover:underline font-mono transition flex items-center gap-1"
-              >
-                <ExternalLink className="w-3 h-3" />
-                Popup not opening? Sign in via Full-Page Redirect
-              </button>
-            </div>
 
             <div className="relative flex py-1 items-center">
               <div className="flex-grow border-t border-white/10"></div>

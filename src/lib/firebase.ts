@@ -16,6 +16,10 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInAnonymously,
+  updateProfile,
   signOut, 
   onAuthStateChanged,
   User 
@@ -78,6 +82,73 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   return errInfo;
 }
 
+// Convert Firebase auth error codes to friendly explanations
+export function getFriendlyAuthErrorMessage(error: any): string {
+  const code = error?.code || '';
+  const message = error?.message || '';
+
+  if (code === 'auth/unauthorized-domain' || message.includes('unauthorized-domain')) {
+    const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'current domain';
+    return `The domain "${currentDomain}" is not in the Firebase Authorized Domains list. To use Google Sign-In, add "${currentDomain}" in Firebase Console > Authentication > Settings > Authorized Domains. In the meantime, you can sign in with Email & Password or continue in Guest mode!`;
+  }
+  if (code === 'auth/popup-closed-by-user') {
+    return 'The Google sign-in window was closed before completing. If it closed immediately by itself, the domain may not be authorized in Firebase Console.';
+  }
+  if (code === 'auth/popup-blocked') {
+    return 'The sign-in popup was blocked by your browser. Please allow popups for this site or use Email & Password sign-in.';
+  }
+  if (code === 'auth/email-already-in-use') {
+    return 'This email address is already in use. Please sign in instead or use another email.';
+  }
+  if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+    return 'Invalid email or password. Please verify your credentials and try again.';
+  }
+  if (code === 'auth/weak-password') {
+    return 'Password is too weak. Please use at least 6 characters.';
+  }
+  if (code === 'auth/invalid-email') {
+    return 'Please enter a valid email address.';
+  }
+  if (code === 'auth/operation-not-allowed') {
+    return 'This sign-in provider is currently disabled in your Firebase console.';
+  }
+  if (code === 'auth/network-request-failed') {
+    return 'Network connection failed. Please check your internet connection.';
+  }
+  return message || 'Authentication failed. Please try again.';
+}
+
+// Helper to initialize or sync user profile record
+async function syncUserRecord(user: User, customDisplayName?: string) {
+  try {
+    const userRef = doc(db, 'users', user.uid);
+    const existing = await getDoc(userRef);
+    const resolvedName = customDisplayName || user.displayName || 'Adventurer';
+
+    if (!existing.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        displayName: resolvedName,
+        email: user.email || null,
+        photoURL: user.photoURL || null,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    } else {
+      await setDoc(userRef, {
+        uid: user.uid,
+        displayName: resolvedName,
+        email: user.email || null,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    }
+
+    // Migrate any existing guest experiences to this account
+    await migrateGuestExperiencesToUser(user.uid);
+  } catch (e) {
+    console.warn('Could not sync user record to Firestore:', e);
+  }
+}
+
 // Test Connection Helper
 export async function testFirestoreConnection(): Promise<boolean> {
   try {
@@ -96,37 +167,63 @@ export async function signInWithGoogle(): Promise<User | null> {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-
     if (user) {
-      // Only write basic auth metadata — do NOT overwrite existing custom avatar/profile fields.
-      // Use merge:true so any existing custom avatar config in Firestore is preserved.
-      const userRef = doc(db, 'users', user.uid);
-      const existing = await getDoc(userRef);
-      if (!existing.exists()) {
-        // First time sign-in: create base record
-        await setDoc(userRef, {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      } else {
-        // Returning user: only update email/displayName, never overwrite photoURL or avatar
-        await setDoc(userRef, {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      }
-
-      // Migrate any existing guest experiences to this account
-      await migrateGuestExperiencesToUser(user.uid);
+      await syncUserRecord(user);
     }
     return user;
   } catch (error: any) {
     console.error('Google Auth Error:', error);
+    throw error;
+  }
+}
+
+// Email & Password Sign In
+export async function signInWithEmail(email: string, pass: string): Promise<User | null> {
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, pass);
+    const user = result.user;
+    if (user) {
+      await syncUserRecord(user);
+    }
+    return user;
+  } catch (error: any) {
+    console.error('Email Sign In Error:', error);
+    throw error;
+  }
+}
+
+// Email & Password Sign Up
+export async function signUpWithEmail(email: string, pass: string, displayName: string): Promise<User | null> {
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, pass);
+    const user = result.user;
+    if (user) {
+      if (displayName) {
+        await updateProfile(user, { displayName });
+      }
+      await syncUserRecord(user, displayName);
+    }
+    return user;
+  } catch (error: any) {
+    console.error('Email Sign Up Error:', error);
+    throw error;
+  }
+}
+
+// Guest Anonymous Sign In
+export async function signInAsGuestUser(displayName?: string): Promise<User | null> {
+  try {
+    const result = await signInAnonymously(auth);
+    const user = result.user;
+    if (user) {
+      if (displayName) {
+        await updateProfile(user, { displayName });
+      }
+      await syncUserRecord(user, displayName || 'Adventurer (Guest)');
+    }
+    return user;
+  } catch (error: any) {
+    console.error('Guest Auth Error:', error);
     throw error;
   }
 }

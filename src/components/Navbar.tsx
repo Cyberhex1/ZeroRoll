@@ -24,6 +24,7 @@ interface NavbarProps {
   onSelectModel: (modelId: string) => void;
   onOpenSettings: () => void;
   onOpenProfile?: () => void;
+  onOpenAuth?: () => void;
   onGoogleSignIn: () => void;
   onSignOut: () => void;
   soundEnabled: boolean;
@@ -40,6 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectModel,
   onOpenSettings,
   onOpenProfile,
+  onOpenAuth,
   onGoogleSignIn,
   onSignOut,
   soundEnabled,
@@ -261,11 +263,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             ) : (
               <button
-                onClick={onGoogleSignIn}
-                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider rounded transition-colors flex items-center gap-1.5"
+                onClick={onOpenAuth || onGoogleSignIn}
+                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider rounded transition-colors flex items-center gap-1.5 shadow-md active:scale-95"
               >
                 <UserIcon className="w-3.5 h-3.5" />
-                Sign in with Google
+                Sign In / Join
               </button>
             )}
           </div>

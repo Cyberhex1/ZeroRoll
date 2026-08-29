@@ -17,6 +17,7 @@ interface SettingsModalProps {
   customSystemPrompt: string;
   onSaveSystemPrompt: (prompt: string) => void;
   onClose: () => void;
+  onOpenAuth?: () => void;
   onGoogleSignIn: () => void;
   onSignOut: () => void;
 }
@@ -28,6 +29,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   customSystemPrompt,
   onSaveSystemPrompt,
   onClose,
+  onOpenAuth,
   onGoogleSignIn,
   onSignOut
 }) => {
@@ -98,10 +100,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           ) : (
             <div className="flex items-center justify-between p-2.5 rounded bg-[#111118] border border-white/10">
               <p className="text-xs text-slate-400">
-                Sign in with Google to enable real-time cross-platform cloud sync for all your campaigns.
+                Sign in to enable real-time cross-platform cloud sync for all your campaigns.
               </p>
               <button
-                onClick={onGoogleSignIn}
+                onClick={() => {
+                  if (onOpenAuth) {
+                    onOpenAuth();
+                  } else {
+                    onGoogleSignIn();
+                  }
+                }}
                 className="px-3 py-1 rounded bg-amber-600 hover:bg-amber-500 text-black text-xs font-bold uppercase tracking-wider transition shadow shrink-0"
               >
                 Sign In

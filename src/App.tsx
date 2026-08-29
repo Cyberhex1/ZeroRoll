@@ -6,6 +6,7 @@ import { CategoriesGrid } from './components/CategoriesGrid';
 import { ExperienceView } from './components/ExperienceView';
 import { SettingsModal } from './components/SettingsModal';
 import { UserProfileModal } from './components/UserProfileModal';
+import { AuthModal } from './components/AuthModal';
 import { Experience, ExperienceCategory, CharacterSheet, MapData, LogMessage, UserProfile } from './types';
 import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
 import { CATEGORIES_DATA } from './lib/categoriesData';
@@ -69,6 +70,7 @@ export default function App() {
 
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // Sync profile when auth state changes
@@ -270,6 +272,7 @@ export default function App() {
         onSelectModel={handleSelectModel}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenAuth={() => setIsAuthOpen(true)}
         onGoogleSignIn={signInWithGoogle}
         onSignOut={logoutUser}
         soundEnabled={soundEnabled}
@@ -310,6 +313,10 @@ export default function App() {
           customSystemPrompt={customSystemPrompt}
           onSaveSystemPrompt={handleSaveSystemPrompt}
           onClose={() => setIsSettingsOpen(false)}
+          onOpenAuth={() => {
+            setIsSettingsOpen(false);
+            setIsAuthOpen(true);
+          }}
           onGoogleSignIn={signInWithGoogle}
           onSignOut={logoutUser}
         />
@@ -321,6 +328,14 @@ export default function App() {
           profile={userProfile}
           onSaveProfile={handleSaveProfile}
           onClose={() => setIsProfileOpen(false)}
+        />
+      )}
+
+      {/* Authentication Modal (Sign In / Sign Up / Guest) */}
+      {isAuthOpen && (
+        <AuthModal
+          isOpen={isAuthOpen}
+          onClose={() => setIsAuthOpen(false)}
         />
       )}
 

@@ -13,11 +13,24 @@ import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomSce
 import { generateDynamicSeedlist, CategorySeedInfo } from './seedlists';
 
 function resolveGeminiModelName(model?: string): string {
-  if (!model) return 'gemini-3.6-flash';
+  if (!model) return 'gemini-3.7-flash';
   const clean = model.replace('models/', '');
-  if (clean.includes('pro')) return 'gemini-3.1-pro-preview';
-  if (clean.includes('lite')) return 'gemini-3.6-flash';
-  return 'gemini-3.6-flash';
+  if (clean.includes('pro')) return 'gemini-3.1-pro';
+  if (clean.includes('lite')) return 'gemini-3.7-flash';
+  return 'gemini-3.7-flash';
+}
+
+async function callGeminiWithRetry(fn: () => Promise<any>, retries = 3, delay = 3000): Promise<any> {
+  try {
+    return await fn();
+  } catch (err: any) {
+    const isRetryable = err?.status === 503 || err?.status === 429 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand') || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED');
+    if (retries > 0 && isRetryable) {
+      await new Promise(r => setTimeout(r, delay));
+      return callGeminiWithRetry(fn, retries - 1, delay * 2);
+    }
+    throw err;
+  }
 }
 
 export function getStoredApiKey(): string {
@@ -119,14 +132,14 @@ ${contents}
 
 ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}`;
 
-      const response = await ai.models.generateContent({
+      const response = await callGeminiWithRetry(() => ai.models.generateContent({
         model: targetModel,
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
         config: {
           systemInstruction: promptInstruction,
           temperature: 0.9
         }
-      });
+      }));
 
       let text = response.text || '';
       let suggestedActions: string[] = [];
@@ -282,14 +295,14 @@ Output MUST be strictly valid JSON matching this schema:
   "startingHp": 12
 }`;
 
-      const response = await ai.models.generateContent({
+      const response = await callGeminiWithRetry(() => ai.models.generateContent({
         model: targetModel,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: {
           responseMimeType: 'application/json',
           temperature: 1.0
         }
-      });
+      }));
 
       const text = response.text || '{}';
       const scenario = JSON.parse(text);
@@ -392,14 +405,14 @@ Output MUST be strictly valid JSON matching this schema:
   ]
 }`;
 
-      const response = await ai.models.generateContent({
+      const response = await callGeminiWithRetry(() => ai.models.generateContent({
         model: targetModel,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: {
           responseMimeType: 'application/json',
           temperature: 1.0
         }
-      });
+      }));
 
       const text = response.text || '{}';
       const seedlist = JSON.parse(text);
@@ -430,11 +443,11 @@ export async function rollSingleFieldAI(category: ExperienceCategory, fieldType:
       const prompt = `You are a tabletop RPG generator. Generate a SINGLE unique, imaginative "${fieldType}" for a "${category}" campaign.
 Output ONLY the generated ${fieldType} text with no extra commentary or quotes.`;
 
-      const res = await ai.models.generateContent({
+      const res = await callGeminiWithRetry(() => ai.models.generateContent({
         model: targetModel,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: { temperature: 1.0 }
-      });
+      }));
 
       const text = res.text?.trim().replace(/^["']|["']$/g, '');
       if (text && text.length > 1) return text;
@@ -473,16 +486,16 @@ export async function generateAvatarAI(params: {
 Physical details: ${physicalDescription || 'Keen observant eyes, tailored iconic travel gear'}.
 Output ONLY the raw <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">...</svg> tag without markdown codeblocks.`;
 
-      const res = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
+      const res = await callGeminiWithRetry(() => ai.models.generateContent({
+        model: 'gemini-3.7-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: { temperature: 0.8 }
-      });
+      }));
 
       const text = res.text?.trim() || '';
-      if (text.includes('<svg') && text.includes('</svg>')) {
-        const clean = text.replace(/```xml|```svg|```/g, '').trim();
-        return { avatarUrl: `data:image/svg+xml;utf8,${encodeURIComponent(clean)}` };
+      const svgMatch = text.match(/<svg[\s\S]*?<\/svg>/i);
+      if (svgMatch) {
+        return { avatarUrl: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMatch[0])}` };
       }
     } catch (err: any) {
       console.warn('Gemini Avatar generation error:', err);

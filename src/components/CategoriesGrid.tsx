@@ -138,11 +138,11 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   };
 
   const handleRandomizeHook = async (cat: CategoryInfo) => {
-    const h = await rollSingleFieldAI(cat.id as ExperienceCategory, 'hook', selectedModel);
-    setOpeningPrompt(h);
+    // Reroll everything since the starting hook dictates the whole scenario
+    handleGenerateScenario(cat, true);
   };
 
-  const handleGenerateScenario = async (cat: CategoryInfo) => {
+  const handleGenerateScenario = async (cat: CategoryInfo, forceNew = false) => {
     // First randomize locally so all 5 fields change instantly
     applyRandomSetup(cat.id as ExperienceCategory);
 
@@ -151,9 +151,10 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       const data = await generateScenarioAI({
         category: cat.id as ExperienceCategory,
         model: selectedModel,
-        characterName: charName,
-        classRole: charRole,
-        raceOrigin: charRace
+        // If forceNew is true, don't pass the current state so it invents completely new ones
+        characterName: forceNew ? undefined : charName,
+        classRole: forceNew ? undefined : charRole,
+        raceOrigin: forceNew ? undefined : charRace
       });
 
       if (data && data.scenario) {
@@ -569,15 +570,6 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleRandomizeAll(selectedCategoryModal)}
-                    className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-black font-bold text-[11px] font-mono flex items-center gap-1.5 transition shadow-sm"
-                    title="Instantly re-roll all five fields with fresh random character and hook"
-                  >
-                    <Dice5 className="w-3.5 h-3.5" />
-                    Randomize All 5 Fields
-                  </button>
                   <button
                     type="button"
                     disabled={isGeneratingScenario}

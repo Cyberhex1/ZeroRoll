@@ -13,11 +13,11 @@ import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomSce
 import { generateDynamicSeedlist, CategorySeedInfo } from './seedlists';
 
 function resolveGeminiModelName(model?: string): string {
-  if (!model) return 'gemini-2.5-flash';
+  if (!model) return 'gemini-3.6-flash';
   const clean = model.replace('models/', '');
   if (clean.includes('pro')) return 'gemini-3.1-pro-preview';
-  if (clean.includes('lite')) return 'gemini-2.5-flash';
-  return 'gemini-2.5-flash';
+  if (clean.includes('lite')) return 'gemini-3.6-flash';
+  return 'gemini-3.6-flash';
 }
 
 export function getStoredApiKey(): string {
@@ -420,7 +420,7 @@ Output MUST be strictly valid JSON matching this schema:
 /**
  * Rolls an individual field (Title, Name, Role, Race, Hook) with Gemini AI.
  */
-export async function rollSingleFieldAI(category: ExperienceCategory, fieldType: 'title' | 'heroName' | 'roleClass' | 'raceOrigin' | 'hook', model = 'gemini-2.5-flash'): Promise<string> {
+export async function rollSingleFieldAI(category: ExperienceCategory, fieldType: 'title' | 'heroName' | 'roleClass' | 'raceOrigin' | 'hook', model = 'gemini-3.6-flash'): Promise<string> {
   const apiKey = getStoredApiKey();
   const targetModel = resolveGeminiModelName(model);
 
@@ -474,7 +474,7 @@ Physical details: ${physicalDescription || 'Keen observant eyes, tailored iconic
 Output ONLY the raw <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">...</svg> tag without markdown codeblocks.`;
 
       const res = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         config: { temperature: 0.8 }
       });

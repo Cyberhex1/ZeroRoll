@@ -1,27 +1,27 @@
 import React, { useState } from 'react';
-import { 
-  User, 
-  Lock, 
-  Mail, 
-  Sparkles, 
-  AlertTriangle, 
-  CheckCircle2, 
-  Loader2, 
-  ShieldCheck, 
-  UserPlus, 
-  LogIn, 
-  Eye, 
-  EyeOff, 
+import {
+  User,
+  Lock,
+  Mail,
+  Sparkles,
+  AlertTriangle,
+  CheckCircle2,
+  Loader2,
+  ShieldCheck,
+  UserPlus,
+  LogIn,
+  Eye,
+  EyeOff,
   Globe,
   ExternalLink
 } from 'lucide-react';
-import { 
-  signInWithGoogle, 
+import {
+  signInWithGoogle,
   signInWithGoogleRedirect,
-  signInWithEmail, 
-  signUpWithEmail, 
-  signInAsGuestUser, 
-  getFriendlyAuthErrorMessage 
+  signInWithEmail,
+  signUpWithEmail,
+  signInAsGuestUser,
+  getFriendlyAuthErrorMessage
 } from '../lib/firebase';
 
 interface AuthModalProps {
@@ -43,7 +43,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [displayName, setDisplayName] = useState('');
   const [guestName, setGuestName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isDomainError, setIsDomainError] = useState(false);
@@ -60,8 +60,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     resetState();
     setIsLoading(true);
     try {
-      await signInWithGoogleRedirect();
-      // Note: onSuccess and onClose won't fire here because the page redirects
+      await signInWithGoogle();
+      if (onSuccess) onSuccess();
+      onClose();
     } catch (err: any) {
       const msg = getFriendlyAuthErrorMessage(err);
       setErrorMsg(msg);
@@ -146,12 +147,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-[#111118] border border-amber-500/20 rounded-xl max-w-md w-full p-6 space-y-5 shadow-2xl relative overflow-hidden text-slate-200 animate-in fade-in zoom-in-95 duration-200">
-        
+
         {/* Top ambient glow */}
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-32 bg-amber-500/10 blur-3xl pointer-events-none rounded-full" />
 
         {/* Close Button */}
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-white/5 font-mono text-sm transition"
         >
@@ -175,33 +176,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div className="flex border-b border-white/10 text-xs font-semibold">
           <button
             onClick={() => { setActiveTab('signin'); resetState(); }}
-            className={`flex-1 py-2 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
-              activeTab === 'signin'
+            className={`flex-1 py-2 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${activeTab === 'signin'
                 ? 'border-amber-500 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
+              }`}
           >
             <LogIn className="w-3.5 h-3.5" />
             Sign In
           </button>
           <button
             onClick={() => { setActiveTab('signup'); resetState(); }}
-            className={`flex-1 py-2 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
-              activeTab === 'signup'
+            className={`flex-1 py-2 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${activeTab === 'signup'
                 ? 'border-amber-500 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
+              }`}
           >
             <UserPlus className="w-3.5 h-3.5" />
             Create Account
           </button>
           <button
             onClick={() => { setActiveTab('guest'); resetState(); }}
-            className={`flex-1 py-2 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${
-              activeTab === 'guest'
+            className={`flex-1 py-2 text-center border-b-2 transition flex items-center justify-center gap-1.5 ${activeTab === 'guest'
                 ? 'border-amber-500 text-amber-400 bg-amber-500/5'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
+              }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
             Guest Play
@@ -263,6 +261,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
               <span>Continue with Google</span>
             </button>
+
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={handleGoogleRedirectSignIn}
+                disabled={isLoading}
+                className="text-[10px] text-amber-400/80 hover:text-amber-300 hover:underline font-mono transition flex items-center gap-1"
+              >
+                <ExternalLink className="w-3 h-3" />
+                Popup not opening? Sign in via Full-Page Redirect
+              </button>
+            </div>
 
             <div className="relative flex py-1 items-center">
               <div className="flex-grow border-t border-white/10"></div>

@@ -13,11 +13,11 @@ import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomSce
 import { generateDynamicSeedlist, CategorySeedInfo } from './seedlists';
 
 function resolveGeminiModelName(model?: string): string {
-  if (!model) return 'gemini-3.7-flash';
+  if (!model) return 'gemini-1.5-flash';
   const clean = model.replace('models/', '');
-  if (clean.includes('pro')) return 'gemini-3.1-pro';
-  if (clean.includes('lite')) return 'gemini-3.7-flash';
-  return 'gemini-3.7-flash';
+  if (clean.includes('pro')) return 'gemini-1.5-pro';
+  if (clean.includes('flash')) return 'gemini-1.5-flash';
+  return 'gemini-1.5-flash';
 }
 
 async function callGeminiWithRetry(fn: () => Promise<any>, retries = 3, delay = 3000): Promise<any> {
@@ -26,7 +26,14 @@ async function callGeminiWithRetry(fn: () => Promise<any>, retries = 3, delay = 
   } catch (err: any) {
     const isRetryable = err?.status === 503 || err?.status === 429 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand') || err?.message?.includes('quota') || err?.message?.includes('RESOURCE_EXHAUSTED');
     if (retries > 0 && isRetryable) {
-      await new Promise(r => setTimeout(r, delay));
+      let waitMs = delay;
+      // Extract exact delay if provided by the API (e.g. "Please retry in 27.2s")
+      const delayMatch = err?.message?.match(/retry in ([\d\.]+)s/);
+      if (delayMatch && delayMatch[1]) {
+        waitMs = Math.ceil(parseFloat(delayMatch[1]) * 1000) + 1500; // Add 1.5s buffer
+      }
+      console.log(`[Gemini API] Rate limited. Waiting ${Math.round(waitMs / 1000)}s before retry...`);
+      await new Promise(r => setTimeout(r, waitMs));
       return callGeminiWithRetry(fn, retries - 1, delay * 2);
     }
     throw err;

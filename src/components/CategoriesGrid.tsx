@@ -594,12 +594,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                   <button
                     type="button"
                     disabled={isGeneratingScenario}
-                    onClick={() => handleGenerateScenario(selectedCategoryModal)}
+                    onClick={() => handleGenerateScenario(selectedCategoryModal, true)}
                     className="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono text-amber-300 flex items-center gap-1.5 transition disabled:opacity-50"
                     title="Generate with Gemini AI"
                   >
                     <RefreshCw className={`w-3 h-3 ${isGeneratingScenario ? 'animate-spin' : ''}`} />
-                    AI Re-roll
+                    AI Re-roll All Fields
                   </button>
                 </div>
               </div>

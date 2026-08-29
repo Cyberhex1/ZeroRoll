@@ -64,14 +64,17 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
         characterName: character.name,
         roleClass: character.roleClass,
         raceOrigin: character.raceOrigin,
-        category: (experienceCategory || 'fantasy') as ExperienceCategory
+        category: (experienceCategory || 'fantasy') as ExperienceCategory,
+        physicalDescription: physicalDesc || character.physicalDescription,
+        recentStoryContext: recentStoryContext,
+        model: selectedModel
       });
 
       if (data && data.avatarUrl) {
         onUpdateCharacter({
           ...character,
           avatarUrl: data.avatarUrl,
-          physicalDescription: physicalDesc
+          physicalDescription: physicalDesc || character.physicalDescription
         });
       } else {
         throw new Error('No avatar image was returned.');
@@ -96,43 +99,54 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
   return (
     <div className="rounded-lg bg-[#111118] border border-white/10 p-4 space-y-5 shadow-2xl text-slate-200">
       
-      {/* Hero Header & Portrait */}
+      {/* Hero Header & Dramatic Portrait */}
       <div className="space-y-3 border-b border-white/10 pb-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3.5">
             {character.avatarUrl ? (
-              <div className="relative group">
+              <div className="relative group shrink-0">
                 <img 
                   src={character.avatarUrl} 
                   alt={character.name} 
-                  className="w-14 h-14 rounded-lg object-cover border-2 border-amber-500 shadow-md transition group-hover:opacity-90"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-amber-500 shadow-xl transition group-hover:scale-105"
                 />
                 <button
                   onClick={handleGenerateOrUpdateAvatar}
                   disabled={isGeneratingAvatar}
-                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center text-amber-300 transition text-[10px] font-bold"
+                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 rounded-xl flex flex-col items-center justify-center text-amber-300 transition text-[9px] font-bold gap-1"
                   title="Update avatar to reflect current story"
                 >
                   <RefreshCw className={`w-4 h-4 ${isGeneratingAvatar ? 'animate-spin' : ''}`} />
+                  <span>Update</span>
                 </button>
+                {isGeneratingAvatar && (
+                  <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center">
+                    <RefreshCw className="w-5 h-5 text-amber-400 animate-spin" />
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="w-14 h-14 rounded-lg bg-amber-600/20 border border-amber-600/40 text-amber-300 font-bold font-serif text-xl flex items-center justify-center shadow">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-amber-600/20 border-2 border-amber-500/40 text-amber-300 font-bold font-serif text-2xl flex items-center justify-center shadow-lg shrink-0">
                 {character.name[0] || 'H'}
               </div>
             )}
 
             <div>
-              <h2 className="text-lg font-bold text-amber-50 font-serif leading-tight">{character.name}</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-amber-50 font-serif leading-tight">{character.name}</h2>
               <p className="text-xs text-amber-400/90 font-mono mt-0.5">
                 Level {character.level} • {character.raceOrigin} • {character.roleClass}
               </p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] font-mono text-slate-400 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
+              <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                {character.gender && (
+                  <span className="text-[10px] font-mono text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-600/30 flex items-center gap-1 font-semibold">
+                    {character.gender}
+                  </span>
+                )}
+                <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
                   <Shield className="w-2.5 h-2.5 text-amber-400" />
                   AC {character.armorClass}
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
+                <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
                   <Zap className="w-2.5 h-2.5 text-amber-400" />
                   Init +{character.initiativeBonus}
                 </span>
@@ -141,29 +155,29 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
           </div>
         </div>
 
-        {/* AI Avatar Builder & Updater */}
+        {/* AI Dramatic Avatar Generator & Story Evolution */}
         <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold flex items-center gap-1.5">
               <Camera className="w-3 h-3 text-amber-400" />
-              {character.avatarUrl ? 'Character Portrait (Story-Synced)' : 'Generate AI Character Avatar'}
+              Dramatic Cartoon Character Portrait
             </label>
             {character.avatarUrl && (
               <span className="text-[9px] font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-1.5 py-0.5 rounded">
-                Active Portrait
+                Story-Synced
               </span>
             )}
           </div>
 
           <p className="text-[11px] text-slate-400">
-            Enter a physical description (hair, armor, distinctive scars, build) and click below to render an avatar matched to where you are in the story.
+            Customize physical details (posture, attire, eyes, heirloom items, scars). Gemini will render a dramatic cartoonized profile picture matched to where you are in the story.
           </p>
 
           <textarea
             rows={2}
             value={physicalDesc}
             onChange={(e) => setPhysicalDesc(e.target.value)}
-            placeholder="e.g. Amber eyes, dark leather cloak with silver embroidery, battle-hardened expression, scarred cheek..."
+            placeholder="e.g. Simple hotel staff attire with impeccable regal posture, piercing sapphire eyes, carrying an antique heirloom ring..."
             className="w-full bg-[#111118] border border-white/10 rounded p-2 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 resize-none font-sans"
           />
 
@@ -178,7 +192,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
               className="px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-black text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isGeneratingAvatar ? 'animate-spin' : ''}`} />
-              {character.avatarUrl ? 'Update Avatar (Reflect Story)' : 'Generate Avatar'}
+              {character.avatarUrl ? 'Update Avatar (Reflect Story)' : 'Generate Dramatic Portrait'}
             </button>
           </div>
         </div>
@@ -220,20 +234,20 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
         <h3 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-2">
           Ability Scores & Skill Checks (Click to Roll)
         </h3>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+        <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-3 xl:grid-cols-6 gap-1.5 sm:gap-2">
           {statsList.map((st) => (
             <button
               key={st.key}
               onClick={() => onRollStat(st.name, getModValue(st.val))}
-              className="p-2 rounded bg-[#0A0A0F] border border-white/10 hover:border-amber-600/50 hover:bg-white/5 transition flex flex-col items-center justify-center text-center group"
+              className="p-2 sm:p-2.5 rounded-lg bg-[#0A0A0F] border border-white/10 hover:border-amber-600/50 hover:bg-white/5 active:scale-95 transition flex flex-col items-center justify-center text-center group shadow-sm"
             >
-              <span className="text-[9px] font-bold text-slate-400 font-mono group-hover:text-amber-300">
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 font-mono group-hover:text-amber-300">
                 {st.label}
               </span>
-              <span className="text-sm font-extrabold text-amber-300 my-0.5 font-mono">
+              <span className="text-sm sm:text-base font-extrabold text-amber-300 my-0.5 font-mono">
                 {computeModifier(st.val)}
               </span>
-              <span className="text-[8px] text-slate-500 font-mono">
+              <span className="text-[8px] sm:text-[9px] text-slate-500 font-mono">
                 {st.val}
               </span>
             </button>

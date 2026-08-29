@@ -7,17 +7,198 @@ import {
   PendingCheck, 
   StateDelta, 
   DiceRollResult,
-  LogMessage
+  LogMessage,
+  AvatarEvolution,
+  ActionTurnResult,
+  DMStoryOutline
 } from '../types';
 import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomScenarios';
-import { generateDynamicSeedlist, CategorySeedInfo } from './seedlists';
+import { generateDynamicSeedlist, CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
+import { buildGroundedSeedContext, getCategoryNarrativeProfile } from './narrativeProfiles';
+import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 
+// Fallback Gemini models for cascading
 export const FALLBACK_MODELS = [
   'gemini-3.5-flash',
   'gemini-3.5-flash-lite',
   'gemini-3.1-flash-lite',
   'gemini-3.6-flash'
 ];
+
+/* -------------------------------------------------------------------------- */
+/*                        PROVIDER CONFIGURATION & STORAGE                    */
+/* -------------------------------------------------------------------------- */
+
+export function getActiveProvider(): AIProviderId {
+  try {
+    const saved = localStorage.getItem('zeroroll_ai_provider');
+    if (saved && AI_PROVIDERS[saved as AIProviderId]) {
+      return saved as AIProviderId;
+    }
+  } catch (_) {}
+  return DEFAULT_AI_PROVIDER;
+}
+
+export function setActiveProvider(provider: AIProviderId): void {
+  try {
+    localStorage.setItem('zeroroll_ai_provider', provider);
+  } catch (_) {}
+}
+
+export function getProviderKey(provider: AIProviderId): string {
+  try {
+    // 1. Direct per-provider storage
+    const perProvider = localStorage.getItem(`zeroroll_key_${provider}`);
+    if (perProvider && perProvider.trim()) return perProvider.trim();
+
+    // 2. Legacy key compatibility
+    if (provider === 'gemini') {
+      const legacyGemini = localStorage.getItem('dnd_gemini_api_key');
+      if (legacyGemini && legacyGemini.trim()) return legacyGemini.trim();
+      const envKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
+      if (envKey && envKey.trim()) return envKey.trim();
+      if (firebaseConfig && firebaseConfig.apiKey) return firebaseConfig.apiKey.trim();
+    }
+  } catch (_) {}
+  return '';
+}
+
+export function setProviderKey(provider: AIProviderId, key: string): void {
+  try {
+    if (key && key.trim()) {
+      localStorage.setItem(`zeroroll_key_${provider}`, key.trim());
+      if (provider === 'gemini') {
+        localStorage.setItem('dnd_gemini_api_key', key.trim());
+      }
+    } else {
+      localStorage.removeItem(`zeroroll_key_${provider}`);
+      if (provider === 'gemini') {
+        localStorage.removeItem('dnd_gemini_api_key');
+      }
+    }
+  } catch (_) {}
+}
+
+export function getProviderModel(provider: AIProviderId): string {
+  try {
+    const saved = localStorage.getItem(`zeroroll_model_${provider}`);
+    if (saved && saved.trim()) return saved.trim();
+  } catch (_) {}
+  return AI_PROVIDERS[provider]?.defaultModel || 'gemini-3.5-flash';
+}
+
+export function setProviderModel(provider: AIProviderId, model: string): void {
+  try {
+    if (model && model.trim()) {
+      localStorage.setItem(`zeroroll_model_${provider}`, model.trim());
+    } else {
+      localStorage.removeItem(`zeroroll_model_${provider}`);
+    }
+  } catch (_) {}
+}
+
+export function getProviderBaseUrl(provider: AIProviderId): string {
+  try {
+    const custom = localStorage.getItem(`zeroroll_baseurl_${provider}`);
+    if (custom && custom.trim()) return custom.trim();
+  } catch (_) {}
+  return AI_PROVIDERS[provider]?.defaultBaseUrl || '';
+}
+
+export function setProviderBaseUrl(provider: AIProviderId, url: string): void {
+  try {
+    if (url && url.trim()) {
+      localStorage.setItem(`zeroroll_baseurl_${provider}`, url.trim());
+    } else {
+      localStorage.removeItem(`zeroroll_baseurl_${provider}`);
+    }
+  } catch (_) {}
+}
+
+// Export and import provider settings for cloud synchronization
+export function exportAllProviderSettings(): {
+  activeProvider: AIProviderId;
+  providerKeys: Record<string, string>;
+  providerModels: Record<string, string>;
+  providerBaseUrls: Record<string, string>;
+} {
+  const providerKeys: Record<string, string> = {};
+  const providerModels: Record<string, string> = {};
+  const providerBaseUrls: Record<string, string> = {};
+
+  const providerIds = Object.keys(AI_PROVIDERS) as AIProviderId[];
+  for (const pid of providerIds) {
+    const k = getProviderKey(pid);
+    if (k) providerKeys[pid] = k;
+    const m = getProviderModel(pid);
+    if (m && m !== AI_PROVIDERS[pid]?.defaultModel) providerModels[pid] = m;
+    const u = getProviderBaseUrl(pid);
+    if (u && u !== AI_PROVIDERS[pid]?.defaultBaseUrl) providerBaseUrls[pid] = u;
+  }
+
+  return {
+    activeProvider: getActiveProvider(),
+    providerKeys,
+    providerModels,
+    providerBaseUrls
+  };
+}
+
+export function importAllProviderSettings(settings?: {
+  activeProvider?: string;
+  providerKeys?: Record<string, string>;
+  providerModels?: Record<string, string>;
+  providerBaseUrls?: Record<string, string>;
+}): void {
+  if (!settings) return;
+  if (settings.activeProvider && AI_PROVIDERS[settings.activeProvider as AIProviderId]) {
+    setActiveProvider(settings.activeProvider as AIProviderId);
+  }
+  if (settings.providerKeys) {
+    for (const [pid, key] of Object.entries(settings.providerKeys)) {
+      if (key) setProviderKey(pid as AIProviderId, key);
+    }
+  }
+  if (settings.providerModels) {
+    for (const [pid, model] of Object.entries(settings.providerModels)) {
+      if (model) setProviderModel(pid as AIProviderId, model);
+    }
+  }
+  if (settings.providerBaseUrls) {
+    for (const [pid, url] of Object.entries(settings.providerBaseUrls)) {
+      if (url) setProviderBaseUrl(pid as AIProviderId, url);
+    }
+  }
+}
+
+// Backward compatibility helper functions
+export function getStoredApiKey(): string {
+  return getProviderKey(getActiveProvider());
+}
+
+export function saveStoredApiKey(apiKey: string): void {
+  setProviderKey(getActiveProvider(), apiKey);
+}
+
+export function getCustomApiKey(): string {
+  return getStoredApiKey();
+}
+
+export function hasActiveGeminiKey(): boolean {
+  const provider = getActiveProvider();
+  const key = getProviderKey(provider);
+  // Custom local LLM might not require a key if local
+  if (provider === 'custom') return true;
+  return key.length > 5;
+}
+
+export function hasActiveAIKey(): boolean {
+  return hasActiveGeminiKey();
+}
+
+/* -------------------------------------------------------------------------- */
+/*                         MODEL RESOLUTION & HELPERS                         */
+/* -------------------------------------------------------------------------- */
 
 function resolveGeminiModelName(model?: string): string {
   if (!model) return 'gemini-3.5-flash';
@@ -29,75 +210,309 @@ function resolveGeminiModelName(model?: string): string {
   return 'gemini-3.5-flash';
 }
 
-async function callGeminiWithRetry(fn: (modelName?: string) => Promise<any>, retries = 2, delay = 1500, modelIndex = 0): Promise<any> {
-  const currentModel = FALLBACK_MODELS[modelIndex] || 'gemini-3.5-flash';
-  try {
-    return await fn(currentModel);
-  } catch (err: any) {
-    const isQuotaExhausted = err?.status === 429 || err?.message?.includes('RESOURCE_EXHAUSTED') || err?.message?.includes('quota');
-    const isUnavailable = err?.status === 503 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand');
-    
-    // If quota is exhausted on this specific model, cascade to the next model immediately!
-    if (isQuotaExhausted && modelIndex + 1 < FALLBACK_MODELS.length) {
-      const nextModel = FALLBACK_MODELS[modelIndex + 1];
-      console.log(`[Gemini API] Quota reached on ${currentModel}. Cascading to fallback model: ${nextModel}`);
-      return callGeminiWithRetry(fn, retries, delay, modelIndex + 1);
-    }
+/* -------------------------------------------------------------------------- */
+/*                  UNIVERSAL CLIENT-SIDE MULTI-PROVIDER CALLER               */
+/* -------------------------------------------------------------------------- */
 
-    if (retries > 0 && (isUnavailable || isQuotaExhausted)) {
-      let waitMs = delay;
-      const delayMatch = err?.message?.match(/retry in ([\d\.]+)s/);
-      if (delayMatch && delayMatch[1]) {
-        waitMs = Math.min(Math.ceil(parseFloat(delayMatch[1]) * 1000), 5000);
-      }
-      console.log(`[Gemini API] Retrying in ${waitMs}ms...`);
-      await new Promise(r => setTimeout(r, waitMs));
-      return callGeminiWithRetry(fn, retries - 1, delay * 2, modelIndex);
-    }
-    throw err;
-  }
-}
-
-export function getStoredApiKey(): string {
-  try {
-    const custom = localStorage.getItem('dnd_gemini_api_key');
-    if (custom && custom.trim()) return custom.trim();
-    const envKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
-    if (envKey && envKey.trim()) return envKey.trim();
-    if (firebaseConfig && firebaseConfig.apiKey) return firebaseConfig.apiKey.trim();
-  } catch (_) {}
-  return '';
-}
-
-export function saveStoredApiKey(apiKey: string): void {
-  try {
-    if (apiKey && apiKey.trim()) {
-      localStorage.setItem('dnd_gemini_api_key', apiKey.trim());
-    } else {
-      localStorage.removeItem('dnd_gemini_api_key');
-    }
-  } catch (_) {}
-}
-
-export function getCustomApiKey(): string {
-  return getStoredApiKey();
-}
-
-export function hasActiveGeminiKey(): boolean {
-  return getStoredApiKey().length > 5;
-}
-
-export interface ActionTurnResult {
-  text: string;
-  suggestedActions: string[];
-  courseChangeAlert?: CourseChangeAlert | null;
-  requiredCheck?: PendingCheck | null;
-  stateDelta?: StateDelta | null;
-  modelUsed: string;
+export interface UniversalPromptOptions {
+  systemPrompt?: string;
+  userPrompt: string;
+  temperature?: number;
+  responseJson?: boolean;
 }
 
 /**
- * Executes a player's narrative turn with Gemini AI.
+ * Executes a raw prompt against the currently configured AI provider.
+ */
+export async function executeUniversalPrompt(options: UniversalPromptOptions): Promise<string> {
+  const provider = getActiveProvider();
+  const apiKey = getProviderKey(provider);
+  const model = getProviderModel(provider);
+  const customBaseUrl = getProviderBaseUrl(provider);
+
+  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false } = options;
+
+  // 1. Google Gemini Provider
+  if (provider === 'gemini') {
+    if (!apiKey) throw new Error('Missing Google Gemini API Key. Please configure your key in Settings.');
+    return callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson);
+  }
+
+  // 2. Anthropic Claude Provider (Direct client fetch)
+  if (provider === 'anthropic') {
+    if (!apiKey) throw new Error('Missing Anthropic API Key. Please configure your key in Settings.');
+    return callAnthropicApi(apiKey, model, systemPrompt, userPrompt, temperature, responseJson);
+  }
+
+  // 3. OpenAI-Compatible Providers (OpenAI, Grok, OpenRouter, Copilot/GitHub, Custom)
+  const baseUrl = customBaseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
+  return callOpenAICompatibleApi(provider, apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            GEMINI IMPLEMENTATION                           */
+/* -------------------------------------------------------------------------- */
+
+async function callGeminiWithCascade(
+  apiKey: string,
+  model: string,
+  systemPrompt: string | undefined,
+  userPrompt: string,
+  temperature: number,
+  responseJson: boolean
+): Promise<string> {
+  const targetModel = resolveGeminiModelName(model);
+
+  const callModel = async (modelName: string, retries = 2, delay = 1500, modelIndex = 0): Promise<string> => {
+    const currentModel = modelIndex === 0 ? modelName : (FALLBACK_MODELS[modelIndex] || modelName);
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const config: any = {
+        temperature
+      };
+      if (systemPrompt) {
+        config.systemInstruction = systemPrompt;
+      }
+      if (responseJson) {
+        config.responseMimeType = 'application/json';
+      }
+
+      const response = await ai.models.generateContent({
+        model: currentModel,
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        config
+      });
+
+      return response.text || '';
+    } catch (err: any) {
+      const isQuotaExhausted = err?.status === 429 || err?.message?.includes('RESOURCE_EXHAUSTED') || err?.message?.includes('quota');
+      const isUnavailable = err?.status === 503 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand');
+
+      // Auto cascade to next model on quota exhaustion
+      if (isQuotaExhausted && modelIndex + 1 < FALLBACK_MODELS.length) {
+        const nextModel = FALLBACK_MODELS[modelIndex + 1];
+        console.log(`[Gemini Cascade] Quota reached on ${currentModel}. Falling back to ${nextModel}...`);
+        return callModel(modelName, retries, delay, modelIndex + 1);
+      }
+
+      if (retries > 0 && (isUnavailable || isQuotaExhausted)) {
+        let waitMs = delay;
+        const delayMatch = err?.message?.match(/retry in ([\d\.]+)s/);
+        if (delayMatch && delayMatch[1]) {
+          waitMs = Math.min(Math.ceil(parseFloat(delayMatch[1]) * 1000), 5000);
+        }
+        await new Promise(r => setTimeout(r, waitMs));
+        return callModel(modelName, retries - 1, delay * 2, modelIndex);
+      }
+      throw err;
+    }
+  };
+
+  return callModel(targetModel);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       OPENAI COMPATIBLE IMPLEMENTATION                     */
+/* -------------------------------------------------------------------------- */
+
+async function callOpenAICompatibleApi(
+  provider: AIProviderId,
+  apiKey: string,
+  baseUrl: string,
+  model: string,
+  systemPrompt: string | undefined,
+  userPrompt: string,
+  temperature: number,
+  responseJson: boolean
+): Promise<string> {
+  const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json'
+  };
+
+  if (apiKey && apiKey.trim()) {
+    headers['Authorization'] = `Bearer ${apiKey.trim()}`;
+  }
+
+  // OpenRouter specific attribution headers
+  if (provider === 'openrouter') {
+    headers['HTTP-Referer'] = 'https://zeroroll.app';
+    headers['X-Title'] = 'ZeroRoll TTRPG Engine';
+  }
+
+  const messages: Array<{ role: string; content: string }> = [];
+  if (systemPrompt) {
+    messages.push({ role: 'system', content: systemPrompt });
+  }
+  messages.push({ role: 'user', content: userPrompt });
+
+  const body: any = {
+    model: model || 'gpt-4o-mini',
+    messages,
+    temperature
+  };
+
+  if (responseJson) {
+    // Only pass json_object if supported
+    if (provider === 'openai' || provider === 'openrouter' || provider === 'grok') {
+      body.response_format = { type: 'json_object' };
+    }
+  }
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.text();
+    let parsedMsg = errorBody;
+    try {
+      const json = JSON.parse(errorBody);
+      parsedMsg = json.error?.message || json.message || errorBody;
+    } catch (_) {}
+    throw new Error(`[${AI_PROVIDERS[provider]?.name || provider}] API Error (${res.status}): ${parsedMsg}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || '';
+  return typeof content === 'string' ? content : JSON.stringify(content);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                          ANTHROPIC CLAUDE IMPLEMENTATION                   */
+/* -------------------------------------------------------------------------- */
+
+async function callAnthropicApi(
+  apiKey: string,
+  model: string,
+  systemPrompt: string | undefined,
+  userPrompt: string,
+  temperature: number,
+  responseJson: boolean
+): Promise<string> {
+  const url = 'https://api.anthropic.com/v1/messages';
+  
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-api-key': apiKey.trim(),
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true'
+  };
+
+  let actualUserPrompt = userPrompt;
+  if (responseJson) {
+    actualUserPrompt += '\n\nIMPORTANT: Respond ONLY with valid, parseable JSON with no markdown wrapping.';
+  }
+
+  const body: any = {
+    model: model || 'claude-3-5-haiku-20241022',
+    max_tokens: 2048,
+    temperature,
+    messages: [
+      { role: 'user', content: actualUserPrompt }
+    ]
+  };
+
+  if (systemPrompt) {
+    body.system = systemPrompt;
+  }
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.text();
+    let parsedMsg = errorBody;
+    try {
+      const json = JSON.parse(errorBody);
+      parsedMsg = json.error?.message || json.message || errorBody;
+    } catch (_) {}
+    throw new Error(`[Anthropic Claude] API Error (${res.status}): ${parsedMsg}`);
+  }
+
+  const data = await res.json();
+  const textBlock = data.content?.find((c: any) => c.type === 'text');
+  return textBlock?.text || '';
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       CONNECTION TESTER FOR THE UI                         */
+/* -------------------------------------------------------------------------- */
+
+export async function testProviderConnection(params: {
+  provider: AIProviderId;
+  apiKey?: string;
+  model?: string;
+  baseUrl?: string;
+}): Promise<{ success: boolean; latencyMs: number; message: string; reply?: string }> {
+  const { provider, apiKey = '', model, baseUrl } = params;
+  const start = Date.now();
+
+  try {
+    const targetModel = model || AI_PROVIDERS[provider]?.defaultModel;
+    let reply = '';
+
+    if (provider === 'gemini') {
+      if (!apiKey.trim()) throw new Error('API Key cannot be empty.');
+      const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
+      const res = await ai.models.generateContent({
+        model: resolveGeminiModelName(targetModel),
+        contents: [{ role: 'user', parts: [{ text: 'Respond in 3 words: Ready for Adventure!' }] }]
+      });
+      reply = res.text?.trim() || '';
+    } else if (provider === 'anthropic') {
+      if (!apiKey.trim()) throw new Error('Anthropic API Key cannot be empty.');
+      reply = await callAnthropicApi(
+        apiKey.trim(),
+        targetModel,
+        undefined,
+        'Respond in 3 words: Ready for Adventure!',
+        0.7,
+        false
+      );
+    } else {
+      const actualBaseUrl = baseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
+      reply = await callOpenAICompatibleApi(
+        provider,
+        apiKey.trim(),
+        actualBaseUrl,
+        targetModel,
+        undefined,
+        'Respond in 3 words: Ready for Adventure!',
+        0.7,
+        false
+      );
+    }
+
+    const latencyMs = Date.now() - start;
+    return {
+      success: true,
+      latencyMs,
+      message: `Connected successfully in ${latencyMs}ms!`,
+      reply
+    };
+  } catch (err: any) {
+    const latencyMs = Date.now() - start;
+    return {
+      success: false,
+      latencyMs,
+      message: err.message || 'Failed to connect to provider.'
+    };
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        GAMEPLAY AI FEATURE ENDPOINTS                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Executes a player's narrative turn with the configured AI provider or procedural fallback.
  */
 export async function executeActionTurn(params: {
   contents: string;
@@ -106,19 +521,40 @@ export async function executeActionTurn(params: {
   systemInstruction?: string;
   characterState?: any;
   diceRoll?: DiceRollResult;
+  storyOutline?: DMStoryOutline;
 }): Promise<ActionTurnResult> {
-  const { contents, category, model, systemInstruction, characterState, diceRoll } = params;
-    const apiKey = getStoredApiKey();
-  const targetModel = resolveGeminiModelName(model);
+  const { contents, category, model, systemInstruction, characterState, diceRoll, storyOutline } = params;
+  const provider = getActiveProvider();
+  const providerConfig = AI_PROVIDERS[provider];
+  const hasKey = hasActiveGeminiKey();
 
-  // 1. Direct client-side Gemini AI Execution
-  if (apiKey) {
+  if (hasKey) {
     try {
-      const ai = new GoogleGenAI({ apiKey });
-
+      const narrativeCorpus = buildGroundedSeedContext(category, contents);
       const promptInstruction = systemInstruction || `You are the master narrative author and Game Master for an interactive tabletop campaign in the "${category}" genre with D&D 5e mechanics.
-Address the player as "you". Keep the narrative in present tense.
-React dynamically to player choices, maintaining excitement, atmosphere, and authentic stakes.
+
+${narrativeCorpus}
+
+${storyOutline ? `DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference - NOT a rigid script):
+- Starting Circumstances: ${storyOutline.startingCircumstances}
+- Backstory: ${storyOutline.backstory}
+- Inciting Incident: ${storyOutline.incitingIncident}
+- Immediate Goal: ${storyOutline.immediateGoal}
+- Key NPCs: ${storyOutline.keyNpcs?.map(n => `${n.name} (${n.role}, Motivation: ${n.motivation}${n.secret ? `, Secret: ${n.secret}` : ''})`).join('; ') || 'None'}
+- Major Conflicts: ${storyOutline.majorConflicts?.join('; ') || 'None'}
+- Hidden Secrets / Reveals: ${storyOutline.secretsAndReveals?.join('; ') || 'None'}
+- Act Progression: Act 1: ${storyOutline.actProgression?.act1 || ''} | Act 2: ${storyOutline.actProgression?.act2 || ''} | Act 3: ${storyOutline.actProgression?.act3 || ''}
+
+ROADMAP GM PRINCIPLES:
+1. DYNAMIC ADAPTATION: The outline is a living roadmap, not a railroad script. Player decisions shape reality. If the player outsmarts an obstacle, befriends an enemy, or takes an unexpected path, adapt the story organically.
+2. TIMELINE INTEGRITY: What is happening right now is the present scene. Never casually reveal or treat future act developments as though they have already occurred.` : ''}
+
+GAMEPLAY GM DIRECTIVES:
+- Address the player as "you". Keep the narrative in present tense.
+- Faithfully reflect the category's narrative profile: voice, atmospheric sensory details, scene architecture, and dramatic pacing.
+- The player's actions, choices, and premise are authoritative. Ground your storytelling craft and encounter emergence in the category profile without overriding the player's choices.
+- React dynamically to player rolls and decisions, maintaining excitement, atmosphere, and authentic stakes.
+
 Output a state update block if inventory, conditions, or HP change:
 ---STATE_UPDATE---
 HP_DELTA: <-3 or +4 or 0>
@@ -128,6 +564,13 @@ CONDITIONS_ADDED: ["Condition Name"]
 CONDITIONS_REMOVED: ["Condition Name"]
 LOCATION: <Location Name>
 ---END_STATE_UPDATE---
+
+If a MAJOR STORY BEAT or visual change occurs (e.g. Leveling up, acquiring visible legendary weapon/armor, suffering visible battle scars/burns, magical transformation, surviving a boss climax), output:
+---AVATAR_EVOLUTION---
+EVOLVED: true
+REASON: <Brief explanation of visual change, e.g. "Wields the blazing runic sword, donning scorched wyrmscale armor">
+PHYSICAL_DESCRIPTION: <Updated complete physical appearance description reflecting current story state>
+---END_AVATAR_EVOLUTION---
 
 If an event changes the course of the story, output:
 ---COURSE_TRIGGER---
@@ -151,26 +594,42 @@ At the end, provide 3 suggested actions formatted as:
 [2] Action 2
 [3] Action 3`;
 
-      const userMessage = `Character: ${characterState?.name || 'Hero'}, a Level ${characterState?.level || 1} ${characterState?.raceOrigin || 'Human'} ${characterState?.roleClass || 'Adventurer'} (HP: ${characterState?.hp || 12}/${characterState?.maxHp || 12}).
+      const userMessage = `Character: ${characterState?.name || 'Hero'} (Gender/Pronouns: ${characterState?.gender || 'they/them'}), a Level ${characterState?.level || 1} ${characterState?.raceOrigin || 'Human'} ${characterState?.roleClass || 'Adventurer'} (HP: ${characterState?.hp || 12}/${characterState?.maxHp || 12}).
 Recent Story Log:
 ${contents}
 
 ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}`;
 
-      const response = await callGeminiWithRetry((m) => ai.models.generateContent({
-        model: m || targetModel,
-        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        config: {
-          systemInstruction: promptInstruction,
-          temperature: 0.9
-        }
-      }));
+      let text = await executeUniversalPrompt({
+        systemPrompt: promptInstruction,
+        userPrompt: userMessage,
+        temperature: 0.9
+      });
 
-      let text = response.text || '';
       let suggestedActions: string[] = [];
       let courseChangeAlert: any = null;
       let requiredCheck: any = null;
       let stateDelta: any = null;
+      let avatarEvolution: AvatarEvolution | null = null;
+
+      // Parse Avatar Evolution
+      if (text.includes('---AVATAR_EVOLUTION---')) {
+        const match = text.match(/---AVATAR_EVOLUTION---([\s\S]*?)---END_AVATAR_EVOLUTION---/);
+        if (match) {
+          const block = match[1];
+          const evolvedMatch = block.match(/EVOLVED:\s*(true|yes)/i);
+          const reasonMatch = block.match(/REASON:\s*(.+)/i);
+          const descMatch = block.match(/PHYSICAL_DESCRIPTION:\s*(.+)/i);
+          if (evolvedMatch) {
+            avatarEvolution = {
+              evolved: true,
+              visualChangeReason: reasonMatch ? reasonMatch[1].trim() : 'Hero visually transformed after a pivotal story beat.',
+              updatedPhysicalDescription: descMatch ? descMatch[1].trim() : undefined
+            };
+          }
+          text = text.replace(/---AVATAR_EVOLUTION---[\s\S]*?---END_AVATAR_EVOLUTION---/, '').trim();
+        }
+      }
 
       // Parse State Update
       if (text.includes('---STATE_UPDATE---')) {
@@ -198,11 +657,10 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
           const descMatch = block.match(/DESCRIPTION:\s*(.+)/i);
           courseChangeAlert = {
             id: `alert_${Date.now()}`,
-            title: titleMatch ? titleMatch[1].trim() : 'Story Escalation',
-            type: typeMatch ? typeMatch[1].trim().toLowerCase() : 'course_change',
-            subtitle: subtitleMatch ? subtitleMatch[1].trim() : 'A turning point has arrived!',
-            description: descMatch ? descMatch[1].trim() : 'Events shift dynamically.',
-            timestamp: new Date().toISOString()
+            title: titleMatch ? titleMatch[1].trim() : 'Story Shift',
+            type: (typeMatch ? typeMatch[1].trim() : 'course_change') as any,
+            subtitle: subtitleMatch ? subtitleMatch[1].trim() : 'A turning point unfolds',
+            description: descMatch ? descMatch[1].trim() : 'The circumstances of your adventure have evolved.'
           };
           text = text.replace(/---COURSE_TRIGGER---[\s\S]*?---END_TRIGGER---/, '').trim();
         }
@@ -217,13 +675,11 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
           const statMatch = block.match(/STAT:\s*(.+)/i);
           const dcMatch = block.match(/DC:\s*(\d+)/i);
           const reasonMatch = block.match(/REASON:\s*(.+)/i);
-          const dcVal = dcMatch ? parseInt(dcMatch[1], 10) : 13;
           requiredCheck = {
             skill: skillMatch ? skillMatch[1].trim() : 'Perception',
-            stat: statMatch ? statMatch[1].trim().toLowerCase() : 'wis',
-            dc: dcVal,
-            reason: reasonMatch ? reasonMatch[1].trim() : 'A check is required before proceeding.',
-            difficultyLabel: dcVal <= 10 ? 'Easy' : dcVal <= 14 ? 'Medium' : dcVal <= 18 ? 'Hard' : 'Heroic'
+            stat: (statMatch ? statMatch[1].trim().toLowerCase() : 'wis') as any,
+            dc: dcMatch ? parseInt(dcMatch[1], 10) : 12,
+            reason: reasonMatch ? reasonMatch[1].trim() : 'Resolve the challenge.'
           };
           text = text.replace(/---CHECK_REQUIRED---[\s\S]*?---END_CHECK---/, '').trim();
         }
@@ -233,78 +689,118 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
       if (text.includes('---OPTIONS---')) {
         const parts = text.split('---OPTIONS---');
         text = parts[0].trim();
-        const opts = parts[1] || '';
-        suggestedActions = opts
-          .split('\n')
-          .map(l => l.replace(/^\[\d+\]\s*|^-\s*|^\d+[\.\)]\s*/, '').trim())
-          .filter(l => l.length > 2);
+        const optionsBlock = parts[1] || '';
+        const lines = optionsBlock.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        suggestedActions = lines
+          .map(l => l.replace(/^\[\d+\]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim())
+          .filter(l => l.length > 0);
       }
 
-      if (suggestedActions.length < 3) {
+      // Fallback suggested actions
+      if (suggestedActions.length === 0) {
         suggestedActions = [
-          'Carefully inspect the immediate environment for hidden clues',
-          'Interact directly with the nearest entity or focal point',
-          'Take a guarded stance and prepare your primary ability'
+          'Investigate your immediate surroundings with caution',
+          'Speak with the nearest person or examine the central dilemma',
+          'Ready your equipment and prepare for action'
         ];
       }
 
+      const activeModelName = getProviderModel(provider);
       return {
         text,
         suggestedActions: suggestedActions.slice(0, 3),
         courseChangeAlert,
         requiredCheck,
         stateDelta,
-        modelUsed: `${targetModel} (Gemini AI Engine)`
+        avatarEvolution,
+        modelUsed: `${providerConfig?.name || provider} (${activeModelName})`
       };
     } catch (err: any) {
-      console.warn('Gemini API execution error:', err);
-      // We explicitly throw here so the UI can display API errors (e.g., "API Not Enabled")
-      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate content'}`);
+      console.warn('AI execution error, falling back to procedural:', err);
+      throw new Error(`${providerConfig?.name || 'AI'} Error: ${err.message || 'Failed to generate content'}`);
     }
   }
 
-  // Fallback procedural turn if NO api key is provided at all
-  return generateProceduralTurn(category, contents, characterState, diceRoll, targetModel);
+  // Fallback procedural turn if NO api key is provided
+  return generateProceduralTurn(category, contents, characterState, diceRoll, model);
 }
 
 /**
- * Generates a completely randomized 5-field campaign setup using Gemini AI.
+ * Generates a completely randomized 5-field campaign setup using AI or procedural engine.
+ * Considers user prompt/concept deeply to craft genre-authentic character details.
  */
 export async function generateScenarioAI(params: {
   category: ExperienceCategory;
-  model: string;
+  model?: string;
+  userPrompt?: string;
+  gender?: string;
   characterName?: string;
   classRole?: string;
   raceOrigin?: string;
 }): Promise<{ scenario: RandomizedScenarioData }> {
-  const { category, model, characterName, classRole, raceOrigin } = params;
-  const apiKey = getStoredApiKey();
-  const targetModel = resolveGeminiModelName(model);
+  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin } = params;
+  const hasKey = hasActiveGeminiKey();
 
-  if (apiKey) {
+  if (hasKey) {
     try {
-      const ai = new GoogleGenAI({ apiKey });
-      const prompt = `You are a master tabletop RPG Game Master and worldbuilder.
-Generate a COMPLETELY ORIGINAL, randomized starting campaign setup for a "${category}" tabletop roleplaying experience.
-Every single field MUST be uniquely invented and fresh (Act 1, Scene 1 opening).
+      const narrativeCorpus = buildGroundedSeedContext(category, userPrompt);
+      const prompt = `You are a master tabletop RPG Game Master, author, and worldbuilder.
 
-${characterName ? `Hero Name to use: "${characterName}"` : 'Invent a unique, memorable first and last name.'}
-${classRole ? `Class/Role to use: "${classRole}"` : 'Invent a creative class/archetype matching the genre.'}
-${raceOrigin ? `Origin/Heritage to use: "${raceOrigin}"` : 'Invent an evocative race or origin.'}
+${narrativeCorpus}
 
-Output MUST be strictly valid JSON matching this schema:
+CREATIVE ASSIGNMENT:
+Generate a COMPLETELY ORIGINAL starting campaign setup (Act 1, Scene 1 opening) and an internal DM Story Outline for a "${category}" tabletop roleplaying experience.
+Every single field MUST be uniquely invented, highly imaginative, and deeply grounded in the category's narrative profile and learned corpus patterns above.
+
+CRITICAL CAUSAL BEGINNING & ANTI-SKIPPING DIRECTIVE:
+1. START AT THE GENUINE NARRATIVE BEGINNING: The opening scene MUST start at the earliest meaningful point where the player experiences the story unfolding:
+   [Starting situation] -> [Inciting incident] -> [Immediate consequences] -> [Player agency].
+2. DO NOT SKIP TO THE LATE-GAME PAYOFF: If a premise involves a disowned heir who eventually becomes a billionaire and gets revenge on their brother, DO NOT start the story with them already sitting on a throne owning everything! Start at the moment of the betrayal, the cast-out, or the urgent return to face the crisis. The payoff must be earned through play!
+3. INTERNAL GM CHECK: Ask yourself: "If I started the player here, would they be experiencing the story, or arriving after the interesting part already happened?" Always pick the true starting dilemma.
+4. FLASHBACK USAGE: If critical backstory is essential, a concise flashback may occupy 1/3 to 1/2 of the opening hook, but the active scene must firmly land in the present dilemma where the player has immediate agency.
+
+CRITICAL USER AUTHORITY:
+${userPrompt ? `USER CONCEPT & INSPIRATION: "${userPrompt}"\n-> The user's concept is strictly authoritative. Weave their premise seamlessly into the title, hero identity, background, and opening hook while using the category's narrative rhythm and sensory density!` : 'The player has not provided a custom premise; invent a stunning, genre-defining scenario that exemplifies the category profile.'}
+
+${gender ? `HERO GENDER IDENTITY & PRONOUNS: "${gender}"\n-> IMPORTANT: Strictly use and embody this gender identity ("${gender}") across the hero's name, physical description, and narrative pronouns in the opening hook!` : ''}
+${characterName ? `Hero Name to use: "${characterName}"` : 'Invent a unique, memorable genre-authentic first and last name matching the specified gender.'}
+${classRole ? `Class/Role to use: "${classRole}"` : 'Invent a creative class/archetype deeply rooted in this genre.'}
+${raceOrigin ? `Origin/Heritage to use: "${raceOrigin}"` : 'Invent an evocative race or origin fitting the genre.'}
+
+SCENE STRUCTURE REQUIREMENT:
+The hookText MUST follow the genre scene architecture (Arrival/Setting -> Salient Object/Person -> Immediate Dilemma/Atmospheric Stakes -> Choice).
+
+Output MUST be strictly valid JSON matching this schema with no markdown fences:
 {
   "title": "Evocative Chapter I Campaign Title",
   "heroName": "First and Last Name",
+  "gender": "${gender || 'she/her'}",
   "roleClass": "Creative Class / Archetype",
   "raceOrigin": "Evocative Heritage / Origin",
-  "hookText": "Atmospheric 3-4 sentence opening scene written from the GM perspective establishing who the hero is, where they arrived, and the initial dilemma.",
-  "physicalDescription": "Vivid 1-2 sentence physical description of build, hair, eyes, and distinctive gear.",
+  "hookText": "Atmospheric 3-4 sentence opening scene written from the GM perspective establishing who the hero is, where they arrived, the immediate sensory situation, and the impending dilemma.",
+  "physicalDescription": "Vivid 1-2 sentence physical description of build, hair, eyes, facial expression, and distinctive gear.",
   "suggestedActions": [
     "Opening action option 1",
     "Opening action option 2",
     "Opening action option 3"
   ],
+  "storyOutline": {
+    "startingCircumstances": "The hero's starting physical and social situation at Scene 1",
+    "backstory": "Relevant history and root cause of the dilemma",
+    "incitingIncident": "The exact event that disrupts the status quo right now",
+    "immediateGoal": "The clear, actionable problem the player must address in Scene 1",
+    "keyNpcs": [
+      { "name": "NPC Name", "role": "Rival/Ally/Patron", "motivation": "What they want", "secret": "What they are hiding" }
+    ],
+    "majorConflicts": ["Primary external conflict", "Secondary interpersonal conflict"],
+    "secretsAndReveals": ["Hidden truth 1", "Major twist 2 to be discovered later"],
+    "actProgression": {
+      "act1": "The opening crisis, investigation & initial choices",
+      "act2": "Rising complications, confrontations, and shocking discoveries",
+      "act3": "The climax, major revelation, and resolution"
+    },
+    "potentialEndings": ["Triumphant vindication", "Bittersweet compromise", "Tragic sacrifice"]
+  },
   "initialInventory": [
     { "name": "Primary Weapon / Tool", "type": "weapon", "quantity": 1, "isEquipped": true, "description": "Thematic starter item" },
     { "name": "Protective Attire / Armor", "type": "armor", "quantity": 1, "isEquipped": true },
@@ -320,21 +816,35 @@ Output MUST be strictly valid JSON matching this schema:
   "startingHp": 12
 }`;
 
-      const response = await callGeminiWithRetry((m) => ai.models.generateContent({
-        model: m || targetModel,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 1.0
-        }
-      }));
+      const rawText = await executeUniversalPrompt({
+        userPrompt: prompt,
+        temperature: 0.9,
+        responseJson: true
+      });
 
-      const text = response.text || '{}';
-      const scenario = JSON.parse(text);
+      const cleanJson = rawText.replace(/```json|```/g, '').trim();
+      const scenario = JSON.parse(cleanJson);
       if (scenario && scenario.title && scenario.hookText) {
+        // Generate initial avatar image tailored to this character
+        let avatarUrl: string | undefined = undefined;
+        try {
+          const avatarData = await generateAvatarAI({
+            characterName: scenario.heroName,
+            gender: gender || scenario.gender,
+            roleClass: scenario.roleClass,
+            raceOrigin: scenario.raceOrigin,
+            category,
+            physicalDescription: scenario.physicalDescription,
+            model
+          });
+          avatarUrl = avatarData.avatarUrl;
+        } catch (_) {}
+
         return {
           scenario: {
             ...scenario,
+            gender: gender || scenario.gender,
+            avatarUrl,
             initialInventory: (scenario.initialInventory || []).map((item: any, idx: number) => ({
               id: `item_ai_${Date.now()}_${idx}`,
               name: item.name || 'Equipment',
@@ -347,13 +857,13 @@ Output MUST be strictly valid JSON matching this schema:
         };
       }
     } catch (err: any) {
-      console.warn('Gemini Scenario generation error:', err);
-      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate scenario'}`);
+      console.warn('Scenario AI generation error, falling back to procedural:', err);
     }
   }
 
-  // Fallback to high-entropy procedural generator if NO key provided
+  // Fallback to high-entropy procedural generator
   const scenario = generateRandomScenarioSetup(category);
+  if (gender) scenario.gender = gender;
   if (characterName) scenario.heroName = characterName;
   if (classRole) scenario.roleClass = classRole;
   if (raceOrigin) scenario.raceOrigin = raceOrigin;
@@ -361,19 +871,17 @@ Output MUST be strictly valid JSON matching this schema:
 }
 
 /**
- * Regenerates fresh, dynamic seedlist ideas and tropes using Gemini AI.
+ * Regenerates fresh, dynamic seedlist ideas and tropes using AI.
  */
 export async function generateSeedlistAI(params: {
   category: ExperienceCategory;
-  model: string;
+  model?: string;
 }): Promise<{ seedlist: CategorySeedInfo }> {
-  const { category, model } = params;
-  const apiKey = getStoredApiKey();
-  const targetModel = resolveGeminiModelName(model);
+  const { category } = params;
+  const hasKey = hasActiveGeminiKey();
 
-  if (apiKey) {
+  if (hasKey) {
     try {
-      const ai = new GoogleGenAI({ apiKey });
       const prompt = `You are a creative director for tabletop RPGs. Generate a fresh, highly imaginative brainstorm seedlist for the "${category}" genre.
 Invent completely NEW tropes, themes, hooks, and 3 full starting presets.
 
@@ -408,81 +916,82 @@ Output MUST be strictly valid JSON matching this schema:
       "heroName": "Hero Name 1",
       "roleClass": "Role 1",
       "raceOrigin": "Origin 1",
-      "hook": "Atmospheric 3-sentence opening scene.",
-      "suggestedActions": ["Action 1", "Action 2", "Action 3"]
+      "hook": "Atmospheric 3-sentence opening scene."
     },
     {
       "title": "Preset Title 2",
       "heroName": "Hero Name 2",
       "roleClass": "Role 2",
       "raceOrigin": "Origin 2",
-      "hook": "Atmospheric 3-sentence opening scene.",
-      "suggestedActions": ["Action 1", "Action 2", "Action 3"]
+      "hook": "Atmospheric 3-sentence opening scene."
     },
     {
       "title": "Preset Title 3",
       "heroName": "Hero Name 3",
       "roleClass": "Role 3",
       "raceOrigin": "Origin 3",
-      "hook": "Atmospheric 3-sentence opening scene.",
-      "suggestedActions": ["Action 1", "Action 2", "Action 3"]
+      "hook": "Atmospheric 3-sentence opening scene."
     }
+  ],
+  "encounterSeeds": [
+    "Dynamic encounter seed 1",
+    "Dynamic encounter seed 2",
+    "Dynamic encounter seed 3"
   ]
 }`;
 
-      const response = await callGeminiWithRetry((m) => ai.models.generateContent({
-        model: m || targetModel,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 1.0
-        }
-      }));
+      const rawText = await executeUniversalPrompt({
+        userPrompt: prompt,
+        temperature: 0.95,
+        responseJson: true
+      });
 
-      const text = response.text || '{}';
-      const seedlist = JSON.parse(text);
-      if (seedlist && seedlist.coreThemes) {
+      const cleanJson = rawText.replace(/```json|```/g, '').trim();
+      const seedlist = JSON.parse(cleanJson);
+      if (seedlist && seedlist.openingHooks && seedlist.openingHooks.length > 0) {
         return { seedlist };
       }
     } catch (err: any) {
-      console.warn('Gemini Seedlist generation error:', err);
-      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate seedlist'}`);
+      console.warn('Seedlist AI generation error, falling back to static:', err);
     }
   }
 
-  // Fallback to dynamic procedural seedlist if NO key provided
-  const seedlist = generateDynamicSeedlist(category);
-  return { seedlist };
+  return { seedlist: CATEGORY_SEEDLISTS[category] || CATEGORY_SEEDLISTS.fantasy };
 }
 
 /**
- * Rolls an individual field (Title, Name, Role, Race, Hook) with Gemini AI.
+ * Rolls a single character/scenario field using AI with fallback.
  */
-export async function rollSingleFieldAI(category: ExperienceCategory, fieldType: 'title' | 'heroName' | 'roleClass' | 'raceOrigin' | 'hook', model = 'gemini-3.6-flash'): Promise<string> {
-  const apiKey = getStoredApiKey();
-  const targetModel = resolveGeminiModelName(model);
+export async function rollSingleFieldAI(
+  category: ExperienceCategory,
+  fieldType: 'title' | 'heroName' | 'roleClass' | 'raceOrigin' | 'hookText',
+  model?: string,
+  contextPrompt?: string
+): Promise<string> {
+  const hasKey = hasActiveGeminiKey();
 
-  if (apiKey) {
+  if (hasKey) {
     try {
-      const ai = new GoogleGenAI({ apiKey });
-      const prompt = `You are a tabletop RPG generator. Generate a SINGLE unique, imaginative "${fieldType}" for a "${category}" campaign.
-Output ONLY the generated ${fieldType} text with no extra commentary or quotes.`;
+      const profile = getCategoryNarrativeProfile(category);
+      const prompt = `You are a creative tabletop RPG generator. Generate a SINGLE unique, imaginative "${fieldType}" for a "${profile.name}" campaign.
+${contextPrompt ? `Context / Story Theme: "${contextPrompt}"` : ''}
+Genre Profile: ${profile.name} (${profile.voice}).
+Sensory Motifs: ${profile.sensoryMotifs.slice(0, 2).join(', ')}.
+Output ONLY the generated text with no extra commentary, quotes, or formatting.`;
 
-      const res = await callGeminiWithRetry((m) => ai.models.generateContent({
-        model: m || targetModel,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { temperature: 1.0 }
-      }));
+      const text = await executeUniversalPrompt({
+        userPrompt: prompt,
+        temperature: 1.0
+      });
 
-      const text = res.text?.trim().replace(/^["']|["']$/g, '');
-      if (text && text.length > 1) return text;
-    } catch (err: any) {
-      console.warn('Gemini Roll Field error:', err);
-      throw new Error(`Gemini AI Error: ${err.message || 'Failed to roll field'}`);
+      const clean = text.trim().replace(/^["']|["']$/g, '');
+      if (clean && clean.length > 1) return clean;
+    } catch (err) {
+      console.warn(`Roll ${fieldType} AI error, fallback to procedural:`, err);
     }
   }
 
-  // Fallback if NO key provided
+  // Fallback to procedural generator
   const setup = generateRandomScenarioSetup(category);
   if (fieldType === 'title') return setup.title;
   if (fieldType === 'heroName') return setup.heroName;
@@ -492,117 +1001,115 @@ Output ONLY the generated ${fieldType} text with no extra commentary or quotes.`
 }
 
 /**
- * Generates an SVG character portrait avatar with Gemini AI or category geometry.
+ * Generates a dramatic cartoonized profile picture character portrait.
+ * Supports OpenAI DALL-E, Google Imagen, and high-fidelity Flux AI image engine.
  */
 export async function generateAvatarAI(params: {
   characterName: string;
   roleClass: string;
   raceOrigin: string;
   category: ExperienceCategory;
+  gender?: string;
   physicalDescription?: string;
+  recentStoryContext?: string;
+  model?: string;
 }): Promise<{ avatarUrl: string }> {
-  const { characterName, roleClass, raceOrigin, category, physicalDescription } = params;
-  const apiKey = getStoredApiKey();
+  const { characterName, roleClass, raceOrigin, category, gender, physicalDescription, recentStoryContext } = params;
+  
+  // Format prompt for dramatic cartoonized graphic novel profile picture
+  const cleanDesc = physicalDescription || 'piercing expressive eyes, impeccable posture, distinctive attire';
+  const storyEvolution = recentStoryContext ? `reflecting recent dramatic story events: ${recentStoryContext.slice(-200)}` : '';
+  const genreTheme = (category || 'fantasy').replace('_', ' ');
 
-  if (apiKey) {
+  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${gender ? `${gender} ` : ''}${raceOrigin} ${roleClass} named ${characterName}, ${cleanDesc}, ${storyEvolution}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
+
+  const seed = Math.floor(Math.random() * 999999);
+
+  // Check active provider for direct image generation APIs
+  const provider = getActiveProvider();
+  const apiKey = getProviderKey(provider);
+
+  // 1. OpenAI DALL-E 3 (if OpenAI provider key is provided)
+  if (provider === 'openai' && apiKey) {
     try {
-      const ai = new GoogleGenAI({ apiKey });
-      const prompt = `Generate a stylized SVG character portrait for a ${raceOrigin} ${roleClass} named ${characterName} in the "${category}" genre.
-Physical details: ${physicalDescription || 'Keen observant eyes, tailored iconic travel gear'}.
-Output ONLY the raw <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">...</svg> tag without markdown codeblocks.`;
-
-      const res = await callGeminiWithRetry((m) => ai.models.generateContent({
-        model: m || 'gemini-3.5-flash',
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { temperature: 0.8 }
-      }));
-
-      const text = res.text?.trim() || '';
-      const svgMatch = text.match(/<svg[\s\S]*?<\/svg>/i);
-      if (svgMatch) {
-        return { avatarUrl: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMatch[0])}` };
+      const res = await fetch('https://api.openai.com/v1/images/generations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey.trim()}`
+        },
+        body: JSON.stringify({
+          model: 'dall-e-3',
+          prompt: imagePrompt,
+          n: 1,
+          size: '1024x1024',
+          response_format: 'url'
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.data?.[0]?.url) {
+          return { avatarUrl: data.data[0].url };
+        }
       }
-    } catch (err: any) {
-      console.warn('Gemini Avatar generation error:', err);
-      throw new Error(`Gemini AI Error: ${err.message || 'Failed to generate avatar'}`);
+    } catch (e) {
+      console.warn('OpenAI DALL-E generation error, using Flux engine:', e);
     }
   }
 
-  // Beautiful geometric avatar fallback if NO key provided
-  const initials = (characterName || 'H').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const palettes: Record<string, [string, string, string]> = {
-    fantasy: ['#0f172a', '#1e3a5f', '#10b981'],
-    adventure: ['#0c1a2e', '#0284c7', '#38bdf8'],
-    tiktok_drama: ['#0a0a0a', '#78350f', '#f59e0b'],
-    horror: ['#18181b', '#7f1d1d', '#ef4444'],
-    cozy_ghibli: ['#064e3b', '#047857', '#34d399'],
-    revenge: ['#1e1b4b', '#4338ca', '#a855f7'],
-    apocalypse: ['#292524', '#7c2d12', '#f97316'],
-    zombie: ['#14532d', '#166534', '#84cc16'],
-    cosmic_horror: ['#09090b', '#3b0764', '#c084fc'],
-    psychedelic_trip: ['#4a044e', '#86198f', '#e879f9'],
-    ancient_greek: ['#451a03', '#9a3412', '#fbbf24'],
-    mythology: ['#172554', '#1d4ed8', '#60a5fa'],
-    historical_adventure: ['#2e1065', '#6b21a8', '#eab308'],
-    real_life: ['#1e293b', '#334155', '#94a3b8'],
-    romantic: ['#500724', '#9d174d', '#f472b6']
-  };
+  // 2. High-speed Flux Engine for dramatic cartoonized character portraits
+  const fluxUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=768&height=768&nologo=true&seed=${seed}&model=flux`;
 
-  const [bg1, bg2, accent] = palettes[category] || palettes.fantasy;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-    <defs>
-      <radialGradient id="g" cx="50%" cy="50%" r="60%">
-        <stop offset="0%" stop-color="${bg2}" />
-        <stop offset="100%" stop-color="${bg1}" />
-      </radialGradient>
-    </defs>
-    <rect width="200" height="200" rx="16" fill="url(#g)" />
-    <circle cx="100" cy="100" r="64" fill="${accent}" fill-opacity="0.15" stroke="${accent}" stroke-width="2" />
-    <text x="100" y="115" font-family="serif" font-size="38" font-weight="bold" fill="${accent}" text-anchor="middle">${initials}</text>
-    <text x="100" y="150" font-family="sans-serif" font-size="11" font-weight="bold" fill="#cbd5e1" text-anchor="middle" letter-spacing="1">${roleClass.toUpperCase().slice(0, 14)}</text>
-  </svg>`;
-
-  return { avatarUrl: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}` };
+  return { avatarUrl: fluxUrl };
 }
+
+/* -------------------------------------------------------------------------- */
+/*                         PROCEDURAL ENGINE FALLBACK                         */
+/* -------------------------------------------------------------------------- */
 
 function generateProceduralTurn(
   category: ExperienceCategory,
   contents: string,
   characterState: any,
   diceRoll?: DiceRollResult,
-  model = 'procedural-gm'
+  targetModel?: string
 ): ActionTurnResult {
-  const name = characterState?.name || 'Adventurer';
-  const role = characterState?.roleClass || 'Hero';
+  const hp = characterState?.hp || 12;
+  const name = characterState?.name || 'Hero';
+  const role = characterState?.roleClass || 'Adventurer';
 
-  let outcomeText = '';
+  let text = '';
   let hpDelta = 0;
+  let suggestedActions: string[] = [];
 
   if (diceRoll) {
     if (diceRoll.isNat20) {
-      outcomeText = `🌟 **Critical Triumph (Nat 20)!** With legendary focus, ${name} executes the maneuver flawlessly! The odds break decisively in your favor.`;
-      hpDelta = 2;
+      text = `🎲 **CRITICAL SUCCESS (Natural 20)!** With flawless precision, ${name} executes a masterstroke. The atmosphere crackles with triumph as the challenge gives way completely.`;
+      hpDelta = 0;
     } else if (diceRoll.isNat1) {
-      outcomeText = `💥 **Critical Fumble (Nat 1)!** A sudden turn of misfortune catches ${name} off guard, causing a dangerous setback.`;
-      hpDelta = -3;
-    } else if (diceRoll.total >= 13) {
-      outcomeText = `✅ **Success (Roll: ${diceRoll.total})!** Your training as a ${role} carries you through the challenge with confident execution.`;
-    } else {
-      outcomeText = `⚠️ **Narrow Failure (Roll: ${diceRoll.total})!** The resistance proves heavier than anticipated, forcing you to reconsider your approach.`;
+      text = `🎲 **CRITICAL FUMBLE (Natural 1)!** Misfortune strikes. Your footing slips or weapon grazes a barrier. You absorb a jarring recoil (-2 HP).`;
       hpDelta = -2;
+    } else if (diceRoll.total >= 13) {
+      text = `🎲 **SUCCESS (${diceRoll.total})!** You overcome the difficulty with practiced skill and resolve, securing advantageous ground.`;
+      hpDelta = 0;
+    } else {
+      text = `🎲 **COMPLICATION (${diceRoll.total})!** The effort proves grueling. You push through, but the strain takes a minor toll (-1 HP).`;
+      hpDelta = -1;
     }
   } else {
-    outcomeText = `The atmosphere in the ${category} campaign intensifies as ${name} advances. The immediate path ahead reveals new possibilities and challenges.`;
+    text = `You take cautious action in the ${category.replace('_', ' ')} environment. The surroundings react to your presence as new possibilities open before you.`;
   }
 
+  suggestedActions = [
+    'Scout ahead and inspect any hidden pathways',
+    'Ready your gear and search for valuable supplies',
+    'Converse with nearby inhabitants or study ancient inscriptions'
+  ];
+
   return {
-    text: outcomeText,
-    suggestedActions: [
-      'Carefully inspect the immediate environment for hidden clues',
-      'Interact directly with the nearest entity or focal point',
-      'Take a guarded stance and prepare your primary ability'
-    ],
+    text,
+    suggestedActions,
     stateDelta: hpDelta !== 0 ? { hpDelta } : null,
-    modelUsed: `${model}`
+    modelUsed: 'ZeroRoll Offline Procedural Engine'
   };
 }

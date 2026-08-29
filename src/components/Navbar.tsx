@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { GEMINI_MODELS } from '../lib/modelsConfig';
-import { hasActiveGeminiKey } from '../lib/geminiService';
+import { hasActiveGeminiKey, getActiveProvider, getProviderModel } from '../lib/geminiService';
+import { AI_PROVIDERS } from '../lib/providersConfig';
 import { GeminiModelOption, UserProfile } from '../types';
 
 interface NavbarProps {
@@ -25,6 +26,7 @@ interface NavbarProps {
   selectedModel: string;
   onSelectModel: (modelId: string) => void;
   onOpenSettings: () => void;
+  onOpenApiKeyModal?: () => void;
   onOpenProfile?: () => void;
   onOpenAuth?: () => void;
   onGoogleSignIn: () => void;
@@ -42,6 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   selectedModel,
   onSelectModel,
   onOpenSettings,
+  onOpenApiKeyModal,
   onOpenProfile,
   onOpenAuth,
   onGoogleSignIn,
@@ -58,35 +61,35 @@ export const Navbar: React.FC<NavbarProps> = ({
   const currentModelObj = GEMINI_MODELS.find(m => m.id === selectedModel) || GEMINI_MODELS[0];
 
   return (
-    <header className="sticky top-0 z-40 h-14 bg-[#16161D] border-b border-white/10 px-4 sm:px-6 flex items-center justify-between shrink-0">
-      <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 h-14 bg-[#16161D] border-b border-white/10 px-2.5 sm:px-6 flex items-center justify-between shrink-0">
+      <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
         
         {/* Left: Brand Logo & Title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {onBackToExperiences && (
             <button
               onClick={onBackToExperiences}
-              className="px-2.5 py-1 text-xs font-semibold rounded bg-white/5 hover:bg-white/10 text-amber-300 border border-white/10 transition flex items-center gap-1.5"
+              className="px-2 py-1 text-xs font-semibold rounded bg-white/5 hover:bg-white/10 text-amber-300 border border-white/10 transition flex items-center gap-1"
               title="Return to Experience Selector"
             >
               <Layers className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Experiences</span>
+              <span className="hidden md:inline">Experiences</span>
             </button>
           )}
 
-          <div className="flex items-center gap-3 cursor-pointer" onClick={onBackToExperiences}>
-            <div className="w-8 h-8 bg-amber-600 rounded flex items-center justify-center font-black text-black text-sm tracking-tighter shadow-sm font-mono">
+          <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" onClick={onBackToExperiences}>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-amber-600 rounded flex items-center justify-center font-black text-black text-xs sm:text-sm tracking-tighter shadow-sm font-mono shrink-0">
               00
             </div>
             <div>
-              <h1 className="text-lg font-serif tracking-tight text-amber-50 flex items-center">
+              <h1 className="text-sm sm:text-base md:text-lg font-serif tracking-tight text-amber-50 flex items-center">
                 Roll Zero0
-                <span className="text-[10px] font-mono text-amber-500/80 ml-2 tracking-widest uppercase font-bold hidden sm:inline">
+                <span className="text-[9px] font-mono text-amber-500/80 ml-1.5 tracking-widest uppercase font-bold hidden lg:inline">
                   TTRPG ENGINE
                 </span>
               </h1>
               {activeExperienceTitle && (
-                <p className="text-[11px] text-slate-400 truncate max-w-[180px] sm:max-w-[260px]">
+                <p className="text-[10px] sm:text-[11px] text-slate-400 truncate max-w-[100px] xs:max-w-[140px] sm:max-w-[220px]">
                   {activeExperienceTitle}
                 </p>
               )}
@@ -94,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Center: Save Status & Model Selector */}
+        {/* Center: Save Status & Model Selector (Tablet & Desktop) */}
         <div className="hidden md:flex items-center gap-3">
           {/* Connected Model Badge */}
           <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs">
@@ -149,49 +152,51 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Right Controls: Sound, Settings, Account */}
-        <div className="flex items-center gap-2">
+        {/* Right Controls: Sound, Key, Settings, Account */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Sound Toggle */}
           <button
             onClick={onToggleSound}
-            className={`p-1.5 rounded border transition text-xs ${
+            className={`p-1.5 sm:p-2 rounded border transition text-xs ${
               soundEnabled 
                 ? 'bg-amber-600/20 border-amber-600/40 text-amber-300 hover:bg-amber-600/30' 
                 : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'
             }`}
             title={soundEnabled ? 'Mute Sound Effects' : 'Enable Sound Effects'}
           >
-            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
 
-          {/* Gemini AI Status Badge */}
+          {/* AI Provider & Key Status Badge */}
           {hasActiveGeminiKey() ? (
             <button
-              onClick={onOpenSettings}
-              className="px-2 py-1 rounded border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-mono flex items-center gap-1.5 transition"
-              title="Gemini AI Engine is Active and in charge of all rolls"
+              onClick={onOpenApiKeyModal || onOpenSettings}
+              className="px-2 sm:px-2.5 py-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-mono flex items-center gap-1.5 transition shadow-sm"
+              title={`Active AI: ${AI_PROVIDERS[getActiveProvider()]?.name || 'AI Engine'} (${getProviderModel(getActiveProvider())}) - Click to Change`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              Gemini AI
+              <span className="font-bold hidden xs:inline">{AI_PROVIDERS[getActiveProvider()]?.name || 'AI Active'}</span>
+              <span className="font-bold xs:hidden">AI</span>
             </button>
           ) : (
             <button
-              onClick={onOpenSettings}
-              className="px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[10px] font-mono flex items-center gap-1.5 transition shadow-sm animate-pulse"
-              title="Connect your Google Gemini API Key for 100% web AI rolls"
+              onClick={onOpenApiKeyModal || onOpenSettings}
+              className="px-2 sm:px-2.5 py-1 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[10px] font-mono flex items-center gap-1 sm:gap-1.5 transition shadow-sm animate-pulse"
+              title="Connect an API key (Gemini, OpenAI, Claude, Grok, OpenRouter, Copilot) for AI storytelling"
             >
-              <Key className="w-3 h-3" />
-              Set Gemini Key
+              <Key className="w-3 h-3 text-amber-400" />
+              <span className="hidden xs:inline">Connect AI</span>
+              <span className="xs:hidden">Key</span>
             </button>
           )}
 
           {/* Settings Modal Toggle */}
           <button
             onClick={onOpenSettings}
-            className="p-1.5 rounded border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 transition text-xs"
+            className="p-1.5 sm:p-2 rounded border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 transition text-xs"
             title="Game Master & AI Settings"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
           {/* User Account Login / Profile */}

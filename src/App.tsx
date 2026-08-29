@@ -1,13 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { auth, signInWithGoogle, signInWithGoogleRedirect, checkRedirectAuthResult, logoutUser, saveExperienceToCloud, subscribeToUserExperiences, deleteExperienceFromCloud, saveUserProfileToCloud, loadUserProfileFromCloud } from './lib/firebase';
+import { 
+  auth, 
+  signInWithGoogle, 
+  signInWithGoogleRedirect, 
+  checkRedirectAuthResult, 
+  logoutUser, 
+  saveExperienceToCloud, 
+  subscribeToUserExperiences, 
+  deleteExperienceFromCloud, 
+  saveUserProfileToCloud, 
+  loadUserProfileFromCloud,
+  saveUserSettingsToCloud,
+  saveActiveExperienceIdToCloud,
+  migrateLocalDataToUser
+} from './lib/firebase';
+import { exportAllProviderSettings, importAllProviderSettings } from './lib/geminiService';
 import { Navbar } from './components/Navbar';
 import { CategoriesGrid } from './components/CategoriesGrid';
 import { ExperienceView } from './components/ExperienceView';
 import { SettingsModal } from './components/SettingsModal';
 import { UserProfileModal } from './components/UserProfileModal';
 import { AuthModal } from './components/AuthModal';
-import { Experience, ExperienceCategory, CharacterSheet, MapData, LogMessage, UserProfile } from './types';
+import { ApiKeyModal } from './components/ApiKeyModal';
+import { Experience, ExperienceCategory, CharacterSheet, MapData, LogMessage, UserProfile, DMStoryOutline } from './types';
 import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
 import { CATEGORIES_DATA } from './lib/categoriesData';
 import { generateScenarioHook } from './lib/scenarioHooks';
@@ -30,6 +46,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [activeExperience, setActiveExperience] = useState<Experience | null>(null);
+  const [pendingActiveExpId, setPendingActiveExpId] = useState<string | null>(null);
 
   // User Profile state
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
@@ -68,12 +85,17 @@ export default function App() {
     return safeGetStorage('dnd_system_prompt') || '';
   });
 
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
+    const saved = safeGetStorage('dnd_sound_enabled');
+    return saved !== 'false';
+  });
+
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  // Sync profile when auth state changes
+  // Sync profile & cloud settings when auth state changes
   useEffect(() => {
     // Process redirect sign-in if returning from Google redirect
     checkRedirectAuthResult();
@@ -82,46 +104,75 @@ export default function App() {
       setUser(currentUser);
 
       if (currentUser) {
+        // Run migration for any local/guest experiences
+        migrateLocalDataToUser(currentUser.uid).catch(console.warn);
+
         // Try to load existing cloud profile
         let loadedProfile = await loadUserProfileFromCloud(currentUser.uid);
 
         if (loadedProfile) {
-          // Merge with Google's latest photoURL in case it changed, but
-          // preserve the user's custom avatar config
+          // Merge profile and hydrate
           const merged: UserProfile = {
             ...loadedProfile,
             uid: currentUser.uid,
             displayName: currentUser.displayName || loadedProfile.displayName || 'Adventurer',
             email: currentUser.email || loadedProfile.email,
-            // Prefer the cloud-saved photoURL (may be a custom one) unless Google has one
-            // and the cloud one is still the original Google photo or null
             photoURL: loadedProfile.photoURL || currentUser.photoURL || null,
           };
           setUserProfile(merged);
           safeSetStorage('dnd_user_profile', JSON.stringify(merged));
-        } else {
-          // No cloud profile yet — try to inherit avatar from guest local profile
-          const savedLocal = safeGetStorage('dnd_user_profile');
-          let inheritedAvatar = {
-            hairstyle: 'short_rogue' as const,
-            hairColor: '#f59e0b',
-            skinTone: '#fde047',
-            clothingColor: '#1e1b4b',
-            badgeIcon: 'shield' as const
-          };
-          if (savedLocal) {
-            try {
-              const parsed = JSON.parse(savedLocal);
-              if (parsed?.avatar) inheritedAvatar = parsed.avatar;
-            } catch (_) {}
+
+          // Hydrate settings if present in cloud
+          if (loadedProfile.settings) {
+            const cs = loadedProfile.settings;
+            if (cs.selectedModel) {
+              setSelectedModel(cs.selectedModel);
+              safeSetStorage('dnd_selected_model', cs.selectedModel);
+            }
+            if (cs.customSystemPrompt !== undefined) {
+              setCustomSystemPrompt(cs.customSystemPrompt);
+              safeSetStorage('dnd_system_prompt', cs.customSystemPrompt);
+            }
+            if (cs.soundEnabled !== undefined) {
+              setSoundEnabled(cs.soundEnabled);
+              safeSetStorage('dnd_sound_enabled', String(cs.soundEnabled));
+            }
+            importAllProviderSettings(cs);
+          } else {
+            // First time cloud sync for this user: export local provider settings to cloud
+            const localSettings = exportAllProviderSettings();
+            await saveUserSettingsToCloud(currentUser.uid, {
+              ...localSettings,
+              selectedModel,
+              customSystemPrompt,
+              soundEnabled
+            });
           }
 
+          if (loadedProfile.activeExperienceId) {
+            setPendingActiveExpId(loadedProfile.activeExperienceId);
+          }
+        } else {
+          // No cloud profile yet — create new cloud record
+          const localSettings = exportAllProviderSettings();
           const newProfile: UserProfile = {
             uid: currentUser.uid,
             displayName: currentUser.displayName || 'Adventurer',
             email: currentUser.email,
             photoURL: currentUser.photoURL || null,
-            avatar: inheritedAvatar
+            avatar: {
+              hairstyle: 'short_rogue',
+              hairColor: '#f59e0b',
+              skinTone: '#fde047',
+              clothingColor: '#1e1b4b',
+              badgeIcon: 'shield'
+            },
+            settings: {
+              ...localSettings,
+              selectedModel,
+              customSystemPrompt,
+              soundEnabled
+            }
           };
           setUserProfile(newProfile);
           safeSetStorage('dnd_user_profile', JSON.stringify(newProfile));
@@ -143,6 +194,8 @@ export default function App() {
           }
         };
         setUserProfile(guestProfile);
+        setActiveExperience(null);
+        setPendingActiveExpId(null);
         try { localStorage.removeItem('dnd_user_profile'); } catch (_) {}
       }
     });
@@ -161,20 +214,45 @@ export default function App() {
     const userId = user?.uid || '';
     const unsubscribe = subscribeToUserExperiences(userId, (exps) => {
       setExperiences(exps);
+
+      // Hydrate active experience if pending from cloud
+      if (pendingActiveExpId) {
+        const found = exps.find(e => e.id === pendingActiveExpId);
+        if (found) {
+          setActiveExperience(found);
+          setPendingActiveExpId(null);
+        }
+      }
     });
     return () => unsubscribe();
-  }, [user]);
+  }, [user, pendingActiveExpId]);
 
   // Model Persistence
   const handleSelectModel = (modelId: string) => {
     setSelectedModel(modelId);
     safeSetStorage('dnd_selected_model', modelId);
+    if (user) {
+      saveUserSettingsToCloud(user.uid, { selectedModel: modelId });
+    }
   };
 
   // Custom System Prompt Persistence
   const handleSaveSystemPrompt = (prompt: string) => {
     setCustomSystemPrompt(prompt);
     safeSetStorage('dnd_system_prompt', prompt);
+    if (user) {
+      saveUserSettingsToCloud(user.uid, { customSystemPrompt: prompt });
+    }
+  };
+
+  // Sound preference toggle
+  const handleToggleSound = () => {
+    const nextVal = !soundEnabled;
+    setSoundEnabled(nextVal);
+    safeSetStorage('dnd_sound_enabled', String(nextVal));
+    if (user) {
+      saveUserSettingsToCloud(user.uid, { soundEnabled: nextVal });
+    }
   };
 
   // Create New Experience
@@ -183,7 +261,8 @@ export default function App() {
     customTitle: string,
     character: CharacterSheet,
     openingPrompt?: string,
-    suggestedActions?: string[]
+    suggestedActions?: string[],
+    storyOutline?: DMStoryOutline
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
@@ -230,16 +309,19 @@ export default function App() {
       character: {
         // Start with hook defaults for stat block (hp, stats, armorClass etc)
         ...scenarioHookData.character,
-        // Always prefer the user's chosen name, class, race
+        // Always prefer the user's chosen name, class, race, and generated avatar
         ...character,
         // Explicitly preserve user's inventory/spells (non-empty wins over hook defaults)
         inventory: (character.inventory && character.inventory.length > 0) ? character.inventory : scenarioHookData.character.inventory,
         spells: (character.spells && character.spells.length > 0) ? character.spells : scenarioHookData.character.spells,
-        statusEffects: (character.statusEffects && character.statusEffects.length > 0) ? character.statusEffects : scenarioHookData.character.statusEffects
+        statusEffects: (character.statusEffects && character.statusEffects.length > 0) ? character.statusEffects : scenarioHookData.character.statusEffects,
+        avatarUrl: character.avatarUrl || scenarioHookData.character.avatarUrl,
+        physicalDescription: character.physicalDescription || scenarioHookData.character.physicalDescription
       },
       gameWorldState: scenarioHookData.gameWorldState,
       logs: [initialLog],
-      mapData: initialMap
+      mapData: initialMap,
+      storyOutline
     };
 
     setIsSaving(true);
@@ -247,6 +329,16 @@ export default function App() {
     setIsSaving(false);
 
     setActiveExperience(newExp);
+    if (user) {
+      saveActiveExperienceIdToCloud(user.uid, newExp.id);
+    }
+  };
+
+  const handleSelectExperience = (exp: Experience | null) => {
+    setActiveExperience(exp);
+    if (user) {
+      saveActiveExperienceIdToCloud(user.uid, exp?.id || null);
+    }
   };
 
   // Update Experience Real-Time
@@ -260,7 +352,7 @@ export default function App() {
   // Delete Experience
   const handleDeleteExperience = async (expId: string) => {
     if (activeExperience?.id === expId) {
-      setActiveExperience(null);
+      handleSelectExperience(null);
     }
     await deleteExperienceFromCloud(expId);
   };
@@ -274,14 +366,15 @@ export default function App() {
         selectedModel={selectedModel}
         onSelectModel={handleSelectModel}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
         onOpenProfile={() => setIsProfileOpen(true)}
         onOpenAuth={() => setIsAuthOpen(true)}
         onGoogleSignIn={signInWithGoogle}
         onSignOut={logoutUser}
         soundEnabled={soundEnabled}
-        onToggleSound={() => setSoundEnabled(!soundEnabled)}
+        onToggleSound={handleToggleSound}
         activeExperienceTitle={activeExperience?.title}
-        onBackToExperiences={activeExperience ? () => setActiveExperience(null) : undefined}
+        onBackToExperiences={activeExperience ? () => handleSelectExperience(null) : undefined}
         userProfile={userProfile}
         isSaving={isSaving}
       />
@@ -292,14 +385,14 @@ export default function App() {
           <ExperienceView
             experience={activeExperience}
             onUpdateExperience={handleUpdateExperience}
-            onBack={() => setActiveExperience(null)}
+            onBack={() => handleSelectExperience(null)}
             selectedModel={selectedModel}
             soundEnabled={soundEnabled}
           />
         ) : (
           <CategoriesGrid
             experiences={experiences}
-            onSelectExperience={(exp) => setActiveExperience(exp)}
+            onSelectExperience={handleSelectExperience}
             onCreateExperience={handleCreateExperience}
             onDeleteExperience={handleDeleteExperience}
             selectedModel={selectedModel}
@@ -316,12 +409,27 @@ export default function App() {
           customSystemPrompt={customSystemPrompt}
           onSaveSystemPrompt={handleSaveSystemPrompt}
           onClose={() => setIsSettingsOpen(false)}
+          onOpenApiKeyModal={() => {
+            setIsSettingsOpen(false);
+            setIsApiKeyModalOpen(true);
+          }}
           onOpenAuth={() => {
             setIsSettingsOpen(false);
             setIsAuthOpen(true);
           }}
           onGoogleSignIn={signInWithGoogle}
           onSignOut={logoutUser}
+        />
+      )}
+
+      {/* API Key & AI Provider Setup Modal */}
+      {isApiKeyModalOpen && (
+        <ApiKeyModal
+          isOpen={isApiKeyModalOpen}
+          onClose={() => setIsApiKeyModalOpen(false)}
+          onProviderChanged={(_provider, model) => {
+            setSelectedModel(model);
+          }}
         />
       )}
 

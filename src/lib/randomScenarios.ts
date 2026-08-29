@@ -1,12 +1,15 @@
-import { ExperienceCategory, InventoryItem } from '../types';
+import { ExperienceCategory, InventoryItem, DMStoryOutline } from '../types';
 
 export interface RandomizedScenarioData {
   title: string;
   heroName: string;
+  gender?: string;
   roleClass: string;
   raceOrigin: string;
   hookText: string;
   physicalDescription: string;
+  avatarUrl?: string;
+  storyOutline?: DMStoryOutline;
   suggestedActions: string[];
   initialInventory: InventoryItem[];
   initialSpells: string[];

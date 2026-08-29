@@ -27,7 +27,7 @@ import {
   User 
 } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { Experience, UserProfile } from '../types';
+import { Experience, UserProfile, UserSettings } from '../types';
 
 // Initialize Firebase App
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -145,7 +145,7 @@ async function syncUserRecord(user: User, customDisplayName?: string) {
     }
 
     // Migrate any existing guest experiences to this account
-    await migrateGuestExperiencesToUser(user.uid);
+    await migrateLocalDataToUser(user.uid);
   } catch (e) {
     console.warn('Could not sync user record to Firestore:', e);
   }
@@ -260,11 +260,43 @@ export async function logoutUser(): Promise<void> {
   notifyLocalExperienceChange();
 }
 
-// User Profile Sync
+// User Settings & Profile Cloud Sync
+export async function saveUserSettingsToCloud(userId: string, settings: Partial<UserSettings>): Promise<void> {
+  if (!userId || userId === 'guest') return;
+  try {
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, {
+      settings: {
+        ...settings,
+        updatedAt: new Date().toISOString()
+      },
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+  } catch (err: any) {
+    handleFirestoreError(err, OperationType.WRITE, `users/${userId}/settings`);
+  }
+}
+
+export async function saveActiveExperienceIdToCloud(userId: string, activeExperienceId: string | null): Promise<void> {
+  if (!userId || userId === 'guest') return;
+  try {
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, {
+      activeExperienceId,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+  } catch (err: any) {
+    handleFirestoreError(err, OperationType.WRITE, `users/${userId}/activeExperienceId`);
+  }
+}
+
 export async function saveUserProfileToCloud(profile: UserProfile): Promise<void> {
   try {
     if (profile.uid && profile.uid !== 'guest') {
-      await setDoc(doc(db, 'users', profile.uid), profile, { merge: true });
+      await setDoc(doc(db, 'users', profile.uid), {
+        ...profile,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
     }
   } catch (err: any) {
     handleFirestoreError(err, OperationType.WRITE, `users/${profile.uid}`);
@@ -286,16 +318,19 @@ export async function loadUserProfileFromCloud(uid: string): Promise<UserProfile
 }
 
 // Helper to get all experiences currently in localStorage
-export function getLocalExperiences(): Experience[] {
+export function getLocalExperiences(userId?: string): Experience[] {
   const localExps: Experience[] = [];
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('experience_')) {
+      if (key && (key.startsWith('experience_') || (userId && key.startsWith(`zeroroll_exp_${userId}_`)) || key.startsWith('zeroroll_exp_guest_'))) {
         try {
-          const item = JSON.parse(localStorage.getItem(key) || '');
-          if (item && item.id) {
-            localExps.push(item);
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const item = JSON.parse(raw);
+            if (item && item.id && !localExps.some(e => e.id === item.id)) {
+              localExps.push(item);
+            }
           }
         } catch (e) {}
       }
@@ -315,28 +350,39 @@ function notifyLocalExperienceChange() {
   }
 }
 
-// Migrate any guest experiences to authenticated user
-export async function migrateGuestExperiencesToUser(userId: string): Promise<void> {
+// Migrate any guest experiences or legacy unnested docs to user's secure subcollection
+export async function migrateLocalDataToUser(userId: string): Promise<void> {
   if (!userId || userId === 'guest') return;
-  const localExps = getLocalExperiences();
-  for (const exp of localExps) {
-    if (exp.userId === 'guest' || !exp.userId) {
-      const claimedExp: Experience = {
-        ...exp,
-        userId: userId,
-        updatedAt: new Date().toISOString()
-      };
-      // Save updated local
-      localStorage.setItem(`experience_${claimedExp.id}`, JSON.stringify(claimedExp));
-      // Save to cloud
-      try {
-        await setDoc(doc(db, 'experiences', claimedExp.id), claimedExp, { merge: true });
-      } catch (err) {
-        handleFirestoreError(err, OperationType.WRITE, `experiences/${claimedExp.id}`);
+  
+  try {
+    const localExps = getLocalExperiences(userId);
+    for (const exp of localExps) {
+      if (exp.userId === 'guest' || !exp.userId || exp.userId === userId) {
+        const claimedExp: Experience = {
+          ...exp,
+          userId: userId,
+          updatedAt: exp.updatedAt || new Date().toISOString()
+        };
+        
+        // Cache to user-scoped local keys
+        try {
+          localStorage.setItem(`experience_${claimedExp.id}`, JSON.stringify(claimedExp));
+          localStorage.setItem(`zeroroll_exp_${userId}_${claimedExp.id}`, JSON.stringify(claimedExp));
+        } catch (_) {}
+
+        // Upload to user's Firestore subcollection
+        try {
+          const userExpRef = doc(db, 'users', userId, 'experiences', claimedExp.id);
+          await setDoc(userExpRef, claimedExp, { merge: true });
+        } catch (err) {
+          handleFirestoreError(err, OperationType.WRITE, `users/${userId}/experiences/${claimedExp.id}`);
+        }
       }
     }
+    notifyLocalExperienceChange();
+  } catch (e) {
+    console.warn('Migration to user cloud subcollection error:', e);
   }
-  notifyLocalExperienceChange();
 }
 
 // Save or Sync Experience to Firestore & Local Storage
@@ -353,6 +399,9 @@ export async function saveExperienceToCloud(experience: Experience): Promise<voi
   // 1. Instant local storage persistence
   try {
     localStorage.setItem(`experience_${payload.id}`, JSON.stringify(payload));
+    if (actualUserId !== 'guest') {
+      localStorage.setItem(`zeroroll_exp_${actualUserId}_${payload.id}`, JSON.stringify(payload));
+    }
   } catch (storageErr) {
     console.warn('LocalStorage quota or write error:', storageErr);
   }
@@ -360,12 +409,14 @@ export async function saveExperienceToCloud(experience: Experience): Promise<voi
   // Notify active subscribers
   notifyLocalExperienceChange();
 
-  // 2. Cloud Firestore persistence
-  try {
-    const expRef = doc(db, 'experiences', payload.id);
-    await setDoc(expRef, payload, { merge: true });
-  } catch (err: any) {
-    handleFirestoreError(err, OperationType.WRITE, `experiences/${payload.id}`);
+  // 2. Cloud Firestore persistence under users/{userId}/experiences/{experienceId}
+  if (actualUserId && actualUserId !== 'guest') {
+    try {
+      const expRef = doc(db, 'users', actualUserId, 'experiences', payload.id);
+      await setDoc(expRef, payload, { merge: true });
+    } catch (err: any) {
+      handleFirestoreError(err, OperationType.WRITE, `users/${actualUserId}/experiences/${payload.id}`);
+    }
   }
 }
 
@@ -375,38 +426,35 @@ export function subscribeToUserExperiences(
   onUpdate: (experiences: Experience[]) => void
 ) {
   // Initial local state dispatch
-  const initialLocal = getLocalExperiences();
-  if (userId) {
+  const initialLocal = getLocalExperiences(userId);
+  if (userId && userId !== 'guest') {
     const filtered = initialLocal.filter(e => e.userId === userId || e.userId === 'guest');
     onUpdate(filtered);
   } else {
-    onUpdate(initialLocal);
+    onUpdate(initialLocal.filter(e => e.userId === 'guest' || !e.userId));
   }
 
   // Local storage listener handler
   const handleLocalChange = () => {
-    const freshLocal = getLocalExperiences();
-    if (userId) {
+    const freshLocal = getLocalExperiences(userId);
+    if (userId && userId !== 'guest') {
       const filtered = freshLocal.filter(e => e.userId === userId || e.userId === 'guest');
       onUpdate(filtered);
     } else {
-      onUpdate(freshLocal);
+      onUpdate(freshLocal.filter(e => e.userId === 'guest' || !e.userId));
     }
   };
 
   window.addEventListener(EXPERIENCE_CHANGE_EVENT, handleLocalChange);
   window.addEventListener('storage', handleLocalChange);
 
-  // If user is authenticated, run guest migration and attach Firestore listener
+  // If user is authenticated, run guest migration and attach Firestore subcollection listener
   if (userId && userId !== 'guest') {
-    migrateGuestExperiencesToUser(userId).catch(console.warn);
+    migrateLocalDataToUser(userId).catch(console.warn);
 
-    const q = query(
-      collection(db, 'experiences'), 
-      where('userId', '==', userId)
-    );
+    const userExpCollection = collection(db, 'users', userId, 'experiences');
 
-    const unsubscribeFirestore = onSnapshot(q, (snapshot) => {
+    const unsubscribeFirestore = onSnapshot(userExpCollection, (snapshot) => {
       const cloudExps: Experience[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data() as Experience;
@@ -414,11 +462,12 @@ export function subscribeToUserExperiences(
         // Cache to local storage as well for offline persistence
         try {
           localStorage.setItem(`experience_${data.id}`, JSON.stringify(data));
+          localStorage.setItem(`zeroroll_exp_${userId}_${data.id}`, JSON.stringify(data));
         } catch (_) {}
       });
 
       // Merge cloud and any existing local experiences
-      const localExps = getLocalExperiences();
+      const localExps = getLocalExperiences(userId);
       const mergedMap = new Map<string, Experience>();
 
       // Put cloud items in map
@@ -435,7 +484,7 @@ export function subscribeToUserExperiences(
       mergedList.sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
       onUpdate(mergedList);
     }, (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'experiences');
+      handleFirestoreError(err, OperationType.LIST, `users/${userId}/experiences`);
       handleLocalChange();
     });
 
@@ -446,8 +495,7 @@ export function subscribeToUserExperiences(
     };
   }
 
-  // For guest users: rely only on localStorage — never query global 'guest' docs from Firestore
-  // since multiple sessions share the same userId string 'guest' in the DB.
+  // For guest users: rely only on localStorage
   return () => {
     window.removeEventListener(EXPERIENCE_CHANGE_EVENT, handleLocalChange);
     window.removeEventListener('storage', handleLocalChange);
@@ -456,11 +504,20 @@ export function subscribeToUserExperiences(
 
 // Delete Experience
 export async function deleteExperienceFromCloud(experienceId: string): Promise<void> {
+  const currentUser = auth.currentUser;
+  const actualUserId = currentUser ? currentUser.uid : null;
+
   try {
     localStorage.removeItem(`experience_${experienceId}`);
+    if (actualUserId) {
+      localStorage.removeItem(`zeroroll_exp_${actualUserId}_${experienceId}`);
+    }
     notifyLocalExperienceChange();
-    await deleteDoc(doc(db, 'experiences', experienceId));
+
+    if (actualUserId) {
+      await deleteDoc(doc(db, 'users', actualUserId, 'experiences', experienceId));
+    }
   } catch (err) {
-    handleFirestoreError(err, OperationType.DELETE, `experiences/${experienceId}`);
+    handleFirestoreError(err, OperationType.DELETE, `users/${actualUserId}/experiences/${experienceId}`);
   }
 }

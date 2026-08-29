@@ -19,7 +19,7 @@ import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
 import { GEMINI_MODELS } from '../lib/modelsConfig';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
-import { executeActionTurn } from '../lib/geminiService';
+import { executeActionTurn, generateAvatarAI } from '../lib/geminiService';
 
 interface ExperienceViewProps {
   experience: Experience;
@@ -73,7 +73,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         model: selectedModel,
         systemInstruction: experience.customSystemPrompt,
         characterState: tempExp.character,
-        diceRoll
+        diceRoll,
+        storyOutline: experience.storyOutline
       });
 
       const dmMsg: LogMessage = {
@@ -160,8 +161,30 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         }
       }
 
+      // 7. Auto Avatar Evolution on Major Story Beats
+      if (data.avatarEvolution?.evolved) {
+        try {
+          const newDesc = data.avatarEvolution.updatedPhysicalDescription || updatedChar.physicalDescription;
+          const evoAvatar = await generateAvatarAI({
+            characterName: updatedChar.name,
+            roleClass: updatedChar.roleClass,
+            raceOrigin: updatedChar.raceOrigin,
+            category: experience.category,
+            physicalDescription: newDesc,
+            recentStoryContext: `${updatedLogs.slice(-2).map(l => l.text).join('\n')}\n${dmMsg.text}`,
+            model: selectedModel
+          });
+          if (evoAvatar?.avatarUrl) {
+            updatedChar.avatarUrl = evoAvatar.avatarUrl;
+            if (newDesc) updatedChar.physicalDescription = newDesc;
+          }
+        } catch (evoErr) {
+          console.warn('Auto avatar evolution error:', evoErr);
+        }
+      }
+
       // Trigger alert sound if course change alert or required check was fired
-      if ((newAlert || newCheck) && soundEnabled) {
+      if ((newAlert || newCheck || data.avatarEvolution?.evolved) && soundEnabled) {
         playAlertSound();
       }
 
@@ -310,67 +333,71 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
   };
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-[#0F0F12] text-slate-200 p-3 sm:p-5 lg:p-6 space-y-4">
+    <div className="min-h-[calc(100dvh-56px)] bg-[#0F0F12] text-slate-200 p-2 sm:p-4 lg:p-6 space-y-3 sm:space-y-4">
       
       {/* Top Experience Sub-Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-[#111118] border border-white/10 shadow-xl">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-amber-300 border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Change Experience</span>
-          </button>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-[#111118] border border-white/10 shadow-xl">
+        <div className="flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={onBack}
+              className="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-amber-300 border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition shrink-0"
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">Experiences</span>
+            </button>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-serif font-bold text-amber-50">{experience.title}</h2>
-              <span className="px-2 py-0.5 text-[9px] font-mono uppercase font-bold rounded bg-white/5 text-amber-400 border border-white/10">
-                {experience.category.replace('_', ' ')}
-              </span>
+            <div>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h2 className="text-xs sm:text-base font-serif font-bold text-amber-50 truncate max-w-[180px] xs:max-w-[240px] sm:max-w-none">
+                  {experience.title}
+                </h2>
+                <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-mono uppercase font-bold rounded bg-white/5 text-amber-400 border border-white/10 shrink-0">
+                  {experience.category.replace('_', ' ')}
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-xs text-slate-400 font-sans">
+                Hero: <strong className="text-slate-200">{experience.character.name}</strong> ({experience.character.roleClass}) • <span className="text-emerald-400 font-mono">HP: {experience.character.hp}/{experience.character.maxHp}</span>
+              </p>
             </div>
-            <p className="text-xs text-slate-400 font-sans">
-              Hero: <strong className="text-slate-200">{experience.character.name}</strong> ({experience.character.roleClass})
-            </p>
           </div>
         </div>
 
         {/* Right Status & Mobile View Switcher Tabs */}
-        <div className="flex items-center gap-2">
-          {/* Status Indicator */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10 text-[11px] font-mono text-slate-400">
+        <div className="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 border-t border-white/5 sm:border-t-0">
+          {/* Status Indicator (Tablet/Desktop) */}
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-400">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>Dynamic Encounters Active</span>
           </div>
 
           {/* Desktop/Mobile View Switcher Tabs */}
-          <div className="flex items-center gap-1 bg-[#0A0A0F] p-1 rounded border border-white/10 lg:hidden">
+          <div className="w-full sm:w-auto grid grid-cols-2 sm:flex items-center gap-1 bg-[#0A0A0F] p-1 rounded-lg border border-white/10 lg:hidden">
             <button
               onClick={() => setActiveTab('narrative')}
-              className={`px-3 py-1.5 rounded text-xs font-semibold transition flex items-center gap-1.5 ${
-                activeTab === 'narrative' ? 'bg-amber-600 text-black font-bold' : 'text-slate-400 hover:text-slate-200'
+              className={`py-1.5 px-3 rounded-md text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
+                activeTab === 'narrative' ? 'bg-amber-600 text-black font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <ScrollText className="w-3.5 h-3.5" />
-              Narrative & Chat
+              <span>Narrative</span>
             </button>
 
             <button
               onClick={() => setActiveTab('character')}
-              className={`px-3 py-1.5 rounded text-xs font-semibold transition flex items-center gap-1.5 ${
-                activeTab === 'character' ? 'bg-amber-600 text-black font-bold' : 'text-slate-400 hover:text-slate-200'
+              className={`py-1.5 px-3 rounded-md text-xs font-semibold transition flex items-center justify-center gap-1.5 ${
+                activeTab === 'character' ? 'bg-amber-600 text-black font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <UserIcon className="w-3.5 h-3.5" />
-              Character Sheet
+              <span>Hero Sheet</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Main Grid Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-5">
         
         {/* Left Column (Narrative stream always visible on desktop, tab-switched on mobile) */}
         <div className={`lg:col-span-8 space-y-5 ${activeTab === 'character' ? 'hidden lg:block' : ''}`}>

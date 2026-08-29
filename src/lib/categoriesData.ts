@@ -380,9 +380,9 @@ export const CATEGORIES_DATA: CategoryInfo[] = [
   },
   {
     id: 'tiktok_drama',
-    name: 'TikTok Short Drama',
-    tagline: 'GoodNovel & DramaBox: Secret Heiress, $50B Slap & Arrogant CEOs',
-    description: 'High-octane viral drama inspired by GoodNovel, DramaBox, and PrimeDrama tropes: undercover billionaires, shocking banquet reveals, public slaps, and dramatic contract marriages.',
+    name: 'Short Drama',
+    tagline: 'ReelShot, DramaBox & GoodNovel: Secret Heiress, $50B Slap & Arrogant CEOs',
+    description: 'High-octane viral drama inspired by ReelShot, DramaBox, GoodNovel, ActDrama, and PrimeDrama tropes: undercover billionaires, shocking banquet reveals, public confrontations, and dramatic contract marriages.',
     iconName: 'Clapperboard',
     gradient: 'from-pink-600/30 via-purple-900/40 to-slate-950',
     accentColor: '#f43f5e',

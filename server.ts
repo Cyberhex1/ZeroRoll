@@ -93,7 +93,7 @@ async function executeGeminiWithFallback(
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
   app.use(express.json({ limit: '10mb' }));
 
@@ -821,7 +821,10 @@ Output ONLY the raw <svg> tag with viewBox="0 0 400 400" and xmlns="http://www.w
   // Vite middleware for dev or static server for production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        hmr: { port: 24680 }
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -834,7 +837,8 @@ Output ONLY the raw <svg> tag with viewBox="0 0 400 400" and xmlns="http://www.w
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`D&D AI Experience Engine running on http://0.0.0.0:${PORT}`);
+    console.log(`\n  ➜  Local:   http://localhost:${PORT}/`);
+    console.log(`  ➜  Network: http://0.0.0.0:${PORT}/\n`);
   });
 }
 

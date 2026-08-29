@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { GEMINI_MODELS } from '../lib/modelsConfig';
-import { getCustomApiKey, saveStoredApiKey } from '../lib/geminiService';
+import { getCustomApiKey, saveStoredApiKey, getActiveProvider, getProviderModel } from '../lib/geminiService';
+import { AI_PROVIDERS } from '../lib/providersConfig';
 
 interface SettingsModalProps {
   user: User | null;
@@ -20,6 +21,7 @@ interface SettingsModalProps {
   onSaveSystemPrompt: (prompt: string) => void;
   onClose: () => void;
   onOpenAuth?: () => void;
+  onOpenApiKeyModal?: () => void;
   onGoogleSignIn: () => void;
   onSignOut: () => void;
 }
@@ -32,6 +34,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSaveSystemPrompt,
   onClose,
   onOpenAuth,
+  onOpenApiKeyModal,
   onGoogleSignIn,
   onSignOut
 }) => {
@@ -50,8 +53,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#111118] border border-white/10 rounded-lg max-w-xl w-full p-5 space-y-5 shadow-2xl relative overflow-y-auto max-h-[90vh] text-slate-200">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+      <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative overflow-y-auto max-h-[92dvh] sm:max-h-[90vh] text-slate-200">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -122,57 +125,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
         </div>
 
-        {/* Section 2: Gemini Model Selection */}
-        <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">
-          <h3 className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider flex items-center gap-2">
-            <Bot className="w-3.5 h-3.5 text-amber-400" />
-            Gemini AI Intelligence Engine
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {GEMINI_MODELS.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => onSelectModel(m.id)}
-                className={`p-2.5 rounded border text-left transition text-xs flex flex-col justify-between space-y-1 ${
-                  selectedModel === m.id
-                    ? 'bg-amber-950/70 border-amber-600/50 text-amber-100'
-                    : 'bg-[#111118] border-white/10 text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-amber-300">{m.name}</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300 font-mono">
-                    {m.badge}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-400 line-clamp-2">
-                  {m.description}
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Section 3: Gemini API Key (For Direct Client-Side AI) */}
-        <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">
+        {/* Section 2: AI Provider & Engine Configuration */}
+        <div className="p-3.5 rounded bg-[#0A0A0F] border border-white/10 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider flex items-center gap-2">
-              <Key className="w-3.5 h-3.5 text-amber-400" />
-              Google Gemini API Key (Optional)
+              <Bot className="w-3.5 h-3.5 text-amber-400" />
+              AI Storyteller & Key Configuration
             </h3>
-            <span className="text-[9px] text-slate-500 font-mono">Enables direct AI on static hosting</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-800/40 text-emerald-300 font-mono">
+              Active: {AI_PROVIDERS[getActiveProvider()]?.name || 'Gemini'}
+            </span>
           </div>
-          <input
-            type="password"
-            value={apiKeyInput}
-            onChange={(e) => setApiKeyInput(e.target.value)}
-            placeholder="AIzaSy..."
-            className="w-full bg-[#111118] border border-white/10 rounded px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 font-mono"
-          />
-          <p className="text-[10px] text-slate-400">
-            Stored locally in your browser to power direct Google Gemini generation on static hosting (e.g. Cloudflare Pages).
-          </p>
+
+          <div className="p-3 rounded bg-[#111118] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="text-xs font-bold text-slate-200">
+                {AI_PROVIDERS[getActiveProvider()]?.name || 'Google Gemini'} ({getProviderModel(getActiveProvider())})
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Supports Gemini, OpenAI (ChatGPT), Anthropic Claude, xAI Grok, OpenRouter, Copilot, and Local LLMs (Ollama).
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenApiKeyModal) {
+                  onClose();
+                  onOpenApiKeyModal();
+                }
+              }}
+              className="px-3.5 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs font-mono uppercase tracking-wider transition shadow shrink-0 flex items-center gap-1.5"
+            >
+              <Key className="w-3.5 h-3.5" />
+              Manage Providers & Keys
+            </button>
+          </div>
         </div>
 
         {/* Section 4: Custom Game Master Directives */}

@@ -49,6 +49,7 @@ export interface InventoryItem {
 export interface CharacterSheet {
   id: string;
   name: string;
+  gender?: string; // 'she/her' | 'he/him' | 'they/them' | custom
   roleClass: string; // e.g. Paladin, Rogue, Cyber-Hacker, Ghibli Baker, Detective
   raceOrigin: string; // e.g. Elf, Human, Android, Spirit
   level: number;
@@ -84,6 +85,23 @@ export interface DiceRollResult {
   isNat20?: boolean;
   isNat1?: boolean;
   reason?: string;
+}
+
+export interface AvatarEvolution {
+  evolved: boolean;
+  visualChangeReason?: string;
+  updatedPhysicalDescription?: string;
+  avatarUrl?: string;
+}
+
+export interface ActionTurnResult {
+  text: string;
+  suggestedActions?: string[];
+  courseChangeAlert?: CourseChangeAlert | null;
+  requiredCheck?: PendingCheck | null;
+  stateDelta?: StateDelta | null;
+  avatarEvolution?: AvatarEvolution | null;
+  modelUsed?: string;
 }
 
 export interface LogMessage {
@@ -157,6 +175,37 @@ export interface CourseChangeAlert {
   timestamp: string;
 }
 
+export interface StoryOutlineNPC {
+  name: string;
+  role: string;
+  motivation: string;
+  secret?: string;
+}
+
+export interface DMStoryOutline {
+  startingCircumstances: string;
+  backstory: string;
+  incitingIncident: string;
+  immediateGoal: string;
+  keyNpcs: StoryOutlineNPC[];
+  majorConflicts: string[];
+  secretsAndReveals: string[];
+  actProgression: {
+    act1: string; // The opening crisis & initial choices
+    act2: string; // Rising complications, confrontations & discoveries
+    act3: string; // The climax, major revelation & resolution
+  };
+  potentialEndings: string[];
+}
+
+export interface TropeCategory {
+  id: string;
+  name: string;
+  tagline: string;
+  premise: string;
+  sampleConflict: string;
+}
+
 export interface Experience {
   id: string;
   userId: string;
@@ -171,6 +220,7 @@ export interface Experience {
   gameWorldState: GameWorldState;
   logs: LogMessage[];
   mapData: MapData;
+  storyOutline?: DMStoryOutline;
   pendingCheck?: PendingCheck | null;
   activeAlert?: CourseChangeAlert | null;
 }
@@ -206,6 +256,18 @@ export interface EncounterData {
   suggestedActions: string[];
 }
 
+export interface UserSettings {
+  selectedModel?: string;
+  customSystemPrompt?: string;
+  soundEnabled?: boolean;
+  activeProvider?: string;
+  providerKeys?: Record<string, string>;
+  providerModels?: Record<string, string>;
+  providerBaseUrls?: Record<string, string>;
+  activeExperienceId?: string | null;
+  updatedAt?: string;
+}
+
 export interface UserProfile {
   uid: string;
   displayName: string | null;
@@ -214,5 +276,7 @@ export interface UserProfile {
   avatar?: AvatarConfig;
   customApiKey?: string;
   preferredModel?: string;
+  settings?: UserSettings;
+  activeExperienceId?: string | null;
   updatedAt?: string;
 }

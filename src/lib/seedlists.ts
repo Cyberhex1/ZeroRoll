@@ -1,8 +1,11 @@
+import { TropeCategory } from '../types';
+
 export interface CategorySeedInfo {
   categoryId: string;
   categoryName: string;
   seedSource: string;
   coreThemes: string[];
+  popularTropes?: TropeCategory[];
   brainstormHooks: string[];
   narrativeTropes: string[];
   encounterSeeds: string[];
@@ -16,8 +19,8 @@ export interface CategorySeedInfo {
 export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
   tiktok_drama: {
     categoryId: 'tiktok_drama',
-    categoryName: 'TikTok Short Drama',
-    seedSource: 'GoodNovel, DramaBox & PrimeDrama Top Tropes',
+    categoryName: 'Short Drama',
+    seedSource: 'GoodNovel, ReelShot, ActDrama, DramaBox & PrimeDrama Top Tropes',
     coreThemes: [
       'Undercover Billionaire / Secret Heiress 3-Year Test',
       'The Gilded Hotel Gala & Heirloom Signet Ring',
@@ -25,6 +28,14 @@ export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
       'Contract Marriage with the Brooding Tycoon',
       'Quiet Dignity Before the Great Revelation',
       'The Grand Patriarch\'s Private Envoy Arrives'
+    ],
+    popularTropes: [
+      { id: 't_sec_bill', name: 'Secret Billionaire', tagline: 'Living humbly to test character before the grand reveal', premise: 'The protagonist works an entry-level job or lives in disguise to test loyalty before inheriting a $50B conglomerate.', sampleConflict: 'Arrogant rivals mock your simple clothes at the executive banquet, unaware you own the building.' },
+      { id: 't_stolen_inh', name: 'Stolen Inheritance', tagline: 'Kin seizing assets while casting out the rightful heir', premise: 'A corrupt sibling forged the family charter and took everything while you were away.', sampleConflict: 'You arrive at the shareholder meeting holding the unrevoked sovereign seal.' },
+      { id: 't_rejected', name: 'Rejected & Discarded', tagline: 'Cast aside for a wealthy rival, only to return sovereign', premise: 'Cast out into the rain by ungrateful in-laws, now returning as their majority creditor.', sampleConflict: 'Your ex-fiancé begs for a debt extension at your boardroom desk.' },
+      { id: 't_betrayal', name: 'Betrayal & Stolen Patent', tagline: 'The trusted partner who took credit for your life\'s work', premise: 'Your business partner took the credit and had your credentials revoked.', sampleConflict: 'Their flagship product crashes because the encryption key is under your biometric.' },
+      { id: 't_contract_mar', name: 'Contract Marriage', tagline: 'A temporary marriage of convenience with a brooding tycoon', premise: 'Signed a 3-year contract to protect the CEO from a hostile takeover.', sampleConflict: 'The family tries to divorce you with a $5K severance on the final day.' },
+      { id: 't_abused_dau', name: 'Abused Daughter', tagline: 'The unloved child who secretly holds the sovereign crest', premise: 'Treated as a domestic helper by your adoptive family while your sister is favored.', sampleConflict: 'The imperial chairman arrives to personally salute the true heiress.' }
     ],
     brainstormHooks: [
       'The hero has spent 3 years living humbly as a barista to test true character, arriving on the final morning of the test for the grand hotel gala.',
@@ -68,6 +79,12 @@ export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
       'Reclaiming Stolen Honor & Dismantling Corrupt Syndicates',
       'Cold Calculation over Rash Anger'
     ],
+    popularTropes: [
+      { id: 't_false_imp', name: 'False Imprisonment', tagline: 'Framed by corrupt barons and surviving to strike back', premise: 'You spent years in the mines after being framed for treason; now you have escaped with the syndicate ledger.', sampleConflict: 'Cornering the corrupt magistrate who signed your execution order.' },
+      { id: 't_blood_oath', name: 'The Broken Blood Oath', tagline: 'Betrayed at the bridge by your closest brother-in-arms', premise: 'Your battle-brother cut your horse reins and left you for dead in the river to claim a bounty.', sampleConflict: 'Tracking him down at the garrison post as he celebrates his stolen victory.' },
+      { id: 't_return_exile', name: 'Return From Exile', tagline: 'Returning with quiet wealth to buy up your rivals\' debt', premise: 'Cast out penniless, you return after a decade to methodically foreclose on the syndicate.', sampleConflict: 'Serving foreclosure notices to the council members dining at the grand inn.' },
+      { id: 't_poison_cup', name: 'The Poisoned Cup', tagline: 'A beloved mentor assassinated at a public banquet', premise: 'Your master was poisoned at the summit; you possess the only matching antidote vial.', sampleConflict: 'Confronting the court assassin in the rain-soaked courtyard before he flees.' }
+    ],
     brainstormHooks: [
       'Stepping off the midnight train into the city after 10 years in exile, carrying an untouched parchment list of the five officials who framed your family.',
       'Arriving in disguise at the harbor district tavern to purchase initial surveillance intel on the corrupt baron\'s trade shipments.',
@@ -109,6 +126,12 @@ export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
       'Royal Court Scandals & Balcony Rendezvous',
       'Witty Banter, Stolen Glances & Moonlight Waltzes'
     ],
+    popularTropes: [
+      { id: 't_mask_masq', name: 'Masked Identity', tagline: 'Dancing with the brooding duke whose signature seized your estate', premise: 'Behind a velvet domino mask, you waltz with your family\'s greatest court rival.', sampleConflict: 'He whispers that he knows who you are and offers a secret deal on the moonlit balcony.' },
+      { id: 't_counterfeit_bet', name: 'Counterfeit Betrothal', tagline: 'Faking a high-society romance with your sharpest rival', premise: 'To secure a massive trading charter, you must pretend to be deeply in love with your fiercest competitor.', sampleConflict: 'A rival barrister steps forward at the court ball to publicly test your love story.' },
+      { id: 't_intercepted_love', name: 'Intercepted Letters', tagline: 'The mysterious poet who wooed you is actually the stoic general', premise: 'Trading intimate philosophical letters with a writer who turns out to be the most feared commander.', sampleConflict: 'Recognizing his custom watermark paper and pen in his military dispatch case.' },
+      { id: 't_spite_marriage', name: 'The Spite Marriage', tagline: 'Proposing to the enemy commander to humiliate your unfaithful fiancé', premise: 'Caught your fiancé cheating; you turn and propose to the foreign ambassador on the spot.', sampleConflict: 'Announcing your new engagement loudly before the entire royal ballroom.' }
+    ],
     brainstormHooks: [
       'Arriving at the grand palace steps in a silver velvet domino mask, carrying an engraved invitation to the seasonal solstice ball.',
       'Entering the diplomatic reception where you must navigate polite conversation with the brooding commander of the rival province.',
@@ -149,6 +172,12 @@ export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
       'Sunken Crypts, Forgotten Catacombs & Ancient Lore',
       'Arcane Spells, Cantrips & Heritage Relics',
       'Local Rumors, Guild Bounties & Roadside Inns'
+    ],
+    popularTropes: [
+      { id: 't_disgraced_pal', name: 'Disgraced Paladin', tagline: 'Exiled for refusing an unholy purge, defending innocent refugees', premise: 'Stripped of rank and divine crest, armed only with a notched longsword and unbroken honor.', sampleConflict: 'Inquisitorial hounds attack the refugee wagon you swore to protect.' },
+      { id: 't_broken_seal', name: 'Shattered Boundary Stone', tagline: 'The ancient ward stone splits as the blood moon rises', premise: 'You arrive at a mist-covered crossroads to find the ward stone shattered and the elder clutching a bloody key.', sampleConflict: 'Monsters surge through the fractured barrier before the militia can bar the cemetery gates.' },
+      { id: 't_wyrm_tooth', name: 'Sealed Dragon Relic', tagline: 'An obsidian dagger in the village smithy ignites with dragon flame', premise: 'Dropping a coal-encrusted dagger reveals an ancient dragon blade that speaks your family name.', sampleConflict: 'Dragon cult scouts surround the forge demanding the ancestral blade.' },
+      { id: 't_stolen_grimoire', name: 'Stolen Archmage Grimoire', tagline: 'A fleeing apprentice thrusts a forbidden spellbook into your hands', premise: 'A wounded gnome apprentice crashes through the tavern window, chased by shadow gargoyles.', sampleConflict: 'The grimoire\'s eye opens and speaks an emergency counterspell into your mind.' }
     ],
     brainstormHooks: [
       'Arriving at the misty frontier village of Oakhaven after weeks on the road, where the village elder has posted an urgent summons outside the inn.',
@@ -648,16 +677,16 @@ export function generateDynamicSeedlist(categoryId: string): CategorySeedInfo {
   const openingHooks = (base.openingHooks && base.openingHooks.length > 0)
     ? base.openingHooks
     : [
-        {
-          title: `${base.categoryName}: Act I, Scene 1`,
-          hook: `The morning mist clears as you step forward into the world of ${base.categoryName}. Your quest begins at the crossroads with your primary equipment ready at your side.`,
-          suggestedActions: [
-            'Investigate your immediate surroundings',
-            'Speak with the nearest contact or local',
-            'Prepare your equipment and advance'
-          ]
-        }
-      ];
+      {
+        title: `${base.categoryName}: Act I, Scene 1`,
+        hook: `The morning mist clears as you step forward into the world of ${base.categoryName}. Your quest begins at the crossroads with your primary equipment ready at your side.`,
+        suggestedActions: [
+          'Investigate your immediate surroundings',
+          'Speak with the nearest contact or local',
+          'Prepare your equipment and advance'
+        ]
+      }
+    ];
 
   return {
     ...base,

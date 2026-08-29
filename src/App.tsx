@@ -11,6 +11,20 @@ import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
 import { CATEGORIES_DATA } from './lib/categoriesData';
 import { generateScenarioHook } from './lib/scenarioHooks';
 
+function safeGetStorage(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch (_) {
+    return null;
+  }
+}
+
+function safeSetStorage(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch (_) {}
+}
+
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -18,7 +32,7 @@ export default function App() {
 
   // User Profile state
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('dnd_user_profile');
+    const saved = safeGetStorage('dnd_user_profile');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
@@ -40,17 +54,17 @@ export default function App() {
 
   // Settings states
   const [selectedModel, setSelectedModel] = useState<string>(() => {
-    const saved = localStorage.getItem('dnd_selected_model');
+    const saved = safeGetStorage('dnd_selected_model');
     const isValid = GEMINI_MODELS.some(m => m.id === saved);
     if (isValid && saved) {
       return saved;
     }
-    localStorage.setItem('dnd_selected_model', DEFAULT_GEMINI_MODEL);
+    safeSetStorage('dnd_selected_model', DEFAULT_GEMINI_MODEL);
     return DEFAULT_GEMINI_MODEL;
   });
 
   const [customSystemPrompt, setCustomSystemPrompt] = useState<string>(() => {
-    return localStorage.getItem('dnd_system_prompt') || '';
+    return safeGetStorage('dnd_system_prompt') || '';
   });
 
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
@@ -79,10 +93,10 @@ export default function App() {
             photoURL: loadedProfile.photoURL || currentUser.photoURL || null,
           };
           setUserProfile(merged);
-          localStorage.setItem('dnd_user_profile', JSON.stringify(merged));
+          safeSetStorage('dnd_user_profile', JSON.stringify(merged));
         } else {
           // No cloud profile yet — try to inherit avatar from guest local profile
-          const savedLocal = localStorage.getItem('dnd_user_profile');
+          const savedLocal = safeGetStorage('dnd_user_profile');
           let inheritedAvatar = {
             hairstyle: 'short_rogue' as const,
             hairColor: '#f59e0b',
@@ -105,7 +119,7 @@ export default function App() {
             avatar: inheritedAvatar
           };
           setUserProfile(newProfile);
-          localStorage.setItem('dnd_user_profile', JSON.stringify(newProfile));
+          safeSetStorage('dnd_user_profile', JSON.stringify(newProfile));
           await saveUserProfileToCloud(newProfile);
         }
       } else {
@@ -124,7 +138,7 @@ export default function App() {
           }
         };
         setUserProfile(guestProfile);
-        localStorage.removeItem('dnd_user_profile');
+        try { localStorage.removeItem('dnd_user_profile'); } catch (_) {}
       }
     });
     return () => unsubscribe();
@@ -133,7 +147,7 @@ export default function App() {
   // Save profile helper
   const handleSaveProfile = (newProfile: UserProfile) => {
     setUserProfile(newProfile);
-    localStorage.setItem('dnd_user_profile', JSON.stringify(newProfile));
+    safeSetStorage('dnd_user_profile', JSON.stringify(newProfile));
     saveUserProfileToCloud(newProfile);
   };
 
@@ -149,13 +163,13 @@ export default function App() {
   // Model Persistence
   const handleSelectModel = (modelId: string) => {
     setSelectedModel(modelId);
-    localStorage.setItem('dnd_selected_model', modelId);
+    safeSetStorage('dnd_selected_model', modelId);
   };
 
   // Custom System Prompt Persistence
   const handleSaveSystemPrompt = (prompt: string) => {
     setCustomSystemPrompt(prompt);
-    localStorage.setItem('dnd_system_prompt', prompt);
+    safeSetStorage('dnd_system_prompt', prompt);
   };
 
   // Create New Experience

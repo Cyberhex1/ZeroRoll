@@ -45,7 +45,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
   const getModValue = (val: number) => Math.floor((val - 10) / 2);
 
   const handleToggleEquip = (itemId: string) => {
-    const updatedInv = character.inventory.map(item => {
+    const updatedInv = (character.inventory || []).map(item => {
       if (item.id === itemId) {
         return { ...item, isEquipped: !item.isEquipped };
       }
@@ -73,7 +73,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
           physicalDescription: physicalDesc || character.physicalDescription || 'Heroic adventurer with iconic gear',
           currentLocation: currentLocation,
           recentStorySummary: recentStoryContext,
-          conditions: character.statusEffects.join(', ')
+          conditions: (character.statusEffects || []).join(', ')
         })
       });
 
@@ -266,16 +266,16 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
         <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
           <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            Active Conditions ({character.statusEffects.length})
+            Active Conditions ({(character.statusEffects || []).length})
           </span>
           <span className="text-[9px] font-mono text-slate-500">Story-Managed</span>
         </div>
         
-        {character.statusEffects.length === 0 ? (
+        {(character.statusEffects || []).length === 0 ? (
           <p className="text-[11px] text-slate-500 italic">No adverse conditions currently active.</p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
-            {character.statusEffects.map((st, idx) => (
+            {(character.statusEffects || []).map((st, idx) => (
               <span
                 key={idx}
                 className="px-2 py-0.5 rounded bg-purple-950/80 border border-purple-700/50 text-purple-200 text-[10px] font-mono flex items-center gap-1"
@@ -293,16 +293,16 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
         <div className="flex items-center justify-between text-xs font-semibold text-slate-300 border-b border-white/10 pb-2">
           <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider">
             <Package className="w-3.5 h-3.5 text-amber-400" />
-            Equipment & Inventory ({character.inventory.length})
+            Equipment & Inventory ({(character.inventory || []).length})
           </span>
           <span className="text-[9px] font-mono text-slate-500">Story-Managed</span>
         </div>
 
-        {character.inventory.length === 0 ? (
+        {(character.inventory || []).length === 0 ? (
           <p className="text-[11px] text-slate-500 italic">Inventory is empty. Items you discover will appear here automatically.</p>
         ) : (
           <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-            {character.inventory.map((item) => (
+            {(character.inventory || []).map((item) => (
               <div
                 key={item.id}
                 className="p-2 rounded bg-[#111118] border border-white/5 flex items-center justify-between text-xs group"
@@ -355,16 +355,16 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
         <div className="flex items-center justify-between text-xs font-semibold text-slate-300 border-b border-white/10 pb-2">
           <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider">
             <BookOpen className="w-3.5 h-3.5 text-blue-400" />
-            Spells & Powers ({character.spells.length})
+            Spells & Powers ({(character.spells || []).length})
           </span>
           <span className="text-[9px] font-mono text-slate-500">Story-Managed</span>
         </div>
 
-        {character.spells.length === 0 ? (
+        {(character.spells || []).length === 0 ? (
           <p className="text-[11px] text-slate-500 italic">No spells or magical powers unlocked yet.</p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
-            {character.spells.map((sp, idx) => (
+            {(character.spells || []).map((sp, idx) => (
               <span
                 key={idx}
                 className="px-2 py-1 rounded bg-blue-950/80 border border-blue-700/50 text-blue-200 text-[10px] font-mono flex items-center gap-1.5"

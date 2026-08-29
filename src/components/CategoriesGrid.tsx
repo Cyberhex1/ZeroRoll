@@ -489,24 +489,26 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         {/* Character Snippet */}
                         <div className="p-2.5 rounded bg-[#0A0A0F] border border-white/5 text-xs flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            {exp.character.avatarUrl ? (
+                            {exp.character?.avatarUrl ? (
                               <img 
                                 src={exp.character.avatarUrl} 
-                                alt={exp.character.name} 
+                                alt={exp.character.name || 'Hero'} 
                                 className="w-7 h-7 rounded object-cover border border-amber-600/40"
                               />
                             ) : (
                               <div className="w-6 h-6 rounded bg-amber-600/20 border border-amber-600/40 text-amber-300 flex items-center justify-center font-bold text-xs font-serif">
-                                {exp.character.name[0]}
+                                {exp.character?.name?.[0] || 'H'}
                               </div>
                             )}
                             <div>
-                              <div className="font-semibold text-slate-200 text-xs">{exp.character.name}</div>
-                              <div className="text-[10px] text-slate-500 font-mono">{exp.character.raceOrigin} • {exp.character.roleClass}</div>
+                              <div className="font-semibold text-slate-200 text-xs">{exp.character?.name || 'Hero'}</div>
+                              <div className="text-[10px] text-slate-500 font-mono">
+                                {exp.character?.raceOrigin || 'Adventurer'} • {exp.character?.roleClass || 'Hero'}
+                              </div>
                             </div>
                           </div>
                           <div className="text-right font-mono text-[10px] text-amber-400">
-                            HP {exp.character.hp}/{exp.character.maxHp}
+                            HP {exp.character?.hp ?? 10}/{exp.character?.maxHp ?? 10}
                           </div>
                         </div>
                       </div>

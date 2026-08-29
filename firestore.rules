@@ -1,20 +1,49 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // User root profile, settings, and active session
+
+    // -------------------------------------------------------------------------
+    // User root document: profile, settings, activeExperienceId
+    // Only the authenticated owner may read or write their own user doc.
+    // -------------------------------------------------------------------------
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // User-specific experiences / campaigns subcollection
+
+      // -----------------------------------------------------------------------
+      // User-owned experiences subcollection.
+      //
+      // Security requirements enforced HERE (not client-side):
+      //   • The requesting user must be authenticated.
+      //   • The authenticated UID must match the parent userId path segment.
+      //   • On create/update, the document's userId field must equal the
+      //     authenticated UID — prevents the client from writing a forged userId.
+      // -----------------------------------------------------------------------
       match /experiences/{experienceId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        // Read: owner only
+        allow read: if request.auth != null && request.auth.uid == userId;
+
+        // Create: owner only + payload userId must match authenticated UID
+        allow create: if request.auth != null
+                      && request.auth.uid == userId
+                      && request.resource.data.userId == request.auth.uid;
+
+        // Update: owner only + payload userId must still match authenticated UID
+        allow update: if request.auth != null
+                      && request.auth.uid == userId
+                      && request.resource.data.userId == request.auth.uid;
+
+        // Delete: owner only
+        allow delete: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // Legacy fallback compatibility for un-migrated root docs
+    // -------------------------------------------------------------------------
+    // The legacy root /experiences collection is no longer used by the
+    // application. All reads and writes are denied to prevent accidental
+    // or malicious access.
+    // -------------------------------------------------------------------------
     match /experiences/{experienceId} {
-      allow read, write: if request.auth != null && (resource == null || resource.data.userId == request.auth.uid);
+      allow read, write: if false;
     }
   }
 }

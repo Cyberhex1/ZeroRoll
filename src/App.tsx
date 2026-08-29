@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { 
   auth, 
@@ -42,35 +42,35 @@ function safeSetStorage(key: string, value: string): void {
   } catch (_) {}
 }
 
+// Guest profile default — used for unauthenticated state
+const GUEST_PROFILE: UserProfile = {
+  uid: 'guest',
+  displayName: 'Adventurer',
+  email: null,
+  photoURL: null,
+  avatar: {
+    hairstyle: 'short_rogue',
+    hairColor: '#f59e0b',
+    skinTone: '#fde047',
+    clothingColor: '#1e1b4b',
+    badgeIcon: 'shield'
+  }
+};
+
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [activeExperience, setActiveExperience] = useState<Experience | null>(null);
-  const [pendingActiveExpId, setPendingActiveExpId] = useState<string | null>(null);
 
-  // User Profile state
-  const [userProfile, setUserProfile] = useState<UserProfile>(() => {
-    const saved = safeGetStorage('dnd_user_profile');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
-    }
-    return {
-      uid: 'guest',
-      displayName: 'Adventurer',
-      email: null,
-      photoURL: null,
-      avatar: {
-        hairstyle: 'short_rogue',
-        hairColor: '#f59e0b',
-        skinTone: '#fde047',
-        clothingColor: '#1e1b4b',
-        badgeIcon: 'shield'
-      }
-    };
-  });
+  // pendingActiveExpId is resolved inside the subscription callback — NOT a dep of the subscription effect
+  const pendingActiveExpId = useRef<string | null>(null);
+
+  // User Profile — intentionally NOT initialized from localStorage to avoid flashing
+  // a stale/wrong account's cached profile before auth resolves.
+  const [userProfile, setUserProfile] = useState<UserProfile>(GUEST_PROFILE);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
 
-  // Settings states
+  // Settings states — initialized from local cache (acceptable: these are preferences, not identity)
   const [selectedModel, setSelectedModel] = useState<string>(() => {
     const saved = safeGetStorage('dnd_selected_model');
     const isValid = GEMINI_MODELS.some(m => m.id === saved);
@@ -95,23 +95,38 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  // Sync profile & cloud settings when auth state changes
+  // Cloud save error — shown transiently in Navbar when a Firestore write fails
+  const [cloudSaveError, setCloudSaveError] = useState<string | null>(null);
+  const cloudSaveErrorTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showCloudSaveError(msg: string) {
+    setCloudSaveError(msg);
+    if (cloudSaveErrorTimer.current) clearTimeout(cloudSaveErrorTimer.current);
+    cloudSaveErrorTimer.current = setTimeout(() => setCloudSaveError(null), 5000);
+  }
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (cloudSaveErrorTimer.current) clearTimeout(cloudSaveErrorTimer.current);
+    };
+  }, []);
+
+  // ---------------------------------------------------------------------------
+  // Auth State — the authoritative source for user identity and cloud data
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     // Process redirect sign-in if returning from Google redirect
     checkRedirectAuthResult();
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-
       if (currentUser) {
-        // Run migration for any local/guest experiences
-        migrateLocalDataToUser(currentUser.uid).catch(console.warn);
+        setUser(currentUser);
 
-        // Try to load existing cloud profile
+        // Load cloud profile
         let loadedProfile = await loadUserProfileFromCloud(currentUser.uid);
 
         if (loadedProfile) {
-          // Merge profile and hydrate
           const merged: UserProfile = {
             ...loadedProfile,
             uid: currentUser.uid,
@@ -122,7 +137,7 @@ export default function App() {
           setUserProfile(merged);
           safeSetStorage('dnd_user_profile', JSON.stringify(merged));
 
-          // Hydrate settings if present in cloud
+          // Hydrate settings from cloud
           if (loadedProfile.settings) {
             const cs = loadedProfile.settings;
             if (cs.selectedModel) {
@@ -139,7 +154,7 @@ export default function App() {
             }
             importAllProviderSettings(cs);
           } else {
-            // First time cloud sync for this user: export local provider settings to cloud
+            // First cloud sync for this account — upload local preferences
             const localSettings = exportAllProviderSettings();
             await saveUserSettingsToCloud(currentUser.uid, {
               ...localSettings,
@@ -150,10 +165,10 @@ export default function App() {
           }
 
           if (loadedProfile.activeExperienceId) {
-            setPendingActiveExpId(loadedProfile.activeExperienceId);
+            pendingActiveExpId.current = loadedProfile.activeExperienceId;
           }
         } else {
-          // No cloud profile yet — create new cloud record
+          // New account — create cloud profile record
           const localSettings = exportAllProviderSettings();
           const newProfile: UserProfile = {
             uid: currentUser.uid,
@@ -179,28 +194,17 @@ export default function App() {
           await saveUserProfileToCloud(newProfile);
         }
       } else {
-        // Signed out — reset to guest profile defaults
-        const guestProfile: UserProfile = {
-          uid: 'guest',
-          displayName: 'Adventurer',
-          email: null,
-          photoURL: null,
-          avatar: {
-            hairstyle: 'short_rogue',
-            hairColor: '#f59e0b',
-            skinTone: '#fde047',
-            clothingColor: '#1e1b4b',
-            badgeIcon: 'shield'
-          }
-        };
-        setUserProfile(guestProfile);
+        // Signed out — synchronously clear ALL user-specific state first to prevent data leak
+        setUser(null);
+        setExperiences([]);
         setActiveExperience(null);
-        setPendingActiveExpId(null);
+        pendingActiveExpId.current = null;
+        setUserProfile(GUEST_PROFILE);
         try { localStorage.removeItem('dnd_user_profile'); } catch (_) {}
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save profile helper
   const handleSaveProfile = (newProfile: UserProfile) => {
@@ -209,25 +213,38 @@ export default function App() {
     saveUserProfileToCloud(newProfile);
   };
 
-  // Sync experiences in real-time
+  // ---------------------------------------------------------------------------
+  // Experience Subscription — depends only on [user], not on pendingActiveExpId
+  // Avoids recreating the Firestore listener when only the pending ID changes.
+  // ---------------------------------------------------------------------------
   useEffect(() => {
     const userId = user?.uid || '';
-    const unsubscribe = subscribeToUserExperiences(userId, (exps) => {
-      setExperiences(exps);
 
-      // Hydrate active experience if pending from cloud
-      if (pendingActiveExpId) {
-        const found = exps.find(e => e.id === pendingActiveExpId);
-        if (found) {
-          setActiveExperience(found);
-          setPendingActiveExpId(null);
+    const unsubscribe = subscribeToUserExperiences(
+      userId,
+      (exps) => {
+        setExperiences(exps);
+
+        // Resolve pending active experience once the list arrives
+        if (pendingActiveExpId.current) {
+          const found = exps.find(e => e.id === pendingActiveExpId.current);
+          if (found) {
+            setActiveExperience(found);
+            pendingActiveExpId.current = null;
+          }
         }
+      },
+      (errMsg) => {
+        showCloudSaveError(`Cloud sync error: ${errMsg}`);
       }
-    });
-    return () => unsubscribe();
-  }, [user, pendingActiveExpId]);
+    );
 
-  // Model Persistence
+    return () => unsubscribe();
+  }, [user]); // Only re-subscribe when the user identity changes
+
+  // ---------------------------------------------------------------------------
+  // Settings Persistence
+  // ---------------------------------------------------------------------------
   const handleSelectModel = (modelId: string) => {
     setSelectedModel(modelId);
     safeSetStorage('dnd_selected_model', modelId);
@@ -236,7 +253,6 @@ export default function App() {
     }
   };
 
-  // Custom System Prompt Persistence
   const handleSaveSystemPrompt = (prompt: string) => {
     setCustomSystemPrompt(prompt);
     safeSetStorage('dnd_system_prompt', prompt);
@@ -245,7 +261,6 @@ export default function App() {
     }
   };
 
-  // Sound preference toggle
   const handleToggleSound = () => {
     const nextVal = !soundEnabled;
     setSoundEnabled(nextVal);
@@ -255,7 +270,9 @@ export default function App() {
     }
   };
 
-  // Create New Experience
+  // ---------------------------------------------------------------------------
+  // Experience CRUD
+  // ---------------------------------------------------------------------------
   const handleCreateExperience = async (
     category: ExperienceCategory,
     customTitle: string,
@@ -266,7 +283,6 @@ export default function App() {
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
-    // Generate tailored starting scenario hook & map with fog of war for category
     const scenarioHookData = generateScenarioHook(category, character.name, character.roleClass);
 
     const initialMap: MapData = scenarioHookData.mapData || {
@@ -286,7 +302,7 @@ export default function App() {
 
     const initialLog: LogMessage = {
       id: `msg_init_${Date.now()}`,
-      sender: 'dm', // The story starts with a DM narration from the beginning!
+      sender: 'dm',
       text: initialLogText,
       timestamp: new Date().toISOString(),
       suggestedActions: (suggestedActions && suggestedActions.length > 0) ? suggestedActions : (scenarioHookData.suggestedActions || [
@@ -307,11 +323,8 @@ export default function App() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       character: {
-        // Start with hook defaults for stat block (hp, stats, armorClass etc)
         ...scenarioHookData.character,
-        // Always prefer the user's chosen name, class, race, and generated avatar
         ...character,
-        // Explicitly preserve user's inventory/spells (non-empty wins over hook defaults)
         inventory: (character.inventory && character.inventory.length > 0) ? character.inventory : scenarioHookData.character.inventory,
         spells: (character.spells && character.spells.length > 0) ? character.spells : scenarioHookData.character.spells,
         statusEffects: (character.statusEffects && character.statusEffects.length > 0) ? character.statusEffects : scenarioHookData.character.statusEffects,
@@ -325,8 +338,12 @@ export default function App() {
     };
 
     setIsSaving(true);
-    await saveExperienceToCloud(newExp);
+    const result = await saveExperienceToCloud(newExp);
     setIsSaving(false);
+
+    if (!result.ok) {
+      showCloudSaveError('Could not save campaign to cloud. Your progress is saved locally.');
+    }
 
     setActiveExperience(newExp);
     if (user) {
@@ -341,20 +358,25 @@ export default function App() {
     }
   };
 
-  // Update Experience Real-Time
   const handleUpdateExperience = async (updated: Experience) => {
     setActiveExperience(updated);
     setIsSaving(true);
-    await saveExperienceToCloud(updated);
+    const result = await saveExperienceToCloud(updated);
     setIsSaving(false);
+
+    if (!result.ok) {
+      showCloudSaveError('Auto-save to cloud failed. Your progress is saved locally.');
+    }
   };
 
-  // Delete Experience
   const handleDeleteExperience = async (expId: string) => {
     if (activeExperience?.id === expId) {
       handleSelectExperience(null);
     }
-    await deleteExperienceFromCloud(expId);
+    const result = await deleteExperienceFromCloud(expId);
+    if (!result.ok) {
+      showCloudSaveError('Could not delete campaign from cloud.');
+    }
   };
 
   return (
@@ -378,6 +400,16 @@ export default function App() {
         userProfile={userProfile}
         isSaving={isSaving}
       />
+
+      {/* Cloud save error toast */}
+      {cloudSaveError && (
+        <div
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-red-950/90 border border-red-700/60 text-red-200 text-xs font-mono px-4 py-2.5 rounded-lg shadow-xl backdrop-blur-md max-w-sm text-center animate-in fade-in slide-in-from-bottom-2 duration-200"
+          role="alert"
+        >
+          ⚠ {cloudSaveError}
+        </div>
+      )}
 
       {/* Main Body */}
       <main>

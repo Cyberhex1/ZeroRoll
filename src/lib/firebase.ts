@@ -5,11 +5,8 @@ import {
   doc, 
   setDoc, 
   getDoc, 
-  getDocs, 
   deleteDoc, 
   onSnapshot, 
-  query, 
-  where,
   getDocFromServer
 } from 'firebase/firestore';
 import { 
@@ -254,10 +251,9 @@ export async function signInAsGuestUser(displayName?: string): Promise<User | nu
   }
 }
 
-// Sign Out
+// Sign Out — does NOT notify local experience change; App.tsx handles state cleanup
 export async function logoutUser(): Promise<void> {
   await signOut(auth);
-  notifyLocalExperienceChange();
 }
 
 // User Settings & Profile Cloud Sync
@@ -317,13 +313,27 @@ export async function loadUserProfileFromCloud(uid: string): Promise<UserProfile
   return null;
 }
 
-// Helper to get all experiences currently in localStorage
+// ---------------------------------------------------------------------------
+// localStorage helpers — experience keys only (profile keys are managed in App.tsx)
+// ---------------------------------------------------------------------------
+
+const LEGACY_EXP_PREFIX = 'experience_';
+const USER_EXP_PREFIX = 'zeroroll_exp_';
+const GUEST_EXP_PREFIX = 'zeroroll_exp_guest_';
+
+/** Returns all local experiences for a given userId (or guest experiences if no userId). */
 export function getLocalExperiences(userId?: string): Experience[] {
   const localExps: Experience[] = [];
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.startsWith('experience_') || (userId && key.startsWith(`zeroroll_exp_${userId}_`)) || key.startsWith('zeroroll_exp_guest_'))) {
+      if (!key) continue;
+
+      const isLegacy = key.startsWith(LEGACY_EXP_PREFIX);
+      const isUserScoped = userId && key.startsWith(`${USER_EXP_PREFIX}${userId}_`);
+      const isGuestScoped = key.startsWith(GUEST_EXP_PREFIX);
+
+      if (isLegacy || isUserScoped || isGuestScoped) {
         try {
           const raw = localStorage.getItem(key);
           if (raw) {
@@ -332,13 +342,35 @@ export function getLocalExperiences(userId?: string): Experience[] {
               localExps.push(item);
             }
           }
-        } catch (e) {}
+        } catch (_) {}
       }
     }
   } catch (e) {
     console.warn('Error reading local storage experiences:', e);
   }
-  return localExps.sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
+  return localExps.sort(
+    (a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
+  );
+}
+
+/**
+ * Purge guest-scoped and legacy experience keys from localStorage.
+ * Called after a successful migration to avoid stale guest data resurfacing
+ * in future subscriptions for the authenticated user.
+ */
+function purgeGuestLocalExperiences(): void {
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith(GUEST_EXP_PREFIX) || key.startsWith(LEGACY_EXP_PREFIX))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => {
+      try { localStorage.removeItem(k); } catch (_) {}
+    });
+  } catch (_) {}
 }
 
 // Custom event to synchronize local experience changes across components
@@ -350,174 +382,238 @@ function notifyLocalExperienceChange() {
   }
 }
 
-// Migrate any guest experiences or legacy unnested docs to user's secure subcollection
-export async function migrateLocalDataToUser(userId: string): Promise<void> {
+/**
+ * Migrate guest/local experiences into the authenticated user's Firestore subcollection.
+ *
+ * Conflict resolution:
+ *   - If the cloud copy exists and is NEWER than the local copy → skip (cloud wins).
+ *   - If the cloud copy does not exist or is OLDER → upload local copy.
+ *
+ * A `cancelled` flag prevents async writes from firing after logout.
+ */
+export async function migrateLocalDataToUser(userId: string, cancelled?: { current: boolean }): Promise<void> {
   if (!userId || userId === 'guest') return;
-  
+
   try {
     const localExps = getLocalExperiences(userId);
-    for (const exp of localExps) {
-      if (exp.userId === 'guest' || !exp.userId || exp.userId === userId) {
-        const claimedExp: Experience = {
-          ...exp,
-          userId: userId,
-          updatedAt: exp.updatedAt || new Date().toISOString()
-        };
-        
-        // Cache to user-scoped local keys
-        try {
-          localStorage.setItem(`experience_${claimedExp.id}`, JSON.stringify(claimedExp));
-          localStorage.setItem(`zeroroll_exp_${userId}_${claimedExp.id}`, JSON.stringify(claimedExp));
-        } catch (_) {}
+    let migrated = false;
 
-        // Upload to user's Firestore subcollection
-        try {
-          const userExpRef = doc(db, 'users', userId, 'experiences', claimedExp.id);
-          await setDoc(userExpRef, claimedExp, { merge: true });
-        } catch (err) {
-          handleFirestoreError(err, OperationType.WRITE, `users/${userId}/experiences/${claimedExp.id}`);
+    for (const exp of localExps) {
+      if (cancelled?.current) break;
+
+      // Only migrate guest-owned or unclaimed experiences
+      if (exp.userId !== 'guest' && exp.userId && exp.userId !== userId) continue;
+
+      const claimedExp: Experience = {
+        ...exp,
+        userId,
+        updatedAt: exp.updatedAt || new Date().toISOString()
+      };
+
+      // Write to user-scoped localStorage key
+      try {
+        localStorage.setItem(`${USER_EXP_PREFIX}${userId}_${claimedExp.id}`, JSON.stringify(claimedExp));
+      } catch (_) {}
+
+      if (cancelled?.current) break;
+
+      try {
+        const userExpRef = doc(db, 'users', userId, 'experiences', claimedExp.id);
+        const cloudSnap = await getDoc(userExpRef);
+
+        if (cloudSnap.exists()) {
+          const cloudData = cloudSnap.data() as Experience;
+          const cloudTs = new Date(cloudData.updatedAt || cloudData.createdAt).getTime();
+          const localTs = new Date(claimedExp.updatedAt || claimedExp.createdAt).getTime();
+
+          // Cloud is newer — do not overwrite
+          if (cloudTs >= localTs) continue;
         }
+
+        if (cancelled?.current) break;
+
+        await setDoc(userExpRef, claimedExp, { merge: true });
+        migrated = true;
+      } catch (err) {
+        handleFirestoreError(err, OperationType.WRITE, `users/${userId}/experiences/${claimedExp.id}`);
       }
     }
-    notifyLocalExperienceChange();
+
+    if (!cancelled?.current && migrated) {
+      // Purge stale guest/legacy local keys so they don't re-appear
+      purgeGuestLocalExperiences();
+      notifyLocalExperienceChange();
+    }
   } catch (e) {
     console.warn('Migration to user cloud subcollection error:', e);
   }
 }
 
+// ---------------------------------------------------------------------------
 // Save or Sync Experience to Firestore & Local Storage
-export async function saveExperienceToCloud(experience: Experience): Promise<void> {
+// Returns { ok: true } on success or { ok: false, error } if Firestore write fails.
+// ---------------------------------------------------------------------------
+export interface SaveResult {
+  ok: boolean;
+  error?: string;
+}
+
+export async function saveExperienceToCloud(experience: Experience): Promise<SaveResult> {
   const currentUser = auth.currentUser;
   const actualUserId = currentUser ? currentUser.uid : (experience.userId || 'guest');
-  
+
   const payload: Experience = {
     ...experience,
     userId: actualUserId,
     updatedAt: new Date().toISOString()
   };
 
-  // 1. Instant local storage persistence
+  // 1. Instant local storage persistence (always succeeds for offline/guest use)
   try {
-    localStorage.setItem(`experience_${payload.id}`, JSON.stringify(payload));
     if (actualUserId !== 'guest') {
-      localStorage.setItem(`zeroroll_exp_${actualUserId}_${payload.id}`, JSON.stringify(payload));
+      localStorage.setItem(`${USER_EXP_PREFIX}${actualUserId}_${payload.id}`, JSON.stringify(payload));
+    } else {
+      localStorage.setItem(`${GUEST_EXP_PREFIX}${payload.id}`, JSON.stringify(payload));
     }
   } catch (storageErr) {
     console.warn('LocalStorage quota or write error:', storageErr);
   }
 
-  // Notify active subscribers
   notifyLocalExperienceChange();
 
-  // 2. Cloud Firestore persistence under users/{userId}/experiences/{experienceId}
+  // 2. Cloud Firestore persistence — Firestore = source of truth for authenticated users
   if (actualUserId && actualUserId !== 'guest') {
     try {
       const expRef = doc(db, 'users', actualUserId, 'experiences', payload.id);
       await setDoc(expRef, payload, { merge: true });
+      return { ok: true };
     } catch (err: any) {
       handleFirestoreError(err, OperationType.WRITE, `users/${actualUserId}/experiences/${payload.id}`);
+      return { ok: false, error: err instanceof Error ? err.message : String(err) };
     }
   }
+
+  return { ok: true }; // Guest mode — local save succeeded
 }
 
-// Subscribe to User Experiences in Real-Time (Merging Firestore + Local Cache)
+// ---------------------------------------------------------------------------
+// Subscribe to User Experiences in Real-Time
+//
+// For authenticated users: Firestore is the source of truth.
+//   - The Firestore snapshot drives the experience list.
+//   - Local cache is written by the snapshot handler for offline support.
+//   - Guest migration runs once on subscribe, with a cancelled guard.
+//
+// For guest users: localStorage is the only source.
+// ---------------------------------------------------------------------------
 export function subscribeToUserExperiences(
-  userId: string, 
-  onUpdate: (experiences: Experience[]) => void
-) {
-  // Initial local state dispatch
-  const initialLocal = getLocalExperiences(userId);
+  userId: string,
+  onUpdate: (experiences: Experience[]) => void,
+  onError?: (err: string) => void
+): () => void {
+  // Cancelled flag — prevents async migration / snapshot from updating state after cleanup
+  const cancelled = { current: false };
+
   if (userId && userId !== 'guest') {
-    const filtered = initialLocal.filter(e => e.userId === userId || e.userId === 'guest');
-    onUpdate(filtered);
-  } else {
-    onUpdate(initialLocal.filter(e => e.userId === 'guest' || !e.userId));
+    // Authenticated user path — Firestore is authoritative
+
+    // Provide an immediate local snapshot from the user-scoped keys while Firestore loads
+    const initialLocal = getLocalExperiences(userId).filter(e => e.userId === userId);
+    if (initialLocal.length > 0) {
+      onUpdate(initialLocal);
+    }
+
+    // Kick off guest migration (non-blocking, conflict-aware)
+    migrateLocalDataToUser(userId, cancelled).catch(console.warn);
+
+    // Attach Firestore real-time listener
+    const userExpCollection = collection(db, 'users', userId, 'experiences');
+
+    const unsubscribeFirestore = onSnapshot(
+      userExpCollection,
+      (snapshot) => {
+        if (cancelled.current) return;
+
+        const cloudExps: Experience[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data() as Experience;
+          cloudExps.push(data);
+
+          // Write-through to local cache for offline resilience
+          try {
+            localStorage.setItem(`${USER_EXP_PREFIX}${userId}_${data.id}`, JSON.stringify(data));
+          } catch (_) {}
+        });
+
+        // Firestore is the source of truth — cloud list replaces local list
+        cloudExps.sort(
+          (a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
+        );
+        onUpdate(cloudExps);
+      },
+      (err) => {
+        if (cancelled.current) return;
+        handleFirestoreError(err, OperationType.LIST, `users/${userId}/experiences`);
+        if (onError) onError(err.message);
+
+        // Offline fallback — serve from user-scoped local cache
+        const fallback = getLocalExperiences(userId).filter(e => e.userId === userId);
+        onUpdate(fallback);
+      }
+    );
+
+    return () => {
+      cancelled.current = true;
+      unsubscribeFirestore();
+    };
   }
 
-  // Local storage listener handler
+  // ---------------------------------------------------------------------------
+  // Guest user path — localStorage only
+  // ---------------------------------------------------------------------------
+  const guestExps = getLocalExperiences().filter(e => e.userId === 'guest' || !e.userId);
+  onUpdate(guestExps);
+
   const handleLocalChange = () => {
-    const freshLocal = getLocalExperiences(userId);
-    if (userId && userId !== 'guest') {
-      const filtered = freshLocal.filter(e => e.userId === userId || e.userId === 'guest');
-      onUpdate(filtered);
-    } else {
-      onUpdate(freshLocal.filter(e => e.userId === 'guest' || !e.userId));
-    }
+    if (cancelled.current) return;
+    const fresh = getLocalExperiences().filter(e => e.userId === 'guest' || !e.userId);
+    onUpdate(fresh);
   };
 
   window.addEventListener(EXPERIENCE_CHANGE_EVENT, handleLocalChange);
   window.addEventListener('storage', handleLocalChange);
 
-  // If user is authenticated, run guest migration and attach Firestore subcollection listener
-  if (userId && userId !== 'guest') {
-    migrateLocalDataToUser(userId).catch(console.warn);
-
-    const userExpCollection = collection(db, 'users', userId, 'experiences');
-
-    const unsubscribeFirestore = onSnapshot(userExpCollection, (snapshot) => {
-      const cloudExps: Experience[] = [];
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data() as Experience;
-        cloudExps.push(data);
-        // Cache to local storage as well for offline persistence
-        try {
-          localStorage.setItem(`experience_${data.id}`, JSON.stringify(data));
-          localStorage.setItem(`zeroroll_exp_${userId}_${data.id}`, JSON.stringify(data));
-        } catch (_) {}
-      });
-
-      // Merge cloud and any existing local experiences
-      const localExps = getLocalExperiences(userId);
-      const mergedMap = new Map<string, Experience>();
-
-      // Put cloud items in map
-      cloudExps.forEach(exp => mergedMap.set(exp.id, exp));
-
-      // Put any local items that belong to user or are guest
-      localExps.forEach(exp => {
-        if (!mergedMap.has(exp.id) && (exp.userId === userId || exp.userId === 'guest')) {
-          mergedMap.set(exp.id, exp);
-        }
-      });
-
-      const mergedList = Array.from(mergedMap.values());
-      mergedList.sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
-      onUpdate(mergedList);
-    }, (err) => {
-      handleFirestoreError(err, OperationType.LIST, `users/${userId}/experiences`);
-      handleLocalChange();
-    });
-
-    return () => {
-      window.removeEventListener(EXPERIENCE_CHANGE_EVENT, handleLocalChange);
-      window.removeEventListener('storage', handleLocalChange);
-      unsubscribeFirestore();
-    };
-  }
-
-  // For guest users: rely only on localStorage
   return () => {
+    cancelled.current = true;
     window.removeEventListener(EXPERIENCE_CHANGE_EVENT, handleLocalChange);
     window.removeEventListener('storage', handleLocalChange);
   };
 }
 
+// ---------------------------------------------------------------------------
 // Delete Experience
-export async function deleteExperienceFromCloud(experienceId: string): Promise<void> {
+// ---------------------------------------------------------------------------
+export async function deleteExperienceFromCloud(experienceId: string): Promise<SaveResult> {
   const currentUser = auth.currentUser;
   const actualUserId = currentUser ? currentUser.uid : null;
 
   try {
-    localStorage.removeItem(`experience_${experienceId}`);
+    // Remove from local cache
     if (actualUserId) {
-      localStorage.removeItem(`zeroroll_exp_${actualUserId}_${experienceId}`);
+      try { localStorage.removeItem(`${USER_EXP_PREFIX}${actualUserId}_${experienceId}`); } catch (_) {}
     }
+    try { localStorage.removeItem(`${LEGACY_EXP_PREFIX}${experienceId}`); } catch (_) {}
+    try { localStorage.removeItem(`${GUEST_EXP_PREFIX}${experienceId}`); } catch (_) {}
+
     notifyLocalExperienceChange();
 
     if (actualUserId) {
       await deleteDoc(doc(db, 'users', actualUserId, 'experiences', experienceId));
     }
-  } catch (err) {
+
+    return { ok: true };
+  } catch (err: any) {
     handleFirestoreError(err, OperationType.DELETE, `users/${actualUserId}/experiences/${experienceId}`);
+    return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 }

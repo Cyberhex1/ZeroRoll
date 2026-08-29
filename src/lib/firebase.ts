@@ -30,7 +30,7 @@ import firebaseConfig from '../../firebase-applet-config.json';
 import { Experience, UserProfile } from '../types';
 
 // Initialize Firebase App
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Initialize Firestore with specific database ID if available
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);

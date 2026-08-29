@@ -13,6 +13,7 @@ import {
   Info
 } from 'lucide-react';
 import { CharacterSheet, InventoryItem, ExperienceCategory } from '../types';
+import { generateAvatarAI } from '../lib/geminiService';
 
 interface CharacterSheetPanelProps {
   character: CharacterSheet;
@@ -59,35 +60,14 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
     setAvatarError(null);
 
     try {
-      const res = await fetch('/api/gemini/generate-avatar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          category: experienceCategory,
-          characterName: character.name,
-          roleClass: character.roleClass,
-          raceOrigin: character.raceOrigin,
-          physicalDescription: physicalDesc || character.physicalDescription || 'Heroic adventurer with iconic gear',
-          currentLocation: currentLocation,
-          recentStorySummary: recentStoryContext,
-          conditions: (character.statusEffects || []).join(', ')
-        })
+      const data = await generateAvatarAI({
+        characterName: character.name,
+        roleClass: character.roleClass,
+        raceOrigin: character.raceOrigin,
+        category: (experienceCategory || 'fantasy') as ExperienceCategory
       });
 
-      if (!res.ok) {
-        let errText = `Server error (${res.status})`;
-        try {
-          const errData = await res.json();
-          if (errData.error) errText = errData.error;
-        } catch (_) {}
-        throw new Error(errText);
-      }
-
-      const data = await res.json();
-      if (data.avatarUrl) {
+      if (data && data.avatarUrl) {
         onUpdateCharacter({
           ...character,
           avatarUrl: data.avatarUrl,

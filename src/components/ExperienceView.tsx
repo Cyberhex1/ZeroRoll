@@ -19,6 +19,7 @@ import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
 import { GEMINI_MODELS } from '../lib/modelsConfig';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
+import { executeActionTurn } from '../lib/geminiService';
 
 interface ExperienceViewProps {
   experience: Experience;
@@ -66,30 +67,14 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     setTurnCounter(prev => prev + 1);
 
     try {
-      const res = await fetch('/api/gemini/action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          actionType: 'turn',
-          category: experience.category,
-          systemInstruction: experience.customSystemPrompt,
-          contents: updatedLogs.map(l => `${l.sender.toUpperCase()}: ${l.text}`).join('\n')
-        })
+      const data = await executeActionTurn({
+        contents: updatedLogs.map(l => `${l.sender.toUpperCase()}: ${l.text}`).join('\n'),
+        category: experience.category,
+        model: selectedModel,
+        systemInstruction: experience.customSystemPrompt,
+        characterState: tempExp.character,
+        diceRoll
       });
-
-      if (!res.ok) {
-        let errorMsg = `Server error (${res.status})`;
-        try {
-          const errData = await res.json();
-          if (errData.error) errorMsg = errData.error;
-        } catch (_) {}
-        throw new Error(errorMsg);
-      }
-
-      const data = await res.json();
 
       const dmMsg: LogMessage = {
         id: `msg_${Date.now() + 1}`,
@@ -221,30 +206,13 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     setIsGenerating(true);
 
     try {
-      const res = await fetch('/api/gemini/action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          actionType: 'adjudicate',
-          category: experience.category,
-          systemInstruction: experience.customSystemPrompt,
-          contents: `Character Stats: STR ${experience.character.stats.str}, DEX ${experience.character.stats.dex}, CON ${experience.character.stats.con}, INT ${experience.character.stats.int}, WIS ${experience.character.stats.wis}, CHA ${experience.character.stats.cha}.\nProposed Action: ${actionText}`
-        })
+      const data = await executeActionTurn({
+        contents: `[Rules Referee Adjudication Request]\nCharacter Stats: STR ${experience.character.stats.str}, DEX ${experience.character.stats.dex}, CON ${experience.character.stats.con}, INT ${experience.character.stats.int}, WIS ${experience.character.stats.wis}, CHA ${experience.character.stats.cha}.\nProposed Action: ${actionText}`,
+        category: experience.category,
+        model: selectedModel,
+        systemInstruction: 'You are the Rule Adjudicator. Parse the player action and explain difficulty (DC) and requirements.'
       });
 
-      if (!res.ok) {
-        let errorMsg = `Server error (${res.status})`;
-        try {
-          const errData = await res.json();
-          if (errData.error) errorMsg = errData.error;
-        } catch (_) {}
-        throw new Error(errorMsg);
-      }
-
-      const data = await res.json();
       const adjudicatorMsg: LogMessage = {
         id: `msg_${Date.now() + 1}`,
         sender: 'adjudicator',

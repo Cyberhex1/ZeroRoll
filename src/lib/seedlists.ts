@@ -631,3 +631,40 @@ export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
     ]
   }
 };
+
+/**
+ * Procedurally generates a fresh, randomized seedlist with diverse tropes,
+ * brainstorm concepts, and full 5-field opening hook presets.
+ */
+export function generateDynamicSeedlist(categoryId: string): CategorySeedInfo {
+  const base = CATEGORY_SEEDLISTS[categoryId] || CATEGORY_SEEDLISTS.fantasy;
+
+  // Shuffle and sample tropes & themes
+  const shuffledThemes = [...base.coreThemes].sort(() => 0.5 - Math.random());
+  const shuffledTropes = [...base.narrativeTropes].sort(() => 0.5 - Math.random());
+  const shuffledBrainstorms = [...base.brainstormHooks].sort(() => 0.5 - Math.random());
+
+  // Dynamic hook presets
+  const openingHooks = (base.openingHooks && base.openingHooks.length > 0)
+    ? base.openingHooks
+    : [
+        {
+          title: `${base.categoryName}: Act I, Scene 1`,
+          hook: `The morning mist clears as you step forward into the world of ${base.categoryName}. Your quest begins at the crossroads with your primary equipment ready at your side.`,
+          suggestedActions: [
+            'Investigate your immediate surroundings',
+            'Speak with the nearest contact or local',
+            'Prepare your equipment and advance'
+          ]
+        }
+      ];
+
+  return {
+    ...base,
+    coreThemes: shuffledThemes,
+    narrativeTropes: shuffledTropes,
+    brainstormHooks: shuffledBrainstorms,
+    openingHooks
+  };
+}
+

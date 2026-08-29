@@ -30,6 +30,7 @@ import {
 import { CATEGORIES_DATA } from '../lib/categoriesData';
 import { CATEGORY_SEEDLISTS } from '../lib/seedlists';
 import { generateRandomScenarioSetup, CATEGORY_GENERATOR_DATA } from '../lib/randomScenarios';
+import { generateScenarioAI, generateSeedlistAI } from '../lib/geminiService';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem } from '../types';
 
 interface CategoriesGridProps {
@@ -163,55 +164,49 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
     setIsGeneratingScenario(true);
     try {
-      const res = await fetch('/api/gemini/generate-scenario', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          category: cat.id,
-          model: selectedModel
-        })
+      const data = await generateScenarioAI({
+        category: cat.id as ExperienceCategory,
+        model: selectedModel,
+        characterName: charName,
+        classRole: charRole,
+        raceOrigin: charRace
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.scenario) {
-          // Update ALL 5 setup fields with AI's tailored response
-          if (data.scenario.title) setCustomTitle(data.scenario.title);
-          if (data.scenario.heroName) setCharName(data.scenario.heroName);
-          if (data.scenario.roleClass) setCharRole(data.scenario.roleClass);
-          if (data.scenario.raceOrigin) setCharRace(data.scenario.raceOrigin);
-          if (data.scenario.hookText) setOpeningPrompt(data.scenario.hookText);
-          if (data.scenario.physicalDescription) setPhysicalDesc(data.scenario.physicalDescription);
-          if (data.scenario.suggestedActions) setSuggestedActions(data.scenario.suggestedActions);
+      if (data && data.scenario) {
+        // Update ALL 5 setup fields with AI's tailored response
+        if (data.scenario.title) setCustomTitle(data.scenario.title);
+        if (data.scenario.heroName) setCharName(data.scenario.heroName);
+        if (data.scenario.roleClass) setCharRole(data.scenario.roleClass);
+        if (data.scenario.raceOrigin) setCharRace(data.scenario.raceOrigin);
+        if (data.scenario.hookText) setOpeningPrompt(data.scenario.hookText);
+        if (data.scenario.physicalDescription) setPhysicalDesc(data.scenario.physicalDescription);
+        if (data.scenario.suggestedActions) setSuggestedActions(data.scenario.suggestedActions);
 
-          if (data.scenario.initialInventory && Array.isArray(data.scenario.initialInventory)) {
-            setInitialInventory(data.scenario.initialInventory.map((item: any, idx: number) => ({
-              id: `item_init_${Date.now()}_${idx}`,
-              name: item.name || 'Adventurer Tool',
-              type: item.type || 'misc',
-              quantity: item.quantity || 1,
-              isEquipped: !!item.isEquipped,
-              description: item.description
-            })));
-          }
+        if (data.scenario.initialInventory && Array.isArray(data.scenario.initialInventory)) {
+          setInitialInventory(data.scenario.initialInventory.map((item: any, idx: number) => ({
+            id: `item_init_${Date.now()}_${idx}`,
+            name: item.name || 'Adventurer Tool',
+            type: item.type || 'misc',
+            quantity: item.quantity || 1,
+            isEquipped: !!item.isEquipped,
+            description: item.description
+          })));
+        }
 
-          if (data.scenario.initialSpells && Array.isArray(data.scenario.initialSpells)) {
-            setInitialSpells(data.scenario.initialSpells);
-          }
+        if (data.scenario.initialSpells && Array.isArray(data.scenario.initialSpells)) {
+          setInitialSpells(data.scenario.initialSpells);
+        }
 
-          if (data.scenario.initialConditions && Array.isArray(data.scenario.initialConditions)) {
-            setInitialConditions(data.scenario.initialConditions);
-          }
+        if (data.scenario.initialConditions && Array.isArray(data.scenario.initialConditions)) {
+          setInitialConditions(data.scenario.initialConditions);
+        }
 
-          if (data.scenario.startingHp) {
-            setStartingHp(data.scenario.startingHp);
-          }
+        if (data.scenario.startingHp) {
+          setStartingHp(data.scenario.startingHp);
         }
       }
     } catch (e) {
-      console.error(e);
+      console.error('Scenario gen error:', e);
     } finally {
       setIsGeneratingScenario(false);
     }
@@ -220,19 +215,15 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   const handleRegenerateSeedlist = async (cat: CategoryInfo) => {
     setIsRegeneratingSeedlist(true);
     try {
-      const res = await fetch('/api/gemini/generate-seedlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: cat.id, model: selectedModel })
+      const data = await generateSeedlistAI({
+        category: cat.id as ExperienceCategory,
+        model: selectedModel
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.seedlist) {
-          setDynamicSeeds(prev => ({
-            ...prev,
-            [cat.id]: data.seedlist
-          }));
-        }
+      if (data && data.seedlist) {
+        setDynamicSeeds(prev => ({
+          ...prev,
+          [cat.id]: data.seedlist
+        }));
       }
     } catch (err) {
       console.error('Seedlist regen error:', err);

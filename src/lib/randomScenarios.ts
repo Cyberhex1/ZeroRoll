@@ -693,28 +693,49 @@ export const CATEGORY_GENERATOR_DATA: Record<ExperienceCategory, CategoryTemplat
 export function generateRandomScenarioSetup(category: ExperienceCategory): RandomizedScenarioData {
   const data = CATEGORY_GENERATOR_DATA[category] || CATEGORY_GENERATOR_DATA.fantasy;
 
-  // Pick random Title
-  const title = data.titles[Math.floor(Math.random() * data.titles.length)];
+  // 1. Roll Random Title with dynamic combinations
+  const titlePrefixes = ['The Legend of', 'Chronicles of', 'Whispers from', 'The Mystery of', 'Shadows over', 'The Rise of', 'Secrets of', 'The Prophecy of'];
+  const titleTemplates = data.titles || [];
+  let title = titleTemplates[Math.floor(Math.random() * titleTemplates.length)];
+  if (Math.random() > 0.5 && titleTemplates.length > 0) {
+    const prefix = titlePrefixes[Math.floor(Math.random() * titlePrefixes.length)];
+    const noun = titleTemplates[Math.floor(Math.random() * titleTemplates.length)].replace(/^The\s+|^Chronicles\s+of\s+|^Whispers\s+of\s+/, '');
+    title = `${prefix} ${noun}`;
+  }
 
-  // Pick random Hero Name
-  const first = data.firstNames[Math.floor(Math.random() * data.firstNames.length)];
-  const last = data.lastNames[Math.floor(Math.random() * data.lastNames.length)];
+  // 2. Roll Random Hero Name
+  const firstNames = data.firstNames || ['Aiden', 'Lyra', 'Rowan', 'Kaelen', 'Elena', 'Dorian', 'Valen'];
+  const lastNames = data.lastNames || ['Vance', 'Sterling', 'Blackwood', 'Ironheart', 'Dawnbringer', 'Ashford'];
+  const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+  const last = lastNames[Math.floor(Math.random() * lastNames.length)];
   const heroName = `${first} ${last}`;
 
-  // Pick random Role & Race
-  const roleClass = data.roles[Math.floor(Math.random() * data.roles.length)];
-  const raceOrigin = data.races[Math.floor(Math.random() * data.races.length)];
+  // 3. Roll Random Role & Race
+  const roles = data.roles || ['Adventurer', 'Knight', 'Scout', 'Mage', 'Rogue'];
+  const races = data.races || ['Human', 'Elf', 'Dwarf', 'Outlander'];
+  const roleClass = roles[Math.floor(Math.random() * roles.length)];
+  const raceOrigin = races[Math.floor(Math.random() * races.length)];
 
-  // Pick random physical description
-  const physicalDescription = data.physicalTraits[Math.floor(Math.random() * data.physicalTraits.length)] || `${heroName} is a Level 1 ${roleClass} with an observant gaze and dependable gear.`;
+  // 4. Roll Physical Traits
+  const traits = data.physicalTraits || [];
+  const physicalDescription = traits.length > 0
+    ? traits[Math.floor(Math.random() * traits.length)]
+    : `${heroName} is a ${raceOrigin} ${roleClass} with an observant gaze, steady posture, and tailored traveling gear.`;
 
-  // Pick a base hook template and customize it with the newly rolled hero
-  const hookObj = data.hooks[Math.floor(Math.random() * data.hooks.length)];
-  
-  const formattedHook = hookObj.hook;
+  // 5. Roll Hook & Gear
+  const hooks = data.hooks && data.hooks.length > 0 ? data.hooks : [{
+    hook: `The morning air is crisp as ${heroName}, a ${raceOrigin} ${roleClass}, arrives at the starting crossroads. Your journey begins with your essential gear packed and your primary weapon ready.`,
+    actions: ['Investigate the immediate surroundings', 'Speak with the nearest local contact', 'Check your supplies and prepare an action'],
+    gear: [{ name: 'Primary Weapon', type: 'weapon' as const, isEquipped: true }],
+    spells: ['Focus Ability'],
+    hp: 12
+  }];
 
-  const inventory: InventoryItem[] = hookObj.gear.map((g, idx) => ({
-    id: `item_${Date.now()}_${idx}_${Math.floor(Math.random() * 1000)}`,
+  const hookObj = hooks[Math.floor(Math.random() * hooks.length)];
+  let formattedHook = hookObj.hook;
+
+  const inventory: InventoryItem[] = (hookObj.gear || []).map((g, idx) => ({
+    id: `item_${Date.now()}_${idx}_${Math.floor(Math.random() * 10000)}`,
     name: g.name,
     type: g.type,
     quantity: 1,
@@ -729,10 +750,15 @@ export function generateRandomScenarioSetup(category: ExperienceCategory): Rando
     raceOrigin,
     hookText: formattedHook,
     physicalDescription,
-    suggestedActions: hookObj.actions,
+    suggestedActions: hookObj.actions || [
+      'Investigate the surroundings',
+      'Interact with the nearest entity',
+      'Ready equipment'
+    ],
     initialInventory: inventory,
     initialSpells: hookObj.spells || [],
     initialConditions: ['Well-Rested'],
     startingHp: hookObj.hp || 12
   };
 }
+

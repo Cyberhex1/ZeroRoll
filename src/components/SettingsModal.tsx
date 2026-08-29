@@ -5,10 +5,12 @@ import {
   Sparkles, 
   Sliders, 
   Check, 
-  SlidersHorizontal
+  SlidersHorizontal,
+  Key
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { GEMINI_MODELS } from '../lib/modelsConfig';
+import { getCustomApiKey, saveStoredApiKey } from '../lib/geminiService';
 
 interface SettingsModalProps {
   user: User | null;
@@ -34,10 +36,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSignOut
 }) => {
   const [promptInput, setPromptInput] = useState(customSystemPrompt);
+  const [apiKeyInput, setApiKeyInput] = useState(getCustomApiKey());
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const handleSave = () => {
     onSaveSystemPrompt(promptInput.trim());
+    saveStoredApiKey(apiKeyInput.trim());
     setSavedSuccess(true);
     setTimeout(() => {
       setSavedSuccess(false);
@@ -150,7 +154,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Section 3: Custom Game Master Directives */}
+        {/* Section 3: Gemini API Key (For Direct Client-Side AI) */}
+        <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider flex items-center gap-2">
+              <Key className="w-3.5 h-3.5 text-amber-400" />
+              Google Gemini API Key (Optional)
+            </h3>
+            <span className="text-[9px] text-slate-500 font-mono">Enables direct AI on static hosting</span>
+          </div>
+          <input
+            type="password"
+            value={apiKeyInput}
+            onChange={(e) => setApiKeyInput(e.target.value)}
+            placeholder="AIzaSy..."
+            className="w-full bg-[#111118] border border-white/10 rounded px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 font-mono"
+          />
+          <p className="text-[10px] text-slate-400">
+            Stored locally in your browser to power direct Google Gemini generation on static hosting (e.g. Cloudflare Pages).
+          </p>
+        </div>
+
+        {/* Section 4: Custom Game Master Directives */}
         <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">
           <h3 className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider flex items-center gap-2">
             <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />

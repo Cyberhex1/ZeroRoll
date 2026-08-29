@@ -30,7 +30,7 @@ import {
 import { CATEGORIES_DATA } from '../lib/categoriesData';
 import { CATEGORY_SEEDLISTS } from '../lib/seedlists';
 import { generateRandomScenarioSetup, CATEGORY_GENERATOR_DATA } from '../lib/randomScenarios';
-import { generateScenarioAI, generateSeedlistAI } from '../lib/geminiService';
+import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, hasActiveGeminiKey } from '../lib/geminiService';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem } from '../types';
 
 interface CategoriesGridProps {
@@ -114,48 +114,32 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   };
 
   const handleRandomizeAll = (cat: CategoryInfo) => {
-    applyRandomSetup(cat.id as ExperienceCategory);
+    handleGenerateScenario(cat);
   };
 
-  const handleRandomizeTitle = (cat: CategoryInfo) => {
-    const data = CATEGORY_GENERATOR_DATA[cat.id as ExperienceCategory] || CATEGORY_GENERATOR_DATA.fantasy;
-    const t = data.titles[Math.floor(Math.random() * data.titles.length)];
+  const handleRandomizeTitle = async (cat: CategoryInfo) => {
+    const t = await rollSingleFieldAI(cat.id as ExperienceCategory, 'title', selectedModel);
     setCustomTitle(t);
   };
 
-  const handleRandomizeHeroName = (cat: CategoryInfo) => {
-    const data = CATEGORY_GENERATOR_DATA[cat.id as ExperienceCategory] || CATEGORY_GENERATOR_DATA.fantasy;
-    const f = data.firstNames[Math.floor(Math.random() * data.firstNames.length)];
-    const l = data.lastNames[Math.floor(Math.random() * data.lastNames.length)];
-    setCharName(`${f} ${l}`);
+  const handleRandomizeHeroName = async (cat: CategoryInfo) => {
+    const f = await rollSingleFieldAI(cat.id as ExperienceCategory, 'heroName', selectedModel);
+    setCharName(f);
   };
 
-  const handleRandomizeRole = (cat: CategoryInfo) => {
-    const data = CATEGORY_GENERATOR_DATA[cat.id as ExperienceCategory] || CATEGORY_GENERATOR_DATA.fantasy;
-    const r = data.roles[Math.floor(Math.random() * data.roles.length)];
+  const handleRandomizeRole = async (cat: CategoryInfo) => {
+    const r = await rollSingleFieldAI(cat.id as ExperienceCategory, 'roleClass', selectedModel);
     setCharRole(r);
   };
 
-  const handleRandomizeRace = (cat: CategoryInfo) => {
-    const data = CATEGORY_GENERATOR_DATA[cat.id as ExperienceCategory] || CATEGORY_GENERATOR_DATA.fantasy;
-    const rc = data.races[Math.floor(Math.random() * data.races.length)];
+  const handleRandomizeRace = async (cat: CategoryInfo) => {
+    const rc = await rollSingleFieldAI(cat.id as ExperienceCategory, 'raceOrigin', selectedModel);
     setCharRace(rc);
   };
 
-  const handleRandomizeHook = (cat: CategoryInfo) => {
-    const data = CATEGORY_GENERATOR_DATA[cat.id as ExperienceCategory] || CATEGORY_GENERATOR_DATA.fantasy;
-    const h = data.hooks[Math.floor(Math.random() * data.hooks.length)];
-    setOpeningPrompt(h.hook);
-    setSuggestedActions(h.actions);
-    if (h.gear) {
-      setInitialInventory(h.gear.map((g, idx) => ({
-        id: `item_hook_${Date.now()}_${idx}`,
-        name: g.name,
-        type: g.type,
-        quantity: 1,
-        isEquipped: !!g.isEquipped
-      })));
-    }
+  const handleRandomizeHook = async (cat: CategoryInfo) => {
+    const h = await rollSingleFieldAI(cat.id as ExperienceCategory, 'hook', selectedModel);
+    setOpeningPrompt(h);
   };
 
   const handleGenerateScenario = async (cat: CategoryInfo) => {

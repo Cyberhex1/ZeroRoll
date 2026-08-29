@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Sparkles, 
   Settings, 
@@ -11,10 +11,12 @@ import {
   Layers, 
   Radio, 
   Database,
-  Bot
+  Bot,
+  Key
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { GEMINI_MODELS } from '../lib/modelsConfig';
+import { hasActiveGeminiKey } from '../lib/geminiService';
 import { GeminiModelOption, UserProfile } from '../types';
 
 interface NavbarProps {
@@ -161,6 +163,27 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
+
+          {/* Gemini AI Status Badge */}
+          {hasActiveGeminiKey() ? (
+            <button
+              onClick={onOpenSettings}
+              className="px-2 py-1 rounded border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-mono flex items-center gap-1.5 transition"
+              title="Gemini AI Engine is Active and in charge of all rolls"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Gemini AI
+            </button>
+          ) : (
+            <button
+              onClick={onOpenSettings}
+              className="px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[10px] font-mono flex items-center gap-1.5 transition shadow-sm animate-pulse"
+              title="Connect your Google Gemini API Key for 100% web AI rolls"
+            >
+              <Key className="w-3 h-3" />
+              Set Gemini Key
+            </button>
+          )}
 
           {/* Settings Modal Toggle */}
           <button

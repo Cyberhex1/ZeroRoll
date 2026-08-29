@@ -72,6 +72,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   const [startingHp, setStartingHp] = useState<number>(12);
   const [suggestedActions, setSuggestedActions] = useState<string[]>([]);
   const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
+  const [rollingField, setRollingField] = useState<string | null>(null);
 
   // Dynamic seedlist ideas
   const [dynamicSeeds, setDynamicSeeds] = useState<{ [category: string]: any }>({});
@@ -118,23 +119,43 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   };
 
   const handleRandomizeTitle = async (cat: CategoryInfo) => {
-    const t = await rollSingleFieldAI(cat.id as ExperienceCategory, 'title', selectedModel);
-    setCustomTitle(t);
+    setRollingField('title');
+    try {
+      const t = await rollSingleFieldAI(cat.id as ExperienceCategory, 'title', selectedModel);
+      setCustomTitle(t);
+    } finally {
+      setRollingField(null);
+    }
   };
 
   const handleRandomizeHeroName = async (cat: CategoryInfo) => {
-    const f = await rollSingleFieldAI(cat.id as ExperienceCategory, 'heroName', selectedModel);
-    setCharName(f);
+    setRollingField('heroName');
+    try {
+      const f = await rollSingleFieldAI(cat.id as ExperienceCategory, 'heroName', selectedModel);
+      setCharName(f);
+    } finally {
+      setRollingField(null);
+    }
   };
 
   const handleRandomizeRole = async (cat: CategoryInfo) => {
-    const r = await rollSingleFieldAI(cat.id as ExperienceCategory, 'roleClass', selectedModel);
-    setCharRole(r);
+    setRollingField('roleClass');
+    try {
+      const r = await rollSingleFieldAI(cat.id as ExperienceCategory, 'roleClass', selectedModel);
+      setCharRole(r);
+    } finally {
+      setRollingField(null);
+    }
   };
 
   const handleRandomizeRace = async (cat: CategoryInfo) => {
-    const rc = await rollSingleFieldAI(cat.id as ExperienceCategory, 'raceOrigin', selectedModel);
-    setCharRace(rc);
+    setRollingField('raceOrigin');
+    try {
+      const rc = await rollSingleFieldAI(cat.id as ExperienceCategory, 'raceOrigin', selectedModel);
+      setCharRace(rc);
+    } finally {
+      setRollingField(null);
+    }
   };
 
   const handleRandomizeHook = async (cat: CategoryInfo) => {
@@ -593,11 +614,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       </label>
                       <button
                         type="button"
+                        disabled={rollingField === 'title' || isGeneratingScenario}
                         onClick={() => handleRandomizeTitle(selectedCategoryModal)}
-                        className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono"
+                        className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                         title="Roll random title"
                       >
-                        <Dice5 className="w-3 h-3" />
+                        <RefreshCw className={`w-3 h-3 ${rollingField === 'title' ? 'animate-spin' : ''}`} />
                         Roll Title
                       </button>
                     </div>
@@ -619,11 +641,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </label>
                         <button
                           type="button"
+                          disabled={rollingField === 'heroName' || isGeneratingScenario}
                           onClick={() => handleRandomizeHeroName(selectedCategoryModal)}
-                          className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono"
+                          className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                           title="Roll random hero name"
                         >
-                          <Dice5 className="w-2.5 h-2.5" />
+                          <RefreshCw className={`w-2.5 h-2.5 ${rollingField === 'heroName' ? 'animate-spin' : ''}`} />
                           Roll Name
                         </button>
                       </div>
@@ -641,11 +664,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </label>
                         <button
                           type="button"
+                          disabled={rollingField === 'roleClass' || isGeneratingScenario}
                           onClick={() => handleRandomizeRole(selectedCategoryModal)}
-                          className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono"
+                          className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                           title="Roll random class role"
                         >
-                          <Dice5 className="w-2.5 h-2.5" />
+                          <RefreshCw className={`w-2.5 h-2.5 ${rollingField === 'roleClass' ? 'animate-spin' : ''}`} />
                           Roll Role
                         </button>
                       </div>
@@ -663,11 +687,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </label>
                         <button
                           type="button"
+                          disabled={rollingField === 'raceOrigin' || isGeneratingScenario}
                           onClick={() => handleRandomizeRace(selectedCategoryModal)}
-                          className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono"
+                          className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                           title="Roll random race origin"
                         >
-                          <Dice5 className="w-2.5 h-2.5" />
+                          <RefreshCw className={`w-2.5 h-2.5 ${rollingField === 'raceOrigin' ? 'animate-spin' : ''}`} />
                           Roll Race
                         </button>
                       </div>

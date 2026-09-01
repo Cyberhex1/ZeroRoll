@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 import { 
   getFirestore, 
   collection, 
@@ -28,6 +29,16 @@ import { Experience, UserProfile, UserSettings } from '../types';
 
 // Initialize Firebase App
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// Initialize Analytics safely in browser environments
+export let analytics: Analytics | null = null;
+if (typeof window !== 'undefined') {
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app);
+    }
+  }).catch(() => {});
+}
 
 // Initialize Firestore with specific database ID if available
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);

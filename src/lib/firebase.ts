@@ -8,7 +8,8 @@ import {
   getDoc, 
   deleteDoc, 
   onSnapshot, 
-  getDocFromServer
+  getDocFromServer,
+  updateDoc
 } from 'firebase/firestore';
 import { 
   getAuth, 
@@ -152,8 +153,6 @@ async function syncUserRecord(user: User, customDisplayName?: string) {
       }, { merge: true });
     }
 
-    // Migrate any existing guest experiences to this account
-    await migrateLocalDataToUser(user.uid);
   } catch (e) {
     console.warn('Could not sync user record to Firestore:', e);
   }
@@ -272,15 +271,18 @@ export async function saveUserSettingsToCloud(userId: string, settings: Partial<
   if (!userId || userId === 'guest') return;
   try {
     const userRef = doc(db, 'users', userId);
-    await setDoc(userRef, {
-      settings: {
-        ...settings,
-        updatedAt: new Date().toISOString()
-      },
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
+    const updatedAt = new Date().toISOString();
+    const settingFields = Object.fromEntries(
+      Object.entries(settings).map(([key, value]) => [`settings.${key}`, value])
+    );
+    await updateDoc(userRef, {
+      ...settingFields,
+      'settings.updatedAt': updatedAt,
+      updatedAt
+    });
   } catch (err: any) {
-    handleFirestoreError(err, OperationType.WRITE, `users/${userId}/settings`);
+    const info = handleFirestoreError(err, OperationType.WRITE, `users/${userId}/settings`);
+    throw new Error(info.error);
   }
 }
 
@@ -293,7 +295,8 @@ export async function saveActiveExperienceIdToCloud(userId: string, activeExperi
       updatedAt: new Date().toISOString()
     }, { merge: true });
   } catch (err: any) {
-    handleFirestoreError(err, OperationType.WRITE, `users/${userId}/activeExperienceId`);
+    const info = handleFirestoreError(err, OperationType.WRITE, `users/${userId}/activeExperienceId`);
+    throw new Error(info.error);
   }
 }
 
@@ -306,7 +309,8 @@ export async function saveUserProfileToCloud(profile: UserProfile): Promise<void
       }, { merge: true });
     }
   } catch (err: any) {
-    handleFirestoreError(err, OperationType.WRITE, `users/${profile.uid}`);
+    const info = handleFirestoreError(err, OperationType.WRITE, `users/${profile.uid}`);
+    throw new Error(info.error);
   }
 }
 

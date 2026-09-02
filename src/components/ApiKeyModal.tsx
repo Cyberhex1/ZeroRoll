@@ -153,7 +153,9 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 
     if (auth.currentUser) {
       const allSettings = exportAllProviderSettings();
-      saveUserSettingsToCloud(auth.currentUser.uid, allSettings);
+      saveUserSettingsToCloud(auth.currentUser.uid, allSettings).catch((err) => {
+        console.warn('Cloud provider settings sync failed:', err);
+      });
     }
 
     setSavedSuccess(true);

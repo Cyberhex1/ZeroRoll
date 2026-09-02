@@ -1061,6 +1061,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                 </button>
                 <button
                   onClick={handleConfirmCreate}
+                  disabled={isGeneratingScenario}
+                  title={isGeneratingScenario ? 'Wait for scenario generation to finish' : 'Initialize campaign'}
                   className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg transition flex items-center gap-2 shadow-lg hover:shadow-amber-500/20"
                 >
                   <Sparkles className="w-4 h-4 text-slate-950" />

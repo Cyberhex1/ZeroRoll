@@ -64,6 +64,7 @@ export default function App() {
 
   // pendingActiveExpId is resolved inside the subscription callback — NOT a dep of the subscription effect
   const pendingActiveExpId = useRef<string | null>(null);
+  const authGeneration = useRef(0);
 
   // User Profile — intentionally NOT initialized from localStorage to avoid flashing
   // a stale/wrong account's cached profile before auth resolves.
@@ -120,11 +121,13 @@ export default function App() {
     checkRedirectAuthResult();
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      const generation = ++authGeneration.current;
       if (currentUser) {
         setUser(currentUser);
 
         // Load cloud profile
         let loadedProfile = await loadUserProfileFromCloud(currentUser.uid);
+        if (generation !== authGeneration.current) return;
 
         if (loadedProfile) {
           const merged: UserProfile = {
@@ -161,7 +164,8 @@ export default function App() {
               selectedModel,
               customSystemPrompt,
               soundEnabled
-            });
+            }).catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
+            if (generation !== authGeneration.current) return;
           }
 
           if (loadedProfile.activeExperienceId) {
@@ -189,9 +193,11 @@ export default function App() {
               soundEnabled
             }
           };
+          await saveUserProfileToCloud(newProfile)
+            .catch((err) => showCloudSaveError(`Cloud profile sync failed: ${err.message}`));
+          if (generation !== authGeneration.current) return;
           setUserProfile(newProfile);
           safeSetStorage('dnd_user_profile', JSON.stringify(newProfile));
-          await saveUserProfileToCloud(newProfile);
         }
       } else {
         // Signed out — synchronously clear ALL user-specific state first to prevent data leak
@@ -210,7 +216,8 @@ export default function App() {
   const handleSaveProfile = (newProfile: UserProfile) => {
     setUserProfile(newProfile);
     safeSetStorage('dnd_user_profile', JSON.stringify(newProfile));
-    saveUserProfileToCloud(newProfile);
+    saveUserProfileToCloud(newProfile)
+      .catch((err) => showCloudSaveError(`Cloud profile sync failed: ${err.message}`));
   };
 
   // ---------------------------------------------------------------------------
@@ -249,7 +256,8 @@ export default function App() {
     setSelectedModel(modelId);
     safeSetStorage('dnd_selected_model', modelId);
     if (user) {
-      saveUserSettingsToCloud(user.uid, { selectedModel: modelId });
+      saveUserSettingsToCloud(user.uid, { selectedModel: modelId })
+        .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
     }
   };
 
@@ -257,7 +265,8 @@ export default function App() {
     setCustomSystemPrompt(prompt);
     safeSetStorage('dnd_system_prompt', prompt);
     if (user) {
-      saveUserSettingsToCloud(user.uid, { customSystemPrompt: prompt });
+      saveUserSettingsToCloud(user.uid, { customSystemPrompt: prompt })
+        .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
     }
   };
 
@@ -266,7 +275,8 @@ export default function App() {
     setSoundEnabled(nextVal);
     safeSetStorage('dnd_sound_enabled', String(nextVal));
     if (user) {
-      saveUserSettingsToCloud(user.uid, { soundEnabled: nextVal });
+      saveUserSettingsToCloud(user.uid, { soundEnabled: nextVal })
+        .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
     }
   };
 
@@ -298,7 +308,7 @@ export default function App() {
       terrainMarkers: []
     };
 
-    const initialLogText = openingPrompt || scenarioHookData.hookText;
+    const initialLogText = openingPrompt?.trim() || scenarioHookData.hookText;
 
     const initialLog: LogMessage = {
       id: `msg_init_${Date.now()}`,
@@ -315,11 +325,14 @@ export default function App() {
     const newExp: Experience = {
       id: `exp_${Date.now()}`,
       userId: user?.uid || 'guest',
-      title: customTitle || scenarioHookData.title || `${categoryInfo?.name || 'Campaign'} Experience`,
+      title: customTitle?.trim() || scenarioHookData.title || `${categoryInfo?.name || 'Campaign'} Experience`,
       category,
-      description: scenarioHookData.description || `${categoryInfo?.name} experience starring ${character.name}`,
+      description: openingPrompt?.trim() || scenarioHookData.description || `${categoryInfo?.name} experience starring ${character.name}`,
       model: selectedModel,
-      customSystemPrompt,
+      customSystemPrompt: [
+        customSystemPrompt,
+        openingPrompt?.trim() ? `Campaign premise: ${openingPrompt.trim()}` : ''
+      ].filter(Boolean).join('\n'),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       character: {
@@ -347,14 +360,16 @@ export default function App() {
 
     setActiveExperience(newExp);
     if (user) {
-      saveActiveExperienceIdToCloud(user.uid, newExp.id);
+      saveActiveExperienceIdToCloud(user.uid, newExp.id)
+        .catch((err) => showCloudSaveError(`Active experience sync failed: ${err.message}`));
     }
   };
 
   const handleSelectExperience = (exp: Experience | null) => {
     setActiveExperience(exp);
     if (user) {
-      saveActiveExperienceIdToCloud(user.uid, exp?.id || null);
+      saveActiveExperienceIdToCloud(user.uid, exp?.id || null)
+        .catch((err) => showCloudSaveError(`Active experience sync failed: ${err.message}`));
     }
   };
 

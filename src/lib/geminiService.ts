@@ -15,6 +15,7 @@ import {
 import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomScenarios';
 import { generateDynamicSeedlist, CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
 import { buildGroundedSeedContext, getCategoryNarrativeProfile } from './narrativeProfiles';
+import { getCategoryFallbackActions } from './experienceHelpers';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 
 // Fallback Gemini models for cascading
@@ -705,13 +706,10 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
           .filter(l => l.length > 0);
       }
 
-      // Fallback suggested actions
+      // Fallback suggested actions — pull from category-flavored pool
+      // instead of the old hardcoded "investigate / speak / ready" trio.
       if (suggestedActions.length === 0) {
-        suggestedActions = [
-          'Investigate your immediate surroundings with caution',
-          'Speak with the nearest person or examine the central dilemma',
-          'Ready your equipment and prepare for action'
-        ];
+        suggestedActions = getCategoryFallbackActions(category);
       }
 
       const activeModelName = getProviderModel(provider);

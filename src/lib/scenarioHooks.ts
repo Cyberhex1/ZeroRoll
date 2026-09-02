@@ -1,4 +1,5 @@
 import { ExperienceCategory, MapData, MapToken, TerrainMarker, CharacterSheet, GameWorldState } from '../types';
+import { getCategoryNarrativeProfile } from './narrativeProfiles';
 
 export interface ScenarioHookResult {
   title: string;
@@ -664,10 +665,14 @@ export function generateRealLifeHook(heroName = 'Alex Rivera', classRole = 'Infi
 
 // Master Dispatcher Function for ALL 15 categories
 export function generateScenarioHook(
-  category: ExperienceCategory, 
-  heroName?: string, 
+  category: ExperienceCategory,
+  heroName?: string,
   classRole?: string
 ): ScenarioHookResult {
+  // Issue #14: pull the per-category narrative profile so the static hook
+  // dispatcher inherits the same voice/tone cues that drive the AI path.
+  const profile = getCategoryNarrativeProfile(category);
+  const result = ((): ScenarioHookResult => {
   switch (category) {
     case 'fantasy':
       return generateFantasyHook(heroName, classRole);
@@ -702,6 +707,16 @@ export function generateScenarioHook(
     default:
       return generateFantasyHook(heroName, classRole);
   }
+  })();
+  // Augment customNotes with the profile's mood/atmosphere cues so any
+  // downstream consumer (prompt rendering, UI hints, etc.) sees them.
+  const profileMood = profile?.atmosphere;
+  if (profileMood && result.gameWorldState) {
+    result.gameWorldState.customNotes =
+      (result.gameWorldState.customNotes ? result.gameWorldState.customNotes + ' | ' : '')
+      + `Voice: ${profileMood}`;
+  }
+  return result;
 }
 
 // Helper: Create Rich Starting Map for Fantasy Experience

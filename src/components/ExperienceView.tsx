@@ -14,6 +14,7 @@ import {
   Volume2
 } from 'lucide-react';
 import { Experience, CharacterSheet, InventoryItem, LogMessage, DiceRollResult, PendingCheck, CourseChangeAlert, StatBlock } from '../types';
+import { getCategoryFallbackActions } from '../lib/experienceHelpers';
 import { NarrativeStream } from './NarrativeStream';
 import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
@@ -83,13 +84,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         text: data.text || 'The Game Master pauses thoughtfully...',
         timestamp: new Date().toISOString(),
         modelUsed: data.modelUsed || selectedModel,
-        suggestedActions: data.suggestedActions && data.suggestedActions.length > 0 
-          ? data.suggestedActions 
-          : [
-              'Cautiously investigate the immediate surroundings',
-              'Interact with the nearest entity or focal point',
-              'Ready your weapon/spell and take a guarded stance'
-            ]
+        suggestedActions: data.suggestedActions && data.suggestedActions.length > 0
+          ? data.suggestedActions
+          : getCategoryFallbackActions(experience.category)
       };
 
       // Check for Course Changing Alert & Required Check

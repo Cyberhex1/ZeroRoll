@@ -477,18 +477,46 @@ export async function saveExperienceToCloud(experience: Experience): Promise<Sav
   const currentUser = auth.currentUser;
   const actualUserId = currentUser ? currentUser.uid : (experience.userId || 'guest');
 
-  const payload: Experience = {
+  // Helper: Remove undefined values and flatten nested arrays
+  const removeUndefinedRecursive = (obj: any): any => {
+    if (Array.isArray(obj)) {
+      // Check if this is a nested array (2D array like fogMatrix) - Firestore doesn't support these
+      if (obj.length > 0 && Array.isArray(obj[0])) {
+        // Flatten 2D array to JSON string for Firestore compatibility
+        return JSON.stringify(obj);
+      }
+      return obj.map(removeUndefinedRecursive);
+    }
+    if (obj !== null && typeof obj === 'object') {
+      return Object.entries(obj).reduce((acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = removeUndefinedRecursive(value);
+        }
+        return acc;
+      }, {} as any);
+    }
+    return obj;
+  };
+
+  let payload = removeUndefinedRecursive({
     ...experience,
     userId: actualUserId,
     updatedAt: new Date().toISOString()
-  };
+  }) as any;
+
+  // Additional safety: Remove nested arrays that might have slipped through
+  // (e.g., fogMatrix which is bool[][], should not exist in cloud)
+  if (payload.mapData && payload.mapData.fogMatrix) {
+    // Reconstruct fogMatrix on load, don't persist to cloud
+    delete payload.mapData.fogMatrix;
+  }
 
   // 1. Instant local storage persistence (always succeeds for offline/guest use)
   try {
     if (actualUserId !== 'guest') {
-      localStorage.setItem(`${USER_EXP_PREFIX}${actualUserId}_${payload.id}`, JSON.stringify(payload));
+      localStorage.setItem(`${USER_EXP_PREFIX}${actualUserId}_${payload.id}`, JSON.stringify(experience));
     } else {
-      localStorage.setItem(`${GUEST_EXP_PREFIX}${payload.id}`, JSON.stringify(payload));
+      localStorage.setItem(`${GUEST_EXP_PREFIX}${payload.id}`, JSON.stringify(experience));
     }
   } catch (storageErr) {
     console.warn('LocalStorage quota or write error:', storageErr);
@@ -521,6 +549,26 @@ export async function saveExperienceToCloud(experience: Experience): Promise<Sav
 //
 // For guest users: localStorage is the only source.
 // ---------------------------------------------------------------------------
+// Helper: Reconstruct fogMatrix if missing (it's not persisted to cloud to avoid nested array issues)
+function reconstructFogMatrix(exp: Experience): Experience {
+  if (!exp.mapData || exp.mapData.fogMatrix) {
+    // Already has fogMatrix or no mapData
+    return exp;
+  }
+
+  // Reconstruct a fresh fog matrix (all visible/false)
+  const { gridWidth = 12, gridHeight = 12 } = exp.mapData;
+  const freshFogMatrix = Array(gridHeight).fill(null).map(() => Array(gridWidth).fill(false));
+
+  return {
+    ...exp,
+    mapData: {
+      ...exp.mapData,
+      fogMatrix: freshFogMatrix
+    }
+  };
+}
+
 export function subscribeToUserExperiences(
   userId: string,
   onUpdate: (experiences: Experience[]) => void,
@@ -533,7 +581,9 @@ export function subscribeToUserExperiences(
     // Authenticated user path — Firestore is authoritative
 
     // Provide an immediate local snapshot from the user-scoped keys while Firestore loads
-    const initialLocal = getLocalExperiences(userId).filter(e => e.userId === userId);
+    const initialLocal = getLocalExperiences(userId)
+      .filter(e => e.userId === userId)
+      .map(reconstructFogMatrix);
     if (initialLocal.length > 0) {
       onUpdate(initialLocal);
     }
@@ -551,7 +601,9 @@ export function subscribeToUserExperiences(
 
         const cloudExps: Experience[] = [];
         snapshot.forEach((docSnap) => {
-          const data = docSnap.data() as Experience;
+          let data = docSnap.data() as Experience;
+          // Reconstruct fogMatrix if missing from cloud
+          data = reconstructFogMatrix(data);
           cloudExps.push(data);
 
           // Write-through to local cache for offline resilience
@@ -572,7 +624,9 @@ export function subscribeToUserExperiences(
         if (onError) onError(err.message);
 
         // Offline fallback — serve from user-scoped local cache
-        const fallback = getLocalExperiences(userId).filter(e => e.userId === userId);
+        const fallback = getLocalExperiences(userId)
+          .filter(e => e.userId === userId)
+          .map(reconstructFogMatrix);
         onUpdate(fallback);
       }
     );
@@ -586,12 +640,16 @@ export function subscribeToUserExperiences(
   // ---------------------------------------------------------------------------
   // Guest user path — localStorage only
   // ---------------------------------------------------------------------------
-  const guestExps = getLocalExperiences().filter(e => e.userId === 'guest' || !e.userId);
+  const guestExps = getLocalExperiences()
+    .filter(e => e.userId === 'guest' || !e.userId)
+    .map(reconstructFogMatrix);
   onUpdate(guestExps);
 
   const handleLocalChange = () => {
     if (cancelled.current) return;
-    const fresh = getLocalExperiences().filter(e => e.userId === 'guest' || !e.userId);
+    const fresh = getLocalExperiences()
+      .filter(e => e.userId === 'guest' || !e.userId)
+      .map(reconstructFogMatrix);
     onUpdate(fresh);
   };
 

@@ -531,7 +531,12 @@ export async function executeActionTurn(params: {
   if (hasKey) {
     try {
       const narrativeCorpus = buildGroundedSeedContext(category, contents);
-      const promptInstruction = systemInstruction || `You are the master narrative author and Game Master for an interactive tabletop campaign in the "${category}" genre with D&D 5e mechanics.
+      // Issue #5: ALWAYS include the base GM prompt + narrative corpus +
+      // story outline. The user's custom system instruction is appended as
+      // a stylistic flavor on top, so the AI always has the campaign
+      // context regardless of whether the user wrote a custom system
+      // prompt or not.
+      const basePrompt = `You are the master narrative author and Game Master for an interactive tabletop campaign in the "${category}" genre with D&D 5e mechanics.
 
 ${narrativeCorpus}
 
@@ -593,6 +598,10 @@ At the end, provide 3 suggested actions formatted as:
 [1] Action 1
 [2] Action 2
 [3] Action 3`;
+
+      const promptInstruction = systemInstruction
+        ? `${basePrompt}\n\nGM STYLE / VOICE OVERLAY (from user settings):\n${systemInstruction}`
+        : basePrompt;
 
       const userMessage = `Character: ${characterState?.name || 'Hero'} (Gender/Pronouns: ${characterState?.gender || 'they/them'}), a Level ${characterState?.level || 1} ${characterState?.raceOrigin || 'Human'} ${characterState?.roleClass || 'Adventurer'} (HP: ${characterState?.hp || 12}/${characterState?.maxHp || 12}).
 Recent Story Log:

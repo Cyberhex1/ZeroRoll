@@ -15,7 +15,7 @@ import {
   saveActiveExperienceIdToCloud,
   migrateLocalDataToUser
 } from './lib/firebase';
-import { exportAllProviderSettings, importAllProviderSettings } from './lib/geminiService';
+import { exportAllProviderSettings, importAllProviderSettings, generateScenarioAI, hasActiveAIKey } from './lib/geminiService';
 import { Navbar } from './components/Navbar';
 import { CategoriesGrid } from './components/CategoriesGrid';
 import { ExperienceView } from './components/ExperienceView';
@@ -23,10 +23,20 @@ import { SettingsModal } from './components/SettingsModal';
 import { UserProfileModal } from './components/UserProfileModal';
 import { AuthModal } from './components/AuthModal';
 import { ApiKeyModal } from './components/ApiKeyModal';
-import { Experience, ExperienceCategory, CharacterSheet, MapData, LogMessage, UserProfile, DMStoryOutline } from './types';
+import MusicPlayer from './components/MusicPlayer';
+import { Experience, ExperienceCategory, CharacterSheet, MapData, LogMessage, UserProfile, DMStoryOutline, InventoryItem } from './types';
 import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
 import { CATEGORIES_DATA } from './lib/categoriesData';
 import { generateScenarioHook } from './lib/scenarioHooks';
+import { generateRandomScenarioSetup, RandomizedScenarioData } from './lib/randomScenarios';
+import {
+  getCategoryDefaultInventory,
+  mergeInventoryAdditive,
+  getCategoryFallbackActions,
+  advanceTimeOfDay,
+  getAmbientEvent,
+  createVariedInitialMap
+} from './lib/experienceHelpers';
 
 function safeGetStorage(key: string): string | null {
   try {
@@ -282,6 +292,21 @@ export default function App() {
 
   // ---------------------------------------------------------------------------
   // Experience CRUD
+  //
+  // handleCreateExperience() picks the freshest possible scenario for the
+  // chosen category.  Resolution order:
+  //   1. If the user supplied a custom opening prompt AND an AI key is
+  //      configured, call generateScenarioAI() so the AI weaves the user's
+  //      premise into a fully custom Act I scene.
+  //   2. Otherwise (or if AI fails) AND an AI key is configured, call
+  //      generateScenarioAI() with no user prompt so the AI still produces
+  //      a fresh, varied scenario for the category instead of repeating
+  //      a baked-in template.
+  //   3. Fall back to generateRandomScenarioSetup() — 3 distinct hooks
+  //      per category with shuffled names/roles/items (vs the 1 static
+  //      hook per category that scenarioHooks.ts provides).
+  //   4. Last-resort fallback to the original generateScenarioHook()
+  //      static dispatcher.
   // ---------------------------------------------------------------------------
   const handleCreateExperience = async (
     category: ExperienceCategory,
@@ -293,61 +318,211 @@ export default function App() {
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
-    const scenarioHookData = generateScenarioHook(category, character.name, character.roleClass);
+    let scenarioData: RandomizedScenarioData | any = null;
+    let isAIScenario = false;
 
-    const initialMap: MapData = scenarioHookData.mapData || {
-      gridWidth: 12,
-      gridHeight: 12,
-      bgTheme: categoryInfo?.bgTheme || 'dungeon',
-      showGrid: true,
-      fogOfWarEnabled: true,
-      fogMatrix: Array(12).fill(null).map(() => Array(12).fill(false)),
-      tokens: [
-        { id: 'hero_tok', name: character.name, type: 'hero', x: 2, y: 10, hp: character.hp, maxHp: character.maxHp, color: '#2563eb', icon: 'shield' }
-      ],
-      terrainMarkers: []
-    };
+    // Path 1+2: Try AI scenario generation when an API key is available
+    if (hasActiveAIKey()) {
+      try {
+        const { scenario } = await generateScenarioAI({
+          category,
+          model: selectedModel,
+          userPrompt: openingPrompt?.trim() || undefined,
+          gender: character.gender,
+          characterName: character.name,
+          classRole: character.roleClass,
+          raceOrigin: character.raceOrigin
+        });
+        scenarioData = scenario;
+        isAIScenario = true;
+      } catch (err: any) {
+        console.warn('AI scenario generation failed, falling back to procedural generator:', err);
+      }
+    }
 
-    const initialLogText = openingPrompt?.trim() || scenarioHookData.hookText;
+    // Path 3: Procedural generator with 3 distinct hooks per category
+    if (!isAIScenario) {
+      try {
+        scenarioData = generateRandomScenarioSetup(category);
+      } catch (err: any) {
+        console.warn('Random scenario setup failed, falling back to static hook:', err);
+        scenarioData = null;
+      }
+    }
+
+    // Path 4: Last-resort static hook dispatcher
+    const scenarioHookData = isAIScenario || scenarioData
+      ? null
+      : generateScenarioHook(category, character.name, character.roleClass);
+
+    // Build the initial map.  For AI scenarios we still use the procedural
+    // map factory (which now varies size + starting position + reveal radius
+    // per Issue #13).  Random scenarios don't ship with a map; we use the
+    // varied factory.  Static hooks ship with their own map.
+    const initialMap: MapData = scenarioHookData?.mapData
+      || createVariedInitialMap(
+          category,
+          categoryInfo?.bgTheme || 'dungeon',
+          character.name,
+          character.hp,
+          character.maxHp
+        );
+
+    // Determine the initial log text:
+    //   - User opening prompt wins if present
+    //   - AI scenario hook text
+    //   - Random scenario hook text
+    //   - Static hook text
+    const userPrompt = openingPrompt?.trim();
+    const initialLogText = userPrompt
+      || (isAIScenario ? scenarioData.hookText : null)
+      || (scenarioData?.hookText)
+      || scenarioHookData?.hookText
+      || `${character.name} stands ready. The adventure begins.`;
+
+    // Build the suggested actions list.  Order of preference:
+    //   1. Caller-supplied actions (passed via suggestedActions arg)
+    //   2. AI scenario suggested actions
+    //   3. Random scenario suggested actions
+    //   4. Static hook suggested actions
+    //   5. Category-aware fallback (from seedlists — Issue #3)
+    const finalActions = (suggestedActions && suggestedActions.length > 0)
+      ? suggestedActions
+      : (isAIScenario && scenarioData.suggestedActions?.length > 0
+          ? scenarioData.suggestedActions
+          : (scenarioData?.suggestedActions?.length > 0
+              ? scenarioData.suggestedActions
+              : (scenarioHookData?.suggestedActions?.length > 0
+                  ? scenarioHookData.suggestedActions
+                  : getCategoryFallbackActions(category))));
 
     const initialLog: LogMessage = {
       id: `msg_init_${Date.now()}`,
       sender: 'dm',
       text: initialLogText,
       timestamp: new Date().toISOString(),
-      suggestedActions: (suggestedActions && suggestedActions.length > 0) ? suggestedActions : (scenarioHookData.suggestedActions || [
-        'I inspect my surroundings cautiously.',
-        'I step forward to speak with the quest contact.',
-        'I check my supplies and survey the trailhead.'
-      ])
+      suggestedActions: finalActions
     };
+
+    // Build the base character set:
+    //   - If AI scenario: use AI-suggested inventory/spells/HP/avatar/description
+    //     but make inventory ADDITIVE to anything the user provided
+    //     (Issue #4) and use category-aware default inventory otherwise.
+    //   - If random scenario: similar, with category-aware default as the
+    //     baseline (Issue #8).
+    //   - If static hook: use the hook's pre-baked character.
+    const categoryDefaultInventory = getCategoryDefaultInventory(category);
+    const aiInventory: InventoryItem[] = (isAIScenario && Array.isArray(scenarioData.initialInventory))
+      ? scenarioData.initialInventory
+      : (Array.isArray(scenarioData?.initialInventory) ? scenarioData.initialInventory : []);
+    const combinedInventory = mergeInventoryAdditive(
+      aiInventory.length > 0 ? aiInventory : undefined,
+      categoryDefaultInventory
+    );
+
+    const baseChar = isAIScenario
+      ? {
+          id: `char_${category}_${Date.now()}`,
+          name: character.name,
+          gender: character.gender || scenarioData.gender,
+          roleClass: character.roleClass,
+          raceOrigin: character.raceOrigin,
+          level: 1,
+          hp: scenarioData.startingHp || character.hp || 12,
+          maxHp: scenarioData.startingHp || character.maxHp || 12,
+          armorClass: character.armorClass || 12,
+          initiativeBonus: character.initiativeBonus || 0,
+          stats: character.stats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+          inventory: combinedInventory,
+          spells: scenarioData.initialSpells || [],
+          statusEffects: scenarioData.initialConditions || ['Well-Rested'],
+          avatarUrl: scenarioData.avatarUrl,
+          physicalDescription: scenarioData.physicalDescription,
+          backgroundNotes: userPrompt || ''
+        }
+      : scenarioData
+        ? {
+            id: `char_${category}_${Date.now()}`,
+            name: character.name,
+            roleClass: character.roleClass,
+            raceOrigin: character.raceOrigin,
+            level: 1,
+            hp: character.hp || 12,
+            maxHp: character.maxHp || 12,
+            armorClass: character.armorClass || 12,
+            initiativeBonus: character.initiativeBonus || 0,
+            stats: character.stats || { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+            inventory: combinedInventory,
+            spells: character.spells || [],
+            statusEffects: character.statusEffects || ['Well-Rested'],
+            avatarUrl: character.avatarUrl,
+            physicalDescription: character.physicalDescription,
+            backgroundNotes: userPrompt || ''
+          }
+        : scenarioHookData!.character;
+
+    // Issue #9: Inject campaign premise into storyOutline.backstory rather
+    // than concatenating it into the system prompt, so the AI can carry it
+    // forward across turns and so the user can edit it without losing the
+    // runtime prompt.
+    const premiseBackstory = userPrompt
+      ? `Player-supplied campaign premise: ${userPrompt}`
+      : undefined;
+    const finalStoryOutline: DMStoryOutline | undefined = storyOutline
+      || (isAIScenario ? scenarioData.storyOutline : undefined)
+      || (premiseBackstory ? { backstory: premiseBackstory } as DMStoryOutline : undefined);
+
+    // Issue #11: Use category-flavored starting time of day
+    const startingTimeOfDay = isAIScenario || scenarioData
+      ? (scenarioData?.storyOutline?.startingCircumstances) || 'Daybreak'
+      : scenarioHookData?.gameWorldState?.timeOfDay || 'Daybreak';
 
     const newExp: Experience = {
       id: `exp_${Date.now()}`,
       userId: user?.uid || 'guest',
-      title: customTitle?.trim() || scenarioHookData.title || `${categoryInfo?.name || 'Campaign'} Experience`,
+      title: customTitle?.trim()
+        || (isAIScenario ? scenarioData.title : null)
+        || scenarioData?.title
+        || scenarioHookData?.title
+        || `${categoryInfo?.name || 'Campaign'} Experience`,
       category,
-      description: openingPrompt?.trim() || scenarioHookData.description || `${categoryInfo?.name} experience starring ${character.name}`,
+      description: (isAIScenario
+        ? scenarioData.hookText
+        : (scenarioData?.hookText || scenarioHookData?.description))
+        || `${categoryInfo?.name} experience starring ${character.name}`,
       model: selectedModel,
-      customSystemPrompt: [
-        customSystemPrompt,
-        openingPrompt?.trim() ? `Campaign premise: ${openingPrompt.trim()}` : ''
-      ].filter(Boolean).join('\n'),
+      // Issue #9: keep customSystemPrompt clean (user's saved AI style only);
+      // the campaign premise now lives in storyOutline.backstory where the
+      // runtime prompt will pull it from.
+      customSystemPrompt: customSystemPrompt || undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       character: {
-        ...scenarioHookData.character,
+        ...baseChar,
         ...character,
-        inventory: (character.inventory && character.inventory.length > 0) ? character.inventory : scenarioHookData.character.inventory,
-        spells: (character.spells && character.spells.length > 0) ? character.spells : scenarioHookData.character.spells,
-        statusEffects: (character.statusEffects && character.statusEffects.length > 0) ? character.statusEffects : scenarioHookData.character.statusEffects,
-        avatarUrl: character.avatarUrl || scenarioHookData.character.avatarUrl,
-        physicalDescription: character.physicalDescription || scenarioHookData.character.physicalDescription
+        // User inventory, if non-empty, takes priority.  Otherwise we keep
+        // the AI/random/category-default inventory we built above.
+        inventory: (character.inventory && character.inventory.length > 0)
+          ? character.inventory
+          : baseChar.inventory,
+        spells: (character.spells && character.spells.length > 0) ? character.spells : baseChar.spells,
+        statusEffects: (character.statusEffects && character.statusEffects.length > 0) ? character.statusEffects : baseChar.statusEffects,
+        avatarUrl: character.avatarUrl || baseChar.avatarUrl,
+        physicalDescription: character.physicalDescription || baseChar.physicalDescription
       },
-      gameWorldState: scenarioHookData.gameWorldState,
+      gameWorldState: (scenarioHookData?.gameWorldState) || {
+        currentLocation: 'Unknown',
+        timeOfDay: startingTimeOfDay,
+        activeQuest: (isAIScenario && scenarioData.storyOutline?.immediateGoal)
+          || 'Begin your adventure',
+        dangerLevel: 'Safe',
+        customNotes: (isAIScenario && scenarioData.storyOutline?.backstory) || ''
+      },
       logs: [initialLog],
       mapData: initialMap,
-      storyOutline
+      storyOutline: finalStoryOutline,
+      pendingCheck: null,
+      activeAlert: null
     };
 
     setIsSaving(true);
@@ -496,6 +671,11 @@ export default function App() {
           onClose={() => setIsAuthOpen(false)}
         />
       )}
+
+      {/* Ambient Music Player — home track everywhere except an active experience */}
+      <MusicPlayer
+        currentTrackKey={activeExperience ? activeExperience.category : 'home'}
+      />
 
     </div>
   );

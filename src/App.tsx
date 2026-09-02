@@ -486,9 +486,14 @@ export default function App() {
         || scenarioHookData?.title
         || `${categoryInfo?.name || 'Campaign'} Experience`,
       category,
-      description: (isAIScenario
-        ? scenarioData.hookText
-        : (scenarioData?.hookText || scenarioHookData?.description))
+      // Custom experience fix: if the user supplied an opening prompt /
+      // initial scene, use it as the description verbatim.  Otherwise
+      // fall back to the AI/random/static hook text.  Previously the AI
+      // scenario's hook text always overwrote the user's typed scene.
+      description: userPrompt
+        || (isAIScenario ? scenarioData.hookText : null)
+        || scenarioData?.hookText
+        || scenarioHookData?.description
         || `${categoryInfo?.name} experience starring ${character.name}`,
       model: selectedModel,
       // Issue #9: keep customSystemPrompt clean (user's saved AI style only);

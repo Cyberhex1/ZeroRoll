@@ -310,7 +310,8 @@ export default function App() {
     character: CharacterSheet,
     openingPrompt?: string,
     suggestedActions?: string[],
-    storyOutline?: DMStoryOutline
+    storyOutline?: DMStoryOutline,
+    chapterOneOpening?: string
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
@@ -334,7 +335,7 @@ export default function App() {
       ? suggestedActions
       : getCategoryFallbackActions(category);
 
-    const initialLogText = openingPrompt?.trim() || `${character.name} stands ready. The adventure begins.`;
+    const initialLogText = chapterOneOpening?.trim() || openingPrompt?.trim() || `${character.name} stands ready. The adventure begins.`;
 
     const initialLog: LogMessage = {
       id: `msg_init_${Date.now()}`,

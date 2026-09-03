@@ -6,7 +6,7 @@ export interface RandomizedScenarioData {
   gender?: string;
   roleClass: string;
   raceOrigin: string;
-  hookText: string;
+  storyBlurb: string;
   physicalDescription: string;
   avatarUrl?: string;
   storyOutline?: DMStoryOutline;
@@ -751,7 +751,7 @@ export function generateRandomScenarioSetup(category: ExperienceCategory): Rando
     heroName,
     roleClass,
     raceOrigin,
-    hookText: formattedHook,
+    storyBlurb: formattedHook,
     physicalDescription,
     suggestedActions: hookObj.actions || [
       'Investigate the surroundings',

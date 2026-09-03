@@ -3,662 +3,731 @@ import { TropeCategory } from '../types';
 export interface CategorySeedInfo {
   categoryId: string;
   categoryName: string;
-  seedSource: string;
-  coreThemes: string[];
-  popularTropes?: TropeCategory[];
-  brainstormHooks: string[];
-  narrativeTropes: string[];
-  encounterSeeds: string[];
-  openingHooks: {
-    title: string;
-    hook: string;
-    suggestedActions: string[];
-  }[];
+  mediaReferences: string[];
+  prompts: string[];
 }
 
 export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
-  tiktok_drama: {
-    categoryId: 'tiktok_drama',
-    categoryName: 'Short Drama',
-    seedSource: 'GoodNovel, ReelShot, ActDrama, DramaBox & PrimeDrama Top Tropes',
-    coreThemes: [
-      'Undercover Billionaire / Secret Heiress 3-Year Test',
-      'The Gilded Hotel Gala & Heirloom Signet Ring',
-      'Morning Shift Arrival & Arrogant Socialites',
-      'Contract Marriage with the Brooding Tycoon',
-      'Quiet Dignity Before the Great Revelation',
-      'The Grand Patriarch\'s Private Envoy Arrives'
-    ],
-    popularTropes: [
-      { id: 't_sec_bill', name: 'Secret Billionaire', tagline: 'Living humbly to test character before the grand reveal', premise: 'The protagonist works an entry-level job or lives in disguise to test loyalty before inheriting a $50B conglomerate.', sampleConflict: 'Arrogant rivals mock your simple clothes at the executive banquet, unaware you own the building.' },
-      { id: 't_stolen_inh', name: 'Stolen Inheritance', tagline: 'Kin seizing assets while casting out the rightful heir', premise: 'A corrupt sibling forged the family charter and took everything while you were away.', sampleConflict: 'You arrive at the shareholder meeting holding the unrevoked sovereign seal.' },
-      { id: 't_rejected', name: 'Rejected & Discarded', tagline: 'Cast aside for a wealthy rival, only to return sovereign', premise: 'Cast out into the rain by ungrateful in-laws, now returning as their majority creditor.', sampleConflict: 'Your ex-fiancé begs for a debt extension at your boardroom desk.' },
-      { id: 't_betrayal', name: 'Betrayal & Stolen Patent', tagline: 'The trusted partner who took credit for your life\'s work', premise: 'Your business partner took the credit and had your credentials revoked.', sampleConflict: 'Their flagship product crashes because the encryption key is under your biometric.' },
-      { id: 't_contract_mar', name: 'Contract Marriage', tagline: 'A temporary marriage of convenience with a brooding tycoon', premise: 'Signed a 3-year contract to protect the CEO from a hostile takeover.', sampleConflict: 'The family tries to divorce you with a $5K severance on the final day.' },
-      { id: 't_abused_dau', name: 'Abused Daughter', tagline: 'The unloved child who secretly holds the sovereign crest', premise: 'Treated as a domestic helper by your adoptive family while your sister is favored.', sampleConflict: 'The imperial chairman arrives to personally salute the true heiress.' }
-    ],
-    brainstormHooks: [
-      'The hero has spent 3 years living humbly as a barista to test true character, arriving on the final morning of the test for the grand hotel gala.',
-      'A brilliant contract bride arrives at the boardroom on her first day, holding the undisclosed majority voting shares in her vintage tote bag.',
-      'Stepping into the five-star restaurant for a family reunion luncheon where arrogant in-laws mock your simple clothes, unaware you own the property.',
-      'The forgotten second son returns quietly from a 5-year overseas tour to visit his sister\'s bakery on the morning of a hostile development buyout.'
-    ],
-    narrativeTropes: [
-      'Polite composure while arrogant rivals boast about minor wealth',
-      'An encrypted notification on a burner phone: "Transfer of $50B approved, Chairman"',
-      'The private executive bodyguard waiting discreetly at the corner',
-      'Tucking a priceless family crest seal into an ordinary jacket pocket',
-      'The quiet smile knowing the entire venue belongs to your trust'
-    ],
-    encounterSeeds: [
-      'An arrogant boutique manager attempting to deny entrance',
-      'A condescending socialite making snide remarks at the check-in desk',
-      'An overzealous paparazzi trying to photograph arriving VIPs'
-    ],
-    openingHooks: [
-      {
-        title: 'The Secret Heiress\'s 3-Year Test: Chapter I',
-        hook: 'The morning sun sparkles off the gilded glass towers of the Grand Mirage Hotel. You arrive in your simple banquet staff uniform with your grandmother\'s heirloom seal tucked inside your bag. Today marks the final day of your 3-year humble trial before stepping into the family empire.',
-        suggestedActions: [
-          'Review the VIP banquet seating chart to see who is arriving tonight',
-          'Speak with the friendly head chef in the kitchen to prepare the room',
-          'Check your phone for the arrival confirmation from your family\'s security team'
-        ]
-      }
-    ]
-  },
-
-  revenge: {
-    categoryId: 'revenge',
-    categoryName: 'Revenge & Retribution',
-    seedSource: 'GoodNovel, DramaBox & PrimeDrama Anti-Hero Sagas',
-    coreThemes: [
-      'Exiled Avenger Returning to the City',
-      'The Untouched List of the Five Betrayers',
-      'Tracking Informants in the Rain-Slick District',
-      'Reclaiming Stolen Honor & Dismantling Corrupt Syndicates',
-      'Cold Calculation over Rash Anger'
-    ],
-    popularTropes: [
-      { id: 't_false_imp', name: 'False Imprisonment', tagline: 'Framed by corrupt barons and surviving to strike back', premise: 'You spent years in the mines after being framed for treason; now you have escaped with the syndicate ledger.', sampleConflict: 'Cornering the corrupt magistrate who signed your execution order.' },
-      { id: 't_blood_oath', name: 'The Broken Blood Oath', tagline: 'Betrayed at the bridge by your closest brother-in-arms', premise: 'Your battle-brother cut your horse reins and left you for dead in the river to claim a bounty.', sampleConflict: 'Tracking him down at the garrison post as he celebrates his stolen victory.' },
-      { id: 't_return_exile', name: 'Return From Exile', tagline: 'Returning with quiet wealth to buy up your rivals\' debt', premise: 'Cast out penniless, you return after a decade to methodically foreclose on the syndicate.', sampleConflict: 'Serving foreclosure notices to the council members dining at the grand inn.' },
-      { id: 't_poison_cup', name: 'The Poisoned Cup', tagline: 'A beloved mentor assassinated at a public banquet', premise: 'Your master was poisoned at the summit; you possess the only matching antidote vial.', sampleConflict: 'Confronting the court assassin in the rain-soaked courtyard before he flees.' }
-    ],
-    brainstormHooks: [
-      'Stepping off the midnight train into the city after 10 years in exile, carrying an untouched parchment list of the five officials who framed your family.',
-      'Arriving in disguise at the harbor district tavern to purchase initial surveillance intel on the corrupt baron\'s trade shipments.',
-      'A master assassin takes up residence in the attic across from the syndicate bank to map out the guards\' shift schedules.',
-      'The disinherited heir returns with a modest fortune to quietly buy up the debt of the rivals who ruined their parents.'
-    ],
-    narrativeTropes: [
-      'Reviewing names on a fresh parchment under the yellow glow of a streetlamp',
-      'Meeting a hooded informant at a quiet corner diner table',
-      'Testing the edge of a family blade before embarking into the city',
-      'Rain-slicked cobblestones reflecting neon lanterns at midnight'
-    ],
-    encounterSeeds: [
-      'A corrupt toll guard shaking down travelers at the district gate',
-      'A pickpocket attempting to lift your coin purse in the crowded plaza',
-      'A nervous informant asking for proof of your identity before speaking'
-    ],
-    openingHooks: [
-      {
-        title: 'The Red Vow of Iron Cross: Chapter I',
-        hook: 'Steam hisses from the locomotive as you step onto the rain-slick platform of Iron Cross Central Station. In your trench coat pocket rests a crisp parchment listing the five syndicate heads who framed your guild. Tonight marks your first night back in the city after years in exile, and your underground informant has arranged a quiet meeting at a corner diner across the plaza.',
-        suggestedActions: [
-          'Cross the station plaza to meet your informant Jax at the diner',
-          'Check your concealed blades and survey the platform for syndicate watchers',
-          'Review your map of the city\'s five merchant districts to plan your route'
-        ]
-      }
-    ]
-  },
-
-  romantic: {
-    categoryId: 'romantic',
-    categoryName: 'Romantic & Court Drama',
-    seedSource: 'GoodNovel & PrimeDrama Passionate Dynasties & Masquerades',
-    coreThemes: [
-      'Arrival at the Grand Venetian Masquerade',
-      'Enemies-to-Lovers Intrigue Across Rival Houses',
-      'Contract Marriage with Hidden Deep Devotion',
-      'Royal Court Scandals & Balcony Rendezvous',
-      'Witty Banter, Stolen Glances & Moonlight Waltzes'
-    ],
-    popularTropes: [
-      { id: 't_mask_masq', name: 'Masked Identity', tagline: 'Dancing with the brooding duke whose signature seized your estate', premise: 'Behind a velvet domino mask, you waltz with your family\'s greatest court rival.', sampleConflict: 'He whispers that he knows who you are and offers a secret deal on the moonlit balcony.' },
-      { id: 't_counterfeit_bet', name: 'Counterfeit Betrothal', tagline: 'Faking a high-society romance with your sharpest rival', premise: 'To secure a massive trading charter, you must pretend to be deeply in love with your fiercest competitor.', sampleConflict: 'A rival barrister steps forward at the court ball to publicly test your love story.' },
-      { id: 't_intercepted_love', name: 'Intercepted Letters', tagline: 'The mysterious poet who wooed you is actually the stoic general', premise: 'Trading intimate philosophical letters with a writer who turns out to be the most feared commander.', sampleConflict: 'Recognizing his custom watermark paper and pen in his military dispatch case.' },
-      { id: 't_spite_marriage', name: 'The Spite Marriage', tagline: 'Proposing to the enemy commander to humiliate your unfaithful fiancé', premise: 'Caught your fiancé cheating; you turn and propose to the foreign ambassador on the spot.', sampleConflict: 'Announcing your new engagement loudly before the entire royal ballroom.' }
-    ],
-    brainstormHooks: [
-      'Arriving at the grand palace steps in a silver velvet domino mask, carrying an engraved invitation to the seasonal solstice ball.',
-      'Entering the diplomatic reception where you must navigate polite conversation with the brooding commander of the rival province.',
-      'A court bard takes up a residency at the royal conservatory to investigate rumors of a secret royal engagement.',
-      'Two rival diplomats arrive at a neutral mountain estate for treaty negotiations and must share the same parlor.'
-    ],
-    narrativeTropes: [
-      'Adjusting an ornate mask before entering a crowded chandelier ballroom',
-      'Exchanging a lingering glance across the marble reception hall',
-      'A whispered invitation to stroll through the moonlit palace gardens',
-      'A delicate wax-sealed letter delivered by a silent courier'
-    ],
-    encounterSeeds: [
-      'The Grand Chamberlain inspecting invitations with meticulous scrutiny',
-      'A gossiping noble matriarch attempting to pry into your family background',
-      'A clumsy page spilling rosewater on the marble terrace steps'
-    ],
-    openingHooks: [
-      {
-        title: 'The Venetian Masquerade & Secret Vows: Chapter I',
-        hook: 'Gilded gondolas glide along the shimmering Grand Canal under the evening lanterns of Venice. Wearing an elegant velvet mask and holding an engraved silver invitation, you step onto the marble landing of Palais de L\'Amour. From within the grand ballroom, soft violin waltzes echo across the water as noble guests begin to arrive.',
-        suggestedActions: [
-          'Present your engraved silver invitation to the Grand Chamberlain at the palace entrance',
-          'Mingle among the arriving masquerade guests to listen for court gossip',
-          'Step out onto the moonlit canal terrace to admire the palace gardens'
-        ]
-      }
-    ]
-  },
-
   fantasy: {
     categoryId: 'fantasy',
-    categoryName: 'High Fantasy & D&D Sagas',
-    seedSource: 'Classic D&D Campaigns & Iconic Fantasy Literature',
-    coreThemes: [
-      'Frontier Village Arrivals & Tavern Quest Summons',
-      'Ancient Dragon Seals & Whispering Woods',
-      'Sunken Crypts, Forgotten Catacombs & Ancient Lore',
-      'Arcane Spells, Cantrips & Heritage Relics',
-      'Local Rumors, Guild Bounties & Roadside Inns'
+    categoryName: 'Fantasy',
+    mediaReferences: [
+      'The Lord of the Rings (Books/Films)',
+      'Dungeons & Dragons: Honor Among Thieves (Film)',
+      "Baldur's Gate 3 (Game)",
+      'The Witcher (Books/Games)',
+      'Critical Role (Web Series)',
+      'A Song of Ice and Fire / Game of Thrones (Books/TV)',
+      'The Name of the Wind (Book)',
+      'Mistborn (Book Series)',
+      'Dragon Age: Origins (Game)',
+      'The Stormlight Archive (Book Series)',
+      'Skyrim (Game)',
+      'Divinity: Original Sin 2 (Game)',
+      'Malazan Book of the Fallen (Book Series)',
+      'The Earthsea Cycle (Book Series)',
+      'The Legend of Vox Machina (TV Show)',
+      'World of Warcraft (Game)',
+      'Neverwinter Nights (Game)',
+      'The Wheel of Time (Book Series)',
+      'Pathfinder: Wrath of the Righteous (Game)',
+      'The Chronicles of Narnia (Books)',
     ],
-    popularTropes: [
-      { id: 't_disgraced_pal', name: 'Disgraced Paladin', tagline: 'Exiled for refusing an unholy purge, defending innocent refugees', premise: 'Stripped of rank and divine crest, armed only with a notched longsword and unbroken honor.', sampleConflict: 'Inquisitorial hounds attack the refugee wagon you swore to protect.' },
-      { id: 't_broken_seal', name: 'Shattered Boundary Stone', tagline: 'The ancient ward stone splits as the blood moon rises', premise: 'You arrive at a mist-covered crossroads to find the ward stone shattered and the elder clutching a bloody key.', sampleConflict: 'Monsters surge through the fractured barrier before the militia can bar the cemetery gates.' },
-      { id: 't_wyrm_tooth', name: 'Sealed Dragon Relic', tagline: 'An obsidian dagger in the village smithy ignites with dragon flame', premise: 'Dropping a coal-encrusted dagger reveals an ancient dragon blade that speaks your family name.', sampleConflict: 'Dragon cult scouts surround the forge demanding the ancestral blade.' },
-      { id: 't_stolen_grimoire', name: 'Stolen Archmage Grimoire', tagline: 'A fleeing apprentice thrusts a forbidden spellbook into your hands', premise: 'A wounded gnome apprentice crashes through the tavern window, chased by shadow gargoyles.', sampleConflict: 'The grimoire\'s eye opens and speaks an emergency counterspell into your mind.' }
-    ],
-    brainstormHooks: [
-      'Arriving at the misty frontier village of Oakhaven after weeks on the road, where the village elder has posted an urgent summons outside the inn.',
-      'A traveling mage stops at a secluded crossroads shrine where the ancient ward stones have begun to hum with faint violet light.',
-      'A ranger enters a quiet mountain hamlet to investigate strange beast tracks leading into the enchanted whispering woods.',
-      'A young knight reports to the frontier garrison to receive their very first reconnaissance assignment.'
-    ],
-    narrativeTropes: [
-      'Warm firelight and the smell of roasted stew welcoming weary travelers into a tavern',
-      'Unfurling a hand-drawn regional map across a wooden table by candlelight',
-      'Checking the straps of a traveling pack and sharpening a trusty steel blade',
-      'An ancient village elder clutching a sealed parchment scroll'
-    ],
-    encounterSeeds: [
-      'The innkeeper offering hot cider in exchange for news from the capital',
-      'A nervous farmer describing strange glowing lights in the northern woods',
-      'A mysterious cloaked scholar studying a runic tablet in the corner booth'
-    ],
-    openingHooks: [
-      {
-        title: 'The Prophecy of Sunken Aethelgard: Chapter I',
-        hook: 'The morning mist hangs low over the cobblestone crossroads of Oakhaven Village. You shoulder your traveling pack and adjust your sword at your hip after weeks on the road. Smoke rises from the chimney of the Prancing Griffin Tavern, where Village Elder Bram stands outside waiting for brave wanderers to answer his urgent summons.',
-        suggestedActions: [
-          'Approach Elder Bram outside the tavern to learn about the urgent summons',
-          'Step into the Prancing Griffin Tavern to gather local rumors and buy supplies',
-          'Inspect the ancient runic boundary stone at the village gates with an Arcana check'
-        ]
-      }
+    prompts: [
+      'The tavern falls silent as a cloaked figure drops a severed goblin head onto your table and slides over a heavy pouch of gold.',
+      'A cracked dragon seal in the catacombs begins to glow with a sickly green light, and the ground beneath you trembles.',
+      'The dying king thrusts a rusted, bloodstained crown into your hands, whispering a prophecy before drawing his last breath.',
+      'You awaken in a dungeon cell with no memory of how you arrived, only a mysterious arcane brand burning on your forearm.',
+      'The ancient bridge over the chasm begins to crumble as a massive wyvern swoops down from the mountain peaks.',
+      "A traveling merchant offers you a cursed mirror that reflects a horrific, alternate version of the room you're standing in.",
+      'The guildmaster slams a map on the table, pointing to a newly discovered continent completely unmarred by civilization.',
+      'As you read the arcane scroll, the ink slithers off the parchment and forms a sentient, shadowy familiar on your desk.',
+      'The town guards refuse to let anyone leave the gates, citing a plague of undeath that rises whenever the moon is full.',
+      'You step into the fae wilds and immediately realize the trees are whispering your darkest secrets to one another.',
+      'A legendary sword is lodged not in a stone, but in the chest of a sleeping titan that forms the landscape of the valley.',
+      'The grand archmage summons you to her tower, only to reveal she has been murdered and you are speaking to her lingering ghost.',
+      "During the harvest festival, the bonfire flares purple and a demon steps out, demanding the town's firstborn children.",
+      'You find a shipwreck in the middle of a dense forest, entirely landlocked and filled with untouched treasure.',
+      'The high priest of the sun god is caught performing a ritual of pure, forbidden blood magic in the temple undercroft.',
+      "A seemingly abandoned dwarven mine echoes with the rhythmic, mechanical pounding of a forge that hasn't been lit in centuries.",
+      'The royal assassin misses their target and falls at your feet, pressing a note into your palm that reads, "You are next."',
+      'An elemental rift tears open the sky above the capital city, raining molten ash and cinder-demons onto the streets.',
+      'You pull a shimmering silver thread from a loom of fate, and suddenly the timeline of your past begins to rewrite itself.',
+      'The ancient dragon awakes, but instead of attacking, it bows its massive head and addresses you as its long-lost master.',
     ]
   },
-
   adventure: {
     categoryId: 'adventure',
-    categoryName: 'Adventure & Swashbuckling Expeditions',
-    seedSource: 'Popular Adventure Epics & High-Seas Expeditions',
-    coreThemes: [
-      'Arrival at Port Tempest & Harbor Expeditions',
-      'Obsidian Compass Needles & Weathered Sea Charts',
-      'Recruiting Trustworthy Sailors & Outfitting Sloops',
-      'Uncharted Reefs, Tropical Atolls & Tide Caves',
-      'Morning Tides, Trade Winds & High-Seas Thrills'
+    categoryName: 'Adventure',
+    mediaReferences: [
+      'Pirates of the Caribbean: Curse of the Black Pearl (Film)',
+      'Treasure Island (Book)',
+      "Uncharted 4: A Thief's End (Game)",
+      'Master and Commander (Film)',
+      'Black Sails (TV Show)',
+      'Indiana Jones: Raiders of the Lost Ark (Film)',
+      'The Mummy (1999) (Film)',
+      "Assassin's Creed IV: Black Flag (Game)",
+      'The Goonies (Film)',
+      'Journey to the Center of the Earth (Book/Film)',
+      'Sea of Thieves (Game)',
+      'Tomb Raider (Games)',
+      'Romancing the Stone (Film)',
+      'The Princess Bride (Film/Book)',
+      'Around the World in 80 Days (Book)',
+      'One Piece (Manga/Anime)',
+      'Monkey Island (Games)',
+      'Atlantis: The Lost Empire (Film)',
+      'King Kong (2005) (Film)',
+      "Sid Meier's Pirates! (Game)",
     ],
-    brainstormHooks: [
-      'Stepping onto the bustling wooden docks of Port Tempest with a newly purchased sea chart and an obsidian compass needle.',
-      'Arriving at a coastal tavern to recruit a seasoned navigator for an expedition into uncharted waters.',
-      'Inspecting supply crates and bargaining for provisions at the harbor quartermaster dock before setting sail.',
-      'A young explorer discovers an enigmatic navigation diary inside an antique sea chest purchased at an auction.'
-    ],
-    narrativeTropes: [
-      'The smell of tar, salt spray, and roasting coffee along a bustling wooden pier',
-      'Unrolling a parchment sea chart weighted down with brass coins',
-      'Testing the balance of a polished brass cutlass in the morning sunlight',
-      'Listening to sea shanties sung by dockworkers loading cargo'
-    ],
-    encounterSeeds: [
-      'A grizzled old sailor offering tips on navigating the outer reefs',
-      'A harbor merchant haggling over the price of canvas sails and citrus barrels',
-      'A curious island monkey inspecting your unattended leather satchel'
-    ],
-    openingHooks: [
-      {
-        title: 'The Obsidian Compass Expedition: Chapter I',
-        hook: 'Salt spray fills the morning air as you step off the gangplank onto the bustling wooden docks of Port Tempest. In your coat pocket rests a weathered sea chart and an obsidian compass needle you recently acquired. The harbor is alive with shouting dockworkers, squawking gulls, and merchant sloops preparing for the outbound tide.',
-        suggestedActions: [
-          'Visit the Salty Kraken Tavern to recruit a trustworthy navigator and deckhands',
-          'Examine the obsidian compass needle against the harbor landmarks with an Investigation check',
-          'Inspect the supply crates at the quartermaster dock before boarding your sloop'
-        ]
-      }
+    prompts: [
+      'A cannonball shreds the mainsail above you as the ghost ship rams your starboard side, splintering the deck.',
+      "The obsidian compass you found in the smuggler's den points not north, but straight down into the abyssal ocean trench.",
+      'You swing on a frayed rope across a collapsing jungle temple, clutching a golden idol as the floor falls away to lava.',
+      'The mutinous crew corners you on the quarterdeck, demanding you hand over the map to the Sunken City of Gold.',
+      "In the crowded bazaar, a monkey steals your coin purse, leading you on a chase into a hidden thieves' guild beneath the city.",
+      'The ancient mechanism grinds to a halt, trapping you in a room slowly filling with sand as a riddle echoes from the walls.',
+      "A kraken tentacle the size of a galleon wraps around your ship's hull, dragging the vessel toward the maelstrom.",
+      "You decode the pirate king's final riddle, realizing the treasure is buried directly beneath the governor's heavily guarded mansion.",
+      'A rival explorer beats you to the artifact, holding you at gunpoint on a precarious rope bridge suspended over a gorge.',
+      'The cursed gold piece in your pocket begins to burn hot as the skeletal crew of the Black Galleon emerges from the fog.',
+      'You discover a subterranean river deep within the cavern, illuminated by bioluminescent flora and a docked, ancient submarine.',
+      'The jungle vines part to reveal a massive, forgotten ziggurat, its golden peak glinting under the harsh midday sun.',
+      'Your ship is caught in the doldrums for weeks until a strange, glowing fog rolls in, carrying the sound of ghostly singing.',
+      'You win a battered treasure map in a high-stakes tavern card game, but the man you beat turns out to be the Royal Navy admiral.',
+      'A massive tidal wave threatens to capsize your sloop just as you spot the rocky entrance to the hidden pirate cove.',
+      'The booby-trapped tomb seals shut behind you, and the only light comes from the glowing eyes of the stone jaguar statues.',
+      'You are marooned on a desert island, but soon discover a set of massive, unhuman footprints leading into the jungle.',
+      'A treacherous whirlpool sucks your crew toward the ocean floor, where a domed, underwater city waits intact.',
+      'The pirate queen offers you a choice: join her armada against the empire, or walk the plank into shark-infested waters.',
+      'You trigger a pressure plate in the ruins, releasing a massive rolling boulder that forces you to sprint blindly into the dark.',
     ]
   },
-
   historical_adventure: {
     categoryId: 'historical_adventure',
     categoryName: 'Historical Adventure',
-    seedSource: 'High-Stakes Points in Authentic & Fictionalized World History',
-    coreThemes: [
-      'Dawn at the Mountain Province Checkpoint',
-      'Sealed Imperial Bamboo Dispatches & Courier Missions',
-      'Ancient Tea Houses, Traveling Monks & Provincial Guards',
-      'Disciplined Swordsmanship & Masterless Wanderers',
-      'Historical Epochs: Feudal Japan, Ancient Alexandria, Venice 1520'
+    mediaReferences: [
+      'Ghost of Tsushima (Game)',
+      "Assassin's Creed (Ezio Trilogy) (Games)",
+      'Shōgun (Book/FX Show)',
+      'Gladiator (Film)',
+      'Kingdom of Heaven (Film)',
+      'The Last Samurai (Film)',
+      'Sekiro: Shadows Die Twice (Game)',
+      'The Count of Monte Cristo (Book/Film)',
+      'Rome (HBO Series)',
+      'The Three Musketeers (Book)',
+      'Ninja Scroll (Anime)',
+      'The Borgias (TV Show)',
+      "Assassin's Creed Origins (Game)",
+      'Crouching Tiger, Hidden Dragon (Film)',
+      'Seven Samurai (Film)',
+      'Yojimbo (Film)',
+      'A Tale of Two Cities (Book)',
+      'The Pillars of the Earth (Book/TV)',
+      'Marco Polo (Netflix Series)',
+      'Master of the Flying Guillotine (Film)',
     ],
-    brainstormHooks: [
-      'Arriving at dawn at the mountain tea house at the foot of the Kyoto pass with an imperial dispatch sealed in wax.',
-      'A young scribe arrives at the Great Library of Alexandria on the morning of a major scholarly assembly.',
-      'Stepping off a gondola onto the Venetian plaza at sunrise as the city awakens for the annual regatta.',
-      'A courier arrives at the frontier garrison along the Silk Road with news from the imperial court.'
-    ],
-    narrativeTropes: [
-      'Morning dew glistening on bamboo leaves beside a mountain trail',
-      'Checking the unbroken wax seal on a bamboo dispatch cylinder',
-      'The respectful bow exchanged between traveling warriors at a roadside shrine',
-      'Sipping hot green tea while reviewing provincial travel permits'
-    ],
-    encounterSeeds: [
-      'The tea house proprietor warning of seasonal landslides along the high ridge',
-      'A traveling merchant offering woven straw sandals and dried mountain persimmons',
-      'An imperial barrier guard checking identity wooden passes at the gate'
-    ],
-    openingHooks: [
-      {
-        title: 'Shadows of the Shogunate: Chapter I',
-        hook: 'The first rays of sunlight pierce through the morning mist over the mountain tea house at the foot of the Kyoto Pass. You adjust the wooden straw hat keeping the morning dew off your shoulders. Secured beneath your kimono is a sealed bamboo tube containing an imperial decree that you must safely deliver to the provincial magistrate.',
-        suggestedActions: [
-          'Stop at the mountain tea house to ask the proprietor about the road conditions ahead',
-          'Observe the imperial guard patrol stationed at the barrier gate with a Perception check',
-          'Check the wax seal on your bamboo dispatch tube to ensure it remains untouched'
-        ]
-      }
+    prompts: [
+      "The Shogun's guards pass the sliding paper doors, completely unaware that you are clinging to the rafters above the assassination target.",
+      'The Library of Alexandria is burning, and you must choose between saving a trapped scholar or the only remaining copy of a world-altering text.',
+      "During the Venetian masquerade, you notice the Doge's wine cup has been swapped with one laced with a slow-acting poison.",
+      'You draw your katana in the moonlit snow, facing down three rival ronin who have come to collect the bounty on your head.',
+      'The Roman Colosseum roars as the Emperor gives a thumbs down, leaving you to fight a trio of starved, enraged tigers.',
+      'A French musketeer presses a secret, sealed letter into your hand before dying in the muddy streets of 17th-century Paris.',
+      "You sneak through the Ming Dynasty imperial palace, dodging eunuch guards to steal back your family's stolen jade seal.",
+      'The crusader army breaches the city walls, and you must escort a group of refugees through the catacombs to safety.',
+      'A hidden blade slips from your sleeve just as the corrupt Borgia cardinal steps out onto the Vatican balcony.',
+      'The siege engines launch flaming pitch over the castle walls of Edo, illuminating the shinobi scaling the stone ramparts.',
+      "You decode a cipher in Leonardo da Vinci's workshop that reveals a secret Templar vault hidden beneath Florence.",
+      'The Samurai lord demands you commit seppuku for failing your mission, forcing you to choose between honor and survival.',
+      'A riot breaks out in the streets of Revolutionary France, and you are trapped in a carriage with an aristocratic target.',
+      'You duel a master swordsman atop a bamboo forest canopy, balancing on swaying stalks in a display of Wuxia martial arts.',
+      'The Roman legion forms a testudo formation to protect you from a volley of barbarian arrows as you carry vital dispatches.',
+      'You uncover a plot by the Medici family to collapse the Florentine economy using a massive, forged banking ledger.',
+      "A ninja throws a smoke bomb into the teahouse, and when the air clears, the emperor's heir has vanished.",
+      'You stand in the mud of Agincourt, bracing your longbow as the thunderous charge of French cavalry approaches.',
+      'A Venetian gondolier pulls a stiletto dagger on you in the middle of a foggy canal with no witnesses in sight.',
+      'You must hold the narrow mountain pass against a horde of advancing mercenaries to buy time for the village to evacuate.',
     ]
   },
-
-  cozy_ghibli: {
-    categoryId: 'cozy_ghibli',
-    categoryName: 'Cozy & Studio Ghibli-esque',
-    seedSource: 'Studio Ghibli & Heartwarming Whimsical Adventures',
-    coreThemes: [
-      'Opening the Flying Tea Bakery at Sunrise',
-      'Whimsical Spirit Foxes, Meadow Sprites & Kettle Steam',
-      'Star-Flour Cinnamon Pastries & Herbal Infusions',
-      'Gentle Meadow Hills, Parasol Gliders & Warm Sunshine',
-      'Heartwarming Community Connections & Gentle Magic'
-    ],
-    brainstormHooks: [
-      'Waking up in your flying clockwork tea shop as golden morning sunlight breaks over the flower-filled hills of Clover Valley.',
-      'Anchoring your greenhouse airship near a peaceful hillside village to forage fresh chamomile and dew-berries.',
-      'A young herbalist opens their apothecary doors on the first day of spring as cheerful soot spirits sweep the porch.',
-      'Taking your parasol glider out for a morning glide over rolling green hills to deliver fresh buns to the lighthouse keeper.'
-    ],
-    narrativeTropes: [
-      'The cheerful whistling of a polished copper tea kettle',
-      'The warm aroma of fresh cinnamon and star-honey drifting through the open window',
-      'A glowing spirit companion curling up contentedly on a flour sack',
-      'Gentle chime bells tinkling in the soft morning breeze'
-    ],
-    encounterSeeds: [
-      'A timid little blossom spirit peeking over the windowsill',
-      'A sleepy bumblebee spirit resting inside an open sugar bowl',
-      'A friendly delivery pelican dropping off a bundle of morning correspondence'
-    ],
-    openingHooks: [
-      {
-        title: 'The Flying Tea Shop & The Meadow Spirits: Chapter I',
-        hook: 'Golden morning sunlight filters through the stained-glass windows of your flying clockwork tea shop. Accompanied by your glowing little spirit fox Pip, you tie on your linen apron as the kettle begins to whistle with sweet chamomile aroma. Outside the open hatch, the tea shop gently anchors near the blossom-filled hills of Clover Valley, where gentle meadow spirits are waking up.',
-        suggestedActions: [
-          'Bake a fresh tray of star-honey cinnamon rolls to welcome the morning spirits',
-          'Step out onto the meadow grass with Pip to greet the local flower spirits',
-          'Check your grandmother\'s magical recipe journal for today\'s herbal blend'
-        ]
-      }
-    ]
-  },
-
   horror: {
     categoryId: 'horror',
-    categoryName: 'Survival Horror & Creepypasta',
-    seedSource: 'r/nosleep, Classic Creepypastas & Psychological Horror Games',
-    coreThemes: [
-      'Arrival at the Secluded Mountain Outpost at Dusk',
-      'Handwritten Caretaker Notes & Station Rulebooks',
-      'Brass Oil Lanterns, Dense Pine Trees & Quiet Mist',
-      'Atmospheric Suspense, Unexplained Absences & Forest Silence',
-      'Baseline Camp Setup & Careful Exploration'
+    categoryName: 'Horror',
+    mediaReferences: [
+      'Silent Hill 2 (Game)',
+      'Resident Evil 7: Biohazard (Game)',
+      'The Blair Witch Project (Film)',
+      'Amnesia: The Dark Descent (Game)',
+      'Alan Wake (Game)',
+      'Outlast (Game)',
+      'Channel Zero (TV Show)',
+      'Hereditary (Film)',
+      'The Babadook (Film)',
+      'Stranger Things (TV Show)',
+      'The Left/Right Game (r/nosleep)',
+      'Penpal (r/nosleep)',
+      'Borrasca (r/nosleep)',
+      "Search and Rescue Woods / I'm a Search and Rescue Officer (r/nosleep)",
+      'The Spire in the Woods (r/nosleep)',
+      'Tommy Taffy / The Third Parent (r/nosleep)',
+      'I Dared My Best Friend to Ruin My Life (r/nosleep)',
+      'Tales from the Gas Station (r/nosleep)',
+      "My Property Isn't Normal (r/nosleep)",
+      'Accounts from a Lonely Broadcast Station (r/nosleep)',
     ],
-    brainstormHooks: [
-      'Arriving at dusk at the isolated pine forest caretaker lodge to begin your seasonal forestry survey shift.',
-      'Pulling your station wagon up to a quiet coastal motel where the front desk is empty except for a room key and a list of rules.',
-      'A radio technician arrives at a mountain transmission tower at twilight to investigate intermittent broadcast static.',
-      'A private investigator arrives at a quiet lakeside hamlet following up on an unresolved missing person case.'
-    ],
-    narrativeTropes: [
-      'The crunch of dry autumn leaves beneath heavy hiking boots',
-      'Striking a wooden match to light the amber mantle of a brass lantern',
-      'The peculiar, complete absence of birdsong in the surrounding forest',
-      'A neatly handwritten note pinned to the door with an antique brass thumbtack'
-    ],
-    encounterSeeds: [
-      'A weathered park ranger signboard with half-faded trail maps',
-      'An abandoned forestry truck with its headlights switched off and keys in the visor',
-      'A curious stray cat sitting quietly on the porch steps watching the woods'
-    ],
-    openingHooks: [
-      {
-        title: 'The Mystery of Blackwood Ridge: Chapter I',
-        hook: 'Dusk settles over the dense pines of Blackwood Ridge as the cool mountain breeze rustles the dry autumn leaves. Carrying a brass lantern and leather satchel of protective relics, you step up the wooden porch of the secluded caretaker lodge. A handwritten note tacked to the front door bears your name, left by the missing forest ranger.',
-        suggestedActions: [
-          'Read the handwritten note pinned to the cabin door with an Investigation check',
-          'Light your brass lantern and unlock the cabin to set up your baseline camp',
-          'Scan the surrounding forest tree line with your silver rosary in hand'
-        ]
-      }
+    prompts: [
+      'You hear your own voice call out for help from the dark tree line, despite being entirely alone at the campsite.',
+      'The rules left by the previous night shift guard state: "If the static on monitor 4 sounds like weeping, do not look at the screen." Monitor 4 just started weeping.',
+      'You find a staircase standing perfectly intact in the middle of the deep woods. A colleague warns you never to climb it.',
+      'The radio tower broadcasts a distress signal, but the voice is speaking in a language made entirely of grinding metal and static.',
+      "You lock the door of the rural cabin, only to realize the muddy footprints leading inside don't match your boots.",
+      "The creature mimicking your mother's voice outside the bedroom door knows things only she would know, but its silhouette is far too tall.",
+      'You realize the "fog" rolling into town isn\'t water vapor; it\'s a dense cloud of microscopic, writhing insects.',
+      'The basement stairs seem to stretch infinitely downward, and the bulb above you begins to violently flicker and dim.',
+      'You pull a loose thread from a tear in the wallpaper, and the wall bleeds thick, black ichor onto your fingers.',
+      "The local gas station attendant casually mentions that the man standing by the ice machine hasn't blinked in four hours.",
+      'You find a series of polaroid photos hidden in the attic, all depicting you sleeping in your bed last night.',
+      'The emergency broadcast system warns residents not to look at the moon. The moonlight streaming through your window turns crimson.',
+      'You realize the mannequins in the abandoned department store have changed positions every time you turn your flashlight away.',
+      'A tall, smiling man in a pristine suit knocks on your door, refusing to leave and insisting he is your "third parent."',
+      'You drive down the dirt road, but the GPS insists you are driving through the middle of a lake that dried up fifty years ago.',
+      "The search and rescue team finds a camper's tent suspended sixty feet in the canopy of a pine tree, zipped shut from the inside.",
+      'A frantic knocking comes from the inside of the locked closet door in your otherwise empty apartment.',
+      'The tape recorder you left running overnight captured an hour of heavy breathing and someone whispering your name.',
+      "You look in the bathroom mirror and realize your reflection's eyes are staring at a spot slightly behind you.",
+      'The abandoned asylum is completely silent, except for the rhythmic bouncing of a rubber ball echoing from the end of the hall.',
     ]
   },
-
+  cozy_ghibli: {
+    categoryId: 'cozy_ghibli',
+    categoryName: 'Cozy / Studio Ghibli-esque',
+    mediaReferences: [
+      'Spirited Away (Film)',
+      "Howl's Moving Castle (Film)",
+      'My Neighbor Totoro (Film)',
+      "Kiki's Delivery Service (Film)",
+      'Stardew Valley (Game)',
+      'Animal Crossing (Game)',
+      'Over the Garden Wall (Mini-series)',
+      'Hilda (TV Show)',
+      'The Legend of Zelda: Breath of the Wild (Game)',
+      'Ori and the Blind Forest (Game)',
+      'Slime Rancher (Game)',
+      'Journey (Game)',
+      'Sky: Children of the Light (Game)',
+      'Cozy Grove (Game)',
+      'A Short Hike (Game)',
+      'The Tea Dragon Society (Graphic Novel)',
+      'Moominvalley (Books/TV)',
+      'Ooblets (Game)',
+      'Spiritfarer (Game)',
+      'Atelier Ryza (Game Series)',
+    ],
+    prompts: [
+      'A small, glowing moss spirit tugs gently on your boot, pointing toward a patch of wildly overgrown, vanilla-scented mushrooms.',
+      'The flying bakery airship hums with steam as you pull a fresh tray of star-flour pastries from the enchanted oven.',
+      'A giant, sleepy forest guardian covered in ancient ferns blocking the road wakes up and asks you politely for a cup of tea.',
+      'You open your umbrella to glide across the valley, catching a warm updraft filled with cherry blossom petals.',
+      'The local river spirit leaves a pile of polished river stones on your porch as a thank you for cleaning the debris from its banks.',
+      'A flock of tiny, soot-covered sprites helps you carry coal to the furnace of the magical bathhouse.',
+      "You brew a potion of soothing chamomile and moon-dew to help the grumpy mountain troll get a good night's sleep.",
+      'The clockwork postman arrives on a sputtering, brass bicycle to deliver a letter sealed with glowing amber wax.',
+      'You discover a hidden glen where the fireflies arrange themselves into intricate, glowing constellations in the grass.',
+      'A talking cat wearing a tiny top hat offers to guide you through the enchanted forest in exchange for a saucer of cream.',
+      'You harvest the rare cloud-berries at the peak of the mountain, wrapping them carefully in woven leaves.',
+      'The village prepares for the Lantern Festival, weaving paper floats that actually hover on gentle breezes.',
+      'A friendly, lumbering stone golem helps you till the soil for your new garden of magical herbs.',
+      "You sit by a crackling hearth fire, mending a torn traveler's cloak with thread spun from starlight.",
+      'The ancient tree at the center of town blooms a single, radiant flower that hums with a warm, musical chord.',
+      'You trade a basket of honey-cakes to the wandering frog-merchant for a magical seed that grows instantly into a cozy tent.',
+      'The rain taps softly against the stained glass windows of your apothecary as you sort dried lavender and sun-drops.',
+      'A mischievous wind spirit playfully steals your hat and leads you on a gentle chase through a field of sunflowers.',
+      'You assemble a mechanical music box that plays a tune capable of soothing agitated wildlife in the meadow.',
+      'The sun sets, painting the sky in pastel hues as the floating islands drift lazily toward their nighttime anchors.',
+    ]
+  },
+  romantic: {
+    categoryId: 'romantic',
+    categoryName: 'Romantic',
+    mediaReferences: [
+      'Bridgerton (TV/Books)',
+      'Pride and Prejudice (Book/Film)',
+      'Outlander (Book/TV)',
+      'The Great (TV Show)',
+      'The Crown (TV Show)',
+      'Downton Abbey (TV Show)',
+      'Gossip Girl (TV Show)',
+      'Cruel Intentions (Film)',
+      'The Vampire Diaries (TV Show)',
+      'A Court of Thorns and Roses (Book Series)',
+      'The Selection (Book Series)',
+      'Sense and Sensibility (Book)',
+      'Marie Antoinette (2006) (Film)',
+      'Reign (TV Show)',
+      'Euphoria (TV Show)',
+      'After by Anna Todd (Wattpad)',
+      'The Kissing Booth by Beth Reekles (Wattpad)',
+      'Through My Window by Ariana Godoy (Wattpad)',
+      'Chasing Red by Isabelle Ronin (Wattpad)',
+      'Perfect Illusion by Claudia Tan (Wattpad)',
+    ],
+    prompts: [
+      'At the masquerade ball, your sworn enemy suddenly pulls you behind a heavy velvet curtain, their breath catching as their eyes lock onto yours.',
+      "The arrogant duke offers a contract marriage to save your family's estate, but his cold demeanor slips when he sees you in your wedding attire.",
+      'You are caught sneaking out of the royal gardens at midnight, right into the arms of the notoriously rebellious prince.',
+      'The tension between you and the rival academic at the royal academy reaches a boiling point during a heated debate over ancient magic.',
+      'You accidentally spill wine on the gown of the high society darling, but her brooding, protective older brother steps in with a surprising proposition.',
+      'A scandalous anonymous letter circulating the court reveals a secret you thought only you and your forbidden lover knew.',
+      'Forced to share the only remaining room in the roadside inn, the stoic knight insists on sleeping on the floor to protect your honor.',
+      'The crown prince announces he will choose his bride at the upcoming gala, and his intense gaze has been fixed on you all evening.',
+      "You discover the injured rebel leader hiding in your family's barn, and tending to his wounds sparks an undeniable, dangerous chemistry.",
+      'The ice-cold CEO of the magical conglomerate demands you act as his fake fiancé for the season to appease his demanding family.',
+      'A passionate, rain-soaked argument in the courtyard ends abruptly when they grab your face and silence you with a kiss.',
+      'You are assigned to tutor the notorious bad boy of the magical academy, only to discover a vulnerable, fiercely protective side to him.',
+      'The childhood friend who broke your heart returns from a decade-long war, hardened, decorated, and determined to win you back.',
+      'A misunderstanding at the high-society banquet leaves you humiliated, until the most powerful noble in the room offers you his arm.',
+      'You brush hands with the mysterious stranger while reaching for the same grimoire in the restricted section of the library.',
+      'The arranged marriage was supposed to be strictly business, but the way they defend you against court gossip suggests otherwise.',
+      'A forbidden romance blooms between you and the vampire lord sworn to destroy your ancestral bloodline.',
+      'You slip away from the stifling ballroom to the balcony, only to find the brooding, outcast lord already there, smoking in the dark.',
+      'The intense rivalry between your two magical houses is complicated by the undeniable electricity whenever you duel the heir.',
+      'They show up at your door in the middle of the night, bleeding and desperate, admitting you are the only one they trust.',
+    ]
+  },
+  revenge: {
+    categoryId: 'revenge',
+    categoryName: 'Revenge',
+    mediaReferences: [
+      'John Wick (Film)',
+      'Kill Bill (Film)',
+      'The Count of Monte Cristo (Book)',
+      'Oldboy (Film)',
+      'V for Vendetta (Film/Comic)',
+      'Dishonored (Game)',
+      'The Punisher (Comics/TV)',
+      'Gladiator (Film)',
+      'The Crow (Film/Comic)',
+      'Sweeney Todd (Musical/Film)',
+      'The Last of Us Part II (Game)',
+      'Mad Max: Fury Road (Film)',
+      'Taken (Film)',
+      'Man on Fire (Film)',
+      'Django Unchained (Film)',
+      'Peaky Blinders (TV Show)',
+      'The Girl with the Dragon Tattoo (Book/Film)',
+      'Carrie (Book/Film)',
+      'Revenge (TV Series)',
+      'Sifu (Game)',
+    ],
+    prompts: [
+      'You stand over the first betrayer on your list. The rain washes the blood from your blade as they beg for the mercy they denied your family.',
+      'The corrupt baron toasts to his success at the banquet, unaware that you have infiltrated the kitchens and poisoned the wine.',
+      "You strike a match and drop it onto the trail of oil leading to the syndicate's warehouse, watching your past go up in flames.",
+      'The mob boss realizes too late that his new, highly trusted bodyguard is the child of the rival leader he assassinated ten years ago.',
+      "You systematically dismantle the corrupt guard captain's life, stripping his wealth, reputation, and allies before ever drawing a weapon.",
+      'The second name on your list runs a heavily fortified fighting arena, and the only way to reach them is to enter the tournament.',
+      'You corner the traitor in a dead-end alley. They draw their weapon, terrified, realizing you survived the ambush they orchestrated.',
+      'The explosive charge detonates, collapsing the bridge and trapping the escaping convoy of the noble who ruined your life.',
+      'You leave a single, blood-stained calling card on the pillow of the sleeping magistrate, a promise that you are coming for them next.',
+      'The assassin sent to kill you gasps for air as you turn their own weapon against them, demanding the name of their employer.',
+      'You crash the high-society gala, revealing the damning evidence that destroys the reputation of the aristocrat who framed you.',
+      'The third betrayer has sought refuge in a heavily guarded monastery, forcing you to infiltrate as a silent monk to get close.',
+      "You methodically pick off the bandit camp's sentries one by one from the shadows, leaving the leader isolated and terrified.",
+      'The corrupt judge screams as you reveal the exact ledger of bribes he took to condemn your innocent sibling to the gallows.',
+      'You confront your former mentor on the edge of the cliff, swords drawn, demanding to know why they sold out the guild.',
+      "The crime lord's heavily armored enforcer blocks your path, cracking his knuckles as you check the ammo in your hand crossbow.",
+      'You orchestrate a complex heist not to steal gold, but to plant irrefutable evidence of treason in the chambers of your enemy.',
+      'The fourth name on your list is a paranoid recluse. You bypass his intricate traps and sit waiting in the dark of his study.',
+      'You hijack the public execution of your ally, turning the tables on the executioner and inciting a riot against the corrupt lord.',
+      'The mastermind behind the conspiracy finally turns around in their high-backed chair, realizing you have slaughtered every guard outside.',
+    ]
+  },
   apocalypse: {
     categoryId: 'apocalypse',
-    categoryName: 'Post-Apocalypse & Wasteland Survival',
-    seedSource: 'Fallout 76 & Nuclear Wasteland Tropes',
-    coreThemes: [
-      'Emerging from the Shelter Airlock at Sunrise',
-      'Clear Horizons, Geiger Baseline & Moisture Recyclers',
-      'Scavenged Tools, Patchwork Dusters & Trading Posts',
-      'Trekking toward Reclaimed Settlements',
-      'Vast Open Wasteland & First Steps of Survival'
+    categoryName: 'Apocalypse',
+    mediaReferences: [
+      'Fallout (Game Series & TV Show)',
+      'Mad Max: Fury Road (Film)',
+      'The Road (Book/Film)',
+      'The Book of Eli (Film)',
+      'Snowpiercer (Film/TV)',
+      'Waterworld (Film)',
+      'Horizon Zero Dawn (Game)',
+      'Metro 2033 (Games/Books)',
+      'Wasteland 3 (Game)',
+      'I Am Legend (Book/Film)',
+      'S.T.A.L.K.E.R.: Shadow of Chernobyl (Game)',
+      'DayZ (Game)',
+      'Children of Men (Film)',
+      'Escape from New York (Film)',
+      'The Postman (Film/Book)',
+      'A Boy and His Dog (Film)',
+      'Kenshi (Game)',
+      'Rust (Game)',
+      'Turbo Kid (Film)',
+      'The Last Man on Earth (TV Show)',
     ],
-    brainstormHooks: [
-      'The massive hydraulic blast doors of Shelter 44 open for the first time in years, revealing a quiet sunlit valley and distant trade windmills.',
-      'Waking at dawn in a fortified ridge encampment with a repaired Geiger counter and clean water canteen.',
-      'A wasteland scavenger packs their gear at a desert oasis to begin a trek toward the New Horizon settlement.',
-      'A caravan guard takes up position on the morning watch as pack brahmins are loaded for the day\'s trek.'
-    ],
-    narrativeTropes: [
-      'Taking a deep breath of crisp outside air after years underground',
-      'Tapping the dial of a handheld Geiger counter to confirm safe radiation levels',
-      'Shading your eyes against the bright morning sun rising over the ruined ridge',
-      'Checking the water level in a military canteen before heading out'
-    ],
-    encounterSeeds: [
-      'An abandoned roadside billboard offering directions to a pre-war diner',
-      'A friendly scrapper tinkering with a solar water pump beside the trail',
-      'A rusted pre-war automobile with its trunk still locked'
-    ],
-    openingHooks: [
-      {
-        title: 'The Wasteland Horizon: Chapter I',
-        hook: 'Hydraulic gears grind as the massive blast doors of Shelter 44 hiss open, letting in fresh desert air for the first time in years. Carrying a scavenged rifle and a calibrated Geiger counter, you step out onto the sunlit ridge overlooking the Rust Valley. In the distance, the wind turbines of the New Horizon trading outpost spin slowly against the clear blue sky.',
-        suggestedActions: [
-          'Check the Geiger counter readings and calibrate your moisture recycler',
-          'Use your brass binoculars to scout the path down toward the New Horizon Trading Outpost',
-          'Inspect the abandoned roadside checkpoint at the base of the ridge with an Investigation check'
-        ]
-      }
+    prompts: [
+      'The Geiger counter crackles violently as a massive, irradiated monstrosity bursts through the rusted shell of a pre-war bus.',
+      'A dust storm rolls in across the wasteland, forcing you to seek shelter in an abandoned, half-buried convenience store.',
+      'You scavenge a pristine can of dog food from a collapsed diner, only to hear the roar of a raider convoy approaching outside.',
+      'The robotic vendor at the trading outpost glitches, offering to sell you a highly classified military weapon for a handful of bottlecaps.',
+      'A mutated cryptid stalks you through the glowing, irradiated forest, its eyes reflecting the eerie green light of the toxic sludge.',
+      'You patch the leaks in your hazmat suit with duct tape just as the toxic acid rain begins to fall on the ruined cityscape.',
+      'The caravan guard demands an exorbitant toll of purified water to cross the makeshift bridge over the dried riverbed.',
+      'You discover a sealed underground bunker, the blast doors humming with power and a biometric scanner waiting for a handprint.',
+      'A group of heavily armed zealots who worship an unexploded nuclear bomb corner you in the ruins of a cathedral.',
+      'You cannibalize parts from a broken-down vehicle to repair your water purifier, a vital necessity for surviving the week.',
+      'The faint signal of a radio broadcast cuts through the static, promising a safe haven free of radiation and raiders.',
+      'A rival scavenger pulls a rusted shotgun on you as you reach for the same box of intact medical supplies in the ruined pharmacy.',
+      'You navigate the treacherous subway tunnels, relying on a flickering flashlight to spot the mutated creatures lurking in the dark.',
+      'The nomadic tribe offers you a seat at their fire, serving a stew of questionable origin and asking for news of the outside world.',
+      'You defend your makeshift scrap fortress from a nighttime raid by feral ghouls, using jury-rigged traps and limited ammo.',
+      'A mysterious stranger in a pristine, pre-war suit approaches you in the wasteland, offering a job that sounds far too good to be true.',
+      'You stumble upon a massive, crashed satellite, its databanks still intact and holding the coordinates to a pristine military cache.',
+      'The oppressive heat of the scorched desert drains your stamina, and your canteen is completely empty with miles left to walk.',
+      'You negotiate a tense trade with a heavily armored warlord, offering your mechanical expertise in exchange for safe passage.',
+      'The automated defense turrets of the ruined facility lock onto you, forcing you to sprint for cover behind a concrete barrier.',
     ]
   },
-
   zombie: {
     categoryId: 'zombie',
-    categoryName: 'Zombie Outbreak Survival',
-    seedSource: 'The Walking Dead & Survival Outbreak Tropes',
-    coreThemes: [
-      'The First Quarantine Alert at the Medical Lab',
-      'Emergency First-Aid Kits & Keycard Security',
-      'Humming Fluorescent Lights & Quiet Corridors',
-      'Careful Preparation Before Venturing Out',
-      'Early Days of an Unfolding Epidemic'
+    categoryName: 'Zombie Outbreak',
+    mediaReferences: [
+      'The Walking Dead (Comics/TV/Telltale)',
+      'The Last of Us (Game/TV)',
+      'Dawn of the Dead (2004) (Film)',
+      '28 Days Later (Film)',
+      'Train to Busan (Film)',
+      'World War Z (Book)',
+      'Resident Evil 2 Remake (Game)',
+      'State of Decay 2 (Game)',
+      'Project Zomboid (Game)',
+      'Dying Light (Game)',
+      'Shaun of the Dead (Film)',
+      'Zombieland (Film)',
+      'Days Gone (Game)',
+      'Left 4 Dead 2 (Game)',
+      'I Am a Hero (Manga)',
+      'Black Summer (Netflix)',
+      'Highschool of the Dead (Anime)',
+      'The Girl with All the Gifts (Film/Book)',
+      'Dead Rising (Game)',
+      'The Return of the Living Dead (Film)',
     ],
-    brainstormHooks: [
-      'Working the late shift in the virology research wing of the hospital when the intercom broadcasts a sudden priority Code Silver quarantine alert.',
-      'Waking up in a quiet suburban clinic on a rainy morning to find the staff in urgent emergency consultations.',
-      'A police officer receives the first dispatch call about a containment issue at the downtown logistics depot.',
-      'A resident in an apartment building notices emergency vehicles cordoning off the block during breakfast.'
-    ],
-    narrativeTropes: [
-      'The steady hum of hospital ventilation units suddenly dropping into emergency power mode',
-      'Securing a reinforced door with a magnetic keycard lock',
-      'Checking the battery on a heavy tactical flashlight',
-      'Reviewing patient triage clipboard logs with a furrowed brow'
-    ],
-    encounterSeeds: [
-      'An automated pharmaceutical dispenser with emergency medicine locked inside',
-      'A frightened nursing assistant asking what the intercom code means',
-      'A sealed bio-hazard waste container with fresh intake markings'
-    ],
-    openingHooks: [
-      {
-        title: 'Outbreak Protocol: Chapter I',
-        hook: 'Fluorescent lights hum peacefully in the virology research wing of St. Jude\'s Memorial Hospital. Wearing a lab coat with your security badge clipped to your pocket, you review the morning patient bloodwork. Suddenly, the hospital intercom crackles to life with a priority Code Silver alert: quarantine teams have sealed the East Wing triage unit, and staff are requested to secure their laboratory doors.',
-        suggestedActions: [
-          'Log into the hospital terminal to review the emergency triage intake logs with an Investigation check',
-          'Gather your emergency first-aid kit and secure the laboratory keycard access',
-          'Look through the reinforced hallway observation window to assess the situation'
-        ]
-      }
+    prompts: [
+      'The pharmacy shelves are mostly stripped bare, but as you reach for the last bottle of antibiotics, a decayed hand grabs your wrist from the shadows.',
+      'A massive horde of walkers blocks the highway, forcing you to silently weave between abandoned cars without making a sound.',
+      'You barricade the doors of the rural farmhouse, but the moans outside are growing louder, and the wood is beginning to splinter.',
+      'The military quarantine zone has fallen, and you must sneak past both the infected and the panicked, trigger-happy soldiers.',
+      'A survivor in your group hides a bite mark, but their sudden fever and erratic behavior threaten the safety of the entire camp.',
+      'You trigger a car alarm while scavenging a suburban neighborhood, drawing every infected within a mile to your location.',
+      'The rooftop extraction helicopter flies overhead, completely ignoring your flares and leaving you stranded in the infested city.',
+      'You discover a fortified mall, but the survivors inside are a ruthless gang that demands a steep price for entry.',
+      'A fast, mutated infected chases you through the dark corridors of a hospital, easily vaulting over the obstacles you pull down in its path.',
+      'You run out of ammunition during a tense standoff in a grocery store, forcing you to rely on a baseball bat and sheer desperation.',
+      'The radio crackles to life, transmitting a loop of a survivor begging for rescue from a high-rise apartment building downtown.',
+      'You must cross a bridge jammed with abandoned vehicles and crawling with infected to reach the supposed safe zone on the other side.',
+      'A sudden thunderstorm washes out the roads, trapping you in a flooded gas station with a dozen waterlogged walkers.',
+      'The charismatic leader of a rival settlement offers an alliance, but you discover they have been feeding dissenters to a pit of zombies.',
+      'You attempt to hotwire a truck in the middle of a deserted intersection, desperately trying to start the engine as the horde closes in.',
+      'A child is trapped on the roof of a school bus surrounded by infected, forcing you to risk your own life to distract the swarm.',
+      'You uncover a military laboratory where scientists were experimenting on the infected, and the test subjects have broken loose.',
+      'The power grid finally fails, plunging the city into total darkness just as you hear the heavy, dragging footsteps approaching your hideout.',
+      'You must silently dispatch a room full of sleeping infected to reach the only exit from the overrun police station.',
+      'A bitten survivor begs you to end their suffering before they turn, handing you their weapon and forcing a terrible choice.',
     ]
   },
-
   cosmic_horror: {
     categoryId: 'cosmic_horror',
-    categoryName: 'Cosmic Horror & Elder Dimensions',
-    seedSource: 'H.P. Lovecraft, Wayne Barlowe, Beksiński & Junji Ito',
-    coreThemes: [
-      'Arrival at the University Archives on a Rainy Evening',
-      'Cryptic Colleague Telegrams & Untranslated Manuscripts',
-      'Antique Celestial Globes & Star Charts',
-      'Scholarly Investigation & Academic Mystery',
-      'Quiet Ticking Clocks & The First Hints of the Unknown'
+    categoryName: 'Cosmic Horror',
+    mediaReferences: [
+      'Bloodborne (Game)',
+      'Call of Cthulhu (Tabletop RPG)',
+      'The Shadow Over Innsmouth (Book)',
+      'At the Mountains of Madness (Book)',
+      'Annihilation (Film/Book)',
+      'Color Out of Space (Film)',
+      'The Mist (Film)',
+      'Event Horizon (Film)',
+      'In the Mouth of Madness (Film)',
+      'The Void (Film)',
+      'Alien (Film)',
+      'Prometheus (Film)',
+      'Darkest Dungeon (Game)',
+      'SOMA (Game)',
+      'Uzumaki (Manga by Junji Ito)',
+      'Hellraiser (Film)',
+      'The Lighthouse (Film)',
+      'True Detective (Season 1) (TV Show)',
+      'Dredge (Game)',
+      'Control (Game)',
     ],
-    brainstormHooks: [
-      'Arriving at the Miskatonic University Library archives late on a rainy evening after receiving an urgent telegram from Professor Armitage.',
-      'An astronomer receives a shipment of photographic glass plates from an Antarctic survey expedition showing an uncataloged shadow near the moon.',
-      'An antique dealer is invited to appraise a private collection of Mesopotamian clay tablets in a quiet coastal manor.',
-      'A museum curator unlocks the basement storage vault after hours to catalog a newly donated stone meteorite.'
-    ],
-    narrativeTropes: [
-      'Rain drumming against leaded library windowpanes while a green banker lamp illuminates old paper',
-      'The satisfying smell of aged leather and dry parchment in a silent archive',
-      'Examining an intricate brass astrolabe under a magnifying lens',
-      'Unfolding a telegram bearing an unfamiliar postmark and urgent handwriting'
-    ],
-    encounterSeeds: [
-      'The elderly head archivist offering tea while retrieving the rare books key',
-      'A dusty catalog drawer filled with cross-referenced index cards',
-      'An antique grandfather clock chiming a low, resonant note at the half hour'
-    ],
-    openingHooks: [
-      {
-        title: 'The Shadow over Miskatonic: Chapter I',
-        hook: 'Rain taps softly against the leaded glass windows of Miskatonic University Library. Clutching an umbrella and an urgent telegram from Professor Armitage, you step through the heavy oak doors into the warm, book-scented archive room. The head archivist looks up from behind his lamp-lit desk, holding a wooden key to the rare manuscript vault.',
-        suggestedActions: [
-          'Show Armitage\'s telegram to the head archivist to request the rare manuscript catalog',
-          'Examine the antique celestial globe in the library corner for strange star markings with an Investigation check',
-          'Sit at the reading desk to transcribe the notes sent in Armitage\'s letter'
-        ]
-      }
+    prompts: [
+      'The geometry of the hallway shifts imperceptibly. What was once a straight corridor now curves upward into an endless, spiraling abyss.',
+      'You read the translated passages of the ancient tome, and a sudden, terrifying realization shatters your understanding of human existence.',
+      'The coastal town is plagued by a strange, iridescent fog that mutates the flora and drives the locals into a violent, cult-like frenzy.',
+      'An expedition uncovers a massive, cyclopean city beneath the Antarctic ice, its architecture built for beings far larger than humanity.',
+      'You peer through the telescope and realize the stars are not burning spheres of gas, but the glowing eyes of colossal entities watching the earth.',
+      'A strange, pulsating meteorite crashes into the farm, poisoning the water supply and causing the livestock to fuse together in horrific ways.',
+      'The cultists chant in a guttural, inhuman language, attempting to tear a rift in space-time to summon an ancient, sleeping god.',
+      'You discover a hidden room in the asylum where a patient has obsessively drawn fractal patterns that physically hurt to look at.',
+      'A massive, shadowy tentacle breaches the surface of the ocean, dragging a naval dreadnought beneath the waves without a sound.',
+      'The deeper you delve into the abandoned mine, the more the rock walls resemble pulsating, fleshy tissue.',
+      'A strange artifact hums with a frequency that induces intense, waking nightmares of a dead city at the bottom of the sea.',
+      'The villagers wear peculiar gold jewelry shaped like amphibians and stare at you with unblinking, bulging eyes.',
+      'You realize the "moon" in the sky has opened, revealing a colossal, pupil-less eye staring down at the city.',
+      'A scientist creates a machine that allows you to see the creatures overlapping our reality, but turning it on alerts them to your presence.',
+      'The ancient obelisk in the desert is entirely smooth, yet it casts a shadow that moves independently of the sun.',
+      'You suffer a terrifying vision of a dark void filled with writhing shapes, and when you wake, a bizarre symbol is carved into your palm.',
+      'The deep-sea submersible loses contact with the surface as it descends past a massive, glowing city built into the Mariana Trench.',
+      'A mathematician solves an impossible equation, causing the walls of their study to unfold into a higher-dimensional space.',
+      'The strange, alien fungus infecting the facility begins to speak in the voices of the scientists it has consumed.',
+      'You realize the horrifying truth: the gods are not benevolent protectors, but indifferent, cosmic anomalies that view humanity as insects.',
     ]
   },
-
   psychedelic_trip: {
     categoryId: 'psychedelic_trip',
-    categoryName: 'Psychedelic Trip & Sensory Dimensions',
-    seedSource: 'Erowid Experience Vaults & Surrealist Transcendent Media',
-    coreThemes: [
-      'Stepping Across the Luminous Rainbow Threshold',
-      'Meadows of Synesthesia & Floating Origami Blossoms',
-      'Gentle Ambient Harmonies & Crystal Chime Staffs',
-      'First Steps into Expanded Consciousness',
-      'Calm Wonder, Vibrant Colors & Poetic Perception'
+    categoryName: 'Psychedelic Trip',
+    mediaReferences: [
+      '2001: A Space Odyssey (Film)',
+      'Enter the Void (Film)',
+      'Fear and Loathing in Las Vegas (Film/Book)',
+      'Doctor Strange (MCU) (Film)',
+      'The Matrix (Film)',
+      '"A Journey to the Center of the Mind" (Erowid DMT Vault)',
+      '"Meeting the Machine Elves" (Erowid DMT Vault)',
+      '"The Geometric Nexus" (Erowid Salvia Vault)',
+      '"Complete Ego Death and Rebirth" (Erowid LSD Vault)',
+      '"The Chrysanthemum Pattern" (Erowid Psilocybin Vault)',
+      '"Conversations with the Plant Teacher" (Erowid Ayahuasca Vault)',
+      '"Slipping Outside of Time" (Erowid LSD Vault)',
+      '"The Cosmic Waiting Room" (Erowid DMT Vault)',
+      '"Dissolution into the White Light" (Erowid 5-MeO-DMT Vault)',
+      '"The Zipper Unzipping Reality" (Erowid Salvia Vault)',
+      '"Synesthetic Symphony of Colors" (Erowid LSD Vault)',
+      '"The Grid and the Entities" (Erowid DMT Vault)',
+      '"A Glimpse into the Akashic Records" (Erowid Psilocybin Vault)',
+      '"The Gravity of a Thousand Suns" (Erowid Ketamine Vault)',
+      '"Fractal Landscapes of the Mind" (Erowid Mescaline Vault)',
     ],
-    brainstormHooks: [
-      'Taking your very first step through an iridescent doorway of light into the Meadow of Synesthesia where colors resonate as musical notes.',
-      'Waking on a hill of glowing turquoise clover beneath an aurora sky where thoughts gently materialize as colorful origami birds.',
-      'Crossing a crystalline bridge over a river of liquid starlight that mirrors parallel versions of the cosmos.',
-      'Entering a serene garden of glass prisms where the evening breeze plays harmonic chords.'
-    ],
-    narrativeTropes: [
-      'Feeling your breath synchronize with the gentle pulsing light of the meadow',
-      'Ringing a crystal chime and watching the sound ripple as rings of violet light',
-      'The ground feeling like soft, warm velvet beneath your boots',
-      'Curious geometric spirit creatures watching with friendly reverence'
-    ],
-    encounterSeeds: [
-      'A floating origami butterfly that changes color based on your thoughts',
-      'A crystalline spring whose water glows with gentle golden luminescence',
-      'A spiral stone path that rings like chime bells with every step'
-    ],
-    openingHooks: [
-      {
-        title: 'The Kaleidoscope Nexus: Chapter I',
-        hook: 'A doorway of warm, iridescent light opens before you, dissolving the walls of the mundane world into shimmering ripples of indigo and gold. Carrying a crystal chime staff, you take your very first step across the threshold into the Meadow of Synesthesia. The air hums with gentle musical notes, and floating origami blossoms unfold in harmony with your breathing.',
-        suggestedActions: [
-          'Ring your crystal chime staff to harmonize with the meadow\'s ambient melody',
-          'Observe the shifting fractal patterns along the rainbow river path with a Perception check',
-          'Reach out gently to communicate with a floating origami spirit entity'
-        ]
-      }
+    prompts: [
+      'The walls breathe in time with your heartbeat as a towering entity made entirely of folding geometric light asks you a question in a language you can taste.',
+      'A sudden rush of synesthesia overwhelms you; the sound of the wind becomes a brilliant shade of indigo that shatters into glass fractals.',
+      'You step through a doorway and reality unzips itself, revealing the underlying grid of the universe maintained by clockwork elves.',
+      'The concept of time dissolves completely. You experience your past, present, and future simultaneously in a single, crystalline moment of eternity.',
+      'A benevolent, plant-like intelligence communicates with you not through words, but by downloading intense, emotional memories directly into your mind.',
+      'You feel your sense of self shatter into a million pieces, ego death washing over you as you merge with the infinite white light of the cosmos.',
+      'The forest floor begins to flow like a river of vibrant, neon colors, and the trees twist themselves into impossible, non-Euclidean shapes.',
+      'A jester made of impossible, folding colors dances around you, mocking the arbitrary rules of physics and gravity.',
+      'You find yourself in the "cosmic waiting room," a sterile, pastel-colored dimension where souls wait to be assigned a reality.',
+      'The music playing in the room physically manifests as glowing ribbons of energy that wrap around you in a warm embrace.',
+      'You look at your hands and see them aging and decaying into dust, only to bloom rapidly into a vibrant bed of lotus flowers.',
+      'A massive, kaleidoscopic chrysanthemum pattern expands across your vision, pulling you deeper into a swirling vortex of consciousness.',
+      'You realize you are not a physical being, but a localized vibration of energy in a vast, interconnected web of cosmic frequencies.',
+      'The room you are standing in begins to fold inward on itself like an origami puzzle, revealing a sprawling, alien landscape outside.',
+      'A deep, heavy gravity pulls you into the floor, separating your consciousness from your body as you float above yourself.',
+      'You communicate telepathically with a hyper-intelligent mushroom colony that reveals the interconnected mycelial network of the universe.',
+      'The everyday objects around you begin to melt and stretch, transforming into cartoonish, exaggerated versions of themselves.',
+      'You access a vast, library-like dimension where every thought and memory ever conceived is stored as a glowing, floating orb.',
+      'A sudden wave of profound, unconditional love washes over you, emanating from a massive, fractal entity that calls itself the mother of creation.',
+      'The texture of reality feels like a thin veil, and with a single thought, you pull it back to reveal the blinding, terrifying truth behind the simulation.',
     ]
   },
-
+  tiktok_drama: {
+    categoryId: 'tiktok_drama',
+    categoryName: 'Short Drama',
+    mediaReferences: [
+      'The Secret Heiress (GoodNovel)',
+      "The Billionaire's Surrogate (Wattpad)",
+      "The CEO's Contract Wife (ReelShort)",
+      "Alpha's Rejected Mate (GoodNovel)",
+      "My Husband's Double Life (ReelShort)",
+      'The $50 Billion Slap (DramaBox)',
+      'Married to the Enemy (Wattpad)',
+      'The True Daughter Returns (GoodNovel)',
+      'His Secret Billionaire Wife (ReelShort)',
+      "The Alpha's Hidden Heir (GoodNovel)",
+      'Divorce Me, CEO! (Wattpad)',
+      'Reborn as the Villainess (GoodNovel)',
+      "The Undercover Tycoon's Vengeance (DramaBox)",
+      "Pregnant with the Mafia Boss's Baby (Wattpad)",
+      "The CEO's Hidden Triplet Sons (ReelShort)",
+      'Betrayed but Rising (GoodNovel)',
+      "The Escort's Secret Billionaire (Wattpad)",
+      'Revenge of the Ex-Wife (ReelShort)',
+      'The Masked Heiress (GoodNovel)',
+      "The Billionaire's Accidental Bride (DramaBox)",
+    ],
+    prompts: [
+      'The billionaire CEO throws the divorce contract on the table, unaware that the "useless" wife he\'s discarding is the hidden founder of the rival mega-corporation.',
+      'The arrogant heiress slaps you across the face at the luxury banquet, just as the doors open and your real family—the wealthiest dynasty in the country—arrives.',
+      'You sign the contract marriage agreement with the cold, calculating mafia boss, strictly for business, but his protective fury when a rival threatens you suggests otherwise.',
+      'The alpha of the pack rejects you for a more powerful mate, completely oblivious to the fact that you possess a rare, ancient wolf bloodline.',
+      'Your cheating husband brings his mistress to your supposedly humble apartment, only to discover you own the entire luxury building.',
+      "You return to the high-society gala five years after being banished in disgrace, stunning the crowd as you enter on the arm of the city's most feared tycoon.",
+      'The spoiled true daughter returns to claim her place, attempting to frame you for theft, but the evidence you calmly present destroys her reputation instantly.',
+      "The cold CEO refuses to acknowledge your presence, until he accidentally discovers you are the mysterious elite hacker he's been desperately trying to hire.",
+      'You are forced to attend the wedding of your ex-fiancé, but you arrive dripping in diamonds, accompanied by a billionaire who publicly declares his obsession with you.',
+      'The scheming mother-in-law attempts to bribe you to leave her son, and you laugh, sliding a check for ten times the amount across the table to buy her silence.',
+      'You conceal your pregnancy and flee from the possessive alpha, only to bump into him three years later with a child who possesses his exact golden eyes.',
+      'The arrogant young master demands you apologize on your knees, just as his own grandfather rushes in and bows respectfully to you.',
+      'You endure three years of humiliation as the "trash" son-in-law, waiting for the exact moment the restriction lifts on your fifty-billion-dollar trust fund.',
+      'The villainous stepsister tries to ruin your fashion show by destroying the lead dress, forcing you to step onto the runway in a masterpiece you designed overnight.',
+      'A misunderstanding leads the ruthless billionaire to believe you are a spy, trapping you in a tense, claustrophobic game of cat-and-mouse in his penthouse.',
+      'You wake up reincarnated as the doomed villainess of a romance novel, and you immediately resolve to avoid the male lead—which only makes him obsessed with you.',
+      'The paparazzi leak a scandalous photo of you with the notoriously private billionaire, forcing you into a fake engagement to protect both your reputations.',
+      'The rival CEO attempts a hostile takeover of your supposedly struggling company, only to realize you laid a financial trap that bankrupts him instead.',
+      'Your supposedly poor, ordinary husband casually makes a phone call that grounds a fleet of private jets, revealing his true identity to your stunned family.',
+      'The grand banquet falls silent as you reveal the DNA test results, proving the pampered heir is an imposter and you are the true ruler of the estate.',
+    ]
+  },
   ancient_greek: {
     categoryId: 'ancient_greek',
-    categoryName: 'Ancient Greek Epics & Spartan Trials',
-    seedSource: 'Ancient Greek History, Homeric Epics & Classical Mythology',
-    coreThemes: [
-      'Sunrise Pilgrimage to the Temple of Delphi',
-      'Sacred Laurel Smoke & Oracle Prophecies',
-      'Bronze Aspis Shields & Linothorax Armor',
-      'Pilgrims, High Priestesses & Olympian Altars',
-      'The First Step of a Demigod\'s Heroic Trials'
+    categoryName: 'Ancient Greek',
+    mediaReferences: [
+      'The Iliad (Epic Poem)',
+      'The Odyssey (Epic Poem)',
+      '300 (Film/Comic)',
+      'Troy (2004) (Film)',
+      'Clash of the Titans (1981/2010) (Film)',
+      "Assassin's Creed Odyssey (Game)",
+      'Hades (Game)',
+      'God of War (Original Trilogy) (Games)',
+      'Percy Jackson and the Olympians (Books/TV)',
+      'The Song of Achilles (Book)',
+      'Immortals (2011) (Film)',
+      'Hercules (Disney) (Film)',
+      'Jason and the Argonauts (1963) (Film)',
+      'Age of Mythology (Game)',
+      'Titan Quest (Game)',
+      'Blood of Zeus (Netflix)',
+      'Alexander (2004) (Film)',
+      'Troy: Fall of a City (TV Show)',
+      'Spartacus (TV Show)',
+      'Circe (Book)',
     ],
-    brainstormHooks: [
-      'Arriving at sunrise at the marble terraces of the Temple of Apollo in Delphi after three weeks of travel from Sparta to seek the oracle.',
-      'A Spartan hoplite reports to the sacred olive grove of Olympia on the morning of the Panhellenic athletic and combat games.',
-      'Stepping off a wooden trireme at the harbor of Athens to deliver an offering to the Parthenon.',
-      'A young demigod ascends Mount Pelion to begin their training under the wise centaur Chiron.'
-    ],
-    narrativeTropes: [
-      'Golden sunlight reflecting off polished bronze armor and spear tips',
-      'The fragrance of burning laurel leaves and olive oil drifting from the temple sanctum',
-      'Ascending white marble stairs worn smooth by centuries of pilgrims',
-      'Offering a prayer to Athena while gripping a trusted bronze spear'
-    ],
-    encounterSeeds: [
-      'A Spartan herald waiting on the terrace with news from the Gerousia elders',
-      'A priest of Apollo offering fresh spring water to weary travelers',
-      'A group of philosophers debating virtue beneath the colonnade shade'
-    ],
-    openingHooks: [
-      {
-        title: 'The Oracle\'s Prophecy: Chapter I',
-        hook: 'Golden sunlight bathes the white marble columns of the Temple of Apollo on Mount Parnassus. A young Spartan hoplite bearing a bronze spear and polished aspis shield, you ascend the sacred stone stairs after a long pilgrimage. Laurel smoke drifts from the temple doorway where the high priestess Pythia prepares to deliver the morning prophecy.',
-        suggestedActions: [
-          'Offer a tribute of olive oil and barley at the temple altar to request an audience',
-          'Speak to the Spartan herald waiting on the temple terrace for news from home',
-          'Inspect the bronze dedications and mythic murals along the Sacred Way with a History check'
-        ]
-      }
+    prompts: [
+      'The oracle inhales the sulfurous fumes of Delphi and points a trembling finger directly at you, prophesying the fall of Olympus.',
+      'A massive bronze automaton awakens outside the city gates, sent by Hephaestus to test the mettle of the mortal heroes.',
+      'You draw your xiphos sword as the Minotaur roars, the sound echoing endlessly through the twisting, bloodstained corridors of the Labyrinth.',
+      'The Spartan king demands you hold the narrow mountain pass against a horde of Persian immortals with only a handful of hoplites.',
+      'A tempest summoned by Poseidon shatters your trireme, washing you ashore on an island inhabited by a dangerous, alluring enchantress.',
+      'The gods themselves intervene on the battlefield, the ground trembling as Ares descends in a chariot of fire to turn the tide of the war.',
+      'You must steal the Golden Fleece from the sacred grove of Ares, heavily guarded by a sleepless dragon with scales of iron.',
+      'The shade of a fallen hero approaches you in the gloom of the Underworld, offering vital information in exchange for a drop of sacrificial blood.',
+      'You face the Gorgon in the ruined temple, relying entirely on the polished reflection of your bronze shield to avoid her petrifying gaze.',
+      'The arrogant king refuses to honor his vow to the gods, and a terrible plague of serpents is unleashed upon the city.',
+      'A centaur offers to train you in the arts of war and healing, provided you can pass a grueling trial of endurance in the mountains.',
+      'You compete in the Olympic games, but the rival champion is revealed to be a demigod cheating with the blessings of Hermes.',
+      'The siren song drifts across the Aegean Sea, and you must lash yourself to the mast to prevent yourself from diving into the jagged rocks.',
+      'You navigate the treacherous politics of the Athenian Senate, trying to prevent a disastrous war with a rival city-state.',
+      'The wrath of Achilles threatens to doom the entire Greek army, and you are chosen to negotiate a truce with the sulking hero.',
+      'A Harpy swoops down from the cliffs, snatching the vital map to the Elysian Fields from your hands.',
+      'You are tasked with completing twelve impossible labors to atone for a terrible crime, beginning with slaying an invulnerable lion.',
+      'The Trojan Horse has been breached, and you are fighting desperately through the burning streets of Troy as the city falls.',
+      'A satyr offers you a cup of enchanted wine that reveals hidden truths, but threatens to induce a state of permanent madness.',
+      'You ascend the slopes of Mount Olympus to demand an audience with Zeus, braving the elemental guardians that protect the summit.',
     ]
   },
-
   mythology: {
     categoryId: 'mythology',
-    categoryName: 'World Mythology & Occult Reading',
-    seedSource: 'Norse Eddas, Egyptian Book of the Dead, Celtic Lore & Hermetic Alchemy',
-    coreThemes: [
-      'Beginning the Morning Watch on the Bifrost Bridge',
-      'Golden Observatories, Crystal Rainbow Tiles & Heimdall',
-      'Runic Silver Spears & Winged Aegis Shields',
-      'Observing the Nine Realms Beneath Morning Auroras',
-      'The Start of a Guardian\'s Celestial Watch'
+    categoryName: 'Mythology',
+    mediaReferences: [
+      'God of War (Norse Saga) (Games)',
+      'Thor: Ragnarok (Film)',
+      'American Gods (Book/TV)',
+      'The Northman (Film)',
+      'Valheim (Game)',
+      "Assassin's Creed Valhalla (Game)",
+      "Senua's Sacrifice (Game)",
+      'The Mummy (1999) (Film)',
+      'Moon Knight (TV Show)',
+      'Stargate SG-1 (TV Show)',
+      'The Kane Chronicles (Books)',
+      'Age of Mythology (Game)',
+      'Smite (Game)',
+      'Lore Olympus (Webtoon)',
+      'The Lesser Key of Solomon (Ars Goetia)',
+      'The Book of the Law (Aleister Crowley)',
+      'The Kybalion (Hermeticism)',
+      'The Picatrix (Astrological Magic)',
+      'The Book of Abramelin (Occult Grimoire)',
+      'The Voynich Manuscript (Unciphered Codex)',
     ],
-    brainstormHooks: [
-      'Reporting for your very first guard watch at the golden observatory atop the Bifrost Bridge under the shimmering northern aurora.',
-      'Entering the sunlit forecourt of the Temple of Karnak in Thebes to begin your apprenticeship under the High Priest of Amun.',
-      'Stepping across the mist-shrouded threshold into the Celtic fae realm of Tír na nÓg as the golden morning dew falls on heather.',
-      'An alchemist lights the athanor furnace in their laboratory at dawn to begin the first stage of the Magnum Opus.'
-    ],
-    narrativeTropes: [
-      'Prismatic light shimmering across crystalline rainbow tiles underfoot',
-      'The quiet dignity of Heimdall gazing out across the vast cosmic branches',
-      'Inscribing protective Nordic runes onto the boss of a silver shield',
-      'Drinking a sip of honey mead from a horn before beginning a long patrol'
-    ],
-    encounterSeeds: [
-      'Heimdall sharing a warm nod of greeting and handing you a celestial watch scroll',
-      'A flock of ravens circling the golden roof of Valhalla in the distance',
-      'A shimmering celestial prism spyglass mounted on the observatory balcony'
-    ],
-    openingHooks: [
-      {
-        title: 'The Bifrost Watch: Chapter I',
-        hook: 'The shimmering crystalline tiles of the Bifrost Bridge glow with prismatic light beneath the morning aurora. A newly anointed Valkyrie champion carrying a runic spear and silver-winged aegis, you report to the golden observatory at the bridge\'s head. Heimdall, guardian of the realm, turns with a welcoming nod as he peers through the morning clouds toward the Nine Realms.',
-        suggestedActions: [
-          'Greet Heimdall and receive today\'s celestial watch assignments',
-          'Peer through the golden observatory spyglass toward Midgard and Jotunheim with a Perception check',
-          'Inscribe a rune of warding along your aegis shield before stepping onto your patrol route'
-        ]
-      }
+    prompts: [
+      'You chant the final verses of the Picatrix under a blood moon, and the chalk circle begins to glow as a demonic entity materializes from the sulfurous smoke.',
+      'The frost giants breach the gates of Asgard, and you must defend the Bifrost bridge alongside the Valkyries as Ragnarok begins.',
+      'Anubis weighs your heart against the feather of truth, but the scales tip, and the devourer beast steps forward from the shadows.',
+      'You decipher a hidden passage in the Voynich Manuscript that reveals the exact astrological alignment required to achieve true Hermetic alchemy.',
+      'A draugr bursts from its burial mound in the freezing snow, wielding a rusted iron sword glowing with ancient, necrotic runes.',
+      "The pharaoh's tomb is sealed behind you, and the hieroglyphs on the walls begin to shift and rearrange into a curse of eternal suffering.",
+      'You invoke the seventy-two demons of the Ars Goetia to bind a powerful spirit to your will, but the entity demands a terrible sacrifice.',
+      'The World Tree, Yggdrasil, shudders violently as the great serpent Jörmungandr releases its tail and causes earthquakes across Midgard.',
+      'You follow the instructions in the Book of Abramelin, isolating yourself for months to summon your Holy Guardian Angel for divine guidance.',
+      'A secret society in Victorian London attempts to enact the principles of the Kybalion to manipulate reality through mental transmutation.',
+      'The Celtic gods of the Tuatha Dé Danann offer you a place in Tír na nÓg, but you can never return to the mortal world if you accept.',
+      'You must navigate the perilous journey through the Egyptian Duat, facing demons and trials of the soul to reach the Field of Reeds.',
+      'A modern-day cult attempts to summon an ancient deity using the rituals detailed in the Book of the Law, ignoring the apocalyptic consequences.',
+      'Odin the Allfather arrives at your longhouse disguised as a wanderer, testing your hospitality before offering a cryptic prophecy.',
+      'The scarab beetles swarm out of the sarcophagus, covering the floor of the burial chamber as the mummified priest awakens.',
+      'You seek the wisdom of the Norns at the base of the World Tree, demanding to know the fate woven into the threads of your destiny.',
+      "A rival alchemist discovers the secret to creating the Philosopher's Stone, and you must stop them from achieving dangerous, unchecked immortality.",
+      'The Egyptian sun god Ra requires your aid to defend his solar barge from the chaos serpent Apophis during its nightly journey through the underworld.',
+      'You uncover a grimoire that teaches the forbidden art of creating a homunculus, but the creature begins to develop a malicious will of its own.',
+      'The wild hunt rides across the stormy night sky, and you must hide before the spectral hounds catch your scent.',
     ]
   },
-
-  real_life: {
-    categoryId: 'real_life',
-    categoryName: 'Real Life & Everyday Dilemmas',
-    seedSource: 'Reddit Everyday Experiences (r/AskReddit, r/TalesFromTechSupport, r/talesfromthefrontdesk, r/antiwork)',
-    coreThemes: [
-      'Morning Arrival at the Downtown Corporate Headquarters',
-      'Security Turnstiles, Visitor Badges & Briefcases',
-      'Atrium Espresso Bars & Floor Plans',
-      'Orientation Meetings & High-Stakes Consulting Assignments',
-      'The First Twenty Minutes of a Crucial Day'
+  real_life_experiences: {
+    categoryId: 'real_life_experiences',
+    categoryName: 'Real Life Experiences',
+    mediaReferences: [
+      'Office Space (Film)',
+      'Silicon Valley (TV Show)',
+      'The Office (TV Show)',
+      'Severance (TV Show)',
+      'Clerks (Film)',
+      'Waiting... (Film)',
+      'Superstore (TV Show)',
+      'The IT Crowd (TV Show)',
+      'High Maintenance (TV Show)',
+      'Uncut Gems (Film)',
+      '"The Poop Knife" (r/AskReddit)',
+      '"I also choose this guy\'s dead wife" (r/AskReddit)',
+      '"Kevin" (r/AskReddit)',
+      '"Swamps of Dagobah" (r/AskReddit)',
+      '"Streetlamp Le Moose" (r/AskReddit)',
+      '"The Carbon Monoxide Post" (r/legaladvice)',
+      '"Two Broken Arms" (r/IAmA)',
+      '"Today You, Tomorrow Me" (r/AskReddit)',
+      '"The Ulysses Bucket List" (r/AskReddit)',
+      '"Rome Sweet Rome" (r/AskReddit)',
     ],
-    brainstormHooks: [
-      'Stepping through the revolving glass doors of Nexus Corporation in Shibuya on the first morning of your high-stakes security consulting assignment.',
-      'Arriving 20 minutes early for the final round panel interview on the 42nd floor of a major tech tower with your portfolio in hand.',
-      'Clocking into the morning shift at the airport customer service desk just as international transit schedules update.',
-      'Arriving at the neighborhood community center with a folder of zoning bylaws for the annual general meeting.'
-    ],
-    narrativeTropes: [
-      'The satisfying click of a briefcase latch opening on a marble table',
-      'Sipping a warm cup of espresso while reviewing an agenda notebook',
-      'Clipping a guest badge onto a lapel before passing through security turnstiles',
-      'The low, busy murmur of morning professionals in a modern glass atrium'
-    ],
-    encounterSeeds: [
-      'The friendly security guard at the reception desk verifying your appointment letter',
-      'The busy barista at the atrium coffee stand wishing you luck today',
-      'An elevator directory screen listing executive offices and conference rooms'
-    ],
-    openingHooks: [
-      {
-        title: 'The Shibuya Nexus Assignment: Chapter I',
-        hook: 'Morning commuters stream through the crosswalk outside the gleaming glass skyscraper of Nexus Corporation in Shibuya. Wearing a tailored business suit with an encrypted digital organizer in your briefcase, you step through the revolving glass doors into the marble atrium. Today is your first day on site as the contracted security consultant, with your orientation meeting starting in twenty minutes.',
-        suggestedActions: [
-          'Check in at the ground-floor security reception desk to obtain your visitor badge',
-          'Grab a coffee at the atrium espresso bar while reviewing the building floor plans',
-          'Observe the staff security turnstiles and badge readers with an Investigation check'
-        ]
-      }
+    prompts: [
+      "The HR manager stares at you blankly after you explain the 'poop knife' incident, and your FAANG interview hinges entirely on your next sentence.",
+      'The chaotic customer at the 2 AM bodega demands to buy a single cigarette with a handful of sticky pennies, holding up a massive line.',
+      'You discover mysterious post-it notes appearing in your apartment, leading you to suspect either a stalker or a carbon monoxide leak.',
+      'The Homeowners Association president issues a citation for your mailbox being the wrong shade of beige, threatening to place a lien on your house.',
+      'You must navigate the horrific, unsanitary disaster of the "Swamps of Dagobah" operating room without breaking down in front of the surgical team.',
+      'A coworker named Kevin attempts a task so fundamentally stupid that it endangers the entire office, and you are the only one who can stop him.',
+      'Your car breaks down in a torrential downpour, and a stranded immigrant family stops to help you, living by the motto "Today You, Tomorrow Me."',
+      'The IT department is in shambles as a catastrophic server failure occurs on Black Friday, and the lead engineer is nowhere to be found.',
+      'You attempt to explain a complex, sensitive family dynamic in a Reddit post, only to have the entire internet brutally judge your life choices.',
+      'The Michelin-star kitchen is in the weeds, tickets are printing non-stop, and the head chef is screaming at you for a missing garnish.',
+      'You must confront the unbearable awkwardness of sharing an elevator with the CEO after accidentally sending a highly inappropriate meme to the company Slack.',
+      'The legend of Streetlamp Le Moose inspires you to navigate a complex social situation with unparalleled, effortless suave.',
+      'A modern military unit is inexplicably transported back to ancient Rome, forcing a terrifying clash between modern firepower and Roman legions.',
+      'You endure the grueling, six-round whiteboard interview at a tech giant, desperately trying to remember how to reverse a binary tree.',
+      'The chaotic energy of a busy call center reaches a boiling point when a customer threatens legal action over a five-dollar late fee.',
+      "You complete an emotional challenge from the Ulysses Bucket List, honoring a stranger's memory and profoundly changing your perspective on life.",
+      'The dreaded family Thanksgiving dinner erupts into chaos when a long-held secret is casually dropped during the main course.',
+      'You try to mediate a petty dispute between two roommates over dirty dishes that has somehow escalated into a full-blown cold war.',
+      'The gig-economy delivery driver gets hopelessly lost in a massive, labyrinthine apartment complex with a rapidly cooling pizza.',
+      'You realize the "great investment opportunity" your old high school friend pitched you at a coffee shop is actually a massive pyramid scheme.',
     ]
-  }
+  },
 };
 
 /**
@@ -668,32 +737,13 @@ export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
 export function generateDynamicSeedlist(categoryId: string): CategorySeedInfo {
   const base = CATEGORY_SEEDLISTS[categoryId] || CATEGORY_SEEDLISTS.fantasy;
 
-  // Shuffle and sample tropes & themes
-  const shuffledThemes = [...base.coreThemes].sort(() => 0.5 - Math.random());
-  const shuffledTropes = [...base.narrativeTropes].sort(() => 0.5 - Math.random());
-  const shuffledBrainstorms = [...base.brainstormHooks].sort(() => 0.5 - Math.random());
-
-  // Dynamic hook presets
-  const openingHooks = (base.openingHooks && base.openingHooks.length > 0)
-    ? base.openingHooks
-    : [
-      {
-        title: `${base.categoryName}: Act I, Scene 1`,
-        hook: `The morning mist clears as you step forward into the world of ${base.categoryName}. Your quest begins at the crossroads with your primary equipment ready at your side.`,
-        suggestedActions: [
-          'Investigate your immediate surroundings',
-          'Speak with the nearest contact or local',
-          'Prepare your equipment and advance'
-        ]
-      }
-    ];
+  // Shuffle and sample
+  const shuffledMedia = [...base.mediaReferences].sort(() => 0.5 - Math.random());
+  const shuffledPrompts = [...base.prompts].sort(() => 0.5 - Math.random());
 
   return {
     ...base,
-    coreThemes: shuffledThemes,
-    narrativeTropes: shuffledTropes,
-    brainstormHooks: shuffledBrainstorms,
-    openingHooks
+    mediaReferences: shuffledMedia,
+    prompts: shuffledPrompts
   };
 }
-

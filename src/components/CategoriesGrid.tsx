@@ -31,7 +31,7 @@ import {
 import { CATEGORIES_DATA } from '../lib/categoriesData';
 import { CATEGORY_SEEDLISTS } from '../lib/seedlists';
 import { generateRandomScenarioSetup, CATEGORY_GENERATOR_DATA } from '../lib/randomScenarios';
-import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey } from '../lib/geminiService';
+import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI } from '../lib/geminiService';
 import { getUnifiedScenarioSeeds, PlayableScenarioSeed } from '../lib/scenarioSeedsPool';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory } from '../types';
 
@@ -44,7 +44,8 @@ interface CategoriesGridProps {
     character: CharacterSheet,
     openingPrompt?: string,
     suggestedActions?: string[],
-    storyOutline?: DMStoryOutline
+    storyOutline?: DMStoryOutline,
+    chapterOneOpening?: string
   ) => Promise<void>;
   onDeleteExperience: (id: string) => void;
   selectedModel: string;
@@ -115,7 +116,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setCharName(randomSetup.heroName);
     setCharRole(randomSetup.roleClass);
     setCharRace(randomSetup.raceOrigin);
-    setOpeningPrompt(randomSetup.hookText);
+    setOpeningPrompt(randomSetup.storyBlurb);
     setPhysicalDesc(randomSetup.physicalDescription);
     setSuggestedActions(randomSetup.suggestedActions);
     setInitialInventory(randomSetup.initialInventory);
@@ -199,7 +200,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         if (data.scenario.heroName) setCharName(data.scenario.heroName);
         if (data.scenario.roleClass) setCharRole(data.scenario.roleClass);
         if (data.scenario.raceOrigin) setCharRace(data.scenario.raceOrigin);
-        if (data.scenario.hookText) setOpeningPrompt(data.scenario.hookText);
+        if (data.scenario.storyBlurb) setOpeningPrompt(data.scenario.storyBlurb);
         if (data.scenario.physicalDescription) setPhysicalDesc(data.scenario.physicalDescription);
         if (data.scenario.avatarUrl) setCharAvatarUrl(data.scenario.avatarUrl);
         if (data.scenario.suggestedActions) setSuggestedActions(data.scenario.suggestedActions);
@@ -344,13 +345,32 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     };
 
     try {
+      let chapterOneText: string | undefined = undefined;
+      let finalSuggestedActions = suggestedActions;
+
+      if (hasActiveGeminiKey() && currentStoryOutline) {
+        // We have a blurb and an outline, let's write Chapter 1 now
+        const chapterOneRes = await generateChapterOneAI({
+          category: selectedCategoryModal.id,
+          storyBlurb: openingPrompt,
+          storyOutline: currentStoryOutline,
+          characterState: fullChar,
+          model: selectedModel
+        });
+        chapterOneText = chapterOneRes.text;
+        if (chapterOneRes.suggestedActions) {
+          finalSuggestedActions = chapterOneRes.suggestedActions;
+        }
+      }
+
       await onCreateExperience(
         selectedCategoryModal.id,
         customTitle || `${selectedCategoryModal.name} Experience`,
         fullChar,
         openingPrompt,
-        suggestedActions,
-        currentStoryOutline
+        finalSuggestedActions,
+        currentStoryOutline,
+        chapterOneText
       );
       setSelectedCategoryModal(null);
     } catch (err: any) {
@@ -469,14 +489,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         {cat.description}
                       </p>
 
-                      {catSeed && (
-                        <div className="pt-1">
-                          <span className="inline-flex items-center gap-1 text-[9px] font-mono text-slate-400 bg-black/50 border border-white/5 px-2 py-0.5 rounded-full">
-                            <Lightbulb className="w-2.5 h-2.5 text-amber-400" />
-                            <span className="truncate max-w-[170px]">{catSeed.seedSource}</span>
-                          </span>
-                        </div>
-                      )}
+
                     </div>
 
                     <div className="relative z-10 pt-3 border-t border-white/5 flex items-center justify-between text-xs font-bold text-amber-500 uppercase tracking-wider text-[10px]">
@@ -879,11 +892,11 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     </div>
                   </div>
 
-                  {/* Field 5: Opening Scenario Hook (Beginning of Story) */}
+                  {/* Field 5: Story Prompt (Back-of-the-book Blurb) */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <label className="block text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">
-                        5. Starting Scenario Hook (Act I, Scene 1 Beginning)
+                        5. Story Prompt (Back-of-the-book Blurb)
                       </label>
                       <button
                         type="button"
@@ -952,55 +965,27 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     </button>
                   </div>
 
-                  {/* 1. POPULAR NARRATIVE TROPES */}
+                  {/* 1. SEED PROMPTS */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5" />
-                        Popular Seed Tropes & Premise Archetypes
+                        Immersive Scenarios & Prompts
                       </h4>
                       <span className="text-[10px] text-slate-500 font-mono">Click to set premise</span>
                     </div>
 
-                    {activeSeed?.popularTropes && activeSeed.popularTropes.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {activeSeed.popularTropes.map((trope: TropeCategory, idx: number) => (
-                          <div
-                            key={trope.id || idx}
-                            onClick={() => handleApplyTrope(trope)}
-                            className="p-3 rounded-lg bg-black/40 border border-white/5 hover:border-amber-500/50 hover:bg-white/5 cursor-pointer transition text-xs space-y-1.5 group"
-                          >
-                            <div className="flex items-center justify-between text-amber-300 font-bold">
-                              <span>{trope.name}</span>
-                              <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400 transition transform group-hover:translate-x-0.5" />
-                            </div>
-                            <p className="text-amber-200/70 text-[11px] italic">
-                              "{trope.tagline}"
-                            </p>
-                            <p className="text-slate-300 text-[11px] leading-relaxed line-clamp-2">
-                              {trope.premise}
-                            </p>
-                            {trope.sampleConflict && (
-                              <div className="text-[10px] text-slate-400 bg-white/5 px-2 py-1 rounded border border-white/5">
-                                <strong className="text-slate-300">Conflict:</strong> {trope.sampleConflict}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-wrap gap-1.5">
-                        {(activeSeed?.narrativeTropes || []).map((trope: string, idx: number) => (
-                          <span 
-                            key={idx} 
-                            className="text-[11px] px-2.5 py-1 rounded bg-white/5 border border-white/10 text-slate-300 font-mono cursor-pointer hover:border-amber-400/50 hover:text-amber-300 hover:bg-amber-500/10 transition"
-                            onClick={() => handleApplyTrope({ name: trope, premise: trope })}
-                          >
-                            {trope}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex flex-col gap-1.5">
+                      {(activeSeed?.prompts || []).map((prompt: string, idx: number) => (
+                        <div 
+                          key={idx} 
+                          className="text-[11px] px-3 py-2 rounded bg-black/40 border border-white/5 text-slate-300 font-mono cursor-pointer hover:border-amber-400/50 hover:text-amber-300 hover:bg-amber-500/10 transition"
+                          onClick={() => handleApplyTrope({ name: `Prompt ${idx + 1}`, premise: prompt })}
+                        >
+                          {prompt}
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* 2. UNIFIED PLAYABLE SCENARIO SEEDS (5 from 100-Pool) */}

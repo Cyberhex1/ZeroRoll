@@ -537,7 +537,7 @@ export async function executeActionTurn(params: {
       // a stylistic flavor on top, so the AI always has the campaign
       // context regardless of whether the user wrote a custom system
       // prompt or not.
-      const basePrompt = `You are the master narrative author and Game Master for an interactive tabletop campaign in the "${category}" genre with D&D 5e mechanics.
+      const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
 
 ${narrativeCorpus}
 
@@ -549,17 +549,18 @@ ${storyOutline ? `DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference - NOT a
 - Key NPCs: ${storyOutline.keyNpcs?.map(n => `${n.name} (${n.role}, Motivation: ${n.motivation}${n.secret ? `, Secret: ${n.secret}` : ''})`).join('; ') || 'None'}
 - Major Conflicts: ${storyOutline.majorConflicts?.join('; ') || 'None'}
 - Hidden Secrets / Reveals: ${storyOutline.secretsAndReveals?.join('; ') || 'None'}
-- Act Progression: Act 1: ${storyOutline.actProgression?.act1 || ''} | Act 2: ${storyOutline.actProgression?.act2 || ''} | Act 3: ${storyOutline.actProgression?.act3 || ''}
+- Chapter Progression: ${storyOutline.chapters?.join(' | ') || 'None'}
 
 ROADMAP GM PRINCIPLES:
 1. DYNAMIC ADAPTATION: The outline is a living roadmap, not a railroad script. Player decisions shape reality. If the player outsmarts an obstacle, befriends an enemy, or takes an unexpected path, adapt the story organically.
-2. TIMELINE INTEGRITY: What is happening right now is the present scene. Never casually reveal or treat future act developments as though they have already occurred.` : ''}
+2. TIMELINE INTEGRITY: What is happening right now is the present scene. Never casually reveal or treat future chapter developments as though they have already occurred.` : ''}
 
 GAMEPLAY GM DIRECTIVES:
 - Address the player as "you". Keep the narrative in present tense.
 - Faithfully reflect the category's narrative profile: voice, atmospheric sensory details, scene architecture, and dramatic pacing.
 - The player's actions, choices, and premise are authoritative. Ground your storytelling craft and encounter emergence in the category profile without overriding the player's choices.
-- React dynamically to player rolls and decisions, maintaining excitement, atmosphere, and authentic stakes.
+- PACING: Maintain genre-specific pacing based on the provided narrative profile and seed inspiration. Do not rush to the climax unless the genre demands high-octane speed. Let the plot unfold naturally chapter by chapter, allowing the player to immerse deeply in the environment and conversations.
+- React dynamically to player rolls and decisions, maintaining excitement, atmosphere, and authentic stakes without accelerating the timeline prematurely.
 
 Output a state update block if inventory, conditions, or HP change:
 ---STATE_UPDATE---
@@ -800,15 +801,15 @@ export async function generateScenarioAI(params: {
 ${narrativeCorpus}
 
 CREATIVE ASSIGNMENT:
-Generate a COMPLETELY ORIGINAL starting campaign setup (Act 1, Scene 1 opening) and an internal DM Story Outline for a "${category}" tabletop roleplaying experience.
+Generate a COMPLETELY ORIGINAL "Story Prompt" (a back-of-the-book blurb) and an internal DM Story Outline for a "${category}" tabletop roleplaying experience.
 Every single field MUST be uniquely invented, highly imaginative, and deeply grounded in the category's narrative profile and learned corpus patterns above.
 
 CRITICAL CAUSAL BEGINNING & ANTI-SKIPPING DIRECTIVE:
-1. START AT THE GENUINE NARRATIVE BEGINNING: The opening scene MUST start at the earliest meaningful point where the player experiences the story unfolding:
+1. START AT THE GENUINE NARRATIVE BEGINNING: The blurb should pitch a deeply immersive Choose-Your-Own-Adventure story that begins at the earliest meaningful point:
    [Starting situation] -> [Inciting incident] -> [Immediate consequences] -> [Player agency].
-2. DO NOT SKIP TO THE LATE-GAME PAYOFF: If a premise involves a disowned heir who eventually becomes a billionaire and gets revenge on their brother, DO NOT start the story with them already sitting on a throne owning everything! Start at the moment of the betrayal, the cast-out, or the urgent return to face the crisis. The payoff must be earned through play!
-3. INTERNAL GM CHECK: Ask yourself: "If I started the player here, would they be experiencing the story, or arriving after the interesting part already happened?" Always pick the true starting dilemma.
-4. FLASHBACK USAGE: If critical backstory is essential, a concise flashback may occupy 1/3 to 1/2 of the opening hook, but the active scene must firmly land in the present dilemma where the player has immediate agency.
+2. DO NOT SKIP TO THE LATE-GAME PAYOFF: Do not pitch a story where the hero has already won or achieved their ultimate goal. The payoff must be earned through play!
+3. INTERNAL GM CHECK: Ask yourself: "If I pitched this blurb, does it sound like a compelling, deeply immersive book?" 
+4. FLASHBACK USAGE: If critical backstory is essential, a concise flashback may occupy part of the blurb, but the active pitch must firmly land in the present dilemma.
 
 CRITICAL USER AUTHORITY:
 ${userPrompt ? `USER CONCEPT & INSPIRATION: "${userPrompt}"\n-> The user's concept is strictly authoritative. Weave their premise seamlessly into the title, hero identity, background, and opening hook while using the category's narrative rhythm and sensory density!` : 'The player has not provided a custom premise; invent a stunning, genre-defining scenario that exemplifies the category profile.'}
@@ -819,7 +820,7 @@ ${classRole ? `Class/Role to use: "${classRole}"` : 'Invent a creative class/arc
 ${raceOrigin ? `Origin/Heritage to use: "${raceOrigin}"` : 'Invent an evocative race or origin fitting the genre.'}
 
 SCENE STRUCTURE REQUIREMENT:
-The hookText MUST follow the genre scene architecture (Arrival/Setting -> Salient Object/Person -> Immediate Dilemma/Atmospheric Stakes -> Choice).
+The storyBlurb MUST read like a compelling back-of-the-book summary, establishing the atmospheric stakes and the impending dilemma without resolving it.
 
 Output MUST be strictly valid JSON matching this schema with no markdown fences:
 {
@@ -828,7 +829,7 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
   "gender": "${gender || 'she/her'}",
   "roleClass": "Creative Class / Archetype",
   "raceOrigin": "Evocative Heritage / Origin",
-  "hookText": "Atmospheric 3-4 sentence opening scene written from the GM perspective establishing who the hero is, where they arrived, the immediate sensory situation, and the impending dilemma.",
+  "storyBlurb": "Atmospheric 3-4 sentence back-of-the-book story prompt establishing who the hero is, their immediate situation, and the central, slow-burn premise of this Choose-Your-Own-Adventure.",
   "physicalDescription": "Vivid 1-2 sentence physical description of build, hair, eyes, facial expression, and distinctive gear.",
   "suggestedActions": [
     "Opening action option 1",
@@ -836,20 +837,21 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
     "Opening action option 3"
   ],
   "storyOutline": {
-    "startingCircumstances": "The hero's starting physical and social situation at Scene 1",
+    "startingCircumstances": "The hero's starting physical and social situation at Chapter 1",
     "backstory": "Relevant history and root cause of the dilemma",
     "incitingIncident": "The exact event that disrupts the status quo right now",
-    "immediateGoal": "The clear, actionable problem the player must address in Scene 1",
+    "immediateGoal": "The clear, actionable problem the player must address early on",
     "keyNpcs": [
       { "name": "NPC Name", "role": "Rival/Ally/Patron", "motivation": "What they want", "secret": "What they are hiding" }
     ],
     "majorConflicts": ["Primary external conflict", "Secondary interpersonal conflict"],
     "secretsAndReveals": ["Hidden truth 1", "Major twist 2 to be discovered later"],
-    "actProgression": {
-      "act1": "The opening crisis, investigation & initial choices",
-      "act2": "Rising complications, confrontations, and shocking discoveries",
-      "act3": "The climax, major revelation, and resolution"
-    },
+    "chapters": [
+      "Chapter 1: The opening crisis, investigation & initial choices",
+      "Chapter 2: Rising complications, early confrontations",
+      "Chapter 3: Deepening mystery and shocking discoveries",
+      "Chapter 4: The climax, major revelation, and resolution"
+    ],
     "potentialEndings": ["Triumphant vindication", "Bittersweet compromise", "Tragic sacrifice"]
   },
   "initialInventory": [
@@ -875,7 +877,7 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
 
       const cleanJson = rawText.replace(/```json|```/g, '').trim();
       const scenario = JSON.parse(cleanJson);
-      if (scenario && scenario.title && scenario.hookText) {
+      if (scenario && scenario.title && scenario.storyBlurb) {
         // Generate initial avatar image tailored to this character
         let avatarUrl: string | undefined = undefined;
         try {
@@ -940,54 +942,17 @@ Output MUST be strictly valid JSON matching this schema:
 {
   "categoryId": "${category}",
   "categoryName": "${category.replace('_', ' ').toUpperCase()}",
-  "seedSource": "AI Dynamic Brainstorm Engine",
-  "coreThemes": [
-    "Theme 1",
-    "Theme 2",
-    "Theme 3",
-    "Theme 4"
+  "mediaReferences": [
+    "Media reference 1 (e.g. The Lord of the Rings)",
+    "Media reference 2",
+    "Media reference 3"
   ],
-  "narrativeTropes": [
-    "Trope 1",
-    "Trope 2",
-    "Trope 3",
-    "Trope 4",
-    "Trope 5",
-    "Trope 6"
-  ],
-  "brainstormHooks": [
-    "Inciting scenario idea 1",
-    "Inciting scenario idea 2",
-    "Inciting scenario idea 3",
-    "Inciting scenario idea 4"
-  ],
-  "openingHooks": [
-    {
-      "title": "Preset Title 1",
-      "heroName": "Hero Name 1",
-      "roleClass": "Role 1",
-      "raceOrigin": "Origin 1",
-      "hook": "Atmospheric 3-sentence opening scene."
-    },
-    {
-      "title": "Preset Title 2",
-      "heroName": "Hero Name 2",
-      "roleClass": "Role 2",
-      "raceOrigin": "Origin 2",
-      "hook": "Atmospheric 3-sentence opening scene."
-    },
-    {
-      "title": "Preset Title 3",
-      "heroName": "Hero Name 3",
-      "roleClass": "Role 3",
-      "raceOrigin": "Origin 3",
-      "hook": "Atmospheric 3-sentence opening scene."
-    }
-  ],
-  "encounterSeeds": [
-    "Dynamic encounter seed 1",
-    "Dynamic encounter seed 2",
-    "Dynamic encounter seed 3"
+  "prompts": [
+    "Immersive prompt 1",
+    "Immersive prompt 2",
+    "Immersive prompt 3",
+    "Immersive prompt 4",
+    "Immersive prompt 5"
   ]
 }`;
 
@@ -999,7 +964,7 @@ Output MUST be strictly valid JSON matching this schema:
 
       const cleanJson = rawText.replace(/```json|```/g, '').trim();
       const seedlist = JSON.parse(cleanJson);
-      if (seedlist && seedlist.openingHooks && seedlist.openingHooks.length > 0) {
+      if (seedlist && seedlist.prompts && seedlist.prompts.length > 0) {
         return { seedlist };
       }
     } catch (err: any) {
@@ -1048,7 +1013,7 @@ Output ONLY the generated text with no extra commentary, quotes, or formatting.`
   if (fieldType === 'heroName') return setup.heroName;
   if (fieldType === 'roleClass') return setup.roleClass;
   if (fieldType === 'raceOrigin') return setup.raceOrigin;
-  return setup.hookText;
+  return setup.storyBlurb;
 }
 
 /**
@@ -1112,6 +1077,93 @@ export async function generateAvatarAI(params: {
   const fluxUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=768&height=768&nologo=true&seed=${seed}&model=flux`;
 
   return { avatarUrl: fluxUrl };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                         CHAPTER ONE GENERATOR                              */
+/* -------------------------------------------------------------------------- */
+
+export async function generateChapterOneAI(params: {
+  category: ExperienceCategory;
+  storyBlurb: string;
+  storyOutline: DMStoryOutline;
+  characterState: any;
+  model: string;
+}): Promise<ActionTurnResult> {
+  const { category, storyBlurb, storyOutline, characterState, model } = params;
+  const hasKey = hasActiveGeminiKey();
+
+  if (hasKey) {
+    try {
+      const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
+
+STORY PREMISE:
+${storyBlurb}
+
+DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference):
+- Starting Circumstances: ${storyOutline.startingCircumstances}
+- Backstory: ${storyOutline.backstory}
+- Inciting Incident: ${storyOutline.incitingIncident}
+- Immediate Goal: ${storyOutline.immediateGoal}
+- Key NPCs: ${storyOutline.keyNpcs?.map(n => `${n.name} (${n.role})`).join('; ') || 'None'}
+- Chapter Progression: ${storyOutline.chapters?.join(' | ') || 'None'}
+
+CREATIVE ASSIGNMENT:
+Write the very first scene (Chapter One, Scene 1) of this campaign. 
+Maintain genre-specific pacing based on the provided narrative profile and seed inspiration. Introduce the atmospheric setting, the immediate sensory situation, and the protagonist's starting dilemma as pitched in the premise. Do not jump to the climax unless the genre demands high-octane speed. Establish a deep, genre-appropriate tone.
+
+GAMEPLAY GM DIRECTIVES:
+- Address the player as "you". Keep the narrative in present tense.
+- Faithfully reflect the category's narrative profile.
+
+At the end, provide 3 suggested actions formatted as:
+---OPTIONS---
+[1] Action 1
+[2] Action 2
+[3] Action 3`;
+
+      const userMessage = `Character: ${characterState?.name || 'Hero'} (Gender/Pronouns: ${characterState?.gender || 'they/them'}), a Level ${characterState?.level || 1} ${characterState?.raceOrigin || 'Human'} ${characterState?.roleClass || 'Adventurer'}.
+Begin the story.`;
+
+      let text = await executeUniversalPrompt({
+        systemPrompt: basePrompt,
+        userPrompt: userMessage,
+        temperature: 0.9
+      });
+
+      let suggestedActions: string[] = [];
+
+      // Parse options
+      const optionsMatch = text.match(/---OPTIONS---([\s\S]*)/);
+      if (optionsMatch) {
+        text = text.replace(/---OPTIONS---[\s\S]*/, '').trim();
+        const rawOptions = optionsMatch[1].split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        suggestedActions = rawOptions
+          .map(opt => opt.replace(/^\[\d+\]\s*/, ''))
+          .filter(opt => opt.length > 0)
+          .slice(0, 3);
+      }
+
+      // Cleanup
+      text = text.replace(/---(STATE_UPDATE|END_STATE_UPDATE|AVATAR_EVOLUTION|END_AVATAR_EVOLUTION|COURSE_TRIGGER|END_TRIGGER|CHECK_REQUIRED|END_CHECK)---/g, '');
+      text = text.trim();
+
+      return {
+        text: text || "Your journey begins.",
+        suggestedActions: suggestedActions.length > 0 ? suggestedActions : ['Observe the surroundings', 'Examine your gear', 'Take a tentative step forward'],
+        modelUsed: model
+      };
+    } catch (err) {
+      console.warn('generateChapterOneAI error, falling back:', err);
+    }
+  }
+
+  // Fallback
+  return {
+    text: storyBlurb,
+    suggestedActions: ['Look around', 'Check equipment', 'Begin the journey'],
+    modelUsed: 'Procedural Generator'
+  };
 }
 
 /* -------------------------------------------------------------------------- */

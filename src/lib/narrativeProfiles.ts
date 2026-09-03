@@ -319,32 +319,13 @@ export function buildGroundedSeedContext(categoryId: string, userPrompt?: string
   const profile = getCategoryNarrativeProfile(categoryId);
   const seed = CATEGORY_SEEDLISTS[categoryId] || CATEGORY_SEEDLISTS.fantasy;
 
-  // Smart selection of representative seed elements based on user prompt or curated baseline
-  let selectedThemes = seed.coreThemes.slice(0, 3);
-  let selectedTropes = seed.narrativeTropes.slice(0, 3);
-  let selectedEncounters = seed.encounterSeeds.slice(0, 2);
+  // Smart selection of representative seed elements
+  // Shuffle to get a random mix for brainstorming
+  const shuffledMedia = [...(seed.mediaReferences || [])].sort(() => 0.5 - Math.random());
+  const shuffledPrompts = [...(seed.prompts || [])].sort(() => 0.5 - Math.random());
 
-  if (userPrompt && userPrompt.trim()) {
-    const promptLower = userPrompt.toLowerCase();
-    
-    // Pick themes with highest keyword relevance
-    const matchedThemes = seed.coreThemes.filter(t => 
-      t.toLowerCase().split(' ').some(w => w.length > 3 && promptLower.includes(w))
-    );
-    if (matchedThemes.length > 0) {
-      selectedThemes = [...matchedThemes, ...seed.coreThemes.filter(t => !matchedThemes.includes(t))].slice(0, 3);
-    }
-
-    // Pick tropes with highest keyword relevance
-    const matchedTropes = seed.narrativeTropes.filter(tr => 
-      tr.toLowerCase().split(' ').some(w => w.length > 3 && promptLower.includes(w))
-    );
-    if (matchedTropes.length > 0) {
-      selectedTropes = [...matchedTropes, ...seed.narrativeTropes.filter(tr => !matchedTropes.includes(tr))].slice(0, 3);
-    }
-  }
-
-  const sampleHook = seed.openingHooks?.[0]?.hook || '';
+  const selectedMedia = shuffledMedia.slice(0, 4);
+  const selectedPrompts = shuffledPrompts.slice(0, 3);
 
   return `=== [GENRE NARRATIVE CORPUS: ${profile.name.toUpperCase()}] ===
 SOURCE INSPIRATION: ${profile.seedSource}
@@ -357,10 +338,13 @@ SOURCE INSPIRATION: ${profile.seedSource}
 6. ENCOUNTER PATTERNS: ${profile.encounterPatterns}
 7. STRICTLY AVOID: ${profile.avoid}
 
-LEARNED CORPUS PATTERNS (Study this structural rhythm & detail density; do NOT copy sentences verbatim — craft 100% original prose):
-- Core Genre Motifs: ${selectedThemes.join(' | ')}
-- Typical Narrative Tropes: ${selectedTropes.join(' | ')}
-- Encounter Emergence: ${selectedEncounters.join(' | ')}
-${sampleHook ? `- Exemplary Opening Structure:\n  "${sampleHook}"` : ''}
+LEARNED CORPUS PATTERNS & BRAINSTORMING MATERIAL:
+IMPORTANT ANTI-COPYING DIRECTIVE: You have been provided with media references and immersive prompts as inspiration for pacing, style, and tone. You MUST NEVER directly copy a piece of media or a prompt unless the user explicitly asks for it in their custom prompt (e.g., 'Recreate The Odyssey'). Use them to brainstorm original ideas!
+
+- Media References (For Tone/Style/Pacing):
+  ${selectedMedia.join('\n  ')}
+
+- Immersive Prompts (For Inspiration):
+  ${selectedPrompts.join('\n  ')}
 ======================================================`;
 }

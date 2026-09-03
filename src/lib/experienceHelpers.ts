@@ -219,33 +219,9 @@ export function getCategoryFallbackActions(category: ExperienceCategory, count =
 
   // Build candidate pool from various trope-like sources
   const candidates: string[] = [];
-  if (Array.isArray(seed.brainstormHooks)) {
-    for (const h of seed.brainstormHooks) {
-      candidates.push(h);
-    }
-  }
-  if (Array.isArray(seed.narrativeTropes)) {
-    for (const t of seed.narrativeTropes) {
-      candidates.push(t);
-    }
-  }
-  if (Array.isArray(seed.encounterSeeds)) {
-    for (const e of seed.encounterSeeds) {
-      candidates.push(e);
-    }
-  }
-  if (Array.isArray(seed.openingHooks)) {
-    for (const oh of seed.openingHooks) {
-      if (Array.isArray(oh.suggestedActions)) {
-        for (const sa of oh.suggestedActions) candidates.push(sa);
-      }
-    }
-  }
-  if (Array.isArray(seed.popularTropes)) {
-    for (const t of seed.popularTropes) {
-      // TropeCategory is an object; surface its tagline/premise as candidate action text
-      if (t?.tagline) candidates.push(t.tagline);
-      if (t?.premise) candidates.push(t.premise);
+  if (Array.isArray(seed.prompts)) {
+    for (const p of seed.prompts) {
+      candidates.push(`Explore this thread: ${p.slice(0, 50)}...`);
     }
   }
 

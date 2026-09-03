@@ -190,11 +190,7 @@ export interface DMStoryOutline {
   keyNpcs: StoryOutlineNPC[];
   majorConflicts: string[];
   secretsAndReveals: string[];
-  actProgression: {
-    act1: string; // The opening crisis & initial choices
-    act2: string; // Rising complications, confrontations & discoveries
-    act3: string; // The climax, major revelation & resolution
-  };
+  chapters: string[];
   potentialEndings: string[];
 }
 

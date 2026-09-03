@@ -17,7 +17,7 @@ import { generateAvatarAI } from '../lib/geminiService';
 
 interface CharacterSheetPanelProps {
   character: CharacterSheet;
-  onUpdateCharacter: (updated: CharacterSheet) => void;
+  onUpdateCharacter: (updater: (prev: CharacterSheet) => CharacterSheet) => void;
   onRollStat: (statName: string, modifier: number) => void;
   experienceCategory?: ExperienceCategory;
   currentLocation?: string;
@@ -46,13 +46,15 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
   const getModValue = (val: number) => Math.floor((val - 10) / 2);
 
   const handleToggleEquip = (itemId: string) => {
-    const updatedInv = (character.inventory || []).map(item => {
-      if (item.id === itemId) {
-        return { ...item, isEquipped: !item.isEquipped };
-      }
-      return item;
+    onUpdateCharacter(prev => {
+      const updatedInv = (prev.inventory || []).map(item => {
+        if (item.id === itemId) {
+          return { ...item, isEquipped: !item.isEquipped };
+        }
+        return item;
+      });
+      return { ...prev, inventory: updatedInv };
     });
-    onUpdateCharacter({ ...character, inventory: updatedInv });
   };
 
   const handleGenerateOrUpdateAvatar = async () => {
@@ -71,11 +73,11 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
       });
 
       if (data && data.avatarUrl) {
-        onUpdateCharacter({
-          ...character,
+        onUpdateCharacter(prev => ({
+          ...prev,
           avatarUrl: data.avatarUrl,
-          physicalDescription: physicalDesc || character.physicalDescription
-        });
+          physicalDescription: physicalDesc || prev.physicalDescription
+        }));
       } else {
         throw new Error('No avatar image was returned.');
       }

@@ -45,7 +45,7 @@ interface CategoriesGridProps {
     openingPrompt?: string,
     suggestedActions?: string[],
     storyOutline?: DMStoryOutline
-  ) => void;
+  ) => Promise<void>;
   onDeleteExperience: (id: string) => void;
   selectedModel: string;
 }
@@ -72,6 +72,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   const [openingPrompt, setOpeningPrompt] = useState('');
   const [physicalDesc, setPhysicalDesc] = useState('');
   const [charAvatarUrl, setCharAvatarUrl] = useState<string | undefined>(undefined);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [initialInventory, setInitialInventory] = useState<InventoryItem[]>([]);
   const [initialSpells, setInitialSpells] = useState<string[]>([]);
   const [initialConditions, setInitialConditions] = useState<string[]>(['Well-Rested']);
@@ -302,6 +303,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setSelectedCategoryModal(cat);
     setModalTab('configure');
     setCurrentStoryOutline(undefined);
+    setAvatarError(null);
 
     // Populate initial 5 seeds from 100-pool
     const initial5 = getUnifiedScenarioSeeds(cat.id, 5, []);
@@ -312,8 +314,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     applyRandomSetup(cat.id as ExperienceCategory);
   };
 
-  const handleConfirmCreate = () => {
+  const handleConfirmCreate = async () => {
     if (!selectedCategoryModal) return;
+    if (isGeneratingScenario) return;
+
+    setIsGeneratingScenario(true);
+    setAvatarError(null);
 
     const resolvedGender = charGender === 'custom' ? (customGender || 'they/them') : charGender;
 
@@ -337,16 +343,21 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       physicalDescription: physicalDesc || ''
     };
 
-    onCreateExperience(
-      selectedCategoryModal.id,
-      customTitle || `${selectedCategoryModal.name} Experience`,
-      fullChar,
-      openingPrompt,
-      suggestedActions,
-      currentStoryOutline
-    );
-
-    setSelectedCategoryModal(null);
+    try {
+      await onCreateExperience(
+        selectedCategoryModal.id,
+        customTitle || `${selectedCategoryModal.name} Experience`,
+        fullChar,
+        openingPrompt,
+        suggestedActions,
+        currentStoryOutline
+      );
+      setSelectedCategoryModal(null);
+    } catch (err: any) {
+      console.error('Error creating experience:', err);
+    } finally {
+      setIsGeneratingScenario(false);
+    }
   };
 
   const filteredCategories = CATEGORIES_DATA.filter(c => 
@@ -805,6 +816,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         disabled={isGeneratingScenario}
                         onClick={async () => {
                           setIsGeneratingScenario(true);
+                          setAvatarError(null);
                           try {
                             const data = await generateAvatarAI({
                               characterName: charName || 'Hero',
@@ -815,6 +827,9 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                               model: selectedModel
                             });
                             if (data?.avatarUrl) setCharAvatarUrl(data.avatarUrl);
+                          } catch (err: any) {
+                            console.error('Avatar generation error:', err);
+                            setAvatarError(err.message || 'Failed to generate character avatar.');
                           } finally {
                             setIsGeneratingScenario(false);
                           }
@@ -857,6 +872,9 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         <p className="text-[10px] text-slate-400 mt-1 italic">
                           Stylized dramatic cartoonized graphic novel profile picture.
                         </p>
+                        {avatarError && (
+                          <p className="text-[10px] text-red-400 font-mono mt-1">{avatarError}</p>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -506,8 +506,8 @@ export async function saveExperienceToCloud(experience: Experience): Promise<Sav
 
   // Additional safety: Remove nested arrays that might have slipped through
   // (e.g., fogMatrix which is bool[][], should not exist in cloud)
-  if (payload.mapData && payload.mapData.fogMatrix) {
-    // Reconstruct fogMatrix on load, don't persist to cloud
+  // We allow fogMatrix to remain as a string for cloud persistence.
+  if (payload.mapData && Array.isArray(payload.mapData.fogMatrix)) {
     delete payload.mapData.fogMatrix;
   }
 
@@ -551,12 +551,29 @@ export async function saveExperienceToCloud(experience: Experience): Promise<Sav
 // ---------------------------------------------------------------------------
 // Helper: Reconstruct fogMatrix if missing (it's not persisted to cloud to avoid nested array issues)
 function reconstructFogMatrix(exp: Experience): Experience {
-  if (!exp.mapData || exp.mapData.fogMatrix) {
-    // Already has fogMatrix or no mapData
+  if (!exp.mapData) {
     return exp;
   }
 
-  // Reconstruct a fresh fog matrix (all visible/false)
+  // If the cloud provided the stringified fog matrix, parse it to preserve state
+  if (typeof exp.mapData.fogMatrix === 'string') {
+    try {
+      return {
+        ...exp,
+        mapData: {
+          ...exp.mapData,
+          fogMatrix: JSON.parse(exp.mapData.fogMatrix)
+        }
+      };
+    } catch (e) {
+      console.warn('Failed to parse fogMatrix from cloud', e);
+    }
+  } else if (Array.isArray(exp.mapData.fogMatrix)) {
+    // Already correct (e.g., loaded from local storage)
+    return exp;
+  }
+
+  // Reconstruct a fresh fog matrix (all visible/false) as fallback
   const { gridWidth = 12, gridHeight = 12 } = exp.mapData;
   const freshFogMatrix = Array(gridHeight).fill(null).map(() => Array(gridWidth).fill(false));
 

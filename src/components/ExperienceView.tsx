@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ScrollText, 
   User as UserIcon, 
@@ -42,11 +42,25 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
   const [activeRoll, setActiveRoll] = useState<DiceRollResult | null>(null);
   const [turnCounter, setTurnCounter] = useState(0);
 
+  const latestExpRef = useRef(experience);
+  const isGeneratingRef = useRef(isGenerating);
+
+  useEffect(() => {
+    latestExpRef.current = experience;
+  }, [experience]);
+
+  useEffect(() => {
+    isGeneratingRef.current = isGenerating;
+  }, [isGenerating]);
+
   const modelObj = GEMINI_MODELS.find(m => m.id === selectedModel) || GEMINI_MODELS[0];
 
   // AI Narrative Turn Call
   const handleSendMessage = async (text: string, diceRoll?: DiceRollResult, checkResolved?: boolean) => {
+    if (isGeneratingRef.current) return;
+
     // Append player log
+    const currentExp = latestExpRef.current;
     const playerMsg: LogMessage = {
       id: `msg_${Date.now()}`,
       sender: 'player',
@@ -55,12 +69,12 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       diceRoll
     };
 
-    const updatedLogs = [...experience.logs, playerMsg];
+    const updatedLogs = [...currentExp.logs, playerMsg];
     // If check was resolved, clear pendingCheck in temp experience
     const tempExp: Experience = { 
-      ...experience, 
+      ...currentExp, 
       logs: updatedLogs,
-      pendingCheck: checkResolved ? null : experience.pendingCheck
+      pendingCheck: checkResolved ? null : currentExp.pendingCheck
     };
     onUpdateExperience(tempExp);
 
@@ -70,12 +84,12 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     try {
       const data = await executeActionTurn({
         contents: updatedLogs.map(l => `${l.sender.toUpperCase()}: ${l.text}`).join('\n'),
-        category: experience.category,
+        category: tempExp.category,
         model: selectedModel,
-        systemInstruction: experience.customSystemPrompt,
+        systemInstruction: tempExp.customSystemPrompt,
         characterState: tempExp.character,
         diceRoll,
-        storyOutline: experience.storyOutline
+        storyOutline: tempExp.storyOutline
       });
 
       const dmMsg: LogMessage = {
@@ -93,8 +107,33 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       let newAlert: CourseChangeAlert | null = data.courseChangeAlert || null;
       let newCheck: PendingCheck | null = data.requiredCheck || null;
 
-      // Dynamic Character State Updates from Narrative Engine
-      let updatedChar = { ...tempExp.character };
+      // 1. Perform async avatar generation BEFORE reading the final state
+      let evoAvatarResult: any = null;
+      let evoNewDesc: string | undefined = undefined;
+
+      if (data.avatarEvolution?.evolved) {
+        try {
+          const curExp = latestExpRef.current;
+          evoNewDesc = data.avatarEvolution.updatedPhysicalDescription;
+          evoAvatarResult = await generateAvatarAI({
+            characterName: curExp.character.name,
+            roleClass: curExp.character.roleClass,
+            raceOrigin: curExp.character.raceOrigin,
+            category: curExp.category,
+            physicalDescription: evoNewDesc || curExp.character.physicalDescription,
+            recentStoryContext: `${curExp.logs.slice(-2).map(l => l.text).join('\n')}\n${dmMsg.text}`,
+            model: selectedModel
+          });
+        } catch (evoErr) {
+          console.warn('Auto avatar evolution error:', evoErr);
+        }
+      }
+
+      // 2. GET THE ABSOLUTE FRESHEST EXPERIENCE (after all async work is done)
+      const finalExp = latestExpRef.current;
+
+      // 3. Apply all dynamic updates (Delta + Avatar) to the fresh state
+      let updatedChar = { ...finalExp.character };
 
       if (data.stateDelta) {
         const delta = data.stateDelta;
@@ -158,26 +197,10 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         }
       }
 
-      // 7. Auto Avatar Evolution on Major Story Beats
-      if (data.avatarEvolution?.evolved) {
-        try {
-          const newDesc = data.avatarEvolution.updatedPhysicalDescription || updatedChar.physicalDescription;
-          const evoAvatar = await generateAvatarAI({
-            characterName: updatedChar.name,
-            roleClass: updatedChar.roleClass,
-            raceOrigin: updatedChar.raceOrigin,
-            category: experience.category,
-            physicalDescription: newDesc,
-            recentStoryContext: `${updatedLogs.slice(-2).map(l => l.text).join('\n')}\n${dmMsg.text}`,
-            model: selectedModel
-          });
-          if (evoAvatar?.avatarUrl) {
-            updatedChar.avatarUrl = evoAvatar.avatarUrl;
-            if (newDesc) updatedChar.physicalDescription = newDesc;
-          }
-        } catch (evoErr) {
-          console.warn('Auto avatar evolution error:', evoErr);
-        }
+      // 4. Apply new avatar URL if we successfully generated one
+      if (evoAvatarResult?.avatarUrl) {
+        updatedChar.avatarUrl = evoAvatarResult.avatarUrl;
+        if (evoNewDesc) updatedChar.physicalDescription = evoNewDesc;
       }
 
       // Trigger alert sound if course change alert or required check was fired
@@ -186,11 +209,11 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       }
 
       onUpdateExperience({
-        ...tempExp,
+        ...finalExp,
         character: updatedChar,
-        logs: [...updatedLogs, dmMsg],
-        activeAlert: newAlert || (checkResolved ? null : tempExp.activeAlert),
-        pendingCheck: newCheck || (checkResolved ? null : tempExp.pendingCheck)
+        logs: [...finalExp.logs, dmMsg],
+        activeAlert: newAlert || (checkResolved ? null : finalExp.activeAlert),
+        pendingCheck: newCheck || (checkResolved ? null : finalExp.pendingCheck)
       });
     } catch (err: any) {
       console.error('Narrative turn error:', err);
@@ -205,7 +228,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         text: `⚠️ System Note: ${cleanMessage}`,
         timestamp: new Date().toISOString()
       };
-      onUpdateExperience({ ...tempExp, logs: [...updatedLogs, errLog] });
+      const finalExp = latestExpRef.current;
+      onUpdateExperience({ ...finalExp, logs: [...finalExp.logs, errLog] });
     } finally {
       setIsGenerating(false);
     }
@@ -213,6 +237,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
 
   // AI Rules Adjudicator Referee Call
   const handleAdjudicateAction = async (actionText: string) => {
+    if (isGeneratingRef.current) return;
+    
+    const currentExp = latestExpRef.current;
     const playerMsg: LogMessage = {
       id: `msg_${Date.now()}`,
       sender: 'player',
@@ -220,15 +247,15 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       timestamp: new Date().toISOString()
     };
 
-    const updatedLogs = [...experience.logs, playerMsg];
-    onUpdateExperience({ ...experience, logs: updatedLogs });
+    const updatedLogs = [...currentExp.logs, playerMsg];
+    onUpdateExperience({ ...currentExp, logs: updatedLogs });
 
     setIsGenerating(true);
 
     try {
       const data = await executeActionTurn({
-        contents: `[Rules Referee Adjudication Request]\nCharacter Stats: STR ${experience.character.stats.str}, DEX ${experience.character.stats.dex}, CON ${experience.character.stats.con}, INT ${experience.character.stats.int}, WIS ${experience.character.stats.wis}, CHA ${experience.character.stats.cha}.\nProposed Action: ${actionText}`,
-        category: experience.category,
+        contents: `[Rules Referee Adjudication Request]\nCharacter Stats: STR ${currentExp.character.stats.str}, DEX ${currentExp.character.stats.dex}, CON ${currentExp.character.stats.con}, INT ${currentExp.character.stats.int}, WIS ${currentExp.character.stats.wis}, CHA ${currentExp.character.stats.cha}.\nProposed Action: ${actionText}`,
+        category: currentExp.category,
         model: selectedModel,
         systemInstruction: 'You are the Rule Adjudicator. Parse the player action and explain difficulty (DC) and requirements.'
       });
@@ -241,9 +268,10 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         modelUsed: data.modelUsed || selectedModel
       };
 
+      const finalExp = latestExpRef.current;
       onUpdateExperience({
-        ...experience,
-        logs: [...updatedLogs, adjudicatorMsg]
+        ...finalExp,
+        logs: [...finalExp.logs, adjudicatorMsg]
       });
     } catch (err: any) {
       console.error('Adjudicate error:', err);
@@ -258,7 +286,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         text: `⚠️ System Note: ${cleanMessage}`,
         timestamp: new Date().toISOString()
       };
-      onUpdateExperience({ ...experience, logs: [...updatedLogs, errLog] });
+      const finalExp = latestExpRef.current;
+      onUpdateExperience({ ...finalExp, logs: [...finalExp.logs, errLog] });
     } finally {
       setIsGenerating(false);
     }
@@ -418,7 +447,10 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         <div className={`lg:col-span-4 ${activeTab !== 'character' ? 'hidden lg:block' : ''}`}>
           <CharacterSheetPanel
             character={experience.character}
-            onUpdateCharacter={(updatedChar) => onUpdateExperience({ ...experience, character: updatedChar })}
+            onUpdateCharacter={(updater) => onUpdateExperience({ 
+              ...latestExpRef.current, 
+              character: updater(latestExpRef.current.character) 
+            })}
             onRollStat={handleRollStat}
             experienceCategory={experience.category}
             currentLocation={experience.gameWorldState?.currentLocation || 'Starting Area'}

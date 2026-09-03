@@ -265,7 +265,7 @@ async function callGeminiWithCascade(
   const targetModel = resolveGeminiModelName(model);
 
   const callModel = async (modelName: string, retries = 2, delay = 1500, modelIndex = 0): Promise<string> => {
-    const currentModel = modelIndex === 0 ? modelName : (FALLBACK_MODELS[modelIndex] || modelName);
+    const currentModel = modelIndex === 0 ? modelName : (FALLBACK_MODELS[modelIndex - 1] || modelName);
     try {
       const ai = new GoogleGenAI({ apiKey });
       const config: any = {
@@ -290,8 +290,8 @@ async function callGeminiWithCascade(
       const isUnavailable = err?.status === 503 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand');
 
       // Auto cascade to next model on quota exhaustion
-      if (isQuotaExhausted && modelIndex + 1 < FALLBACK_MODELS.length) {
-        const nextModel = FALLBACK_MODELS[modelIndex + 1];
+      if (isQuotaExhausted && modelIndex < FALLBACK_MODELS.length) {
+        const nextModel = FALLBACK_MODELS[modelIndex];
         console.log(`[Gemini Cascade] Quota reached on ${currentModel}. Falling back to ${nextModel}...`);
         return callModel(modelName, retries, delay, modelIndex + 1);
       }
@@ -647,9 +647,28 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
         if (match) {
           const block = match[1];
           const hpDeltaMatch = block.match(/HP_DELTA:\s*([+-]?\d+)/i);
+          const itemsGainedMatch = block.match(/ITEMS_GAINED:\s*(\[[^\]]*\]|.+)/i);
+          const itemsLostMatch = block.match(/ITEMS_LOST:\s*(\[[^\]]*\]|.+)/i);
+          const conditionsAddedMatch = block.match(/CONDITIONS_ADDED:\s*(\[[^\]]*\]|.+)/i);
+          const conditionsRemovedMatch = block.match(/CONDITIONS_REMOVED:\s*(\[[^\]]*\]|.+)/i);
+          const spellsGainedMatch = block.match(/SPELLS_GAINED:\s*(\[[^\]]*\]|.+)/i);
           const locationMatch = block.match(/LOCATION:\s*(.+)/i);
+
+          const parseList = (str?: string) => {
+            if (!str) return [];
+            try {
+              if (str.trim().startsWith('[')) return JSON.parse(str);
+            } catch (e) {}
+            return str.split(',').map((s: string) => s.replace(/[\[\]"']/g, '').trim()).filter(Boolean);
+          };
+
           stateDelta = {
             hpDelta: hpDeltaMatch ? parseInt(hpDeltaMatch[1], 10) : 0,
+            itemsGained: parseList(itemsGainedMatch ? itemsGainedMatch[1] : undefined),
+            itemsLost: parseList(itemsLostMatch ? itemsLostMatch[1] : undefined),
+            conditionsAdded: parseList(conditionsAddedMatch ? conditionsAddedMatch[1] : undefined),
+            conditionsRemoved: parseList(conditionsRemovedMatch ? conditionsRemovedMatch[1] : undefined),
+            spellsGained: parseList(spellsGainedMatch ? spellsGainedMatch[1] : undefined),
             locationUpdate: locationMatch ? locationMatch[1].trim() : undefined
           };
           text = text.replace(/---STATE_UPDATE---[\s\S]*?---END_STATE_UPDATE---/, '').trim();
@@ -692,6 +711,31 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
             reason: reasonMatch ? reasonMatch[1].trim() : 'Resolve the challenge.'
           };
           text = text.replace(/---CHECK_REQUIRED---[\s\S]*?---END_CHECK---/, '').trim();
+        }
+      } else {
+        // Fallback regex detection in narrative text if the AI didn't use tags but mentioned e.g. "Roll a DC 14 Athletics check" or "Make a DC 15 Stealth check"
+        const dcRegex = /(?:roll|make|requires?|give me|needs?)\s+(?:an?|your)?\s*(?:DC\s*(\d+)\s+)?([A-Za-z\s]+?)\s+(?:check|saving throw|save)(?:\s*\(?DC\s*(\d+)\)?)?/i;
+        const match = text.match(dcRegex);
+        if (match) {
+          const dcStr = match[1] || match[3] || '13';
+          const skillRaw = match[2].trim();
+          if (skillRaw && skillRaw.length < 30 && !skillRaw.toLowerCase().includes('initiative')) {
+            const dcVal = parseInt(dcStr, 10) || 13;
+            let statGuess: 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha' = 'wis';
+            const sLow = skillRaw.toLowerCase();
+            if (sLow.includes('athletic') || sLow.includes('strength')) statGuess = 'str';
+            else if (sLow.includes('acrobat') || sLow.includes('stealth') || sLow.includes('dexter') || sLow.includes('sleight')) statGuess = 'dex';
+            else if (sLow.includes('constitution') || sLow.includes('endurance')) statGuess = 'con';
+            else if (sLow.includes('arcana') || sLow.includes('history') || sLow.includes('investig') || sLow.includes('nature') || sLow.includes('religion') || sLow.includes('intel')) statGuess = 'int';
+            else if (sLow.includes('persua') || sLow.includes('decept') || sLow.includes('intimid') || sLow.includes('perform') || sLow.includes('charis')) statGuess = 'cha';
+
+            requiredCheck = {
+              skill: skillRaw,
+              stat: statGuess,
+              dc: dcVal,
+              reason: `The Game Master called for a ${skillRaw} check (DC ${dcVal}).`
+            };
+          }
         }
       }
 

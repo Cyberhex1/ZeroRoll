@@ -66,14 +66,29 @@ export function rollWithAdvantage(modifier: number = 0, advantageType: 'advantag
   };
 }
 
+let sharedAudioContext: AudioContext | null = null;
+
+function getAudioContext() {
+  if (typeof window === 'undefined') return null;
+  if (!sharedAudioContext) {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioContextClass) {
+      sharedAudioContext = new AudioContextClass();
+    }
+  }
+  if (sharedAudioContext && sharedAudioContext.state === 'suspended') {
+    sharedAudioContext.resume().catch(() => {});
+  }
+  return sharedAudioContext;
+}
+
 /**
  * Web Audio API synthesizer for realistic dice rolling sound effects
  */
 export function playDiceSound(isNat20: boolean = false, isNat1: boolean = false) {
   try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
+    const ctx = getAudioContext();
+    if (!ctx) return;
 
     // Generate a series of small click/clatter impulses
     const numClatters = 6;
@@ -125,9 +140,8 @@ export function playDiceSound(isNat20: boolean = false, isNat1: boolean = false)
  */
 export function playAlertSound() {
   try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
+    const ctx = getAudioContext();
+    if (!ctx) return;
 
     // Dramatic dual-pulse low horn / brass pulse
     [220, 293.66, 370].forEach((freq, i) => {

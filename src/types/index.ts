@@ -155,6 +155,7 @@ export interface GameWorldState {
   activeQuest: string;
   dangerLevel: 'Safe' | 'Moderate' | 'Dangerous' | 'Deadly';
   customNotes: string;
+  currentChapter?: number;
 }
 
 export interface PendingCheck {
@@ -169,7 +170,7 @@ export interface CourseChangeAlert {
   id: string;
   title: string;
   subtitle: string;
-  type: 'course_change' | 'ambush' | 'crisis' | 'opportunity' | 'twist';
+  type: 'course_change' | 'ambush' | 'crisis' | 'opportunity' | 'twist' | 'chapter_transition' | 'story_conclusion';
   description: string;
   statCheck?: PendingCheck;
   timestamp: string;

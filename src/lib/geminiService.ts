@@ -560,6 +560,8 @@ GAMEPLAY GM DIRECTIVES:
 - Faithfully reflect the category's narrative profile: voice, atmospheric sensory details, scene architecture, and dramatic pacing.
 - The player's actions, choices, and premise are authoritative. Ground your storytelling craft and encounter emergence in the category profile without overriding the player's choices.
 - PACING: Maintain genre-specific pacing based on the provided narrative profile and seed inspiration. Do not rush to the climax unless the genre demands high-octane speed. Let the plot unfold naturally chapter by chapter, allowing the player to immerse deeply in the environment and conversations.
+- CHAPTER PROGRESSION: When the current chapter concludes and the story organically transitions to the next chapter of the roadmap, you MUST output a COURSE_TRIGGER with type "chapter_transition".
+- STORY CONCLUSION: When the final chapter resolves and the overarching plot is fully complete, you MUST output a COURSE_TRIGGER with type "story_conclusion".
 - React dynamically to player rolls and decisions, maintaining excitement, atmosphere, and authentic stakes without accelerating the timeline prematurely.
 
 Output a state update block if inventory, conditions, or HP change:
@@ -579,10 +581,10 @@ REASON: <Brief explanation of visual change, e.g. "Wields the blazing runic swor
 PHYSICAL_DESCRIPTION: <Updated complete physical appearance description reflecting current story state>
 ---END_AVATAR_EVOLUTION---
 
-If an event changes the course of the story, output:
+If an event changes the course of the story, or advances the chapter/concludes the story, output:
 ---COURSE_TRIGGER---
 TITLE: <Alert Title>
-TYPE: <course_change | ambush | crisis | opportunity | twist>
+TYPE: <course_change | ambush | crisis | opportunity | twist | chapter_transition | story_conclusion>
 SUBTITLE: <Warning sentence>
 DESCRIPTION: <Details>
 ---END_TRIGGER---

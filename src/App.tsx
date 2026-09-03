@@ -238,14 +238,24 @@ export default function App() {
       (exps) => {
         setExperiences(exps);
 
-        // Resolve pending active experience once the list arrives
-        if (pendingActiveExpId.current) {
-          const found = exps.find(e => e.id === pendingActiveExpId.current);
-          if (found) {
-            setActiveExperience(found);
-            pendingActiveExpId.current = null;
+        setActiveExperience((currentActive) => {
+          // Resolve pending active experience once the list arrives
+          if (pendingActiveExpId.current) {
+            const found = exps.find(e => e.id === pendingActiveExpId.current);
+            if (found) {
+              pendingActiveExpId.current = null;
+              return found;
+            }
           }
-        }
+          // If we already have an active experience, keep it synced with the latest cloud data
+          if (currentActive) {
+            const updated = exps.find(e => e.id === currentActive.id);
+            if (updated) {
+              return updated;
+            }
+          }
+          return currentActive;
+        });
       },
       (errMsg) => {
         showCloudSaveError(`Cloud sync error: ${errMsg}`);
@@ -367,7 +377,8 @@ export default function App() {
         timeOfDay: storyOutline?.startingCircumstances || 'Daybreak',
         activeQuest: storyOutline?.immediateGoal || 'Begin your adventure',
         dangerLevel: 'Safe',
-        customNotes: storyOutline?.backstory || ''
+        customNotes: storyOutline?.backstory || '',
+        currentChapter: 1
       },
       logs: [initialLog],
       mapData: initialMap,
@@ -420,6 +431,79 @@ export default function App() {
     }
   };
 
+  const handleStartBookTwo = async (prevExp: Experience) => {
+    setIsSaving(true);
+    try {
+      const { generateScenarioAI } = await import('./lib/geminiService');
+      const data = await generateScenarioAI({
+        category: prevExp.category,
+        model: selectedModel,
+        userPrompt: `Start Book Two of this campaign. The previous book concluded successfully. Generate a new story arc, new chapters, and a new immediate goal for the continuing adventures of ${prevExp.character.name}.`,
+        gender: prevExp.character.gender || 'they/them',
+        characterName: prevExp.character.name,
+        classRole: prevExp.character.roleClass,
+        raceOrigin: prevExp.character.raceOrigin
+      });
+
+      if (data && data.scenario) {
+        const newExp: Experience = {
+          id: `exp_${Date.now()}`,
+          userId: user?.uid || 'guest',
+          title: `${prevExp.title} - Book Two`,
+          category: prevExp.category,
+          description: data.scenario.storyBlurb || 'The adventure continues...',
+          model: selectedModel,
+          customSystemPrompt: prevExp.customSystemPrompt,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          character: {
+            ...prevExp.character, // preserve everything: hp, inventory, level, etc.
+          },
+          gameWorldState: {
+            currentLocation: 'New Region',
+            timeOfDay: 'Daybreak',
+            activeQuest: data.scenario.storyOutline?.immediateGoal || 'Begin Book Two',
+            dangerLevel: 'Safe',
+            customNotes: data.scenario.storyOutline?.backstory || '',
+            currentChapter: 1
+          },
+          logs: [
+            {
+              id: `msg_start_${Date.now()}`,
+              sender: 'dm',
+              text: data.scenario.storyBlurb || 'A new chapter in your legend begins...',
+              timestamp: new Date().toISOString()
+            }
+          ],
+          mapData: createVariedInitialMap(
+            prevExp.category,
+            CATEGORIES_DATA.find((c) => c.id === prevExp.category)?.bgTheme || 'dungeon',
+            prevExp.character.name,
+            prevExp.character.hp,
+            prevExp.character.maxHp
+          ),
+          storyOutline: data.scenario.storyOutline,
+          pendingCheck: null,
+          activeAlert: null
+        };
+
+        const result = await saveExperienceToCloud(newExp);
+        if (!result.ok) {
+          showCloudSaveError('Could not save Book Two to cloud.');
+        }
+        setActiveExperience(newExp);
+        if (user) {
+          saveActiveExperienceIdToCloud(user.uid, newExp.id)
+            .catch((err) => showCloudSaveError(`Active experience sync failed: ${err.message}`));
+        }
+      }
+    } catch (err) {
+      showCloudSaveError('Failed to generate Book Two.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
       
@@ -461,6 +545,7 @@ export default function App() {
             onBack={() => handleSelectExperience(null)}
             selectedModel={selectedModel}
             soundEnabled={soundEnabled}
+            onStartBookTwo={handleStartBookTwo}
           />
         ) : (
           <CategoriesGrid

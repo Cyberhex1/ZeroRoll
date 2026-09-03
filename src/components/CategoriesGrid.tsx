@@ -123,6 +123,11 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setInitialSpells(randomSetup.initialSpells);
     setInitialConditions(randomSetup.initialConditions);
     setStartingHp(randomSetup.startingHp);
+    
+    // Clear any AI-specific state from previous generations
+    setCurrentStoryOutline(undefined);
+    setCharAvatarUrl(undefined);
+    setAvatarError(null);
   };
 
   const handleRandomizeAll = (cat: CategoryInfo) => {

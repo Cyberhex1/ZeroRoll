@@ -28,6 +28,7 @@ interface ExperienceViewProps {
   onBack: () => void;
   selectedModel: string;
   soundEnabled: boolean;
+  onStartBookTwo?: (exp: Experience) => void;
 }
 
 export const ExperienceView: React.FC<ExperienceViewProps> = ({
@@ -35,7 +36,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
   onUpdateExperience,
   onBack,
   selectedModel,
-  soundEnabled
+  soundEnabled,
+  onStartBookTwo
 }) => {
   const [activeTab, setActiveTab] = useState<'narrative' | 'character'>('narrative');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -352,8 +354,17 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
 
   // Dismiss Course Change Alert
   const handleDismissAlert = () => {
+    let newChapter = experience.gameWorldState.currentChapter || 1;
+    if (experience.activeAlert?.type === 'chapter_transition') {
+      newChapter += 1;
+    }
+
     onUpdateExperience({
       ...experience,
+      gameWorldState: {
+        ...experience.gameWorldState,
+        currentChapter: newChapter
+      },
       activeAlert: null
     });
   };
@@ -376,7 +387,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h2 className="text-xs sm:text-base font-serif font-bold text-amber-50 truncate max-w-[180px] xs:max-w-[240px] sm:max-w-none">
-                  {experience.title}
+                  {experience.title} <span className="text-amber-500/80 font-normal">| Chapter {experience.gameWorldState.currentChapter || 1} of {experience.storyOutline?.chapters?.length || 3}</span>
                 </h2>
                 <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-mono uppercase font-bold rounded bg-white/5 text-amber-400 border border-white/10 shrink-0">
                   {experience.category.replace('_', ' ')}
@@ -461,14 +472,66 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
 
       </div>
 
-      {/* Visual Dice Roll Popup */}
-      <DiceRollModal
-        rollResult={activeRoll}
-        onClose={() => setActiveRoll(null)}
-        onApplyRoll={handleApplyRoll}
-        soundEnabled={soundEnabled}
-      />
+      {/* Dice Roll Modal */}
+      {activeRoll && (
+        <DiceRollModal
+          rollResult={activeRoll}
+          onClose={() => setActiveRoll(null)}
+          onApplyRoll={handleApplyRoll}
+          soundEnabled={soundEnabled}
+        />
+      )}
 
+      {/* Story Conclusion Modal */}
+      {experience.activeAlert?.type === 'story_conclusion' && (
+        <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#111118] border border-amber-500/30 rounded-xl p-6 sm:p-8 max-w-lg w-full text-center space-y-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 via-transparent to-purple-900/10 pointer-events-none" />
+            
+            <Sparkles className="w-12 h-12 text-amber-400 mx-auto animate-pulse" />
+            
+            <div className="space-y-2 relative z-10">
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-amber-50">
+                {experience.activeAlert.title}
+              </h2>
+              <p className="text-amber-200/80 font-medium">
+                {experience.activeAlert.subtitle}
+              </p>
+              {experience.activeAlert.description && (
+                <p className="text-sm text-slate-300 mt-4 leading-relaxed">
+                  {experience.activeAlert.description}
+                </p>
+              )}
+            </div>
+
+            <div className="pt-4 flex flex-col gap-3 relative z-10">
+              {onStartBookTwo && (
+                <button
+                  onClick={() => onStartBookTwo(experience)}
+                  className="w-full py-3 px-4 rounded-lg bg-amber-600 hover:bg-amber-500 text-black font-bold font-serif transition shadow-[0_0_15px_rgba(217,119,6,0.3)] hover:shadow-[0_0_25px_rgba(217,119,6,0.5)] flex items-center justify-center gap-2"
+                >
+                  <Layers className="w-5 h-5" />
+                  Start Book Two
+                </button>
+              )}
+              
+              <button
+                onClick={onBack}
+                className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-white/15 border border-white/20 text-slate-200 font-semibold transition"
+              >
+                Start a New Experience
+              </button>
+
+              <button
+                onClick={handleDismissAlert}
+                className="w-full py-2 px-4 rounded-lg text-slate-400 hover:text-slate-200 text-sm font-medium transition"
+              >
+                Close & Review Logs
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

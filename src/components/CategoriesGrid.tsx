@@ -350,16 +350,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
       if (hasActiveGeminiKey() && currentStoryOutline) {
         // We have a blurb and an outline, let's write Chapter 1 now
-        const chapterOneRes = await generateChapterOneAI({
-          category: selectedCategoryModal.id,
-          storyBlurb: openingPrompt,
-          storyOutline: currentStoryOutline,
-          characterState: fullChar,
-          model: selectedModel
-        });
-        chapterOneText = chapterOneRes.text;
-        if (chapterOneRes.suggestedActions) {
-          finalSuggestedActions = chapterOneRes.suggestedActions;
+        try {
+          const chapterOneRes = await generateChapterOneAI({
+            category: selectedCategoryModal.id,
+            storyBlurb: openingPrompt,
+            storyOutline: currentStoryOutline,
+            characterState: fullChar,
+            model: selectedModel
+          });
+          chapterOneText = chapterOneRes.text;
+          if (chapterOneRes.suggestedActions) {
+            finalSuggestedActions = chapterOneRes.suggestedActions;
+          }
+        } catch (err) {
+          console.warn('Failed to generate Chapter 1, falling back to base experience creation:', err);
         }
       }
 
@@ -947,7 +951,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     <div className="space-y-0.5">
                       <div className="font-bold flex items-center gap-1.5 text-amber-300">
                         <Lightbulb className="w-3.5 h-3.5" />
-                        Inspiration Source: {activeSeed?.seedSource || selectedCategoryModal.name}
+                        Inspiration Source: {selectedCategoryModal.name} Media & Tropes
                       </div>
                       <p className="text-[11px] text-amber-200/80">
                         Explore popular narrative tropes and 5 playable scenario seeds drawn from the 100-seed pool.

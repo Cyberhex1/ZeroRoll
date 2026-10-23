@@ -1,11 +1,11 @@
 import { GoogleGenAI } from '@google/genai';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { 
-  ExperienceCategory, 
-  InventoryItem, 
-  CourseChangeAlert, 
-  PendingCheck, 
-  StateDelta, 
+import {
+  ExperienceCategory,
+  InventoryItem,
+  CourseChangeAlert,
+  PendingCheck,
+  StateDelta,
   DiceRollResult,
   LogMessage,
   AvatarEvolution,
@@ -17,14 +17,33 @@ import { generateDynamicSeedlist, CategorySeedInfo, CATEGORY_SEEDLISTS } from '.
 import { buildGroundedSeedContext, getCategoryNarrativeProfile } from './narrativeProfiles';
 import { getCategoryFallbackActions } from './experienceHelpers';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
+import { AIError, classifyAIError, describeAIError, isTransient, shouldTryNextModel } from './aiErrors';
+import { reportAIFailure, reportAISuccess, resetAIStatus } from './aiStatus';
 
-// Fallback Gemini models for cascading
+// Default Gemini model: the "latest" alias Google keeps pointed at the current Flash release.
+export const GEMINI_DEFAULT_MODEL = 'gemini-flash-latest';
+
+// Models tried, in order, after the player's chosen model when it is unavailable,
+// rate-limited or overloaded. Stable IDs from https://ai.google.dev/gemini-api/docs/models
 export const FALLBACK_MODELS = [
-  'gemini-3.5-flash',
+  'gemini-flash-latest',
+  'gemini-3.8-flash',
+  'gemini-3.6-flash',
   'gemini-3.5-flash-lite',
-  'gemini-3.1-flash-lite',
-  'gemini-3.6-flash'
+  'gemini-3.1-flash-lite'
 ];
+
+// Give up on a single provider request after this long.
+export const AI_REQUEST_TIMEOUT_MS = 90_000;
+
+// The Firebase web API key in firebase-applet-config.json is NOT a Gemini key: Google
+// blocks it for the Generative Language API (403 API_KEY_SERVICE_BLOCKED). Older builds
+// used it as a silent fallback and synced it to the cloud, so treat it as "no key".
+const FIREBASE_WEB_API_KEY: string = ((firebaseConfig as any)?.apiKey || '').trim();
+
+function isUnusableKey(provider: string, key: string): boolean {
+  return provider === 'gemini' && !!FIREBASE_WEB_API_KEY && key.trim() === FIREBASE_WEB_API_KEY;
+}
 
 /* -------------------------------------------------------------------------- */
 /*                        PROVIDER CONFIGURATION & STORAGE                    */
@@ -46,21 +65,28 @@ export function setActiveProvider(provider: AIProviderId): void {
   } catch (_) {}
 }
 
-export function getProviderKey(provider: AIProviderId): string {
+/** Key the player saved on this device (never env or config fallbacks). */
+function getStoredProviderKey(provider: AIProviderId): string {
   try {
-    // 1. Direct per-provider storage
-    const perProvider = localStorage.getItem(`zeroroll_key_${provider}`);
-    if (perProvider && perProvider.trim()) return perProvider.trim();
+    const perProvider = localStorage.getItem(`zeroroll_key_${provider}`)?.trim();
+    if (perProvider && !isUnusableKey(provider, perProvider)) return perProvider;
 
-    // 2. Legacy key compatibility
     if (provider === 'gemini') {
-      const legacyGemini = localStorage.getItem('dnd_gemini_api_key');
-      if (legacyGemini && legacyGemini.trim()) return legacyGemini.trim();
-      const envKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
-      if (envKey && envKey.trim()) return envKey.trim();
-      if (firebaseConfig && firebaseConfig.apiKey) return firebaseConfig.apiKey.trim();
+      const legacyGemini = localStorage.getItem('dnd_gemini_api_key')?.trim();
+      if (legacyGemini && !isUnusableKey(provider, legacyGemini)) return legacyGemini;
     }
   } catch (_) {}
+  return '';
+}
+
+export function getProviderKey(provider: AIProviderId): string {
+  const stored = getStoredProviderKey(provider);
+  if (stored) return stored;
+
+  if (provider === 'gemini') {
+    const envKey = ((import.meta as any).env?.VITE_GEMINI_API_KEY || '').trim();
+    if (envKey && !isUnusableKey(provider, envKey)) return envKey;
+  }
   return '';
 }
 
@@ -80,12 +106,30 @@ export function setProviderKey(provider: AIProviderId, key: string): void {
   } catch (_) {}
 }
 
+/**
+ * Removes the Firebase web key if an older build stored it as the Gemini key.
+ * Returns true when something was removed (callers should re-sync cloud settings).
+ */
+export function purgeUnusableStoredKeys(): boolean {
+  let removed = false;
+  try {
+    for (const storageKey of ['zeroroll_key_gemini', 'dnd_gemini_api_key']) {
+      const value = localStorage.getItem(storageKey);
+      if (value && isUnusableKey('gemini', value)) {
+        localStorage.removeItem(storageKey);
+        removed = true;
+      }
+    }
+  } catch (_) {}
+  return removed;
+}
+
 export function getProviderModel(provider: AIProviderId): string {
   try {
     const saved = localStorage.getItem(`zeroroll_model_${provider}`);
     if (saved && saved.trim()) return saved.trim();
   } catch (_) {}
-  return AI_PROVIDERS[provider]?.defaultModel || 'gemini-3.5-flash';
+  return AI_PROVIDERS[provider]?.defaultModel || GEMINI_DEFAULT_MODEL;
 }
 
 export function setProviderModel(provider: AIProviderId, model: string): void {
@@ -116,6 +160,25 @@ export function setProviderBaseUrl(provider: AIProviderId, url: string): void {
   } catch (_) {}
 }
 
+/* ------------------------------ Offline mode ------------------------------ */
+
+/** Offline mode is the only way the game uses procedural content on purpose. */
+export function isOfflineMode(): boolean {
+  try {
+    return localStorage.getItem('zeroroll_offline_mode') === 'true';
+  } catch (_) {
+    return false;
+  }
+}
+
+export function setOfflineMode(enabled: boolean): void {
+  try {
+    if (enabled) localStorage.setItem('zeroroll_offline_mode', 'true');
+    else localStorage.removeItem('zeroroll_offline_mode');
+  } catch (_) {}
+  resetAIStatus();
+}
+
 // Export and import provider settings for cloud synchronization
 export function exportAllProviderSettings(): {
   activeProvider: AIProviderId;
@@ -129,7 +192,8 @@ export function exportAllProviderSettings(): {
 
   const providerIds = Object.keys(AI_PROVIDERS) as AIProviderId[];
   for (const pid of providerIds) {
-    const k = getProviderKey(pid);
+    // Only keys the player actually saved; never env/config fallbacks.
+    const k = getStoredProviderKey(pid);
     if (k) providerKeys[pid] = k;
     const m = getProviderModel(pid);
     if (m && m !== AI_PROVIDERS[pid]?.defaultModel) providerModels[pid] = m;
@@ -145,6 +209,10 @@ export function exportAllProviderSettings(): {
   };
 }
 
+/**
+ * Merges cloud provider settings into this device. Settings already present on this
+ * device win, so a stale cloud copy can never overwrite a key the player just entered.
+ */
 export function importAllProviderSettings(settings?: {
   activeProvider?: string;
   providerKeys?: Record<string, string>;
@@ -152,22 +220,34 @@ export function importAllProviderSettings(settings?: {
   providerBaseUrls?: Record<string, string>;
 }): void {
   if (!settings) return;
-  if (settings.activeProvider && AI_PROVIDERS[settings.activeProvider as AIProviderId]) {
+  let hasLocalProvider = false;
+  try {
+    hasLocalProvider = !!localStorage.getItem('zeroroll_ai_provider');
+  } catch (_) {}
+
+  if (!hasLocalProvider && settings.activeProvider && AI_PROVIDERS[settings.activeProvider as AIProviderId]) {
     setActiveProvider(settings.activeProvider as AIProviderId);
   }
   if (settings.providerKeys) {
     for (const [pid, key] of Object.entries(settings.providerKeys)) {
-      if (key) setProviderKey(pid as AIProviderId, key);
+      if (!AI_PROVIDERS[pid as AIProviderId] || !key || isUnusableKey(pid, key)) continue;
+      if (!getStoredProviderKey(pid as AIProviderId)) setProviderKey(pid as AIProviderId, key);
     }
   }
   if (settings.providerModels) {
     for (const [pid, model] of Object.entries(settings.providerModels)) {
-      if (model) setProviderModel(pid as AIProviderId, model);
+      if (!AI_PROVIDERS[pid as AIProviderId] || !model) continue;
+      let hasLocal = false;
+      try { hasLocal = !!localStorage.getItem(`zeroroll_model_${pid}`); } catch (_) {}
+      if (!hasLocal) setProviderModel(pid as AIProviderId, model);
     }
   }
   if (settings.providerBaseUrls) {
     for (const [pid, url] of Object.entries(settings.providerBaseUrls)) {
-      if (url) setProviderBaseUrl(pid as AIProviderId, url);
+      if (!AI_PROVIDERS[pid as AIProviderId] || !url) continue;
+      let hasLocal = false;
+      try { hasLocal = !!localStorage.getItem(`zeroroll_baseurl_${pid}`); } catch (_) {}
+      if (!hasLocal) setProviderBaseUrl(pid as AIProviderId, url);
     }
   }
 }
@@ -185,12 +265,13 @@ export function getCustomApiKey(): string {
   return getStoredApiKey();
 }
 
+/** True when AI calls should be attempted: not in Offline mode and a key is configured. */
 export function hasActiveGeminiKey(): boolean {
+  if (isOfflineMode()) return false;
   const provider = getActiveProvider();
-  const key = getProviderKey(provider);
   // Custom local LLM might not require a key if local
   if (provider === 'custom') return true;
-  return key.length > 5;
+  return getProviderKey(provider).length > 5;
 }
 
 export function hasActiveAIKey(): boolean {
@@ -198,17 +279,83 @@ export function hasActiveAIKey(): boolean {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                         MODEL RESOLUTION & HELPERS                         */
+/*                         GEMINI MODEL DISCOVERY                             */
 /* -------------------------------------------------------------------------- */
 
-function resolveGeminiModelName(model?: string): string {
-  if (!model) return 'gemini-3.5-flash';
-  const clean = model.replace('models/', '');
-  if (clean.includes('pro')) return 'gemini-3.1-pro-preview';
-  if (clean.includes('lite')) return 'gemini-3.1-flash-lite';
-  if (clean.includes('3.6')) return 'gemini-3.6-flash';
-  if (clean.includes('3.7')) return 'gemini-3.7-flash';
-  return 'gemini-3.5-flash';
+const GEMINI_MODELS_CACHE_KEY = 'zeroroll_gemini_available_models';
+const NON_TEXT_MODEL_PATTERN = /(image|tts|live|audio|embedding|transcribe|robotics|imagen|veo|lyria|aqa)/;
+
+function normalizeGeminiModelName(model?: string): string {
+  const clean = (model || '').trim().replace(/^models\//, '');
+  return clean || GEMINI_DEFAULT_MODEL;
+}
+
+/** Models the saved key could use the last time it was checked (null = never checked). */
+export function getCachedGeminiModels(): string[] | null {
+  try {
+    const raw = localStorage.getItem(GEMINI_MODELS_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((m) => typeof m === 'string') : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function setCachedGeminiModels(models: string[] | null): void {
+  try {
+    if (models && models.length) localStorage.setItem(GEMINI_MODELS_CACHE_KEY, JSON.stringify(models));
+    else localStorage.removeItem(GEMINI_MODELS_CACHE_KEY);
+  } catch (_) {}
+}
+
+/**
+ * Lists the text-generation models this key can call. Doubles as a key check:
+ * a bad key throws an AIError of kind "auth".
+ */
+export async function listGeminiModels(apiKey: string): Promise<string[]> {
+  const models: string[] = [];
+  let pageToken = '';
+  for (let page = 0; page < 5; page++) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+    const data = await withTimeout(async (signal) => {
+      const res = await fetch(url, { headers: { 'x-goog-api-key': apiKey.trim() }, signal });
+      const body = await res.text();
+      if (!res.ok) {
+        let parsedMsg = body;
+        try {
+          const json = JSON.parse(body);
+          parsedMsg = `${json.error?.status || ''} ${json.error?.message || body}`.trim();
+          const reason = json.error?.details?.find((d: any) => d?.reason)?.reason;
+          if (reason) parsedMsg += ` (${reason})`;
+        } catch (_) {}
+        throw classifyAIError({ status: res.status, message: `[Google Gemini] API Error (${res.status}): ${parsedMsg}` }, 'gemini');
+      }
+      return JSON.parse(body);
+    }, 20_000, 'gemini');
+
+    for (const m of data.models || []) {
+      const name = normalizeGeminiModelName(m.name);
+      const methods: string[] = m.supportedGenerationMethods || m.supportedActions || [];
+      if (methods.includes('generateContent') && !NON_TEXT_MODEL_PATTERN.test(name)) {
+        models.push(name);
+      }
+    }
+    pageToken = data.nextPageToken || '';
+    if (!pageToken) break;
+  }
+  return Array.from(new Set(models));
+}
+
+/** The chosen model first, then known-good fallbacks the key can actually use. */
+export function getGeminiCandidateModels(preferred?: string): string[] {
+  const first = normalizeGeminiModelName(preferred);
+  const available = getCachedGeminiModels();
+  const fallbacks = FALLBACK_MODELS.filter((m) => !available || available.includes(m));
+  const extras = available
+    ? available.filter((m) => m.includes('flash') && !m.includes('preview') && !m.includes('exp')).slice(0, 3)
+    : [];
+  return Array.from(new Set([first, ...fallbacks, ...extras])).slice(0, 5);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -222,32 +369,88 @@ export interface UniversalPromptOptions {
   responseJson?: boolean;
 }
 
+interface ProviderCallConfig {
+  provider: AIProviderId;
+  apiKey: string;
+  model: string;
+  baseUrl?: string;
+}
+
+let lastModelUsed = '';
+
+/** Label of the provider/model that produced the most recent successful reply. */
+export function getLastModelUsedLabel(): string {
+  const provider = getActiveProvider();
+  return `${AI_PROVIDERS[provider]?.name || provider} (${lastModelUsed || getProviderModel(provider)})`;
+}
+
+async function withTimeout<T>(run: (signal: AbortSignal) => Promise<T>, ms: number, provider: string): Promise<T> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new AIError('timeout', `No response after ${Math.round(ms / 1000)}s`, { provider }));
+    }, ms);
+  });
+  try {
+    return await Promise.race([run(controller.signal), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /**
  * Executes a raw prompt against the currently configured AI provider.
+ * Throws an AIError (never falls back silently).
  */
 export async function executeUniversalPrompt(options: UniversalPromptOptions): Promise<string> {
   const provider = getActiveProvider();
-  const apiKey = getProviderKey(provider);
-  const model = getProviderModel(provider);
-  const customBaseUrl = getProviderBaseUrl(provider);
+  const text = await runProviderPrompt(
+    {
+      provider,
+      apiKey: getProviderKey(provider),
+      model: getProviderModel(provider),
+      baseUrl: getProviderBaseUrl(provider)
+    },
+    options
+  );
+  reportAISuccess();
+  return text;
+}
 
+async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalPromptOptions): Promise<string> {
+  const { provider, apiKey, model } = cfg;
   const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false } = options;
+  const providerName = AI_PROVIDERS[provider]?.name || provider;
 
-  // 1. Google Gemini Provider
-  if (provider === 'gemini') {
-    if (!apiKey) throw new Error('Missing Google Gemini API Key. Please configure your key in Settings.');
-    return callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson);
+  if (provider !== 'custom' && !apiKey.trim()) {
+    throw new AIError('no_key', `Missing ${providerName} API key.`, { provider });
   }
 
-  // 2. Anthropic Claude Provider (Direct client fetch)
-  if (provider === 'anthropic') {
-    if (!apiKey) throw new Error('Missing Anthropic API Key. Please configure your key in Settings.');
-    return callAnthropicApi(apiKey, model, systemPrompt, userPrompt, temperature, responseJson);
-  }
+  try {
+    // 1. Google Gemini Provider
+    if (provider === 'gemini') {
+      return await callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson);
+    }
 
-  // 3. OpenAI-Compatible Providers (OpenAI, Grok, OpenRouter, Copilot/GitHub, Custom)
-  const baseUrl = customBaseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
-  return callOpenAICompatibleApi(provider, apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson);
+    // 2. Anthropic Claude Provider (Direct client fetch)
+    if (provider === 'anthropic') {
+      const text = await callAnthropicApi(apiKey, model, systemPrompt, userPrompt, temperature, responseJson);
+      lastModelUsed = model;
+      return text;
+    }
+
+    // 3. OpenAI-Compatible Providers (OpenAI, Grok, OpenRouter, Copilot/GitHub, Custom)
+    const baseUrl = cfg.baseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
+    const text = await callOpenAICompatibleApi(provider, apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson);
+    lastModelUsed = model;
+    return text;
+  } catch (err) {
+    throw classifyAIError(err, provider);
+  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -262,54 +465,56 @@ async function callGeminiWithCascade(
   temperature: number,
   responseJson: boolean
 ): Promise<string> {
-  const targetModel = resolveGeminiModelName(model);
+  const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
+  const candidates = getGeminiCandidateModels(model);
+  let lastError: AIError | undefined;
 
-  const callModel = async (modelName: string, retries = 2, delay = 1500, modelIndex = 0): Promise<string> => {
-    const currentModel = modelIndex === 0 ? modelName : (FALLBACK_MODELS[modelIndex - 1] || modelName);
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const config: any = {
-        temperature
-      };
-      if (systemPrompt) {
-        config.systemInstruction = systemPrompt;
-      }
-      if (responseJson) {
-        config.responseMimeType = 'application/json';
-      }
+  for (const modelName of candidates) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const text = await withTimeout(async (signal) => {
+          const config: any = { temperature, abortSignal: signal };
+          if (systemPrompt) config.systemInstruction = systemPrompt;
+          if (responseJson) config.responseMimeType = 'application/json';
 
-      const response = await ai.models.generateContent({
-        model: currentModel,
-        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-        config
-      });
+          const response = await ai.models.generateContent({
+            model: modelName,
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            config
+          });
+          return response.text || '';
+        }, AI_REQUEST_TIMEOUT_MS, 'gemini');
 
-      return response.text || '';
-    } catch (err: any) {
-      const isQuotaExhausted = err?.status === 429 || err?.message?.includes('RESOURCE_EXHAUSTED') || err?.message?.includes('quota');
-      const isUnavailable = err?.status === 503 || err?.message?.includes('UNAVAILABLE') || err?.message?.includes('high demand');
-
-      // Auto cascade to next model on quota exhaustion
-      if (isQuotaExhausted && modelIndex < FALLBACK_MODELS.length) {
-        const nextModel = FALLBACK_MODELS[modelIndex];
-        console.log(`[Gemini Cascade] Quota reached on ${currentModel}. Falling back to ${nextModel}...`);
-        return callModel(modelName, retries, delay, modelIndex + 1);
-      }
-
-      if (retries > 0 && (isUnavailable || isQuotaExhausted)) {
-        let waitMs = delay;
-        const delayMatch = err?.message?.match(/retry in ([\d\.]+)s/);
-        if (delayMatch && delayMatch[1]) {
-          waitMs = Math.min(Math.ceil(parseFloat(delayMatch[1]) * 1000), 5000);
+        if (!text.trim()) {
+          throw new AIError('bad_output', `${modelName} returned an empty reply (possibly blocked by safety filters).`, { provider: 'gemini' });
         }
-        await new Promise(r => setTimeout(r, waitMs));
-        return callModel(modelName, retries - 1, delay * 2, modelIndex);
+        if (modelName !== candidates[0]) {
+          console.warn(`[Gemini] ${candidates[0]} unavailable (${lastError?.kind}); answered with ${modelName}.`);
+        }
+        lastModelUsed = modelName;
+        return text;
+      } catch (raw) {
+        const err = classifyAIError(raw, 'gemini');
+        lastError = err;
+        // A bad key or malformed request fails the same way on every model.
+        if (err.kind === 'auth' || err.kind === 'bad_request') throw err;
+        if (attempt === 0 && isTransient(err.kind)) {
+          let waitMs = 1000;
+          const delayMatch = err.message.match(/retry in ([\d.]+)s/);
+          if (delayMatch) waitMs = Math.min(Math.ceil(parseFloat(delayMatch[1]) * 1000), 5000);
+          await sleep(waitMs);
+          continue;
+        }
+        break;
       }
-      throw err;
     }
-  };
+    if (lastError && !shouldTryNextModel(lastError.kind) && lastError.kind !== 'bad_output' && lastError.kind !== 'timeout') {
+      throw lastError;
+    }
+    console.warn(`[Gemini] ${modelName} failed (${lastError?.kind}): ${lastError?.message}`);
+  }
 
-  return callModel(targetModel);
+  throw lastError || new AIError('unknown', 'No Gemini model could answer.', { provider: 'gemini' });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -327,7 +532,7 @@ async function callOpenAICompatibleApi(
   responseJson: boolean
 ): Promise<string> {
   const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
-  
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
   };
@@ -361,25 +566,33 @@ async function callOpenAICompatibleApi(
     }
   }
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body)
-  });
+  return withTimeout(async (signal) => {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+      signal
+    });
 
-  if (!res.ok) {
-    const errorBody = await res.text();
-    let parsedMsg = errorBody;
-    try {
-      const json = JSON.parse(errorBody);
-      parsedMsg = json.error?.message || json.message || errorBody;
-    } catch (_) {}
-    throw new Error(`[${AI_PROVIDERS[provider]?.name || provider}] API Error (${res.status}): ${parsedMsg}`);
-  }
+    if (!res.ok) {
+      const errorBody = await res.text();
+      let parsedMsg = errorBody;
+      try {
+        const json = JSON.parse(errorBody);
+        parsedMsg = json.error?.message || json.message || errorBody;
+      } catch (_) {}
+      throw classifyAIError(
+        { status: res.status, message: `[${AI_PROVIDERS[provider]?.name || provider}] API Error (${res.status}): ${parsedMsg}` },
+        provider
+      );
+    }
 
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content || '';
-  return typeof content === 'string' ? content : JSON.stringify(content);
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    const text = typeof content === 'string' ? content : JSON.stringify(content);
+    if (!text.trim()) throw new AIError('bad_output', `${model} returned an empty reply.`, { provider });
+    return text;
+  }, AI_REQUEST_TIMEOUT_MS, provider);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -395,7 +608,7 @@ async function callAnthropicApi(
   responseJson: boolean
 ): Promise<string> {
   const url = 'https://api.anthropic.com/v1/messages';
-  
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-api-key': apiKey.trim(),
@@ -410,7 +623,7 @@ async function callAnthropicApi(
 
   const body: any = {
     model: model || 'claude-3-5-haiku-20241022',
-    max_tokens: 2048,
+    max_tokens: 4096,
     temperature,
     messages: [
       { role: 'user', content: actualUserPrompt }
@@ -421,25 +634,98 @@ async function callAnthropicApi(
     body.system = systemPrompt;
   }
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body)
-  });
+  return withTimeout(async (signal) => {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+      signal
+    });
 
-  if (!res.ok) {
-    const errorBody = await res.text();
-    let parsedMsg = errorBody;
+    if (!res.ok) {
+      const errorBody = await res.text();
+      let parsedMsg = errorBody;
+      try {
+        const json = JSON.parse(errorBody);
+        parsedMsg = json.error?.message || json.message || errorBody;
+      } catch (_) {}
+      throw classifyAIError({ status: res.status, message: `[Anthropic Claude] API Error (${res.status}): ${parsedMsg}` }, 'anthropic');
+    }
+
+    const data = await res.json();
+    const textBlock = data.content?.find((c: any) => c.type === 'text');
+    const text = textBlock?.text || '';
+    if (!text.trim()) throw new AIError('bad_output', `${model} returned an empty reply.`, { provider: 'anthropic' });
+    return text;
+  }, AI_REQUEST_TIMEOUT_MS, 'anthropic');
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        RESPONSE PARSING & FAILURE REPORTING                */
+/* -------------------------------------------------------------------------- */
+
+/** Parses a JSON object out of a model reply, tolerating code fences and stray prose. */
+export function parseJsonReply<T = any>(raw: string): T {
+  const stripped = raw.replace(/```(?:json)?/gi, '').trim();
+  try {
+    return JSON.parse(stripped);
+  } catch (_) {}
+  const start = stripped.indexOf('{');
+  const end = stripped.lastIndexOf('}');
+  if (start !== -1 && end > start) {
     try {
-      const json = JSON.parse(errorBody);
-      parsedMsg = json.error?.message || json.message || errorBody;
+      return JSON.parse(stripped.slice(start, end + 1));
     } catch (_) {}
-    throw new Error(`[Anthropic Claude] API Error (${res.status}): ${parsedMsg}`);
   }
+  throw new AIError('bad_output', `Reply was not valid JSON: ${stripped.slice(0, 120)}`);
+}
 
-  const data = await res.json();
-  const textBlock = data.content?.find((c: any) => c.type === 'text');
-  return textBlock?.text || '';
+/**
+ * Runs a JSON prompt and validates it, re-asking once if the reply is unusable.
+ */
+async function executeJsonPrompt<T>(
+  options: UniversalPromptOptions,
+  isValid: (value: any) => boolean
+): Promise<T> {
+  let lastError: AIError | undefined;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const prompt = attempt === 0
+      ? options.userPrompt
+      : `${options.userPrompt}\n\nYour previous reply could not be parsed. Reply with ONLY the JSON object, no commentary.`;
+    const raw = await executeUniversalPrompt({ ...options, userPrompt: prompt, responseJson: true });
+    try {
+      const parsed = parseJsonReply<T>(raw);
+      if (isValid(parsed)) return parsed;
+      lastError = new AIError('bad_output', 'Reply JSON was missing required fields.');
+    } catch (err) {
+      lastError = classifyAIError(err);
+    }
+  }
+  throw lastError!;
+}
+
+/**
+ * Records a failed AI feature so the player sees it (banner + navbar badge),
+ * and returns the classified error.
+ */
+function reportFeatureFailure(err: unknown, feature: string, usedFallback: boolean): { error: AIError; message: string } {
+  const provider = getActiveProvider();
+  const aiErr = classifyAIError(err, provider);
+  const message = describeAIError(aiErr, AI_PROVIDERS[provider]?.name || 'The AI provider');
+  console.warn(`[AI] ${feature} failed${usedFallback ? ' — using offline generator' : ''}:`, aiErr);
+  reportAIFailure(aiErr, message, { feature, usedFallback });
+  return { error: aiErr, message };
+}
+
+/** No key and not in Offline mode: the player hasn't chosen procedural, so tell them. */
+function reportMissingKey(feature: string): void {
+  if (isOfflineMode()) return;
+  const provider = getActiveProvider();
+  reportFeatureFailure(
+    new AIError('no_key', 'No API key configured.', { provider }),
+    feature,
+    true
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -451,59 +737,58 @@ export async function testProviderConnection(params: {
   apiKey?: string;
   model?: string;
   baseUrl?: string;
-}): Promise<{ success: boolean; latencyMs: number; message: string; reply?: string }> {
-  const { provider, apiKey = '', model, baseUrl } = params;
+}): Promise<{
+  success: boolean;
+  latencyMs: number;
+  message: string;
+  reply?: string;
+  modelUsed?: string;
+  availableModels?: string[];
+}> {
+  const { provider, apiKey = '', baseUrl } = params;
+  const model = params.model || AI_PROVIDERS[provider]?.defaultModel || '';
+  const providerName = AI_PROVIDERS[provider]?.name || provider;
   const start = Date.now();
+  let availableModels: string[] | undefined;
 
   try {
-    const targetModel = model || AI_PROVIDERS[provider]?.defaultModel;
-    let reply = '';
-
     if (provider === 'gemini') {
-      if (!apiKey.trim()) throw new Error('API Key cannot be empty.');
-      const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
-      const res = await ai.models.generateContent({
-        model: resolveGeminiModelName(targetModel),
-        contents: [{ role: 'user', parts: [{ text: 'Respond in 3 words: Ready for Adventure!' }] }]
-      });
-      reply = res.text?.trim() || '';
-    } else if (provider === 'anthropic') {
-      if (!apiKey.trim()) throw new Error('Anthropic API Key cannot be empty.');
-      reply = await callAnthropicApi(
-        apiKey.trim(),
-        targetModel,
-        undefined,
-        'Respond in 3 words: Ready for Adventure!',
-        0.7,
-        false
-      );
-    } else {
-      const actualBaseUrl = baseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
-      reply = await callOpenAICompatibleApi(
-        provider,
-        apiKey.trim(),
-        actualBaseUrl,
-        targetModel,
-        undefined,
-        'Respond in 3 words: Ready for Adventure!',
-        0.7,
-        false
-      );
+      // Validates the key and records which models it can use for the fallback cascade.
+      availableModels = await listGeminiModels(apiKey);
+      setCachedGeminiModels(availableModels);
     }
 
+    // Same path as real gameplay calls, including JSON mode and the model cascade.
+    const raw = await runProviderPrompt(
+      { provider, apiKey: apiKey.trim(), model, baseUrl: baseUrl || getProviderBaseUrl(provider) },
+      {
+        userPrompt: 'Reply with this exact JSON object: {"status": "Ready for adventure"}',
+        temperature: 0.2,
+        responseJson: true
+      }
+    );
+    const parsed = parseJsonReply<{ status?: string }>(raw);
     const latencyMs = Date.now() - start;
+    const modelUsed = lastModelUsed || model;
+    const swapped = provider === 'gemini' && normalizeGeminiModelName(model) !== modelUsed;
+
     return {
       success: true,
       latencyMs,
-      message: `Connected successfully in ${latencyMs}ms!`,
-      reply
+      message: swapped
+        ? `Connected in ${latencyMs}ms, but ${normalizeGeminiModelName(model)} isn't available to this key, so ${modelUsed} answered. Pick an available model below.`
+        : `Connected to ${modelUsed} in ${latencyMs}ms.`,
+      reply: parsed?.status || raw.slice(0, 80),
+      modelUsed,
+      availableModels
     };
   } catch (err: any) {
-    const latencyMs = Date.now() - start;
+    const aiErr = classifyAIError(err, provider);
     return {
       success: false,
-      latencyMs,
-      message: err.message || 'Failed to connect to provider.'
+      latencyMs: Date.now() - start,
+      message: `${describeAIError(aiErr, providerName)}\n\nDetails: ${aiErr.message}`,
+      availableModels
     };
   }
 }
@@ -525,8 +810,6 @@ export async function executeActionTurn(params: {
   storyOutline?: DMStoryOutline;
 }): Promise<ActionTurnResult> {
   const { contents, category, model, systemInstruction, characterState, diceRoll, storyOutline } = params;
-  const provider = getActiveProvider();
-  const providerConfig = AI_PROVIDERS[provider];
   const hasKey = hasActiveGeminiKey();
 
   if (hasKey) {
@@ -759,7 +1042,6 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
         suggestedActions = getCategoryFallbackActions(category);
       }
 
-      const activeModelName = getProviderModel(provider);
       return {
         text,
         suggestedActions: suggestedActions.slice(0, 3),
@@ -767,15 +1049,17 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
         requiredCheck,
         stateDelta,
         avatarEvolution,
-        modelUsed: `${providerConfig?.name || provider} (${activeModelName})`
+        modelUsed: getLastModelUsedLabel()
       };
     } catch (err: any) {
-      console.warn('AI execution error, falling back to procedural:', err);
-      throw new Error(`${providerConfig?.name || 'AI'} Error: ${err.message || 'Failed to generate content'}`);
+      // No procedural substitute mid-story: surface the real reason so the player can retry or fix settings.
+      const { message } = reportFeatureFailure(err, 'Story turn', false);
+      throw new Error(message);
     }
   }
 
-  // Fallback procedural turn if NO api key is provided
+  // Procedural turn only in Offline mode or when no key is configured (reported to the player).
+  reportMissingKey('Story turn');
   return generateProceduralTurn(category, contents, characterState, diceRoll, model);
 }
 
@@ -791,9 +1075,21 @@ export async function generateScenarioAI(params: {
   characterName?: string;
   classRole?: string;
   raceOrigin?: string;
-}): Promise<{ scenario: RandomizedScenarioData }> {
-  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin } = params;
+  /** When false, AI failures throw instead of returning a procedural scenario. */
+  allowFallback?: boolean;
+}): Promise<{ scenario: RandomizedScenarioData; source: 'ai' | 'procedural' }> {
+  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true } = params;
   const hasKey = hasActiveGeminiKey();
+
+  if (!hasKey && !allowFallback) {
+    const provider = getActiveProvider();
+    const { message } = reportFeatureFailure(
+      new AIError('no_key', 'No API key configured.', { provider }),
+      'Scenario generation',
+      false
+    );
+    throw new Error(message);
+  }
 
   if (hasKey) {
     try {
@@ -871,49 +1167,47 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
   "startingHp": 12
 }`;
 
-      const rawText = await executeUniversalPrompt({
-        userPrompt: prompt,
-        temperature: 0.9,
-        responseJson: true
-      });
+      const scenario = await executeJsonPrompt<any>(
+        { userPrompt: prompt, temperature: 0.9 },
+        (v) => !!(v && v.title && v.storyBlurb)
+      );
+      // Generate initial avatar image tailored to this character
+      let avatarUrl: string | undefined = undefined;
+      try {
+        const avatarData = await generateAvatarAI({
+          characterName: scenario.heroName,
+          gender: gender || scenario.gender,
+          roleClass: scenario.roleClass,
+          raceOrigin: scenario.raceOrigin,
+          category,
+          physicalDescription: scenario.physicalDescription,
+          model
+        });
+        avatarUrl = avatarData.avatarUrl;
+      } catch (_) {}
 
-      const cleanJson = rawText.replace(/```json|```/g, '').trim();
-      const scenario = JSON.parse(cleanJson);
-      if (scenario && scenario.title && scenario.storyBlurb) {
-        // Generate initial avatar image tailored to this character
-        let avatarUrl: string | undefined = undefined;
-        try {
-          const avatarData = await generateAvatarAI({
-            characterName: scenario.heroName,
-            gender: gender || scenario.gender,
-            roleClass: scenario.roleClass,
-            raceOrigin: scenario.raceOrigin,
-            category,
-            physicalDescription: scenario.physicalDescription,
-            model
-          });
-          avatarUrl = avatarData.avatarUrl;
-        } catch (_) {}
-
-        return {
-          scenario: {
-            ...scenario,
-            gender: gender || scenario.gender,
-            avatarUrl,
-            initialInventory: (scenario.initialInventory || []).map((item: any, idx: number) => ({
-              id: `item_ai_${Date.now()}_${idx}`,
-              name: item.name || 'Equipment',
-              type: item.type || 'misc',
-              quantity: item.quantity || 1,
-              isEquipped: !!item.isEquipped,
-              description: item.description
-            }))
-          }
-        };
-      }
+      return {
+        source: 'ai',
+        scenario: {
+          ...scenario,
+          gender: gender || scenario.gender,
+          avatarUrl,
+          initialInventory: (scenario.initialInventory || []).map((item: any, idx: number) => ({
+            id: `item_ai_${Date.now()}_${idx}`,
+            name: item.name || 'Equipment',
+            type: item.type || 'misc',
+            quantity: item.quantity || 1,
+            isEquipped: !!item.isEquipped,
+            description: item.description
+          }))
+        }
+      };
     } catch (err: any) {
-      console.warn('Scenario AI generation error, falling back to procedural:', err);
+      const { message } = reportFeatureFailure(err, 'Scenario generation', allowFallback);
+      if (!allowFallback) throw new Error(message);
     }
+  } else {
+    reportMissingKey('Scenario generation');
   }
 
   // Fallback to high-entropy procedural generator
@@ -922,7 +1216,7 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
   if (characterName) scenario.heroName = characterName;
   if (classRole) scenario.roleClass = classRole;
   if (raceOrigin) scenario.raceOrigin = raceOrigin;
-  return { scenario };
+  return { scenario, source: 'procedural' };
 }
 
 /**
@@ -958,20 +1252,16 @@ Output MUST be strictly valid JSON matching this schema:
   ]
 }`;
 
-      const rawText = await executeUniversalPrompt({
-        userPrompt: prompt,
-        temperature: 0.95,
-        responseJson: true
-      });
-
-      const cleanJson = rawText.replace(/```json|```/g, '').trim();
-      const seedlist = JSON.parse(cleanJson);
-      if (seedlist && seedlist.prompts && seedlist.prompts.length > 0) {
-        return { seedlist };
-      }
+      const seedlist = await executeJsonPrompt<CategorySeedInfo>(
+        { userPrompt: prompt, temperature: 0.95 },
+        (v) => Array.isArray(v?.prompts) && v.prompts.length > 0
+      );
+      return { seedlist };
     } catch (err: any) {
-      console.warn('Seedlist AI generation error, falling back to static:', err);
+      reportFeatureFailure(err, 'Seedlist refresh', true);
     }
+  } else {
+    reportMissingKey('Seedlist refresh');
   }
 
   return { seedlist: CATEGORY_SEEDLISTS[category] || CATEGORY_SEEDLISTS.fantasy };
@@ -1004,9 +1294,12 @@ Output ONLY the generated text with no extra commentary, quotes, or formatting.`
 
       const clean = text.trim().replace(/^["']|["']$/g, '');
       if (clean && clean.length > 1) return clean;
+      throw new AIError('bad_output', 'Reply was empty.');
     } catch (err) {
-      console.warn(`Roll ${fieldType} AI error, fallback to procedural:`, err);
+      reportFeatureFailure(err, 'Field roll', true);
     }
+  } else {
+    reportMissingKey('Field roll');
   }
 
   // Fallback to procedural generator
@@ -1088,7 +1381,8 @@ export async function generateAvatarAI(params: {
 export async function generateChapterOneAI(params: {
   category: ExperienceCategory;
   storyBlurb: string;
-  storyOutline: DMStoryOutline;
+  /** Optional: campaigns started from seeds or the offline generator have no AI outline. */
+  storyOutline?: DMStoryOutline;
   characterState: any;
   model: string;
 }): Promise<ActionTurnResult> {
@@ -1099,17 +1393,19 @@ export async function generateChapterOneAI(params: {
     try {
       const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
 
+${buildGroundedSeedContext(category, storyBlurb)}
+
 STORY PREMISE:
 ${storyBlurb}
-
+${storyOutline ? `
 DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference):
-- Starting Circumstances: ${storyOutline.startingCircumstances}
-- Backstory: ${storyOutline.backstory}
-- Inciting Incident: ${storyOutline.incitingIncident}
-- Immediate Goal: ${storyOutline.immediateGoal}
+- Starting Circumstances: ${storyOutline.startingCircumstances || 'Derive from the premise'}
+- Backstory: ${storyOutline.backstory || 'Derive from the premise'}
+- Inciting Incident: ${storyOutline.incitingIncident || 'Derive from the premise'}
+- Immediate Goal: ${storyOutline.immediateGoal || 'Derive from the premise'}
 - Key NPCs: ${storyOutline.keyNpcs?.map(n => `${n.name} (${n.role})`).join('; ') || 'None'}
 - Chapter Progression: ${storyOutline.chapters?.join(' | ') || 'None'}
-
+` : ''}
 CREATIVE ASSIGNMENT:
 Write the very first scene (Chapter One, Scene 1) of this campaign. 
 Maintain genre-specific pacing based on the provided narrative profile and seed inspiration. Introduce the atmospheric setting, the immediate sensory situation, and the protagonist's starting dilemma as pitched in the premise. Do not jump to the climax unless the genre demands high-octane speed. Establish a deep, genre-appropriate tone.
@@ -1153,18 +1449,20 @@ Begin the story.`;
       return {
         text: text || "Your journey begins.",
         suggestedActions: suggestedActions.length > 0 ? suggestedActions : ['Observe the surroundings', 'Examine your gear', 'Take a tentative step forward'],
-        modelUsed: model
+        modelUsed: getLastModelUsedLabel()
       };
     } catch (err) {
-      console.warn('generateChapterOneAI error, falling back:', err);
+      reportFeatureFailure(err, 'Chapter One', true);
     }
+  } else {
+    reportMissingKey('Chapter One');
   }
 
-  // Fallback
+  // Fallback: open with the premise itself
   return {
     text: storyBlurb,
     suggestedActions: ['Look around', 'Check equipment', 'Begin the journey'],
-    modelUsed: 'Procedural Generator'
+    modelUsed: 'ZeroRoll Offline Procedural Engine'
   };
 }
 

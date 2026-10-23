@@ -1,32 +1,14 @@
 import { GeminiModelOption } from '../types';
+import { AI_PROVIDERS } from './providersConfig';
 
-export const GEMINI_MODELS: GeminiModelOption[] = [
-  {
-    id: 'gemini-flash-latest',
-    name: 'Gemini Flash Latest',
-    tagline: 'Recommended Default',
-    badge: 'Flagship',
-    description: 'Fast, highly creative, and resilient model with exceptional narrative atmosphere building and rules comprehension.',
-    recommendedFor: 'Epic cinematic sagas, worldbuilding, and immersive narrative roleplay.'
-  },
-  {
-    id: 'gemini-flash-lite-latest',
-    name: 'Gemini Flash Lite Latest',
-    tagline: 'High Speed',
-    badge: 'Fast',
-    description: 'Ultra-responsive storytelling, quick turn processing, and vivid narrative descriptions.',
-    recommendedFor: 'General gameplay, fast-paced combat, and interactive narrative flow.'
-  },
-  {
-    id: 'gemini-pro-latest',
-    name: 'Gemini Pro Latest',
-    tagline: 'Deep Reasoning GM',
-    badge: 'Pro DM',
-    description: 'High-level tactical AI, deep lore consistency, complex rule adjudication, and psychological depth.',
-    recommendedFor: 'Complex boss encounters, mystery campaigns, and intricate rules adjudication.'
-  }
-];
+// Single source of truth: the Gemini models offered in the AI provider settings.
+export const GEMINI_MODELS: GeminiModelOption[] = AI_PROVIDERS.gemini.models.map((m) => ({
+  id: m.id,
+  name: m.name,
+  tagline: m.badge || '',
+  badge: m.badge || '',
+  description: m.description,
+  recommendedFor: m.description
+}));
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest';
-
-
+export const DEFAULT_GEMINI_MODEL = AI_PROVIDERS.gemini.defaultModel;

@@ -15,8 +15,16 @@ import {
   saveActiveExperienceIdToCloud,
   migrateLocalDataToUser
 } from './lib/firebase';
-import { exportAllProviderSettings, importAllProviderSettings } from './lib/geminiService';
+import {
+  exportAllProviderSettings,
+  importAllProviderSettings,
+  purgeUnusableStoredKeys,
+  getActiveProvider,
+  setProviderModel
+} from './lib/geminiService';
+import { resetAIStatus } from './lib/aiStatus';
 import { Navbar } from './components/Navbar';
+import { AIStatusBanner } from './components/AIStatusBanner';
 import { CategoriesGrid } from './components/CategoriesGrid';
 import { ExperienceView } from './components/ExperienceView';
 import { SettingsModal } from './components/SettingsModal';
@@ -112,6 +120,11 @@ export default function App() {
     cloudSaveErrorTimer.current = setTimeout(() => setCloudSaveError(null), 5000);
   }
 
+  // Older builds stored the Firebase web key as the Gemini key; it can never work.
+  useEffect(() => {
+    purgeUnusableStoredKeys();
+  }, []);
+
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
@@ -162,6 +175,9 @@ export default function App() {
               safeSetStorage('dnd_sound_enabled', String(cs.soundEnabled));
             }
             importAllProviderSettings(cs);
+            // Push the merged result back so stale or invalid cloud keys get replaced.
+            saveUserSettingsToCloud(currentUser.uid, exportAllProviderSettings())
+              .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
           } else {
             // First cloud sync for this account — upload local preferences
             const localSettings = exportAllProviderSettings();
@@ -271,8 +287,13 @@ export default function App() {
   const handleSelectModel = (modelId: string) => {
     setSelectedModel(modelId);
     safeSetStorage('dnd_selected_model', modelId);
+    // The navbar picker lists Gemini models; make the choice the one AI calls actually use.
+    if (getActiveProvider() === 'gemini') {
+      setProviderModel('gemini', modelId);
+      resetAIStatus();
+    }
     if (user) {
-      saveUserSettingsToCloud(user.uid, { selectedModel: modelId })
+      saveUserSettingsToCloud(user.uid, { selectedModel: modelId, ...exportAllProviderSettings() })
         .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
     }
   };
@@ -442,7 +463,9 @@ export default function App() {
         gender: prevExp.character.gender || 'they/them',
         characterName: prevExp.character.name,
         classRole: prevExp.character.roleClass,
-        raceOrigin: prevExp.character.raceOrigin
+        raceOrigin: prevExp.character.raceOrigin,
+        // Book Two must continue this story; never substitute a random procedural one.
+        allowFallback: false
       });
 
       if (data && data.scenario) {
@@ -497,8 +520,8 @@ export default function App() {
             .catch((err) => showCloudSaveError(`Active experience sync failed: ${err.message}`));
         }
       }
-    } catch (err) {
-      showCloudSaveError('Failed to generate Book Two.');
+    } catch (err: any) {
+      showCloudSaveError(`Failed to generate Book Two. ${err?.message || ''}`.trim());
     } finally {
       setIsSaving(false);
     }
@@ -525,6 +548,9 @@ export default function App() {
         userProfile={userProfile}
         isSaving={isSaving}
       />
+
+      {/* AI failure banner — makes every AI failure and offline substitution visible */}
+      <AIStatusBanner onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)} />
 
       {/* Cloud save error toast */}
       {cloudSaveError && (

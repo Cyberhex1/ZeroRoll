@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { GEMINI_MODELS } from '../lib/modelsConfig';
-import { getCustomApiKey, saveStoredApiKey, getActiveProvider, getProviderModel } from '../lib/geminiService';
+import { getActiveProvider, getProviderModel } from '../lib/geminiService';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 
 interface SettingsModalProps {
@@ -39,12 +39,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSignOut
 }) => {
   const [promptInput, setPromptInput] = useState(customSystemPrompt);
-  const [apiKeyInput, setApiKeyInput] = useState(getCustomApiKey());
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const handleSave = () => {
+    // Keys are managed only in the AI provider modal; re-saving here used to write fallback keys to storage.
     onSaveSystemPrompt(promptInput.trim());
-    saveStoredApiKey(apiKeyInput.trim());
     setSavedSuccess(true);
     setTimeout(() => {
       setSavedSuccess(false);

@@ -1,4 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
 import firebaseConfig from '../../firebase-applet-config.json';
 import {
   ExperienceCategory,
@@ -367,6 +366,11 @@ export interface UniversalPromptOptions {
   userPrompt: string;
   temperature?: number;
   responseJson?: boolean;
+  /**
+   * How much hidden reasoning Gemini may do before answering. Lower is much faster;
+   * story writing doesn't need deep reasoning. Default 'low'.
+   */
+  thinking?: 'minimal' | 'low';
 }
 
 interface ProviderCallConfig {
@@ -423,7 +427,7 @@ export async function executeUniversalPrompt(options: UniversalPromptOptions): P
 
 async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalPromptOptions): Promise<string> {
   const { provider, apiKey, model } = cfg;
-  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false } = options;
+  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false, thinking = 'low' } = options;
   const providerName = AI_PROVIDERS[provider]?.name || provider;
 
   if (provider !== 'custom' && !apiKey.trim()) {
@@ -433,7 +437,7 @@ async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalProm
   try {
     // 1. Google Gemini Provider
     if (provider === 'gemini') {
-      return await callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson);
+      return await callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson, thinking);
     }
 
     // 2. Anthropic Claude Provider (Direct client fetch)
@@ -457,37 +461,88 @@ async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalProm
 /*                            GEMINI IMPLEMENTATION                           */
 /* -------------------------------------------------------------------------- */
 
+// Models that rejected a thinking level (older or non-thinking models); sent without it from then on.
+const modelsWithoutThinkingLevel = new Set<string>();
+
+/**
+ * One generateContent call over plain REST. The @google/genai SDK added ~500 KB to the
+ * page download for this single request.
+ */
+async function callGeminiModel(
+  apiKey: string,
+  modelName: string,
+  systemPrompt: string | undefined,
+  userPrompt: string,
+  temperature: number,
+  responseJson: boolean,
+  thinking: 'minimal' | 'low'
+): Promise<string> {
+  const generationConfig: Record<string, any> = { temperature };
+  if (responseJson) generationConfig.responseMimeType = 'application/json';
+  const useThinkingLevel = !modelsWithoutThinkingLevel.has(modelName);
+  if (useThinkingLevel) generationConfig.thinkingConfig = { thinkingLevel: thinking.toUpperCase() };
+
+  const body: Record<string, any> = {
+    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+    generationConfig
+  };
+  if (systemPrompt) body.systemInstruction = { parts: [{ text: systemPrompt }] };
+
+  return withTimeout(async (signal) => {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey.trim() },
+        body: JSON.stringify(body),
+        signal
+      }
+    );
+    const raw = await res.text();
+
+    if (!res.ok) {
+      let parsedMsg = raw;
+      try {
+        const json = JSON.parse(raw);
+        parsedMsg = `${json.error?.status || ''} ${json.error?.message || raw}`.trim();
+        const reason = json.error?.details?.find((d: any) => d?.reason)?.reason;
+        if (reason) parsedMsg += ` (${reason})`;
+      } catch (_) {}
+      // Models without thinking levels reject the field; retry once without it.
+      if (res.status === 400 && useThinkingLevel && /thinking/i.test(parsedMsg)) {
+        modelsWithoutThinkingLevel.add(modelName);
+        return callGeminiModel(apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking);
+      }
+      throw classifyAIError({ status: res.status, message: `[Google Gemini] API Error (${res.status}): ${parsedMsg}` }, 'gemini');
+    }
+
+    const data = JSON.parse(raw);
+    const parts: any[] = data.candidates?.[0]?.content?.parts || [];
+    const text = parts.filter((p) => !p.thought && typeof p.text === 'string').map((p) => p.text).join('');
+    if (!text.trim()) {
+      const reason = data.promptFeedback?.blockReason || data.candidates?.[0]?.finishReason || 'no text';
+      throw new AIError('bad_output', `${modelName} returned an empty reply (${reason}).`, { provider: 'gemini' });
+    }
+    return text;
+  }, AI_REQUEST_TIMEOUT_MS, 'gemini');
+}
+
 async function callGeminiWithCascade(
   apiKey: string,
   model: string,
   systemPrompt: string | undefined,
   userPrompt: string,
   temperature: number,
-  responseJson: boolean
+  responseJson: boolean,
+  thinking: 'minimal' | 'low' = 'low'
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: apiKey.trim() });
   const candidates = getGeminiCandidateModels(model);
   let lastError: AIError | undefined;
 
   for (const modelName of candidates) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const text = await withTimeout(async (signal) => {
-          const config: any = { temperature, abortSignal: signal };
-          if (systemPrompt) config.systemInstruction = systemPrompt;
-          if (responseJson) config.responseMimeType = 'application/json';
-
-          const response = await ai.models.generateContent({
-            model: modelName,
-            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            config
-          });
-          return response.text || '';
-        }, AI_REQUEST_TIMEOUT_MS, 'gemini');
-
-        if (!text.trim()) {
-          throw new AIError('bad_output', `${modelName} returned an empty reply (possibly blocked by safety filters).`, { provider: 'gemini' });
-        }
+        const text = await callGeminiModel(apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking);
         if (modelName !== candidates[0]) {
           console.warn(`[Gemini] ${candidates[0]} unavailable (${lastError?.kind}); answered with ${modelName}.`);
         }
@@ -764,7 +819,8 @@ export async function testProviderConnection(params: {
       {
         userPrompt: 'Reply with this exact JSON object: {"status": "Ready for adventure"}',
         temperature: 0.2,
-        responseJson: true
+        responseJson: true,
+        thinking: 'minimal'
       }
     );
     const parsed = parseJsonReply<{ status?: string }>(raw);
@@ -1289,7 +1345,8 @@ Output ONLY the generated text with no extra commentary, quotes, or formatting.`
 
       const text = await executeUniversalPrompt({
         userPrompt: prompt,
-        temperature: 1.0
+        temperature: 1.0,
+        thinking: 'minimal'
       });
 
       const clean = text.trim().replace(/^["']|["']$/g, '');

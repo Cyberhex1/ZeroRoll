@@ -11,12 +11,19 @@ class MemoryStorage {
 }
 (globalThis as any).localStorage = new MemoryStorage();
 
+// Gemini is called over REST; generateContent(url, init) stands in for each request.
 const generateContent = vi.fn();
-vi.mock('@google/genai', () => ({
-  GoogleGenAI: class {
-    models = { generateContent };
-  }
-}));
+(globalThis as any).fetch = vi.fn(async (url: string, init: any) => {
+  const model = decodeURIComponent(String(url).match(/models\/([^:]+):generateContent/)?.[1] || '');
+  const body = JSON.parse(init.body);
+  const outcome = await Promise.resolve()
+    .then(() => generateContent({ model, body }))
+    .then(
+      (r: any) => new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: r.text }] } }] }), { status: 200 }),
+      (e: any) => new Response(JSON.stringify({ error: { code: e.status, message: e.message } }), { status: e.status || 500 })
+    );
+  return outcome;
+});
 
 const svc = await import('../geminiService');
 const { classifyAIError, AIError } = await import('../aiErrors');
@@ -165,5 +172,33 @@ describe('Visible fallbacks', () => {
     expect(res.source).toBe('procedural');
     expect(getAIStatus().state).toBe('unknown');
     expect(generateContent).not.toHaveBeenCalled();
+  });
+});
+
+describe('Gemini request shape', () => {
+  beforeEach(() => {
+    svc.setProviderKey('gemini', GOOD_KEY);
+    svc.setProviderModel('gemini', 'gemini-flash-latest');
+  });
+
+  it('asks for low thinking by default and minimal for quick rolls', async () => {
+    generateContent.mockResolvedValue({ text: 'ok' });
+    await svc.executeUniversalPrompt({ userPrompt: 'hi', systemPrompt: 'sys' });
+    const { body } = generateContent.mock.calls[0][0];
+    expect(body.generationConfig.thinkingConfig).toEqual({ thinkingLevel: 'LOW' });
+    expect(body.systemInstruction).toEqual({ parts: [{ text: 'sys' }] });
+
+    await svc.executeUniversalPrompt({ userPrompt: 'hi', thinking: 'minimal' });
+    expect(generateContent.mock.calls[1][0].body.generationConfig.thinkingConfig).toEqual({ thinkingLevel: 'MINIMAL' });
+  });
+
+  it('retries without a thinking level when the model rejects it', async () => {
+    svc.setProviderModel('gemini', 'gemini-old-model');
+    generateContent
+      .mockRejectedValueOnce(apiError(400, 'Thinking level is not supported for this model.'))
+      .mockResolvedValueOnce({ text: 'ok' });
+    await expect(svc.executeUniversalPrompt({ userPrompt: 'hi' })).resolves.toBe('ok');
+    expect(generateContent.mock.calls[1][0].model).toBe('gemini-old-model');
+    expect(generateContent.mock.calls[1][0].body.generationConfig.thinkingConfig).toBeUndefined();
   });
 });

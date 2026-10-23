@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { 
   auth, 
@@ -20,17 +20,19 @@ import {
   importAllProviderSettings,
   purgeUnusableStoredKeys,
   getActiveProvider,
-  setProviderModel
+  setProviderModel,
+  generateScenarioAI
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
 import { Navbar } from './components/Navbar';
 import { AIStatusBanner } from './components/AIStatusBanner';
 import { CategoriesGrid } from './components/CategoriesGrid';
-import { ExperienceView } from './components/ExperienceView';
-import { SettingsModal } from './components/SettingsModal';
-import { UserProfileModal } from './components/UserProfileModal';
-import { AuthModal } from './components/AuthModal';
-import { ApiKeyModal } from './components/ApiKeyModal';
+// Loaded on first use so the home screen downloads and starts faster.
+const ExperienceView = lazy(() => import('./components/ExperienceView').then((m) => ({ default: m.ExperienceView })));
+const SettingsModal = lazy(() => import('./components/SettingsModal').then((m) => ({ default: m.SettingsModal })));
+const UserProfileModal = lazy(() => import('./components/UserProfileModal').then((m) => ({ default: m.UserProfileModal })));
+const AuthModal = lazy(() => import('./components/AuthModal').then((m) => ({ default: m.AuthModal })));
+const ApiKeyModal = lazy(() => import('./components/ApiKeyModal').then((m) => ({ default: m.ApiKeyModal })));
 import MusicPlayer from './components/MusicPlayer';
 import { Experience, ExperienceCategory, CharacterSheet, MapData, LogMessage, UserProfile, DMStoryOutline, InventoryItem } from './types';
 import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
@@ -455,7 +457,6 @@ export default function App() {
   const handleStartBookTwo = async (prevExp: Experience) => {
     setIsSaving(true);
     try {
-      const { generateScenarioAI } = await import('./lib/geminiService');
       const data = await generateScenarioAI({
         category: prevExp.category,
         model: selectedModel,
@@ -565,14 +566,22 @@ export default function App() {
       {/* Main Body */}
       <main>
         {activeExperience ? (
-          <ExperienceView
-            experience={activeExperience}
-            onUpdateExperience={handleUpdateExperience}
-            onBack={() => handleSelectExperience(null)}
-            selectedModel={selectedModel}
-            soundEnabled={soundEnabled}
-            onStartBookTwo={handleStartBookTwo}
-          />
+          <Suspense
+            fallback={
+              <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">
+                Opening your campaign...
+              </div>
+            }
+          >
+            <ExperienceView
+              experience={activeExperience}
+              onUpdateExperience={handleUpdateExperience}
+              onBack={() => handleSelectExperience(null)}
+              selectedModel={selectedModel}
+              soundEnabled={soundEnabled}
+              onStartBookTwo={handleStartBookTwo}
+            />
+          </Suspense>
         ) : (
           <CategoriesGrid
             experiences={experiences}
@@ -584,6 +593,7 @@ export default function App() {
         )}
       </main>
 
+      <Suspense fallback={null}>
       {/* Settings Modal */}
       {isSettingsOpen && (
         <SettingsModal
@@ -633,6 +643,7 @@ export default function App() {
           onClose={() => setIsAuthOpen(false)}
         />
       )}
+      </Suspense>
 
       {/* Ambient Music Player — home track everywhere except an active experience */}
       <MusicPlayer

@@ -81,6 +81,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   const [suggestedActions, setSuggestedActions] = useState<string[]>([]);
   const [currentStoryOutline, setCurrentStoryOutline] = useState<DMStoryOutline | undefined>(undefined);
   const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
+  // Where the current setup fields came from, so offline drafts are never mistaken for AI output.
+  const [setupSource, setSetupSource] = useState<'offline' | 'ai' | 'seed'>('offline');
   const [rollingField, setRollingField] = useState<string | null>(null);
 
   // 100-Pool 5 Scenario Seeds at a time & Dynamic Tropes
@@ -112,6 +114,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
   const applyRandomSetup = (catId: ExperienceCategory) => {
     const randomSetup = generateRandomScenarioSetup(catId);
+    setSetupSource('offline');
     setCustomTitle(randomSetup.title);
     setCharName(randomSetup.heroName);
     setCharRole(randomSetup.roleClass);
@@ -200,6 +203,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       });
 
       if (data && data.scenario) {
+        setSetupSource(data.source === 'ai' ? 'ai' : 'offline');
         // Update ALL 5 setup fields with AI's tailored response
         if (data.scenario.title) setCustomTitle(data.scenario.title);
         if (data.scenario.heroName) setCharName(data.scenario.heroName);
@@ -253,6 +257,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     if (seed.suggestedActions && seed.suggestedActions.length > 0) {
       setSuggestedActions(seed.suggestedActions);
     }
+    setSetupSource('seed');
     setModalTab('configure');
   };
 
@@ -302,6 +307,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       if (hookItem.hook) setOpeningPrompt(hookItem.hook);
       if (hookItem.suggestedActions) setSuggestedActions(hookItem.suggestedActions);
     }
+    setSetupSource('seed');
     setModalTab('configure');
   };
 
@@ -353,8 +359,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       let chapterOneText: string | undefined = undefined;
       let finalSuggestedActions = suggestedActions;
 
-      if (hasActiveGeminiKey() && currentStoryOutline) {
-        // We have a blurb and an outline, let's write Chapter 1 now
+      if (hasActiveGeminiKey()) {
+        // Write Chapter 1 with AI; the outline is used when the AI scenario provided one
         try {
           const chapterOneRes = await generateChapterOneAI({
             category: selectedCategoryModal.id,
@@ -690,6 +696,11 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
               {modalTab === 'configure' ? (
                 <div className="space-y-4">
+                  {setupSource === 'offline' && hasActiveGeminiKey() && (
+                    <p className="text-[11px] text-sky-200/90 bg-sky-950/40 border border-sky-800/40 rounded-lg px-3 py-2 leading-relaxed">
+                      These fields are an offline draft from the built-in generator. Use <span className="font-semibold">AI Re-roll All Fields</span> to have the AI write the setup and story outline.
+                    </p>
+                  )}
                   {/* Field 1: Campaign Title */}
                   <div>
                     <div className="flex items-center justify-between mb-1">

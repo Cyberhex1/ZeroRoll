@@ -22,6 +22,23 @@ import { GEMINI_MODELS } from '../lib/modelsConfig';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
 import { executeActionTurn, generateAvatarAI } from '../lib/geminiService';
 
+// Sending the entire log every turn makes each reply slower and costlier as the story grows.
+// Keep the opening scene for context plus the most recent exchanges; the story outline
+// carries the long-range plot.
+const RECENT_LOG_MESSAGES = 30;
+
+function buildRecentStoryLog(logs: LogMessage[]): string {
+  const story = logs.filter(l => l.sender !== 'system');
+  const format = (l: LogMessage) => `${l.sender.toUpperCase()}: ${l.text}`;
+  if (story.length <= RECENT_LOG_MESSAGES + 1) return story.map(format).join('\n');
+  const recent = story.slice(-RECENT_LOG_MESSAGES);
+  return [
+    format(story[0]),
+    `[... ${story.length - RECENT_LOG_MESSAGES - 1} earlier messages omitted ...]`,
+    ...recent.map(format)
+  ].join('\n');
+}
+
 interface ExperienceViewProps {
   experience: Experience;
   onUpdateExperience: (updated: Experience) => void;
@@ -85,7 +102,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
 
     try {
       const data = await executeActionTurn({
-        contents: updatedLogs.map(l => `${l.sender.toUpperCase()}: ${l.text}`).join('\n'),
+        contents: buildRecentStoryLog(updatedLogs),
         category: tempExp.category,
         model: selectedModel,
         systemInstruction: tempExp.customSystemPrompt,

@@ -59,32 +59,38 @@ export const AI_PROVIDERS: Record<AIProviderId, AIProviderConfig> = {
     keyPortalUrl: 'https://aistudio.google.com/app/apikey',
     keyPlaceholder: 'AIzaSy...',
     keyPrefixHint: 'AIzaSy',
-    defaultModel: 'gemini-3.5-flash',
+    defaultModel: 'gemini-flash-latest',
     models: [
       {
-        id: 'gemini-3.5-flash',
-        name: 'Gemini 3.5 Flash',
-        badge: 'Fast & Creative',
-        description: 'Recommended default. Ultra-fast turns, vivid narrative descriptions, and active free quota.',
+        id: 'gemini-flash-latest',
+        name: 'Gemini Flash (Latest)',
+        badge: 'Recommended',
+        description: 'Alias Google keeps pointed at the newest Flash release. Fast, creative, and covered by the free tier.',
         isDefault: true
+      },
+      {
+        id: 'gemini-3.8-flash',
+        name: 'Gemini 3.8 Flash',
+        badge: 'Stable',
+        description: 'Pinned stable Flash release for consistent narration.'
       },
       {
         id: 'gemini-3.6-flash',
         name: 'Gemini 3.6 Flash',
-        badge: 'Flagship',
-        description: 'Latest high-fidelity narrative generation with enhanced D&D rule adjudication.'
+        badge: 'Stable',
+        description: 'Previous-generation stable Flash model.'
+      },
+      {
+        id: 'gemini-3.5-flash-lite',
+        name: 'Gemini 3.5 Flash Lite',
+        badge: 'Low Latency',
+        description: 'Fastest, cheapest stable model. Good for quick combat exchanges.'
       },
       {
         id: 'gemini-3.1-pro-preview',
-        name: 'Gemini 3.1 Pro',
+        name: 'Gemini 3.1 Pro (Preview)',
         badge: 'Deep Reasoning',
-        description: 'Pro-tier tactical intelligence, deep lore consistency, and complex boss battles.'
-      },
-      {
-        id: 'gemini-3.1-flash-lite',
-        name: 'Gemini 3.1 Flash Lite',
-        badge: 'Low Latency',
-        description: 'Lightweight, rapid response model ideal for lightning-fast combat exchanges.'
+        description: 'Pro-tier reasoning for complex lore and rules. Preview model with tighter free-tier limits.'
       }
     ],
     guide: {
@@ -108,7 +114,7 @@ export const AI_PROVIDERS: Record<AIProviderId, AIProviderConfig> = {
           tip: 'Google AI Studio keys are 100% free with no credit card required to get started.'
         }
       ],
-      pricingNote: 'Free tier includes daily quota per model. Auto-cascading fallback is enabled.'
+      pricingNote: 'Free tier includes daily quota per model. If your model is unavailable or rate-limited, ZeroRoll tries other Flash models your key can use and tells you which one answered.'
     }
   },
 

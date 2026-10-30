@@ -21,6 +21,16 @@ View your app in AI Studio: https://ai.studio/apps/9c0aebe7-7997-4d1a-9feb-1386b
 
 ---
 
+## Local models (Ollama, LM Studio, and others)
+
+ZeroRoll can run on a model on your own machine. In the **Connect AI Provider & API Key** dialog,
+pick **Custom / Local LLM**, set the base URL (Ollama: `http://localhost:11434/v1`,
+LM Studio: `http://localhost:1234/v1`), enter the model name, and leave the key
+blank. The local server must allow browser requests, for example
+`OLLAMA_ORIGINS="*" ollama serve`, or CORS turned on in LM Studio.
+
+---
+
 ## Ambient Music
 
 ZeroRoll ships an opt-in ambient music layer. The **ZeroRoll Theme** plays

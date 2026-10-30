@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#2a2a33"/>
+      <stop offset="100%" stop-color="#121216"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="220" fill="url(#glow)"/>
+  <!-- d20 -->
+  <g stroke="#1e1e24" stroke-width="8" stroke-linejoin="round">
+    <polygon points="256,70 256,176 98,166" fill="#b45309"/>
+    <polygon points="256,70 414,166 256,176" fill="#d97706"/>
+    <polygon points="98,166 256,176 164,330" fill="#92400e"/>
+    <polygon points="414,166 348,330 256,176" fill="#f59e0b"/>
+    <polygon points="98,166 164,330 98,346" fill="#78350f"/>
+    <polygon points="414,166 414,346 348,330" fill="#d97706"/>
+    <polygon points="98,346 164,330 256,442" fill="#92400e"/>
+    <polygon points="414,346 256,442 348,330" fill="#b45309"/>
+    <polygon points="164,330 348,330 256,442" fill="#a14a0a"/>
+    <polygon points="256,176 348,330 164,330" fill="#fbbf24"/>
+  </g>
+  <polygon points="256,70 414,166 414,346 256,442 98,346 98,166" fill="none" stroke="#0b0b0e" stroke-width="10" stroke-linejoin="round"/>
+  <text x="256" y="300" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="104" fill="#1e1e24">0</text>
+</svg>

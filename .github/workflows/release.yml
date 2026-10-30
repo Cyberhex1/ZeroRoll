@@ -1,0 +1,38 @@
+name: Release
+
+# Publishes a GitHub release for a version tag. Release notes come from
+# docs/releases/<tag>.md, and the built static site is attached as a zip.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (created on main if it does not exist), e.g. v1.0.0'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx vite build
+      - name: Package static site
+        run: cd dist && zip -r "../zeroroll-${TAG}-web.zip" .
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          target_commitish: ${{ github.sha }}
+          name: ZeroRoll ${{ env.TAG }}
+          body_path: docs/releases/${{ env.TAG }}.md
+          files: zeroroll-${{ env.TAG }}-web.zip

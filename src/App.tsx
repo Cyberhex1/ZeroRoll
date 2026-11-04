@@ -55,6 +55,7 @@ import {
 import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
 import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
 import { mergeInventoryAdditive, createVariedInitialMap } from './lib/experienceHelpers';
+import { audioManager } from './audio/manager';
 
 function safeGetStorage(key: string): string | null {
   try {
@@ -351,6 +352,8 @@ export default function App() {
     const nextVal = !soundEnabled;
     setSoundEnabled(nextVal);
     safeSetStorage('dnd_sound_enabled', String(nextVal));
+    // The navbar speaker is the whole-app mute: music follows it (S24).
+    audioManager.setMuted(!nextVal);
     if (user) {
       saveUserSettingsToCloud(user.uid, { soundEnabled: nextVal })
         .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));

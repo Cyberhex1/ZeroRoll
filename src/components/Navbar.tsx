@@ -169,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ? 'bg-amber-600/20 border-amber-600/40 text-amber-300 hover:bg-amber-600/30' 
                 : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'
             }`}
-            title={soundEnabled ? 'Mute Sound Effects' : 'Enable Sound Effects'}
+            title={soundEnabled ? 'Mute all sound' : 'Turn sound on'}
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>

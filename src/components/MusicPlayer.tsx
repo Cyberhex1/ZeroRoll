@@ -136,9 +136,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ currentTrackKey }) => {
     const unsub = audioManager.subscribe(key => {
       setIsPlaying(key !== null);
     });
+    const unsubMute = audioManager.subscribeMuted(setMuted);
     const onVis = () => audioManager.onVisibilityChange(document.visibilityState === 'visible');
     document.addEventListener('visibilitychange', onVis);
-    return () => { unsub(); document.removeEventListener('visibilitychange', onVis); };
+    return () => { unsub(); unsubMute(); document.removeEventListener('visibilitychange', onVis); };
   }, []);
 
   // ---------- handlers ----------

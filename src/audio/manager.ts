@@ -68,6 +68,9 @@ class AudioManager {
   };
 
   private listeners = new Set<(key: MusicTrackKey | null) => void>();
+  private muteListeners = new Set<(muted: boolean) => void>();
+  /** Bumped on every play/stop so a load that finishes late can tell it was superseded. */
+  private playToken = 0;
 
   // ---------- public API ----------
 
@@ -98,6 +101,12 @@ class AudioManager {
   subscribe(cb: (key: MusicTrackKey | null) => void): () => void {
     this.listeners.add(cb);
     return () => this.listeners.delete(cb);
+  }
+
+  /** Mute changes from anywhere (the player panel or the navbar sound button, S24). */
+  subscribeMuted(cb: (muted: boolean) => void): () => void {
+    this.muteListeners.add(cb);
+    return () => this.muteListeners.delete(cb);
   }
 
   /** Read persisted prefs and motion/data preferences. Safe to call early. */
@@ -147,6 +156,9 @@ class AudioManager {
   setMuted(muted: boolean): void {
     this.state.muted = muted;
     try { localStorage.setItem(MASTERY_KEY_MUTED, muted ? '1' : '0'); } catch {}
+    for (const cb of this.muteListeners) {
+      try { cb(muted); } catch {}
+    }
     if (!this.state.master || !this.state.ctx) return;
     const now = this.state.ctx.currentTime;
     const target = muted ? 0 : this.state.volume;
@@ -199,21 +211,28 @@ class AudioManager {
       return;
     }
 
-    if (this.state.currentKey === key) return; // already playing
+    if (this.state.currentKey === key && this.state.voices.some(v => v.key === key && v.targetGain > 0)) return; // already playing
     this.state.currentKey = key;
+    const token = ++this.playToken;
 
     let buffer: AudioBuffer;
     try {
       buffer = await this.loadBuffer(track);
     } catch (err) {
-      // Network/CORS/decoding failures must not break the UI.
+      // Network/CORS/decoding failures must not break the UI. Forget the key so a later
+      // play() of the same track tries again instead of thinking it is already playing.
       console.warn(`[audio] failed to load track "${key}":`, err);
+      if (token === this.playToken) {
+        this.state.currentKey = null;
+        this.notify(null);
+      }
       return;
     }
+    // Another play() or stop() happened while this track was loading: it wins (S23).
+    if (token !== this.playToken || !this.state.enabled) return;
 
-    // Cancel any in-flight fades and start fresh.
-    for (const v of this.state.voices) this.cancelVoiceFade(v);
-    this.state.voices = this.state.voices.filter(v => !this.isVoiceStopped(v));
+    // Voices already fading out keep fading and stop on schedule; drop them from the list.
+    this.state.voices = this.state.voices.filter(v => v.targetGain > 0);
 
     const source = ctx.createBufferSource();
     source.buffer = buffer;
@@ -231,33 +250,32 @@ class AudioManager {
       startGain: 0,
       targetGain: 1
     };
-    this.state.voices.push(voice);
 
     const now = ctx.currentTime;
     gain.gain.setValueAtTime(0, now);
     gain.gain.linearRampToValueAtTime(1, now + FADE_SECONDS);
 
-    // Fade out any pre-existing voices that weren't already cancelled.
+    // Crossfade: the playing voices fade out from where they are while the new one fades in.
     for (const v of this.state.voices) {
-      if (v === voice) continue;
       v.startGain = v.gain.gain.value;
       v.targetGain = 0;
-      const t = ctx.currentTime;
-      v.gain.gain.cancelScheduledValues(t);
-      v.gain.gain.setValueAtTime(v.gain.gain.value, t);
-      v.gain.gain.linearRampToValueAtTime(0, t + FADE_SECONDS);
+      v.gain.gain.cancelScheduledValues(now);
+      v.gain.gain.setValueAtTime(v.gain.gain.value, now);
+      v.gain.gain.linearRampToValueAtTime(0, now + FADE_SECONDS);
       try {
-        v.source.stop(t + FADE_SECONDS + 0.05);
+        v.source.stop(now + FADE_SECONDS + 0.05);
       } catch {
         // already stopped
       }
     }
+    this.state.voices = [voice];
 
     this.notify(key);
   }
 
   /** Hard stop everything (preserves the intended currentKey so resume works). */
   stop(): void {
+    this.playToken++;
     if (!this.state.ctx) return;
     const ctx = this.state.ctx;
     const now = ctx.currentTime;
@@ -320,24 +338,6 @@ class AudioManager {
     const buf = await this.state.ctx.decodeAudioData(arr.slice(0));
     this.state.cache.set(track.url, buf);
     return buf;
-  }
-
-  private cancelVoiceFade(v: ActiveVoice): void {
-    if (!this.state.ctx) return;
-    try {
-      const t = this.state.ctx.currentTime;
-      v.gain.gain.cancelScheduledValues(t);
-      v.source.stop();
-    } catch {
-      // already stopped
-    }
-  }
-
-  private isVoiceStopped(v: ActiveVoice): boolean {
-    // A buffer source that has been stopped reports a finite playback time;
-    // we approximate by checking if its gain has reached 0 and we asked it
-    // to stop.  Simpler: just clear all voices on each play() and start fresh.
-    return false;
   }
 
   private notify(key: MusicTrackKey | null): void {

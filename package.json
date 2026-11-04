@@ -22,7 +22,8 @@
     "desktop:build": "tauri build",
     "story:check": "tsx scripts/story-check.ts",
     "story:import": "tsx scripts/story-import.ts",
-    "story:schema": "tsx scripts/story-schema.ts"
+    "story:schema": "tsx scripts/story-schema.ts",
+    "music:check": "tsx scripts/music-check.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",

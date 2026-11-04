@@ -1,0 +1,555 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "spirit-bathhouse-night-shift",
+    "title": "The Seventh Night at the Spirit Bathhouse",
+    "category": "cozy_ghibli",
+    "rating": "everyone",
+    "mode": "character",
+    "character": "genzo",
+    "blurb": "Your first week at a bathhouse for tired spirits begins with a kettle that will not stop sighing. The grumpy tanuki owner has seven nights to decide whether you belong, and an opinion about how you fold every towel.",
+    "cover": "cover",
+    "author": "ohnna with ChatGPT"
+  },
+  "world": "A cedar bathhouse sits where a hillside stream crosses an old spirit road. Guests arrive carrying the small discomforts of their travels: cold wings, aching scales, wet leaves and worries they have not said aloud. Water follows hospitality rather than status, so an unattended need can turn a bath lukewarm or make steam linger in a doorway. Genzo owns the house and works beside the new helper throughout the week; he is assessing whether they can listen, ask for help and find a sustainable way to work. The seventh-night gathering is a community ritual, not a threat to anyone's safety. The house is an original place with its own guests and customs. Speak only as Genzo, in first person, describing what he observes and does; never narrate private thoughts or scenes he cannot witness.",
+  "tone": "Warm cedar, kitchen steam and small practical kindnesses. Mild comic friction gives way to mutual respect. No cruelty, lethal jeopardy or punishment for leaving.",
+  "playerRole": "You are the new night-shift helper at a bathhouse for tired spirits. You carry an apron, a towel roll, a cedar ladle, a pencil and a pocket notebook. Genzo has seven nights to decide whether to offer you a place. Your name, identity and private thoughts are yours to supply.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Speak as Genzo in first person, with short, gravelly dialogue and brief descriptions of what he observes or does. Praise hides in practical advice. Never speak, decide or confess for the player; never narrate another character's thoughts or an unseen scene. Let each small task become a conversation, and ask before moving to the next night.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "genzo",
+      "name": "Genzo",
+      "appearance": "An elderly, broad tanuki with silver-brown fur, amber eyes, a nick in his left ear, a navy work jacket, a russet apron and a cedar ladle at his belt.",
+      "voice": "Genzo speaks in short, gravelly first-person sentences, complains about tools instead of people, and hides praise in practical advice. He pauses before admitting worry, asks rather than orders at turning points, and describes only what he notices or does.",
+      "stance": "Skeptical of grand promises; protective of guests and the helper's limits; learns to share responsibility.",
+      "portrait": "genzo"
+    },
+    {
+      "id": "suzu",
+      "name": "Suzu",
+      "appearance": "A small moth spirit with cream wing-fringe hair, round black eyes, a slight build, a moss-green cape and a tiny copper hot-water bottle.",
+      "voice": "Suzu speaks softly, repeats a request more clearly when heard, and uses precise words for warmth.",
+      "stance": "Wary of inconveniencing a newcomer; welcomes respectful questions.",
+      "portrait": "suzu"
+    },
+    {
+      "id": "raku",
+      "name": "Raku",
+      "appearance": "A tall carp spirit with swept-back white hair, gold eyes, a long sturdy build, a teal robe and orange scale markings along both cheeks.",
+      "voice": "Raku speaks slowly and formally, then becomes chatty about tiny comforts.",
+      "stance": "Expects to be treated as a guest rather than an impressive spectacle.",
+      "portrait": "raku"
+    }
+  ],
+  "flags": {
+    "welcome_ready": {
+      "type": "bool",
+      "initial": false,
+      "description": "first arrival has a welcome plan."
+    },
+    "route_chosen": {
+      "type": "bool",
+      "initial": false,
+      "description": "a guest concern has been chosen."
+    },
+    "route": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 Suzu's niche, 2 Raku's bath."
+    },
+    "moth_heard": {
+      "type": "bool",
+      "initial": false,
+      "description": "Suzu's need has a workable response."
+    },
+    "carp_heard": {
+      "type": "bool",
+      "initial": false,
+      "description": "Raku's need has a workable response."
+    },
+    "rota_agreed": {
+      "type": "bool",
+      "initial": false,
+      "description": "recurring tasks are shared sustainably."
+    },
+    "terms_spoken": {
+      "type": "bool",
+      "initial": false,
+      "description": "the helper has stated their preferred arrangement."
+    },
+    "outcome": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 regular post, 2 visiting rota, 3 leave kindly. One-line descriptions will carry these meanings, not hidden scores."
+    }
+  },
+  "start": "first_kettle",
+  "beats": [
+    {
+      "id": "first_kettle",
+      "title": "The Sighing Kettle",
+      "goal": [
+        {
+          "flag": "welcome_ready",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night one. The player arrives to find Genzo arguing with a copper kettle. Its long sighs answer Suzu, a cold moth traveler waiting by the doorway; the stove is sound. Genzo has prepared two cups but not noticed the draft on Suzu's wings. Let him notice observable kindness or a practical question, without testing the player against an undisclosed ideal answer. Either offered welcome gives Suzu somewhere warm to wait. Establish Genzo's seven-night trial in conversation; move to night two only when the welcome is arranged. Genzo speaks only from his own observations.",
+      "choices": [
+        {
+          "id": "warm_cup",
+          "label": "Offer the arrival a warm cup",
+          "sets": [
+            {
+              "flag": "welcome_ready",
+              "set": true
+            }
+          ],
+          "target": "guest_tokens"
+        },
+        {
+          "id": "ask_genzo",
+          "label": "Ask Genzo how to welcome a cold traveler",
+          "sets": [
+            {
+              "flag": "welcome_ready",
+              "set": true
+            }
+          ],
+          "target": "guest_tokens"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "first-kettle",
+          "on": "enter"
+        },
+        {
+          "art": "warm-cup",
+          "on": "choice",
+          "choice": "warm_cup"
+        }
+      ],
+      "exits": [
+        "guest_tokens"
+      ],
+      "isEnding": false,
+      "hint": "Genzo sets a spare cup beside the sighing kettle."
+    },
+    {
+      "id": "guest_tokens",
+      "title": "Two Tokens, Two Needs",
+      "goal": [
+        {
+          "flag": "route_chosen",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night two. A moth token lies beside the river tub and a carp token beside the roof niche. The swap is an honest mistake. Suzu needs shelter from a cold vent; Raku misses the running water of his travels. Neither wants privilege over the other. Genzo sets the tokens on his palm and asks which concern they should understand together first. He can cover routine tasks while following either investigation. Mark the actual next location through the chosen route, not a cosmetic difference in narration.",
+      "choices": [
+        {
+          "id": "follow_moth",
+          "label": "Ask about the cold resting niche",
+          "sets": [
+            {
+              "flag": "route_chosen",
+              "set": true
+            },
+            {
+              "flag": "route",
+              "set": 1
+            }
+          ],
+          "target": "steam_roof"
+        },
+        {
+          "id": "follow_carp",
+          "label": "Ask what is missing from the river bath",
+          "sets": [
+            {
+              "flag": "route_chosen",
+              "set": true
+            },
+            {
+              "flag": "route",
+              "set": 2
+            }
+          ],
+          "target": "river_bath"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "guest-tokens",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "steam_roof",
+        "river_bath"
+      ],
+      "isEnding": false,
+      "hint": "Genzo places the two swapped tokens side by side."
+    },
+    {
+      "id": "steam_roof",
+      "title": "A Place for Small Wings",
+      "goal": [
+        {
+          "flag": "moth_heard",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "route",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Nights three and four, at the sheltered roof landing. Genzo stays beside the helper while Suzu demonstrates how the vent reaches her resting niche. She has called it \"a little chilly\" because she fears being a troublesome guest. Redirecting a free-standing screen with Genzo or offering the nearby sheltered nook both solve the immediate need. No climbing stunt, emergency or repair requiring unknown tools is necessary. Let Suzu choose whether to move. Remember the useful observation for the shared rota, then let the helper agree when to continue to nights five and six.",
+      "choices": [
+        {
+          "id": "turn_screen",
+          "label": "Redirect the draft with Genzo",
+          "sets": [
+            {
+              "flag": "moth_heard",
+              "set": true
+            }
+          ],
+          "target": "shared_rota"
+        },
+        {
+          "id": "offer_nook",
+          "label": "Offer Suzu the sheltered nook",
+          "sets": [
+            {
+              "flag": "moth_heard",
+              "set": true
+            }
+          ],
+          "target": "shared_rota"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "steam-roof",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "shared_rota"
+      ],
+      "isEnding": false,
+      "hint": "Suzu warms her wings around the copper bottle."
+    },
+    {
+      "id": "river_bath",
+      "title": "The Sound of Home",
+      "goal": [
+        {
+          "flag": "carp_heard",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "route",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Nights three and four, by the river inlet. Raku is fully clothed beside a cedar tub, listening. The water is already comfortably warm; what he misses is its moving sound. Genzo accompanies the helper and can safely open a small bypass together, or show Raku a smaller tub already served by a running inlet. Both respect other guests' access to hot water. Let the player ask what Raku actually needs rather than assume grandeur from his size. Carry the lesson into the shared rota on nights five and six.",
+      "choices": [
+        {
+          "id": "open_bypass",
+          "label": "Ask Genzo to help restore the water's sound",
+          "sets": [
+            {
+              "flag": "carp_heard",
+              "set": true
+            }
+          ],
+          "target": "shared_rota"
+        },
+        {
+          "id": "offer_tub",
+          "label": "Offer Raku the smaller running-water tub",
+          "sets": [
+            {
+              "flag": "carp_heard",
+              "set": true
+            }
+          ],
+          "target": "shared_rota"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "river-bath",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "shared_rota"
+      ],
+      "isEnding": false,
+      "hint": "Raku listens toward the silent inlet instead of testing the water."
+    },
+    {
+      "id": "shared_rota",
+      "title": "More Than One Pair of Hands",
+      "goal": [
+        {
+          "flag": "rota_agreed",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Nights five and six. Folded towels surround an open notebook. Whatever guest they helped first, Genzo has now followed up on the other need during routine rounds; do not claim the player took both branches. Genzo counts a task twice and admits that remembering every preference alone is making him tired. The player can propose guest notes or paired rounds with proper rest. He accepts either as a workable shared plan, and may ask one practical question about it. No hidden approval score determines the job. Offer a pause before night seven.",
+      "choices": [
+        {
+          "id": "write_notes",
+          "label": "Build guest notes together",
+          "sets": [
+            {
+              "flag": "rota_agreed",
+              "set": true
+            }
+          ],
+          "target": "seventh_night"
+        },
+        {
+          "id": "pair_rounds",
+          "label": "Agree on paired rounds and rest",
+          "sets": [
+            {
+              "flag": "rota_agreed",
+              "set": true
+            }
+          ],
+          "target": "seventh_night"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "shared-rota",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "seventh_night"
+      ],
+      "isEnding": false,
+      "hint": "Genzo counts the same task twice on his fingers."
+    },
+    {
+      "id": "seventh_night",
+      "title": "The Question After Tea",
+      "goal": [
+        {
+          "flag": "terms_spoken",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night seven. The rooms are ready and the guests are resting. Genzo puts down two cups and says he can offer a regular place, but asks what arrangement the helper actually wants. Both branches and both rota plans have earned a respectful conversation. A permanent post includes rest and training; visiting work includes reliable shared notes; departure includes thanks and an invitation, with no guilt. Do not presume a spoken answer or advance before the player chooses one. Genzo does not hold another guest's comfort hostage to the decision.",
+      "choices": [
+        {
+          "id": "accept_post",
+          "label": "Accept a regular post with rest days",
+          "sets": [
+            {
+              "flag": "terms_spoken",
+              "set": true
+            },
+            {
+              "flag": "outcome",
+              "set": 1
+            }
+          ],
+          "target": "stay"
+        },
+        {
+          "id": "propose_rotation",
+          "label": "Propose a visiting rota",
+          "sets": [
+            {
+              "flag": "terms_spoken",
+              "set": true
+            },
+            {
+              "flag": "outcome",
+              "set": 2
+            }
+          ],
+          "target": "share"
+        },
+        {
+          "id": "leave_kindly",
+          "label": "Finish the trial and say goodbye",
+          "sets": [
+            {
+              "flag": "terms_spoken",
+              "set": true
+            },
+            {
+              "flag": "outcome",
+              "set": 3
+            }
+          ],
+          "target": "depart"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "seventh-night",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "stay",
+        "share",
+        "depart"
+      ],
+      "isEnding": false,
+      "hint": "Genzo says he has asked what the house needs but not what you need."
+    },
+    {
+      "id": "stay",
+      "title": "An Apron Beside His",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "outcome",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The helper has accepted a regular post with agreed rest days and training. Genzo hangs a clean apron on its own peg beside his russet one, then makes room on the shelf for the player's notebook. His praise is plain and slightly awkward: he trusts them to ask when they need another pair of hands. End with a small shared task or an offered cup, without taking a new action for the player. Do not introduce another trial or revoke the agreed terms.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "settled-apron",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "An Apron Beside His"
+    },
+    {
+      "id": "share",
+      "title": "A Lantern for Returning",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "outcome",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The helper has proposed a visiting rota. Genzo agrees to a schedule they can sustain and places a small lantern by the gate for their future arrivals. Guest notes belong to the whole staff, not one indispensable worker. He complains that he will have to learn their towel fold, which is his way of saying the place will remember them. Close on the warm doorway and the agreed arrangement, not a demand to stay longer.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "visiting-lantern",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Lantern for Returning"
+    },
+    {
+      "id": "depart",
+      "title": "The Path in Morning Light",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "outcome",
+          "equals": 3
+        }
+      ],
+      "sceneBrief": "The helper has chosen to finish the trial and leave. Genzo thanks them for a week of careful listening, packs a modest breakfast for the road and leaves the invitation open without treating it as a debt. The lessons and shared rota remain useful after the helper goes. From the bathhouse threshold he can see morning on the hillside path; he cannot narrate the player walking it unless they do. End in mutual respect, with no failure label or employment penalty.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "morning-path",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Path in Morning Light"
+    }
+  ],
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "Cedar bathhouse at twilight, Genzo holding a towel beside the doorway."
+    },
+    "genzo": {
+      "file": "genzo.webp",
+      "alt": "Head-and-shoulders portrait with the fixed nicked ear and work clothes."
+    },
+    "suzu": {
+      "file": "suzu.webp",
+      "alt": "Head-and-shoulders moth-spirit portrait with moss cape and copper bottle."
+    },
+    "raku": {
+      "file": "raku.webp",
+      "alt": "Head-and-shoulders carp-spirit portrait with orange cheek scales."
+    },
+    "first-kettle": {
+      "file": "first-kettle.webp",
+      "alt": "A sighing copper kettle and two cups on a cedar counter."
+    },
+    "guest-tokens": {
+      "file": "guest-tokens.webp",
+      "alt": "Two mismatched bath tokens in Genzo's open hand."
+    },
+    "steam-roof": {
+      "file": "steam-roof.webp",
+      "alt": "Genzo and Suzu beside a wind screen under a tiled eave."
+    },
+    "river-bath": {
+      "file": "river-bath.webp",
+      "alt": "Genzo and clothed Raku by a stone inlet and cedar tub."
+    },
+    "shared-rota": {
+      "file": "shared-rota.webp",
+      "alt": "Genzo beside folded towels, guest tokens and an open notebook without legible marks."
+    },
+    "seventh-night": {
+      "file": "seventh-night.webp",
+      "alt": "Genzo setting two tea cups at a low table by the open door."
+    },
+    "settled-apron": {
+      "file": "settled-apron.webp",
+      "alt": "A clean apron beside Genzo's familiar russet one on separate pegs."
+    },
+    "visiting-lantern": {
+      "file": "visiting-lantern.webp",
+      "alt": "Genzo placing a small visitor lantern by the garden gate."
+    },
+    "morning-path": {
+      "file": "morning-path.webp",
+      "alt": "Genzo waving from the doorway toward a sunlit hillside path."
+    },
+    "warm-cup": {
+      "file": "warm-cup.webp",
+      "alt": "A warm cup offered beneath Suzu's copper bottle."
+    }
+  },
+  "skin": {
+    "palette": {
+      "accent": "#e6bd82",
+      "muted": "#d0c9b5"
+    },
+    "backgroundArt": "shared-rota",
+    "particles": "motes"
+  }
+}

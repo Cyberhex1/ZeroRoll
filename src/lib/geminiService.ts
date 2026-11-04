@@ -22,6 +22,7 @@ export interface CategorySeedInfo {
 }
 import { generateRandomScenarioSetup, RandomizedScenarioData } from '../content/procedural';
 import { getCategoryFallbackActions, getCategoryProfile, getContent } from '../content';
+import { freshnessLines, rememberRoll, OVERUSED_NAMES } from './rollFreshness';
 import { fullProfileBlock, turnContextBlock } from '../content/injection';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError } from './aiErrors';
@@ -668,6 +669,7 @@ export async function executeActionTurn(params: {
       // context regardless of whether the user wrote a custom system
       // prompt or not.
       const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
+When you introduce a new character, give them a name that fits the setting and is not one of these overused names: ${OVERUSED_NAMES.join(', ')}.
 
 ${narrativeCorpus}
 
@@ -854,6 +856,9 @@ ${characterName ? `Hero Name to use: "${characterName}"` : 'Invent a unique, mem
 ${classRole ? `Class/Role to use: "${classRole}"` : 'Invent a creative class/archetype deeply rooted in this genre.'}
 ${raceOrigin ? `Origin/Heritage to use: "${raceOrigin}"` : 'Invent an evocative race or origin fitting the genre.'}
 
+FRESHNESS:
+${freshnessLines(category, ['title', 'premise', ...(characterName ? [] : (['heroName'] as const))]).join('\n')}
+
 SCENE STRUCTURE REQUIREMENT:
 The storyBlurb MUST read like a compelling back-of-the-book summary, establishing the atmospheric stakes and the impending dilemma without resolving it.
 
@@ -908,6 +913,9 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
         { userPrompt: prompt, temperature: 0.9 },
         (v) => !!(v && v.title && v.storyBlurb)
       );
+      rememberRoll(category, 'title', scenario.title);
+      rememberRoll(category, 'premise', scenario.storyBlurb);
+      if (!characterName) rememberRoll(category, 'heroName', scenario.heroName);
       // No portrait per roll (PS6): it cost OpenAI players money on every re-roll. The player
       // draws one from the setup screen or the hero sheet when they want it.
       const avatarUrl: string | undefined = undefined;
@@ -1021,6 +1029,7 @@ export async function rollSingleFieldAI(
 ${contextPrompt ? `Context / Story Theme: "${contextPrompt}"` : ''}
 Genre Profile: ${profile.name} (${profile.voice}).
 Sensory Motifs: ${profile.sensoryMotifs.slice(0, 2).join(', ')}.
+${freshnessLines(category, [fieldType === 'hookText' ? 'premise' : fieldType]).join('\n')}
 Output ONLY the generated text with no extra commentary, quotes, or formatting.`;
 
       const text = await executeUniversalPrompt({
@@ -1031,7 +1040,10 @@ Output ONLY the generated text with no extra commentary, quotes, or formatting.`
       });
 
       const clean = text.trim().replace(/^["']|["']$/g, '');
-      if (clean && clean.length > 1) return clean;
+      if (clean && clean.length > 1) {
+        rememberRoll(category, fieldType === 'hookText' ? 'premise' : fieldType, clean);
+        return clean;
+      }
       throw new AIError('bad_output', 'Reply was empty.');
     } catch (err) {
       const { message } = reportFeatureFailure(err, 'Field roll', allowFallback);
@@ -1134,6 +1146,7 @@ export async function generateChapterOneAI(params: {
   if (hasKey) {
     try {
       const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
+When you introduce a new character, give them a name that fits the setting and is not one of these overused names: ${OVERUSED_NAMES.join(', ')}.
 
 ${fullProfileBlock(category, inspiration)}
 

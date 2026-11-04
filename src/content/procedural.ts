@@ -4,6 +4,7 @@
  */
 import type { DMStoryOutline, ExperienceCategory, InventoryItem } from '../types';
 import { getContent, gearToInventory } from './index';
+import { isFreshName } from './names';
 
 export interface RandomizedScenarioData {
   title: string;
@@ -26,7 +27,9 @@ const pick = <T,>(xs: readonly T[], fallback: T): T => (xs.length ? xs[Math.floo
 
 export function generateRandomScenarioSetup(category: ExperienceCategory): RandomizedScenarioData {
   const k = getContent(category).procedural;
-  const heroName = `${pick(k.firstNames, 'Rowan')} ${pick(k.lastNames, 'Ashford')}`;
+  // Skip the stock names models and name lists lean on (Sloane, Vance and the like).
+  const fresh = (xs: string[]) => (xs.filter(isFreshName).length ? xs.filter(isFreshName) : xs);
+  const heroName = `${pick(fresh(k.firstNames), 'Tamsin')} ${pick(fresh(k.lastNames), 'Ashford')}`;
   const roleClass = pick(k.roles, 'Adventurer');
   const raceOrigin = pick(k.origins, 'Human');
   const hook = pick(k.hooks, {

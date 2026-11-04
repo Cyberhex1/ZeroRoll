@@ -338,7 +338,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <UserIcon className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">Sign In</span>
-                <span className="hidden sm:inline">&nbsp;/ Join</span>
+                <span className="hidden sm:inline">/ Join</span>
               </button>
             )}
           </div>

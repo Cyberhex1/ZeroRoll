@@ -91,22 +91,37 @@ export interface StoredStory {
   importedAt: number;
 }
 
-/** Imports every package found; returns one result per package. */
-export async function importPackages(files: PackageFile[], builtInIds: Set<string>): Promise<ImportResult[]> {
+export interface PreparedPackage {
+  result: ImportResult;
+  story?: Story;
+  art?: Array<{ key: string; bytes: Uint8Array }>;
+}
+
+/** Checks every package found without installing anything, so the player can review them. */
+export function reviewPackages(files: PackageFile[], builtInIds: Set<string>): PreparedPackage[] {
   const packages = findPackages(expandFiles(files));
-  if (!packages.length) return [{ dir: '(import)', ok: false, report: 'No story.json was found. Pick a story package folder, or a zip that contains one or more.' }];
+  if (!packages.length) return [{ result: { dir: '(import)', ok: false, report: 'No story.json was found. Pick a story package folder, or a zip that contains one or more.' } }];
+  return packages.map((pkg) => preparePackage(pkg, builtInIds));
+}
+
+/** Installs the packages that passed review; returns one result per package. */
+export async function installPackages(prepared: PreparedPackage[]): Promise<ImportResult[]> {
   const results: ImportResult[] = [];
-  for (const pkg of packages) {
-    const prepared = preparePackage(pkg, builtInIds);
-    if (prepared.story && prepared.art) {
-      const existing = await idb.get<StoredStory>('userStories', prepared.story.meta.id);
-      for (const a of prepared.art) await idb.put('artCache', a.key, new Blob([a.bytes as BlobPart], { type: 'image/webp' }));
-      await idb.put<StoredStory>('userStories', prepared.story.meta.id, { story: prepared.story, importedAt: Date.now() });
-      prepared.result.replaced = !!existing;
+  for (const p of prepared) {
+    if (p.story && p.art) {
+      const existing = await idb.get<StoredStory>('userStories', p.story.meta.id);
+      for (const a of p.art) await idb.put('artCache', a.key, new Blob([a.bytes as BlobPart], { type: 'image/webp' }));
+      await idb.put<StoredStory>('userStories', p.story.meta.id, { story: p.story, importedAt: Date.now() });
+      p.result.replaced = !!existing;
     }
-    results.push(prepared.result);
+    results.push(p.result);
   }
   return results;
+}
+
+/** Imports every package found; returns one result per package. */
+export async function importPackages(files: PackageFile[], builtInIds: Set<string>): Promise<ImportResult[]> {
+  return installPackages(reviewPackages(files, builtInIds));
 }
 
 export async function listImportedStories(): Promise<Story[]> {

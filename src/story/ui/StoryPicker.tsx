@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { BookOpen, FolderOpen, PackagePlus, Trash2, Upload } from 'lucide-react';
+import { BookOpen, FolderOpen, PackagePlus, Share2, Trash2, Upload } from 'lucide-react';
 import { CATEGORIES_DATA } from '../../content';
 import { isMatureContentEnabled } from '../../lib/contentRating';
 import { StoryProgress, StoryRepository, StorySave } from '../../storage/storyRepository';
-import { StoryMeta, builtInIds, coverUrl, forgetStory, importedStories, loadAllStories, storiesByCategory, storyCoverUrl } from '../catalog';
+import { StoryMeta, builtInIds, coverUrl, forgetStory, importedStories, loadAllStories, loadStory, storiesByCategory, storyCoverUrl } from '../catalog';
 import { cachedArtUrl } from '../art';
-import { ImportResult, importPackages, readPicked, removeImportedStory } from '../importPackage';
+import { ImportResult, PreparedPackage, installPackages, readPicked, removeImportedStory, reviewPackages } from '../importPackage';
+import { exportStoryPackage } from '../share';
+import ImportReview from './ImportReview';
 import type { ExperienceCategory } from '../../types';
 import { ANIME_SKIN, skinVars } from '../skins';
 import Particles from './Particles';
@@ -17,6 +19,7 @@ export default function StoryPicker() {
   const [imported, setImported] = useState<Array<{ meta: StoryMeta; cover: string | null }>>([]);
   const [importing, setImporting] = useState(false);
   const [results, setResults] = useState<ImportResult[]>([]);
+  const [review, setReview] = useState<PreparedPackage[] | null>(null);
   const pkgRef = useRef<HTMLInputElement>(null);
   const folderRef = useRef<HTMLInputElement>(null);
   const refreshImported = () =>
@@ -28,21 +31,62 @@ export default function StoryPicker() {
   const byCategory = new Map(storiesByCategory());
   for (const i of imported) byCategory.set(i.meta.category as ExperienceCategory, [...(byCategory.get(i.meta.category as ExperienceCategory) ?? []), i.meta]);
 
+  const resetInputs = () => {
+    if (pkgRef.current) pkgRef.current.value = '';
+    if (folderRef.current) folderRef.current.value = '';
+  };
+
+  // Step 1: check the packages and show them for review; nothing is installed yet.
   const addStories = async (list: FileList | null) => {
     if (!list?.length) return;
     setImporting(true);
     setResults([]);
     try {
-      const r = await importPackages(await readPicked(list), builtInIds());
-      r.forEach((x) => x.id && forgetStory(x.id));
-      setResults(r);
+      const prepared = reviewPackages(await readPicked(list), builtInIds());
+      if (prepared.some((p) => p.story)) setReview(prepared);
+      else setResults(prepared.map((p) => p.result));
+    } catch (e) {
+      setResults([{ dir: '(import)', ok: false, report: e instanceof Error ? e.message : String(e) }]);
+    } finally {
+      setImporting(false);
+      resetInputs();
+    }
+  };
+
+  // Step 2: install what the player ticked.
+  const confirmStories = async (chosen: PreparedPackage[]) => {
+    const all = review ?? [];
+    setReview(null);
+    setImporting(true);
+    try {
+      const done = await installPackages(chosen);
+      done.forEach((x) => x.id && forgetStory(x.id));
+      const skipped = all.filter((p) => !chosen.includes(p)).map((p) => (p.story ? { ...p.result, ok: false, report: 'Skipped at review.' } : p.result));
+      setResults([...done, ...skipped]);
       await refreshImported();
     } catch (e) {
       setResults([{ dir: '(import)', ok: false, report: e instanceof Error ? e.message : String(e) }]);
     } finally {
       setImporting(false);
-      if (pkgRef.current) pkgRef.current.value = '';
-      if (folderRef.current) folderRef.current.value = '';
+    }
+  };
+
+  const shareStory = async (m: StoryMeta) => {
+    try {
+      const { blob, fileName, missingArt } = await exportStoryPackage(await loadStory(m.id));
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
+      setNote({
+        kind: 'ok',
+        text: missingArt.length
+          ? `Saved ${fileName}. ${missingArt.length} image${missingArt.length === 1 ? ' was' : 's were'} not on this device and ${missingArt.length === 1 ? 'is' : 'are'} not in the zip: ${missingArt.join(', ')}.`
+          : `Saved ${fileName}. Anyone can add it with "Add stories (zip)".`
+      });
+    } catch (e) {
+      setNote({ kind: 'error', text: `Could not export "${m.title}": ${e instanceof Error ? e.message : String(e)}` });
     }
   };
 
@@ -90,6 +134,7 @@ export default function StoryPicker() {
       }}
     >
     <Particles kind={ANIME_SKIN.particles} />
+    {review && <ImportReview prepared={review} onCancel={() => setReview(null)} onConfirm={(c) => void confirmStories(c)} />}
     <div className="relative max-w-5xl mx-auto px-4 py-6 space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -157,6 +202,19 @@ export default function StoryPicker() {
                       {save ? (save.state.ending ? 'Finished. Open to play again' : 'Resume where you stopped') : 'Start'}
                       {p?.endings.length ? ` · ${p.endings.length} ending${p.endings.length === 1 ? '' : 's'} found` : ''}
                     </div>
+                    <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        void shareStory(m);
+                      }}
+                      className="text-[10px] inline-flex items-center gap-1 underline"
+                      style={{ color: 'var(--sk-muted)' }}
+                      aria-label={`Share ${m.title} as a zip`}
+                    >
+                      <Share2 className="w-3 h-3" /> Share
+                    </button>
                     {importedIds.has(m.id) && (
                       <button
                         type="button"
@@ -171,6 +229,7 @@ export default function StoryPicker() {
                         <Trash2 className="w-3 h-3" /> Imported · remove
                       </button>
                     )}
+                    </div>
                   </div>
                 </Link>
               );

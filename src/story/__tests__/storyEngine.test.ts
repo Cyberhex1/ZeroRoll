@@ -153,7 +153,7 @@ describe('skins', async () => {
 });
 
 describe('playing a turn', async () => {
-  const { addPlayerInput, narrate, newSave, rewindForReroll, buildPrompt, currentChips } = await import('../play');
+  const { addPlayerInput, narrate, newSave, rewindForReroll, buildPrompt, currentChips, maybeSummarize, memoryOf } = await import('../play');
   const reply = (text: string) => async () => ({ text, truncated: false, provider: 'gemini' as const, model: 'm', tier: 'good' as const, requestedTier: 'good' as const, attempts: [] });
 
   it('runs a choice and a narrator reply into a saved turn', async () => {
@@ -180,5 +180,33 @@ describe('playing a turn', async () => {
 
   it('refuses a reply that is only data', async () => {
     await expect(narrate(story, newSave(story), reply('{"beatReached":"none"}'))).rejects.toMatchObject({ kind: 'bad_output' });
+  });
+
+  it('pins the beats the story enters and unpins them on reroll', async () => {
+    let save = addPlayerInput(story, newSave(story), { choiceId: 'help_chain' }).save;
+    const r = await narrate(story, save, reply('You haul together.\n```json\n{"beatReached":"crossing"}\n```'));
+    const pins = memoryOf(r.save).entries.filter((e) => e.source === 'beat');
+    expect(pins).toHaveLength(1);
+    expect(pins[0]).toMatchObject({ pinned: true });
+    expect(buildPrompt(story, r.save, 'good').system).toContain(pins[0].text);
+    save = rewindForReroll(r.save)!;
+    expect(memoryOf(save).entries.filter((e) => e.source === 'beat')).toHaveLength(0);
+  });
+
+  it('leaves summarized turns to the summary and applies a summary onto a newer save', async () => {
+    const messages = Array.from({ length: 30 }, (_, i) => ({ id: `m${i}`, kind: (i % 2 ? 'narrator' : 'player') as 'narrator' | 'player', text: `line ${i}`, beat: 'landing', at: i }));
+    const save = { ...newSave(story), messages };
+    const apply = await maybeSummarize(save, reply('{"summary":"They argued on the dock.","facts":["Odda keeps the ferry"]}'));
+    expect(apply).not.toBeNull();
+    const later = { ...save, messages: [...messages, { id: 'x', kind: 'player' as const, text: 'one more', beat: 'landing', at: 99 }] };
+    const done = apply!(later);
+    expect(done.messages).toHaveLength(31);
+    expect(memoryOf(done)).toMatchObject({ summary: 'They argued on the dock.', summarizedThrough: 18 });
+    expect(memoryOf(done).pending[0].text).toBe('Odda keeps the ferry');
+    const p = buildPrompt(story, done, 'good');
+    expect(p.system).toContain('They argued on the dock.');
+    expect(p.messages.some((m) => m.content === 'line 17')).toBe(false);
+    expect(p.messages.some((m) => m.content === 'line 18')).toBe(true);
+    expect(await maybeSummarize(done, reply('{}'))).toBeNull();
   });
 });

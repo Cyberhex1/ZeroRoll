@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { ArrowLeft, Download, Map as MapIcon, RefreshCw, RotateCcw, SkipForward } from 'lucide-react';
+import { ArrowLeft, Brain, Download, Map as MapIcon, RefreshCw, RotateCcw, SkipForward } from 'lucide-react';
 import { complete, Tier, TIERS } from '../../ai/router';
 import { classifyAIError, describeAIError } from '../../lib/aiErrors';
 import { reportAIFailure } from '../../lib/aiStatus';
@@ -10,7 +10,10 @@ import { isMatureContentEnabled } from '../../lib/contentRating';
 import { StoryProgress, StoryRepository } from '../../storage/storyRepository';
 import { loadStory } from '../catalog';
 import { beatOf } from '../engine';
-import { PlaySave, addPlayerInput, currentChips, narrate, newSave, rewindForReroll } from '../play';
+import { PlaySave, addPlayerInput, buildPrompt, currentChips, maybeSummarize, memoryOf, narrate, newSave, rewindForReroll } from '../play';
+import MemoryPanel from '../../memory/ui/MemoryPanel';
+import type { MemoryState } from '../../memory/memoryStore';
+import { mergeMemories } from '../../memory/summarizer';
 import type { Story } from '../schema';
 import { resolveSkin, skinVars } from '../skins';
 import ArtImage from './ArtImage';
@@ -30,6 +33,8 @@ export default function StoryPlay() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showMap, setShowMap] = useState(false);
+  const [showMemory, setShowMemory] = useState(false);
+  const saveRef = useRef<PlaySave | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +47,8 @@ export default function StoryPlay() {
         const existing = (await StoryRepository.load(id)) as PlaySave | undefined;
         if (!live) return;
         setStory(s);
-        setSave(existing ?? newSave(s));
+        saveRef.current = existing ?? newSave(s);
+        setSave(saveRef.current);
         setProgress(await StoryRepository.progress(id));
       } catch (e) {
         if (live) setLoadError(e instanceof Error ? e.message : String(e));
@@ -59,6 +65,7 @@ export default function StoryPlay() {
   }, [save?.messages.length]);
 
   const persist = useCallback(async (next: PlaySave, finished = false) => {
+    saveRef.current = next;
     setSave(next);
     try {
       await StoryRepository.save(next);
@@ -77,6 +84,11 @@ export default function StoryPlay() {
     try {
       const r = await narrate(story, base, complete, { signal: controller.signal });
       await persist(r.save, Boolean(r.save.state.ending && !base.state.ending));
+      // The memory worker runs after the reply is on screen, so it never slows a turn.
+      void maybeSummarize(r.save, complete).then((apply) => {
+        const latest = saveRef.current;
+        if (apply && latest && latest.storyId === r.save.storyId) void persist(apply(latest));
+      });
     } catch (err) {
       const aiErr = classifyAIError(err, getActiveProvider());
       if (aiErr.kind === 'cancelled') return;
@@ -123,6 +135,24 @@ export default function StoryPlay() {
   };
 
   const skin = useMemo(() => (story ? resolveSkin(story.meta.category, story.skin) : null), [story]);
+  const meter = useMemo(() => (story && save ? buildPrompt(story, save, save.tier).meter : null), [story, save]);
+
+  const changeMemory = (memory: MemoryState) => {
+    if (save) void persist({ ...save, memory });
+  };
+  const runMerge = async (): Promise<string | null> => {
+    const current = saveRef.current;
+    if (!current) return null;
+    try {
+      const r = await mergeMemories(memoryOf(current), current.state.turns, complete);
+      if (!r.ok) return 'The model did not send a usable list, so nothing changed. Try again.';
+      const latest = saveRef.current ?? current;
+      await persist({ ...latest, memory: { ...memoryOf(latest), entries: r.memory.entries } });
+      return null;
+    } catch (err) {
+      return describeAIError(classifyAIError(err, getActiveProvider()), AI_PROVIDERS[getActiveProvider()]?.name || 'The AI provider');
+    }
+  };
 
   if (loadError) {
     return (
@@ -171,12 +201,27 @@ export default function StoryPlay() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => setShowMap((v) => !v)} aria-expanded={showMap} className={btn} style={btnStyle}><MapIcon className="w-3 h-3" />Map</button>
+            <button type="button" onClick={() => setShowMemory((v) => !v)} aria-expanded={showMemory} className={btn} style={btnStyle}>
+              <Brain className="w-3 h-3" />Memory{memoryOf(save).pending.length ? ` (${memoryOf(save).pending.length} new)` : ''}
+            </button>
             <button type="button" onClick={exportSave} className={btn} style={btnStyle}><Download className="w-3 h-3" />Export save</button>
             <button type="button" onClick={restart} disabled={busy} className={btn} style={btnStyle}><RotateCcw className="w-3 h-3" />Restart</button>
           </div>
         </header>
 
         {showMap && progress && <ProgressMap story={story} save={save} progress={progress} />}
+        {showMemory && meter && (
+          <div className="rounded p-3" style={{ background: 'var(--sk-surface)' }}>
+            <MemoryPanel
+              memory={memoryOf(save)}
+              meter={meter}
+              turn={save.state.turns}
+              onChange={changeMemory}
+              onMerge={runMerge}
+              tone={{ border: 'color-mix(in srgb, var(--sk-text) 25%, transparent)', muted: 'var(--sk-muted)', accent: 'var(--sk-accent)' }}
+            />
+          </div>
+        )}
 
         <section aria-label="Cast" className="flex gap-3 overflow-x-auto pb-1">
           {story.cast.map((c) => (

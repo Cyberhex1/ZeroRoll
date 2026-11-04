@@ -164,7 +164,338 @@ export const historicalAdventure = {
       "medium": "Film"
     }
   ],
-  "openers": [],
+  "openers": [
+    {
+      "id": "seed_his_01",
+      "title": "The Seal at the Mountain Barrier",
+      "tagline": "The seal is sound; the description beside the gate is not.",
+      "premise": "You reach an Edo-period mountain barrier with an intact dispatch seal and discover that the posted travel description names the companion beside you as a fugitive.",
+      "hero": {
+        "name": "Akiyama Sayo",
+        "role": "Dispatch Courier",
+        "origin": "Mountain-village Japanese"
+      },
+      "actions": [
+        "Present the sealed dispatch without surrendering your companion.",
+        "Ask the barrier guard which household issued the description.",
+        "Study the wooded detour before the gate closes."
+      ],
+      "gear": [
+        {
+          "name": "Travel Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Sealed Dispatch",
+          "type": "misc"
+        },
+        {
+          "name": "Straw Rain Cape",
+          "type": "armor"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_his_02",
+      "title": "The Waterlogged Folio",
+      "tagline": "Water is rising around the folio and the person who saved it.",
+      "premise": "You arrive at a Hellenistic harbor workshop to collect a damaged manuscript as rising water traps its owner behind a jammed storeroom door.",
+      "hero": {
+        "name": "Leontia of Canopus",
+        "role": "Manuscript Binder",
+        "origin": "Alexandrian Greek"
+      },
+      "actions": [
+        "Lever the storeroom door with a binding press bar.",
+        "Pass dry boards through the window to raise the manuscript.",
+        "Call the neighboring boat crews to help lift the jammed frame."
+      ],
+      "gear": [
+        {
+          "name": "Binding Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Linen Wrapping",
+          "type": "misc"
+        },
+        {
+          "name": "Press Bar",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_his_03",
+      "title": "The Glassmaker's Cipher",
+      "tagline": "A warning has cooled inside the patron's glass.",
+      "premise": "You open a Renaissance furnace workshop and find a warning formed inside cooling glass while a patron's servants wait outside to seize the batch.",
+      "hero": {
+        "name": "Lucia Bellori",
+        "role": "Glassworker",
+        "origin": "Venetian"
+      },
+      "actions": [
+        "Turn the cooling glass to read the concealed pattern.",
+        "Ask the waiting servants for the patron's receipt.",
+        "Send a workshop apprentice to warn the intended recipient."
+      ],
+      "gear": [
+        {
+          "name": "Glassworker's Shears",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Leather Gloves",
+          "type": "armor"
+        },
+        {
+          "name": "Cooling Tongs",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_his_04",
+      "title": "The Broken Relay Saddle",
+      "tagline": "The warning must travel farther than the relay horses will.",
+      "premise": "You reach a Ming relay station with a sealed flood warning and find the fresh horses taken and the downstream ferry already preparing its final crossing.",
+      "hero": {
+        "name": "Qiao Wen",
+        "role": "Relay Rider",
+        "origin": "North China village-born"
+      },
+      "actions": [
+        "Show the ferry keeper the dispatch's unbroken seal.",
+        "Ask the station workers who requisitioned the fresh horses.",
+        "Lead your tired mount toward the shorter riverbank track."
+      ],
+      "gear": [
+        {
+          "name": "Riding Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Dispatch Case",
+          "type": "misc"
+        },
+        {
+          "name": "Water Flask",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 12
+    },
+    {
+      "id": "seed_his_05",
+      "title": "The Measure of the Aqueduct",
+      "tagline": "The first water is coming toward a deliberately weakened support.",
+      "premise": "You inspect a provincial Roman aqueduct before a public opening and find tool marks beneath a new support as the first water surges toward it.",
+      "hero": {
+        "name": "Decima Vibia",
+        "role": "Water Surveyor",
+        "origin": "Roman provincial"
+      },
+      "actions": [
+        "Signal the upstream crew to hold the sluice.",
+        "Measure the fresh cuts beneath the new support.",
+        "Clear the workers from the downstream inspection passage."
+      ],
+      "gear": [
+        {
+          "name": "Survey Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Measuring Cord",
+          "type": "misc"
+        },
+        {
+          "name": "Wax Tablet",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_his_06",
+      "title": "The Loom Behind the Gate",
+      "tagline": "A family's passage is hidden in the cloth being seized.",
+      "premise": "You bring cloth to a medieval city gate and discover a displaced family's travel token sewn into the bolt that a guard has ordered confiscated.",
+      "hero": {
+        "name": "Yusuf al-Saffar",
+        "role": "Textile Trader",
+        "origin": "Andalusi urban-born"
+      },
+      "actions": [
+        "Unroll the bolt to keep its sewn token in view.",
+        "Ask the gate guard to name the grounds for confiscation.",
+        "Offer another merchant your pack space in return for an introduction."
+      ],
+      "gear": [
+        {
+          "name": "Trade Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Cloth Bolt",
+          "type": "misc"
+        },
+        {
+          "name": "Travel Token",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_his_07",
+      "title": "The Ink on the Tea Bowl",
+      "tagline": "A bowl carries a message its recipient cannot stop to read.",
+      "premise": "You deliver bowls to a Joseon roadside inn and discover a message under the glaze while the intended recipient is being escorted through the courtyard.",
+      "hero": {
+        "name": "Jeong Haejin",
+        "role": "Kiln Painter",
+        "origin": "Joseon village-born"
+      },
+      "actions": [
+        "Rotate the bowl in the courtyard light to inspect its glaze.",
+        "Offer tea service to delay the departing escort.",
+        "Ask the innkeeper which road the escorted traveler will take."
+      ],
+      "gear": [
+        {
+          "name": "Kiln Trimming Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Padded Bowl Basket",
+          "type": "misc"
+        },
+        {
+          "name": "Tea Cloth",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_his_08",
+      "title": "The Bridge Before the Thaw",
+      "tagline": "Two parties want the bridge before the river takes it.",
+      "premise": "You reach a seventeenth-century river crossing to repair its mooring as a thaw sends timber downstream and two armed parties demand first passage.",
+      "hero": {
+        "name": "Martin Desroches",
+        "role": "Pontoon Carpenter",
+        "origin": "Loire valley French"
+      },
+      "actions": [
+        "Lash a fresh mooring around the nearest sound piling.",
+        "Call both parties to help clear the approaching timber.",
+        "Inspect the downstream bank for a safer temporary crossing."
+      ],
+      "gear": [
+        {
+          "name": "Carpenter's Hatchet",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Rope Coil",
+          "type": "misc"
+        },
+        {
+          "name": "Mooring Wedge",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 12
+    },
+    {
+      "id": "seed_his_09",
+      "title": "The Caravan's Second Weight",
+      "tagline": "The caravan is counting stones as water.",
+      "premise": "You weigh supplies at a medieval desert caravan halt and discover stones replacing water jars just as the guide announces an early departure.",
+      "hero": {
+        "name": "Zaynab bint Rashid",
+        "role": "Caravan Quartermaster",
+        "origin": "Maghrebi oasis-born"
+      },
+      "actions": [
+        "Open a suspect jar in front of the other travelers.",
+        "Ask the guide to delay departure while you tally the real supply.",
+        "Trace the swapped jars back through the camp's loading marks."
+      ],
+      "gear": [
+        {
+          "name": "Camp Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Balance Weights",
+          "type": "misc"
+        },
+        {
+          "name": "Water Skin",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_his_10",
+      "title": "The Printer's Last Forme",
+      "tagline": "The press is set to make a lie official.",
+      "premise": "You unlock an early-modern printshop to find a forged proclamation locked in the press while its sponsor waits for the first copies in the street.",
+      "hero": {
+        "name": "Tomaz Valeiro",
+        "role": "Printshop Compositor",
+        "origin": "Lisbon-born Portuguese"
+      },
+      "actions": [
+        "Lift the forme to inspect the changed lines before printing.",
+        "Ask the sponsor's messenger to verify the proclamation's seal.",
+        "Warn the shop owner through the rear delivery door."
+      ],
+      "gear": [
+        {
+          "name": "Compositor's Bodkin",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Ink Roller",
+          "type": "misc"
+        },
+        {
+          "name": "Proof Sheet",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    }
+  ],
   "tropes": [
     {
       "premise": "The Shogun's guards pass the sliding paper doors, completely unaware that you are clinging to the rafters above the assassination target."

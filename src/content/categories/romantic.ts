@@ -370,6 +370,105 @@ export const romantic = {
         "Charm Person"
       ],
       "hp": 10
+    },
+    {
+      "id": "seed_rom_08",
+      "title": "The Duet Behind the Curtain",
+      "tagline": "The melody that broke your engagement now needs your harmony.",
+      "premise": "You arrive for a candlelit court recital and discover your assigned duet partner composed the anonymous melody that ended your last engagement.",
+      "hero": {
+        "name": "Isabeau Renard",
+        "role": "Court Violinist",
+        "origin": "Canal-city human"
+      },
+      "actions": [
+        "Ask your duet partner where the melody began.",
+        "Rehearse the difficult passage while watching their unguarded reaction.",
+        "Request a private minute before the curtain rises."
+      ],
+      "gear": [
+        {
+          "name": "Dress Rapier",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Violin Case",
+          "type": "misc"
+        },
+        {
+          "name": "Annotated Score",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_rom_09",
+      "title": "The Orange Tree Truce",
+      "tagline": "The tree remembers a promise neither of you has explained.",
+      "premise": "You enter a palace conservatory to negotiate a border garden and find your former beloved tending the tree planted for a promise neither of you fulfilled.",
+      "hero": {
+        "name": "Sabine Delatour",
+        "role": "Botanical Envoy",
+        "origin": "Southern-coast human"
+      },
+      "actions": [
+        "Ask your former beloved why they kept tending the tree.",
+        "Discuss the border garden before either of you mentions the past.",
+        "Offer to finish the pruning together away from the court's gaze."
+      ],
+      "gear": [
+        {
+          "name": "Pruning Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Botanical Portfolio",
+          "type": "misc"
+        },
+        {
+          "name": "Silk Gloves",
+          "type": "armor"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_rom_10",
+      "title": "The Invitation in Unfinished Ink",
+      "tagline": "Your fiercest critic is rehearsing tenderness in your hand.",
+      "premise": "You deliver a ceremonial invitation to a moonlit terrace and catch your sharpest critic practicing a reply to a love declaration in your own handwriting.",
+      "hero": {
+        "name": "Elodie Marchal",
+        "role": "Court Calligrapher",
+        "origin": "Provincial human"
+      },
+      "actions": [
+        "Ask to see the unfinished reply before delivering the invitation.",
+        "Compare the handwriting without concealing your recognition.",
+        "Set the ceremonial envelope aside and ask whom they hoped to answer."
+      ],
+      "gear": [
+        {
+          "name": "Calligrapher's Penknife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Sealed Invitation",
+          "type": "misc"
+        },
+        {
+          "name": "Ink Case",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
     }
   ],
   "tropes": [

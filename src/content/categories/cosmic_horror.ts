@@ -260,6 +260,237 @@ export const cosmicHorror = {
         "Comprehend Languages"
       ],
       "hp": 11
+    },
+    {
+      "id": "seed_cos_04",
+      "title": "The Parallax in Plate Six",
+      "tagline": "The second horizon moves when the telegram is spoken.",
+      "premise": "You develop an expedition plate beneath a green archive lamp and find its second horizon shifting closer whenever your colleague's telegram is read aloud.",
+      "hero": {
+        "name": "Miriam Quade",
+        "role": "Astronomical Photographer",
+        "origin": "Rain-coast human"
+      },
+      "actions": [
+        "Compare the developed plate with its unopened companion exposure.",
+        "Stop reading and measure whether the second horizon holds still.",
+        "Seal the telegram in the archive's lightproof case."
+      ],
+      "gear": [
+        {
+          "name": "Walking Cane",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Expedition Glass Plate",
+          "type": "relic"
+        },
+        {
+          "name": "Calibrated Ruler",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 9
+    },
+    {
+      "id": "seed_cos_05",
+      "title": "A Catalogue of Missing Angles",
+      "tagline": "The survey measures a room by the angles it removes.",
+      "premise": "You inspect a donated building survey and discover a room measured only in missing angles while footsteps begin occupying that same absence above your desk.",
+      "hero": {
+        "name": "Oswin Pell",
+        "role": "Architectural Archivist",
+        "origin": "University-town human"
+      },
+      "actions": [
+        "Copy the missing angles onto a separate sheet without completing them.",
+        "Ask the night custodian which floor lies above the archive.",
+        "Leave the survey open and test the footsteps from the corridor."
+      ],
+      "gear": [
+        {
+          "name": "Heavy Letter Opener",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Donated Survey",
+          "type": "relic"
+        },
+        {
+          "name": "Graph Paper",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 9
+    },
+    {
+      "id": "seed_cos_06",
+      "title": "The Ninth Transit",
+      "tagline": "The telescope has turned toward an entry you have not written.",
+      "premise": "You reach an observatory with eight recorded transits and find a ninth already entered in your handwriting as the telescope turns toward the floor.",
+      "hero": {
+        "name": "Selma Rooke",
+        "role": "Transit Observer",
+        "origin": "Upland-born human"
+      },
+      "actions": [
+        "Cover the eyepiece before inspecting the ninth observation.",
+        "Compare the ink with the untouched pen on your desk.",
+        "Ask the distant receiving station whether it logged the same transit."
+      ],
+      "gear": [
+        {
+          "name": "Survey Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Transit Ledger",
+          "type": "relic"
+        },
+        {
+          "name": "Lens Cap",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_cos_07",
+      "title": "The Fossil That Remembers Air",
+      "tagline": "An extinct coast is breathing behind a sealed wall.",
+      "premise": "You unpack a fossil in a university workroom and hear it exhale the precise weather of a vanished coast while condensation outlines a door on the sealed wall.",
+      "hero": {
+        "name": "Basil Orme",
+        "role": "Paleontological Preparator",
+        "origin": "Quarry-town human"
+      },
+      "actions": [
+        "Record the exhalation without opening the condensation outline.",
+        "Compare the fossil's cavity with the expedition's packing sketch.",
+        "Close the workroom vents and observe which moisture remains."
+      ],
+      "gear": [
+        {
+          "name": "Preparation Chisel",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Fossil Crate",
+          "type": "relic"
+        },
+        {
+          "name": "Wax Recording Cylinder",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 9
+    },
+    {
+      "id": "seed_cos_08",
+      "title": "The Address Beneath the Stamp",
+      "tagline": "The letter was posted somewhere below the ordinary map.",
+      "premise": "You examine a missing colleague's letter and find its postmark naming a depth rather than a town while seawater darkens the archive steps outside.",
+      "hero": {
+        "name": "Ada Fenwick",
+        "role": "Postal Historian",
+        "origin": "Estuary-born human"
+      },
+      "actions": [
+        "Compare the depth mark with the expedition's last soundings.",
+        "Move the open letter away from the darkening archive steps.",
+        "Ask the night porter when the first water appeared."
+      ],
+      "gear": [
+        {
+          "name": "Brass Walking Stick",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Postmarked Letter",
+          "type": "relic"
+        },
+        {
+          "name": "Sounding Chart",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_cos_09",
+      "title": "The Silence Between Two Bells",
+      "tagline": "The gap between two bells is becoming a place.",
+      "premise": "You compare wax recordings in a locked study and hear an expanding silence between identical bells as the window glass begins reflecting a larger room.",
+      "hero": {
+        "name": "Tomasin Greave",
+        "role": "Acoustic Researcher",
+        "origin": "Mill-town human"
+      },
+      "actions": [
+        "Stop one recording to test whether the silence still expands.",
+        "Measure the reflected room against the visible window frame.",
+        "Cover the glass before replaying the first cylinder alone."
+      ],
+      "gear": [
+        {
+          "name": "Fire Poker",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Paired Wax Cylinders",
+          "type": "relic"
+        },
+        {
+          "name": "Dark Cloth",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 9
+    },
+    {
+      "id": "seed_cos_10",
+      "title": "The Index of Unborn Readers",
+      "tagline": "The index knows the outline of readers who are not here yet.",
+      "premise": "You open an uncatalogued index under leaded archive windows and find future readers listed by the shapes of their shadows as your own detaches from the chair.",
+      "hero": {
+        "name": "Nerin Holt",
+        "role": "Rare Book Conservator",
+        "origin": "Inland-city human"
+      },
+      "actions": [
+        "Close the index without touching the detached shadow.",
+        "Compare its final entry with the chair's changing outline.",
+        "Call a colleague to observe from outside the leaded window."
+      ],
+      "gear": [
+        {
+          "name": "Bookbinding Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Uncatalogued Index",
+          "type": "relic"
+        },
+        {
+          "name": "Reading Lamp",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 9
     }
   ],
   "tropes": [

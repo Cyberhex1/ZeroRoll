@@ -534,6 +534,10 @@ export default function App() {
           customSystemPrompt: prevExp.customSystemPrompt,
           // Book Two continues the same campaign, so it keeps the same inspiration.
           inspiration: prevExp.inspiration,
+          // What the hero learned and did in Book One carries over; the new log starts the count again.
+          memory: prevExp.memory
+            ? { ...prevExp.memory, pending: [], summary: prevExp.memory.summary ? `Book One: ${prevExp.memory.summary}` : '', summarizedThrough: 0 }
+            : undefined,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           character: {

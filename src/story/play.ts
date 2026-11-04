@@ -16,6 +16,11 @@ import { EngineEvent, StoryState, applyChoice, applyNarratorTail, beatOf, chipsF
 import { PromptVariant, directorBlock, parseNarratorReply, storySystemPrompt, targetWords } from './prompt';
 import type { Story } from './schema';
 import type { StoryMessage, StorySave } from '../storage/storyRepository';
+import { MemoryState, addEntry, emptyMemory } from '../memory/memoryStore';
+import { PromptMeter, buildPrompt as buildBudgetedPrompt } from '../memory/promptBuilder';
+import { Turn, shouldSummarize, summarize, summaryPatch } from '../memory/summarizer';
+import { contextTokensFor } from '../memory/tokens';
+import { localBasicTier } from '../desktop/localModel';
 
 export type Completer = (messages: ChatMessage[], tier: Tier, opts: CompleteOptions) => Promise<RouterReply>;
 
@@ -24,15 +29,27 @@ export interface PlaySave extends StorySave {
   undo?: { state: StoryState; messageCount: number };
 }
 
-/** History sent to the model: the newest messages that fit, oldest first. */
-const HISTORY_MESSAGES = 16;
-const HISTORY_CHARS = 12_000;
-
 let seq = 0;
 const mid = () => `${Date.now().toString(36)}-${(seq++).toString(36)}`;
 
 export function newSave(story: Story, tier: Tier = 'good'): PlaySave {
-  return { version: 1, storyId: story.meta.id, state: newState(story), messages: [], length: ['short', 'medium', 'long'].indexOf(story.lengthTarget), tier, updatedAt: Date.now() };
+  return { version: 1, storyId: story.meta.id, state: newState(story), messages: [], memory: emptyMemory(), length: ['short', 'medium', 'long'].indexOf(story.lengthTarget), tier, updatedAt: Date.now() };
+}
+
+/** Saves from before the memory layer have none; they start with an empty one. */
+export function memoryOf(save: StorySave): MemoryState {
+  return save.memory ?? emptyMemory();
+}
+
+/** The player and narrator messages as conversation turns, oldest first. */
+export function turnsOf(save: StorySave): Turn[] {
+  return save.messages
+    .filter((m) => (m.kind === 'player' || m.kind === 'narrator') && m.text)
+    .map((m) => ({ role: m.kind === 'player' ? ('user' as const) : ('assistant' as const), content: m.text! }));
+}
+
+function replyTokens(story: Story, save: StorySave): number {
+  return Math.round(targetWords(story, save.length) * 2.2) + 220;
 }
 
 /** Local 12B models (the basic tier) get the compact prompt. */
@@ -40,22 +57,38 @@ export function variantFor(tier: Tier): PromptVariant {
   return tier === 'basic' ? 'compact' : 'full';
 }
 
-export function buildPrompt(story: Story, save: PlaySave, tier: Tier): { system: string; messages: ChatMessage[] } {
+/**
+ * The prompt for the next narrator reply: story bible and director block (never trimmed),
+ * the memory list, the summary, then as many recent turns as the tier's context allows.
+ */
+export function buildPrompt(story: Story, save: PlaySave, tier: Tier): { system: string; messages: ChatMessage[]; meter: PromptMeter } {
   const variant = variantFor(tier);
-  const system = `${storySystemPrompt(story, variant, targetWords(story, save.length))}\n\n${directorBlock(story, save.state, variant)}`;
-  const convo: ChatMessage[] = [];
-  let chars = 0;
-  for (let i = save.messages.length - 1; i >= 0 && convo.length < HISTORY_MESSAGES; i--) {
-    const m = save.messages[i];
-    if ((m.kind !== 'player' && m.kind !== 'narrator') || !m.text) continue;
-    chars += m.text.length;
-    if (chars > HISTORY_CHARS && convo.length) break;
-    convo.unshift({ role: m.kind === 'player' ? 'user' : 'assistant', content: m.text });
-  }
+  const memory = memoryOf(save);
+  const built = buildBudgetedPrompt({
+    system: storySystemPrompt(story, variant, targetWords(story, save.length)),
+    sheets: [directorBlock(story, save.state, variant)],
+    memory,
+    // Turns the summary already covers are left to it.
+    turns: turnsOf(save).slice(memory.summarizedThrough),
+    contextTokens: contextTokensFor(tier, localBasicTier()?.context),
+    replyReserve: replyTokens(story, save)
+  });
+  const convo = [...built.messages];
   // Providers need the conversation to start with the player.
   while (convo.length && convo[0].role === 'assistant') convo.shift();
   if (!convo.length) convo.push({ role: 'user', content: save.messages.length ? 'Continue the story.' : 'Begin the story.' });
-  return { system, messages: convo };
+  return { system: built.system, messages: convo, meter: built.meter };
+}
+
+/** Pins each beat the story enters, so the model always knows the path so far. */
+function pinBeats(story: Story, memory: MemoryState, events: EngineEvent[], turn: number): MemoryState {
+  let m = memory;
+  for (const e of events) {
+    if (e.kind !== 'beat') continue;
+    const b = beatOf(story, e.to);
+    m = addEntry(m, `${b.isEnding ? 'The story ended' : 'The story reached'}: ${b.title}.`, turn, 'beat', true);
+  }
+  return m;
 }
 
 function artMessages(events: EngineEvent[], beat: string): StoryMessage[] {
@@ -80,18 +113,17 @@ export function addPlayerInput(story: Story, save: PlaySave, input: { text?: str
   const messages = [...save.messages];
   if (text) messages.push({ id: mid(), kind: 'player', text, beat: save.state.beat, at: Date.now() });
   messages.push(...artMessages(events, state.beat));
-  return { save: { ...save, state, messages }, events };
+  return { save: { ...save, state, messages, memory: pinBeats(story, memoryOf(save), events, state.turns) }, events };
 }
 
 /** Asks the narrator for the next reply and applies it. Throws the router's AIError on failure. */
 export async function narrate(story: Story, save: PlaySave, complete: Completer, opts: { signal?: AbortSignal } = {}): Promise<{ save: PlaySave; events: EngineEvent[] }> {
   const undo = { state: save.state, messageCount: save.messages.length };
   const { system, messages } = buildPrompt(story, save, save.tier);
-  const words = targetWords(story, save.length);
   const reply = await complete(messages, save.tier, {
     system,
     temperature: 0.85,
-    maxTokens: Math.round(words * 2.2) + 220,
+    maxTokens: replyTokens(story, save),
     signal: opts.signal,
     feature: 'Story mode'
   });
@@ -121,13 +153,37 @@ export async function narrate(story: Story, save: PlaySave, complete: Completer,
     const end = beatOf(story, state.ending);
     out.push({ id: mid(), kind: 'note', text: `Ending reached: ${end.endingTitle ?? end.title}`, beat: state.beat, at: Date.now() });
   }
-  return { save: { ...save, state, messages: out, undo }, events };
+  return { save: { ...save, state, messages: out, memory: pinBeats(story, memoryOf(save), events, state.turns), undo }, events };
+}
+
+/**
+ * Runs the memory worker when enough turns have left the recent window. Returns a function
+ * that applies the new summary and proposed facts to whatever the save is by the time the
+ * worker finishes (the player may have played on), or null when there is nothing to apply.
+ * Never throws: a failed or unreadable summary changes nothing and the next turn tries again.
+ */
+export async function maybeSummarize(save: PlaySave, complete: Completer, opts: { signal?: AbortSignal } = {}): Promise<((latest: PlaySave) => PlaySave) | null> {
+  const memory = memoryOf(save);
+  const turns = turnsOf(save);
+  if (!shouldSummarize(memory, turns.length)) return null;
+  try {
+    const r = await summarize(memory, turns, complete, opts);
+    if (!r.ok) return null;
+    const patch = summaryPatch(memory, r.memory);
+    return (latest) => ({ ...latest, memory: patch(memoryOf(latest)) });
+  } catch (_) {
+    return null;
+  }
 }
 
 /** Reroll: back to the snapshot before the last narrator call. */
 export function rewindForReroll(save: PlaySave): PlaySave | null {
   if (!save.undo) return null;
-  return { ...save, state: save.undo.state, messages: save.messages.slice(0, save.undo.messageCount), undo: undefined };
+  const turn = save.undo.state.turns;
+  // Beat pins made by the rerolled reply go with it; everything else in memory stays.
+  const memory = memoryOf(save);
+  const kept = { ...memory, entries: memory.entries.filter((e) => !(e.source === 'beat' && e.createdTurn > turn)) };
+  return { ...save, state: save.undo.state, messages: save.messages.slice(0, save.undo.messageCount), memory: kept, undo: undefined };
 }
 
 /** The choice chips under the newest narrator message (the beat's authored ones before the first). */

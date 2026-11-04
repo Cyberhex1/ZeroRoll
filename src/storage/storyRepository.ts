@@ -6,6 +6,7 @@ import { idb } from './db';
 import type { StoryState } from '../story/engine';
 import type { Story } from '../story/schema';
 import type { Tier } from '../ai/router';
+import type { MemoryState } from '../memory/memoryStore';
 
 export interface StoryMessage {
   id: string;
@@ -27,10 +28,14 @@ export interface StorySave {
   storyId: string;
   state: StoryState;
   messages: StoryMessage[];
+  /** Memory list, summary and pending facts. Missing on saves from before Phase 3. */
+  memory?: MemoryState;
   /** Reply length slider, 0 short to 2 long. */
   length: number;
   tier: Tier;
   updatedAt: number;
+  /** updatedAt of the cloud backup this save last matched; a cloud copy newer than it came from elsewhere. */
+  cloudBase?: number;
 }
 
 export interface StoryProgress {
@@ -52,7 +57,17 @@ export interface SaveExport {
 
 export const StoryRepository = {
   load: (storyId: string) => idb.get<StorySave>('storySaves', storyId),
-  save: (save: StorySave) => idb.put('storySaves', save.storyId, { ...save, updatedAt: Date.now() }),
+  /** Writes the save stamped with the time, and returns the stamped save. */
+  async save<T extends StorySave>(save: T): Promise<T> {
+    const stamped = { ...save, updatedAt: Math.max(Date.now(), save.updatedAt + 1) };
+    await idb.put('storySaves', save.storyId, stamped);
+    return stamped;
+  },
+  /** Records that the cloud now holds the save made at `at`, without counting as a new save. */
+  async markBackedUp(storyId: string, at: number): Promise<void> {
+    const cur = await idb.get<StorySave>('storySaves', storyId);
+    if (cur) await idb.put('storySaves', storyId, { ...cur, cloudBase: Math.max(cur.cloudBase ?? 0, at) });
+  },
   remove: (storyId: string) => idb.delete('storySaves', storyId),
   list: () => idb.all<StorySave>('storySaves').then((all) => all.sort((a, b) => b.updatedAt - a.updatedAt)),
 
@@ -106,5 +121,10 @@ export function parseExport(data: unknown, stories: Story[]): SaveExport {
     throw new Error('The save does not match this version of the story, so it was not imported.');
   }
   if (!Array.isArray(d.save.messages)) throw new Error('The save has no messages.');
+  const mem = d.save.memory;
+  if (mem && (!Array.isArray(mem.entries) || !Array.isArray(mem.pending) || typeof mem.summary !== 'string' || typeof mem.summarizedThrough !== 'number')) {
+    // A damaged memory list should not cost the player the whole save.
+    return { ...d, save: { ...d.save, memory: undefined } };
+  }
   return d;
 }

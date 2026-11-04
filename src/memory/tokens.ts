@@ -13,10 +13,10 @@ export function estimateTokens(text: string): number {
 
 /**
  * The context the prompt may use for a tier. Local models run with the context the PC
- * app set (8k by default); hosted models get a generous but bounded window so long
+ * app set (8k by default) whenever they answer the tier (callers pass it only then); hosted models get a generous but bounded window so long
  * stories stay affordable.
  */
 export function contextTokensFor(tier: Tier, localContext?: number): number {
-  if (tier === 'basic' && localContext) return localContext;
+  if (localContext) return localContext;
   return tier === 'basic' ? 16_000 : 32_000;
 }

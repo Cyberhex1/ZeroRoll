@@ -5,12 +5,20 @@ import {
   DiceRollResult,
   AvatarEvolution,
   ActionTurnResult,
-  DMStoryOutline
+  DMStoryOutline,
+  CampaignInspiration
 } from '../types';
-import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomScenarios';
-import { CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
-import { buildGroundedSeedContext, getCategoryNarrativeProfile } from './narrativeProfiles';
-import { getCategoryFallbackActions } from './experienceHelpers';
+
+/** A brainstorm list for the Story Seeds tab (AI refresh or the category's own tropes). */
+export interface CategorySeedInfo {
+  categoryId: string;
+  categoryName: string;
+  mediaReferences: string[];
+  prompts: string[];
+}
+import { generateRandomScenarioSetup, RandomizedScenarioData } from '../content/procedural';
+import { getCategoryFallbackActions, getCategoryProfile, getContent } from '../content';
+import { fullProfileBlock, turnContextBlock } from '../content/injection';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError } from './aiErrors';
 import { reportAIFailure, reportAINotice, reportAISuccess, resetAIStatus } from './aiStatus';
@@ -599,13 +607,19 @@ export async function executeActionTurn(params: {
   characterState?: any;
   diceRoll?: DiceRollResult;
   storyOutline?: DMStoryOutline;
+  /** The campaign's stored inspiration, sent verbatim every turn. */
+  inspiration?: CampaignInspiration;
+  /** 'referee' is the free-text Rules Referee: no genre corpus and no outline (injection policy). */
+  purpose?: 'turn' | 'referee';
 }): Promise<ActionTurnResult> {
-  const { contents, category, model, systemInstruction, characterState, diceRoll, storyOutline } = params;
+  const { contents, category, model, systemInstruction, characterState, diceRoll, inspiration, purpose = 'turn' } = params;
+  const isReferee = purpose === 'referee';
+  const storyOutline = isReferee ? undefined : params.storyOutline;
   const hasKey = hasActiveGeminiKey();
 
   if (hasKey) {
     try {
-      const narrativeCorpus = buildGroundedSeedContext(category, contents);
+      const narrativeCorpus = isReferee ? '' : turnContextBlock(category, inspiration);
       // Issue #5: ALWAYS include the base GM prompt + narrative corpus +
       // story outline. The user's custom system instruction is appended as
       // a stylistic flavor on top, so the AI always has the campaign
@@ -875,8 +889,10 @@ export async function generateScenarioAI(params: {
   raceOrigin?: string;
   /** When false, AI failures throw instead of returning a procedural scenario. */
   allowFallback?: boolean;
+  /** Inspiration picked for this setup; stored on the campaign if the player keeps it. */
+  inspiration?: CampaignInspiration;
 }): Promise<{ scenario: RandomizedScenarioData; source: 'ai' | 'procedural' }> {
-  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true } = params;
+  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true, inspiration } = params;
   const hasKey = hasActiveGeminiKey();
 
   if (!hasKey && !allowFallback) {
@@ -891,7 +907,7 @@ export async function generateScenarioAI(params: {
 
   if (hasKey) {
     try {
-      const narrativeCorpus = buildGroundedSeedContext(category, userPrompt);
+      const narrativeCorpus = fullProfileBlock(category, inspiration);
       const prompt = `You are a master tabletop RPG Game Master, author, and worldbuilder.
 
 ${narrativeCorpus}
@@ -1062,7 +1078,15 @@ Output MUST be strictly valid JSON matching this schema:
     reportMissingKey('Seedlist refresh');
   }
 
-  return { seedlist: CATEGORY_SEEDLISTS[category] || CATEGORY_SEEDLISTS.fantasy };
+  const c = getContent(category);
+  return {
+    seedlist: {
+      categoryId: category,
+      categoryName: c.card.name,
+      mediaReferences: c.media.map((m) => `${m.title} (${m.medium})`),
+      prompts: c.tropes.map((t) => t.premise)
+    }
+  };
 }
 
 /**
@@ -1080,7 +1104,7 @@ export async function rollSingleFieldAI(
 
   if (hasKey) {
     try {
-      const profile = getCategoryNarrativeProfile(category);
+      const profile = getCategoryProfile(category);
       const prompt = `You are a creative tabletop RPG generator. Generate a SINGLE unique, imaginative "${fieldType}" for a "${profile.name}" campaign.
 ${contextPrompt ? `Context / Story Theme: "${contextPrompt}"` : ''}
 Genre Profile: ${profile.name} (${profile.voice}).
@@ -1204,15 +1228,16 @@ export async function generateChapterOneAI(params: {
   storyOutline?: DMStoryOutline;
   characterState: any;
   model: string;
+  inspiration?: CampaignInspiration;
 }): Promise<ActionTurnResult> {
-  const { category, storyBlurb, storyOutline, characterState } = params;
+  const { category, storyBlurb, storyOutline, characterState, inspiration } = params;
   const hasKey = hasActiveGeminiKey();
 
   if (hasKey) {
     try {
       const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
 
-${buildGroundedSeedContext(category, storyBlurb)}
+${fullProfileBlock(category, inspiration)}
 
 STORY PREMISE:
 ${storyBlurb}

@@ -15,7 +15,8 @@
     "backup:firestore": "tsx scripts/backup-firestore.ts",
     "restore:firestore": "tsx scripts/restore-firestore.ts",
     "ai:smoke": "tsx scripts/ai-smoke.ts",
-    "models:check": "tsx scripts/check-models.ts"
+    "models:check": "tsx scripts/check-models.ts",
+    "content:check": "tsx scripts/validate-content.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",

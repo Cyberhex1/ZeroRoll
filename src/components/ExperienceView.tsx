@@ -15,7 +15,7 @@ import {
   CourseChangeAlert,
   StatBlock
 } from '../types';
-import { getCategoryFallbackActions } from '../lib/experienceHelpers';
+import { getCategoryFallbackActions, pickInspiration } from '../content';
 import { NarrativeStream } from './NarrativeStream';
 import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
@@ -95,7 +95,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     const tempExp: Experience = { 
       ...currentExp, 
       logs: updatedLogs,
-      pendingCheck: checkResolved ? null : currentExp.pendingCheck
+      pendingCheck: checkResolved ? null : currentExp.pendingCheck,
+      // Campaigns from before inspiration was stored get theirs now and keep it from here on.
+      inspiration: currentExp.inspiration ?? pickInspiration(currentExp.category)
     };
     onUpdateExperience(tempExp);
 
@@ -109,7 +111,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         systemInstruction: tempExp.customSystemPrompt,
         characterState: tempExp.character,
         diceRoll,
-        storyOutline: tempExp.storyOutline
+        storyOutline: tempExp.storyOutline,
+        inspiration: tempExp.inspiration
       });
 
       const dmMsg: LogMessage = {
@@ -277,7 +280,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         contents: `[Rules Referee Adjudication Request]\nCharacter Stats: STR ${currentExp.character.stats.str}, DEX ${currentExp.character.stats.dex}, CON ${currentExp.character.stats.con}, INT ${currentExp.character.stats.int}, WIS ${currentExp.character.stats.wis}, CHA ${currentExp.character.stats.cha}.\nProposed Action: ${actionText}`,
         category: currentExp.category,
         model: selectedModel,
-        systemInstruction: 'You are the Rule Adjudicator. Parse the player action and explain difficulty (DC) and requirements.'
+        systemInstruction: 'You are the Rule Adjudicator. Parse the player action and explain difficulty (DC) and requirements.',
+        purpose: 'referee'
       });
 
       const adjudicatorMsg: LogMessage = {

@@ -46,16 +46,12 @@ import {
   MapData,
   LogMessage,
   UserProfile,
-  DMStoryOutline
+  DMStoryOutline,
+  CampaignInspiration
 } from './types';
 import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
-import { CATEGORIES_DATA } from './lib/categoriesData';
-import {
-  getCategoryDefaultInventory,
-  mergeInventoryAdditive,
-  getCategoryFallbackActions,
-  createVariedInitialMap
-} from './lib/experienceHelpers';
+import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
+import { mergeInventoryAdditive, createVariedInitialMap } from './lib/experienceHelpers';
 
 function safeGetStorage(key: string): string | null {
   try {
@@ -383,7 +379,8 @@ export default function App() {
     suggestedActions?: string[],
     storyOutline?: DMStoryOutline,
     chapterOneOpening?: string,
-    chapterOneModel?: string
+    chapterOneModel?: string,
+    inspiration?: CampaignInspiration
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
@@ -446,6 +443,7 @@ export default function App() {
       logs: [initialLog],
       mapData: initialMap,
       storyOutline: finalStoryOutline,
+      inspiration: inspiration ?? pickInspiration(category),
       pendingCheck: null,
       activeAlert: null
     };
@@ -518,6 +516,8 @@ export default function App() {
           description: data.scenario.storyBlurb || 'The adventure continues...',
           model: selectedModel,
           customSystemPrompt: prevExp.customSystemPrompt,
+          // Book Two continues the same campaign, so it keeps the same inspiration.
+          inspiration: prevExp.inspiration,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           character: {

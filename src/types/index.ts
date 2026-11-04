@@ -226,6 +226,18 @@ export interface Experience {
   storyOutline?: DMStoryOutline;
   pendingCheck?: PendingCheck | null;
   activeAlert?: CourseChangeAlert | null;
+  /**
+   * Inspiration picked once at creation and sent verbatim on every turn, so turn 1 and
+   * turn 20 read from the same block. Older campaigns without it get one on their next turn.
+   */
+  inspiration?: CampaignInspiration;
+}
+
+export interface CampaignInspiration {
+  media: string[];
+  tropes: string[];
+  /** The opener the campaign started from, if any. */
+  openerId?: string;
 }
 
 export interface GeminiModelOption {

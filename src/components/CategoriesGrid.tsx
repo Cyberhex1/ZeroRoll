@@ -31,6 +31,7 @@ import {
 import { CATEGORIES_DATA, drawOpeners, markOpenersSeen, pickInspiration, gearToInventory, getContent, OpenerDraw, Opener } from '../content';
 import { generateRandomScenarioSetup } from '../content/procedural';
 import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI, OFFLINE_ENGINE_LABEL } from '../lib/geminiService';
+import { RULES_MODES, RulesMode, abilityMod, fmtMod, roleTemplate } from '../dnd/rules';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory, CampaignInspiration } from '../types';
 
 
@@ -60,7 +61,8 @@ interface CategoriesGridProps {
     storyOutline?: DMStoryOutline,
     chapterOneOpening?: string,
     chapterOneModel?: string,
-    inspiration?: CampaignInspiration
+    inspiration?: CampaignInspiration,
+    rulesMode?: RulesMode
   ) => Promise<void>;
   onDeleteExperience: (id: string) => void;
   selectedModel: string;
@@ -93,7 +95,22 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   const [initialInventory, setInitialInventory] = useState<InventoryItem[]>([]);
   const [initialSpells, setInitialSpells] = useState<string[]>([]);
   const [initialConditions, setInitialConditions] = useState<string[]>(['Well-Rested']);
-  const [startingHp, setStartingHp] = useState<number>(12);
+  const [startingHp, setStartingHp] = useState<number>(0);
+  const [rulesMode, setRulesModeState] = useState<RulesMode>(() => {
+    try {
+      return localStorage.getItem('zeroroll_rules_mode') === 'full5e' ? 'full5e' : 'narrative';
+    } catch (_) {
+      return 'narrative';
+    }
+  });
+  const setRulesMode = (m: RulesMode) => {
+    setRulesModeState(m);
+    try {
+      localStorage.setItem('zeroroll_rules_mode', m);
+    } catch (_) {
+      /* the choice still applies to this campaign */
+    }
+  };
   const [suggestedActions, setSuggestedActions] = useState<string[]>([]);
   const [currentStoryOutline, setCurrentStoryOutline] = useState<DMStoryOutline | undefined>(undefined);
   // Where the current setup fields came from, so offline drafts are never mistaken for AI output.
@@ -191,9 +208,10 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setPhysicalDesc(randomSetup.physicalDescription);
     setSuggestedActions(randomSetup.suggestedActions);
     setInitialInventory(randomSetup.initialInventory);
-    setInitialSpells(randomSetup.initialSpells);
+    // The random hook's spells and HP are not tied to its role, so the role decides (PS8).
+    setInitialSpells([]);
     setInitialConditions(randomSetup.initialConditions);
-    setStartingHp(randomSetup.startingHp);
+    setStartingHp(0);
 
     // Clear any AI-specific state from previous generations
     setCurrentStoryOutline(undefined);
@@ -295,7 +313,9 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           })));
         }
         if (Array.isArray(sc.initialConditions)) setInitialConditions(sc.initialConditions);
-        if (sc.startingHp) setStartingHp(sc.startingHp);
+        // AI starting spells are kept (S21); HP follows the role (PS8).
+        setInitialSpells(Array.isArray(sc.initialSpells) ? sc.initialSpells.filter((x: unknown): x is string => typeof x === 'string').slice(0, 6) : []);
+        setStartingHp(0);
       } else {
         setEditedFields((prev) => {
           const next = new Set(prev);
@@ -434,6 +454,16 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     return errors;
   };
 
+  // What the hero sheet will hold, shown before Initialize (PS8, PS9): stats, HP and AC
+  // from the role; spells from the opener or the AI, else the role's.
+  const template = roleTemplate(charRole || 'Adventurer');
+  const heroPreview = {
+    stats: template.stats,
+    maxHp: startingHp || template.maxHp,
+    armorClass: template.armorClass,
+    spells: initialSpells.length ? initialSpells : template.spells
+  };
+
   const handleConfirmCreate = async (opts: { acceptPremise?: boolean } = {}) => {
     if (!selectedCategoryModal) return;
     if (anyBusy) return;
@@ -456,14 +486,15 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       gender: resolvedPronouns().slice(0, FIELD_LIMITS.pronouns),
       roleClass: charRole.trim().slice(0, FIELD_LIMITS.roleClass),
       raceOrigin: charRace.trim().slice(0, FIELD_LIMITS.raceOrigin),
-      level: selectedCategoryModal.defaultCharacter.level || 1,
-      hp: startingHp || selectedCategoryModal.defaultCharacter.hp || 24,
-      maxHp: startingHp || selectedCategoryModal.defaultCharacter.maxHp || 24,
-      armorClass: selectedCategoryModal.defaultCharacter.armorClass || 14,
-      initiativeBonus: selectedCategoryModal.defaultCharacter.initiativeBonus || 2,
-      stats: selectedCategoryModal.defaultCharacter.stats || { str: 12, dex: 12, con: 12, int: 10, wis: 10, cha: 10 },
+      level: 1,
+      hp: heroPreview.maxHp,
+      maxHp: heroPreview.maxHp,
+      armorClass: heroPreview.armorClass,
+      initiativeBonus: abilityMod(heroPreview.stats.dex),
+      stats: heroPreview.stats,
       inventory: initialInventory.length > 0 ? initialInventory : (selectedCategoryModal.defaultCharacter.inventory || []),
-      spells: initialSpells.length > 0 ? initialSpells : (selectedCategoryModal.defaultCharacter.spells || []),
+      spells: heroPreview.spells,
+      ...(rulesMode === 'full5e' ? { xp: 0, gold: 10 } : {}),
       statusEffects: initialConditions.length > 0 ? initialConditions : ['Well-Rested'],
       // The canonical hero's backstory does not belong to a generated hero (PS16).
       backgroundNotes: '',
@@ -510,7 +541,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         currentStoryOutline,
         chapterOneText,
         chapterOneModel,
-        inspiration
+        inspiration,
+        rulesMode
       );
       closeModal();
     } catch (err: any) {
@@ -744,7 +776,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </button>
 
                         <button
-                          onClick={() => onDeleteExperience(exp.id)}
+                          onClick={() => { if (window.confirm(`Delete "${exp.title}" for good? This removes it from this device and the cloud.`)) onDeleteExperience(exp.id); }}
                           className="p-1.5 rounded bg-white/5 hover:bg-red-950 hover:text-red-300 text-slate-500 transition border border-white/5"
                           title="Delete Experience"
                         >
@@ -1060,27 +1092,44 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       className="w-full bg-[#0A0A0F] border border-white/10 rounded p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 leading-relaxed resize-none disabled:opacity-60 font-sans"
                     />
                     
-                    {/* Thematic Starting Gear Preview */}
-                    {initialInventory.length > 0 && (
-                      <div className="mt-2.5 p-2 rounded bg-black/40 border border-white/5 space-y-1 text-xs">
-                        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold flex items-center justify-between">
-                          <span>Story-Linked Starting Inventory ({initialInventory.length} items):</span>
-                          <span className="text-amber-400 font-bold">HP {startingHp}</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {initialInventory.map((item, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300">
-                              {item.name}
-                            </span>
-                          ))}
-                          {initialSpells.map((sp, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded bg-blue-950/60 border border-blue-800/40 text-[10px] font-mono text-blue-300">
-                              ⚡ {sp}
-                            </span>
-                          ))}
-                        </div>
+                    {/* Hero sheet preview: what Initialize will create (PS9) */}
+                    <div className="mt-2.5 p-2 rounded bg-black/40 border border-white/5 space-y-1.5 text-xs">
+                      <div className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold flex items-center justify-between">
+                        <span>Hero sheet for a {charRole || 'hero'}</span>
+                        <span className="text-amber-400 font-bold">HP {heroPreview.maxHp}{rulesMode === 'full5e' ? ` · AC ${heroPreview.armorClass}` : ''}</span>
                       </div>
-                    )}
+                      <div className="flex flex-wrap gap-1.5 font-mono text-[10px] text-slate-300">
+                        {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const).map((k) => (
+                          <span key={k} className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10">{k.toUpperCase()} {heroPreview.stats[k]} ({fmtMod(abilityMod(heroPreview.stats[k]))})</span>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {initialInventory.map((item, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300">
+                            {item.name}
+                          </span>
+                        ))}
+                        {heroPreview.spells.map((sp, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded bg-blue-950/60 border border-blue-800/40 text-[10px] font-mono text-blue-300">
+                            ⚡ {sp}
+                          </span>
+                        ))}
+                      </div>
+                      <fieldset className="pt-1 space-y-1">
+                        <legend className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold">Rules</legend>
+                        <div className="flex flex-wrap gap-2">
+                          {(Object.keys(RULES_MODES) as RulesMode[]).map((m) => (
+                            <label key={m} className={`flex items-start gap-1.5 rounded border px-2 py-1 cursor-pointer ${rulesMode === m ? 'border-amber-500/70 bg-amber-500/10' : 'border-white/10'}`}>
+                              <input type="radio" name="rules-mode" value={m} checked={rulesMode === m} onChange={() => setRulesMode(m)} className="mt-0.5 accent-amber-500" />
+                              <span>
+                                <span className="block text-[11px] font-semibold text-slate-200">{RULES_MODES[m].name}</span>
+                                <span className="block text-[10px] text-slate-400">{RULES_MODES[m].blurb}</span>
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </fieldset>
+                    </div>
                   </div>
                 </div>
               ) : (

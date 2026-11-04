@@ -3,7 +3,7 @@
  * budgeted story context (memory, summary, recent log) and memory entries made from the
  * game master's STATE_UPDATE blocks and story alerts.
  */
-import type { CharacterSheet, CourseChangeAlert, Experience, GameWorldState, LogMessage, StateDelta } from '../types';
+import type { CharacterSheet, CourseChangeAlert, DMStoryOutline, Experience, GameWorldState, LogMessage, StateDelta } from '../types';
 import type { ChatMessage } from '../ai/transport';
 import { MemoryState, addEntry, deleteEntry, emptyMemory } from '../memory/memoryStore';
 import { PromptMeter, buildPrompt } from '../memory/promptBuilder';
@@ -23,7 +23,7 @@ const mod = (score: number) => {
  * Everything the model must treat as true about the hero right now. HP 0 is sent as 0
  * (the old prompt used `||` and turned it into 12), and inventory and conditions are sent.
  */
-export function currentStateBlock(c: Partial<CharacterSheet> | undefined, world?: Partial<GameWorldState>): string {
+export function currentStateBlock(c: Partial<CharacterSheet> | undefined, world?: Partial<GameWorldState>, outline?: Partial<DMStoryOutline>): string {
   if (!c) return '';
   const hp = n(c.hp, 12);
   const maxHp = n(c.maxHp, Math.max(hp, 12));
@@ -38,15 +38,30 @@ export function currentStateBlock(c: Partial<CharacterSheet> | undefined, world?
     `Conditions: ${c.statusEffects?.length ? c.statusEffects.join(', ') : 'none'}`,
     c.spells?.length ? `Spells: ${c.spells.join(', ')}` : '',
     world?.currentLocation ? `Location: ${world.currentLocation}` : '',
-    world?.activeQuest ? `Quest: ${world.activeQuest}` : ''
+    world?.activeQuest ? `Quest: ${world.activeQuest}` : '',
+    chapterLine(world, outline),
+    c.gold !== undefined ? `Gold: ${c.gold}` : '',
+    c.xp !== undefined ? `XP: ${c.xp}` : '',
+    c.deathSaves && hp <= 0 ? `Death saves: ${c.deathSaves.successes} successes, ${c.deathSaves.failures} failures` : ''
   ];
   return lines.filter(Boolean).join('\n');
 }
 
+/** CURRENT CHAPTER: N of M, with the chapter's roadmap text (S10). */
+export function chapterLine(world?: Partial<GameWorldState>, outline?: Partial<DMStoryOutline>): string {
+  const chapters = outline?.chapters ?? [];
+  if (!chapters.length) return '';
+  const n = Math.min(chapters.length, Math.max(1, world?.currentChapter ?? 1));
+  return `CURRENT CHAPTER: ${n} of ${chapters.length}: ${chapters[n - 1]}`;
+}
+
+/** Marks the player's questions to the Rules Referee, which stay out of the story transcript. */
+export const REFEREE_PREFIX = '[Rules Referee Check]:';
+
 /** Story log messages as turns: the player and the game master only. */
 export function dndTurns(logs: LogMessage[]): Turn[] {
   return logs
-    .filter((l) => (l.sender === 'player' || l.sender === 'dm') && l.text)
+    .filter((l) => (l.sender === 'player' || l.sender === 'dm') && l.text && !l.text.startsWith(REFEREE_PREFIX))
     .map((l) => ({ role: l.sender === 'player' ? ('user' as const) : ('assistant' as const), content: l.text }));
 }
 

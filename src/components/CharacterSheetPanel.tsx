@@ -1,3 +1,4 @@
+import { RulesMode, XP_FOR_LEVEL, fmtMod, proficienciesOf, proficiencyBonus } from '../dnd/rules';
 import React, { useState } from 'react';
 import {
   Shield,
@@ -22,6 +23,8 @@ interface CharacterSheetPanelProps {
   currentLocation?: string;
   recentStoryContext?: string;
   selectedModel?: string;
+  /** Full 5e shows AC, initiative, XP, gold, proficiencies and death saves; Narrative dice hides them. */
+  rulesMode?: RulesMode;
 }
 
 export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
@@ -31,8 +34,10 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
   experienceCategory = 'fantasy_dnd',
   currentLocation = 'Starting Area',
   recentStoryContext = '',
-  selectedModel = 'gemini-2.5-flash'
+  selectedModel = 'gemini-2.5-flash',
+  rulesMode = 'narrative'
 }) => {
+  const full = rulesMode === 'full5e';
   const [physicalDesc, setPhysicalDesc] = useState(character.physicalDescription || '');
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -135,7 +140,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-amber-50 font-serif leading-tight">{character.name}</h2>
               <p className="text-xs text-amber-400/90 font-mono mt-0.5">
-                Level {character.level} • {character.raceOrigin} • {character.roleClass}
+                {full ? `Level ${character.level} • ` : ''}{character.raceOrigin} • {character.roleClass}
               </p>
               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                 {character.gender && (
@@ -143,15 +148,47 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
                     {character.gender}
                   </span>
                 )}
-                <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
-                  <Shield className="w-2.5 h-2.5 text-amber-400" />
-                  AC {character.armorClass}
-                </span>
-                <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
-                  <Zap className="w-2.5 h-2.5 text-amber-400" />
-                  Init +{character.initiativeBonus}
-                </span>
+                {full && (
+                  <>
+                    <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
+                      <Shield className="w-2.5 h-2.5 text-amber-400" />
+                      AC {character.armorClass}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
+                      <Zap className="w-2.5 h-2.5 text-amber-400" />
+                      Init {fmtMod(character.initiativeBonus ?? 0)}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5">
+                      Prof {fmtMod(proficiencyBonus(character.level || 1))}
+                    </span>
+                  </>
+                )}
+                {character.gold !== undefined && (
+                  <span className="text-[10px] font-mono text-amber-200 bg-black/40 px-2 py-0.5 rounded border border-white/5">{character.gold} gold</span>
+                )}
               </div>
+              {full && (
+                <div className="mt-2 space-y-1 text-[10px] font-mono text-slate-400">
+                  {(() => {
+                    const level = character.level || 1;
+                    const xp = character.xp ?? XP_FOR_LEVEL[level] ?? 0;
+                    const next = XP_FOR_LEVEL[level + 1];
+                    const from = XP_FOR_LEVEL[level] ?? 0;
+                    return next ? (
+                      <div>
+                        <div className="flex justify-between"><span>XP {xp}</span><span>Level {level + 1} at {next}</span></div>
+                        <div className="h-1 rounded bg-white/10 overflow-hidden" role="progressbar" aria-valuemin={from} aria-valuemax={next} aria-valuenow={xp} aria-label="Experience">
+                          <div className="h-full bg-amber-500" style={{ width: `${Math.min(100, ((xp - from) / (next - from)) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : <div>XP {xp} (max level)</div>;
+                  })()}
+                  <div>Trained: {proficienciesOf(character).join(', ')}</div>
+                  {character.hp <= 0 && character.deathSaves && (
+                    <div className="text-red-300">Death saves: {'●'.repeat(character.deathSaves.successes)}{'○'.repeat(3 - character.deathSaves.successes)} success, {'●'.repeat(Math.min(3, character.deathSaves.failures))}{'○'.repeat(Math.max(0, 3 - character.deathSaves.failures))} failure</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -9,13 +9,16 @@ interface DiceRollModalProps {
   onClose: () => void;
   onApplyRoll?: (result: DiceRollResult) => void;
   soundEnabled?: boolean;
+  /** A roll for a pending check: it counts, so it cannot be discarded and rolled again. */
+  mandatory?: boolean;
 }
 
 export const DiceRollModal: React.FC<DiceRollModalProps> = ({
   rollResult,
   onClose,
   onApplyRoll,
-  soundEnabled = true
+  soundEnabled = true,
+  mandatory = false
 }) => {
   const [isRolling, setIsRolling] = useState(true);
 
@@ -52,8 +55,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#111118] border border-white/10 rounded-lg max-w-sm w-full p-5 text-center space-y-4 shadow-2xl relative overflow-hidden text-slate-200">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onKeyDown={(e) => e.key === 'Escape' && !mandatory && onClose()}>
+      <div role="dialog" aria-modal="true" aria-label="Dice roll" className="bg-[#111118] border border-white/10 rounded-lg max-w-sm w-full p-5 text-center space-y-4 shadow-2xl relative overflow-hidden text-slate-200">
         
         {/* Glow Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-purple-500/5 pointer-events-none" />
@@ -107,19 +110,25 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
 
         <div className="space-y-2 pt-1">
           <button
+            autoFocus
             onClick={handleApply}
+            disabled={isRolling}
             className="w-full py-2.5 rounded bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider transition shadow flex items-center justify-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            Apply Roll to Story (Ask Game Master)
+            {mandatory ? 'Use this roll (Ask Game Master)' : 'Apply Roll to Story (Ask Game Master)'}
           </button>
 
-          <button
-            onClick={onClose}
-            className="w-full py-1.5 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-slate-200 text-[11px] font-mono transition"
-          >
-            Close / Log Result Only
-          </button>
+          {mandatory ? (
+            <p className="text-[10px] text-slate-500">This roll is for the check the story called for, so it counts.</p>
+          ) : (
+            <button
+              onClick={onClose}
+              className="w-full py-1.5 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-slate-200 text-[11px] font-mono transition"
+            >
+              Discard this roll
+            </button>
+          )}
         </div>
 
       </div>

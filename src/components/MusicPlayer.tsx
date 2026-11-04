@@ -212,11 +212,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ currentTrackKey }) => {
             setToastVisible(false);
             try { localStorage.setItem(KEY_TOAST, '1'); } catch {}
           }}
-          className="fixed bottom-24 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-xl border border-amber-500/40 bg-stone-900/95 text-amber-100 shadow-2xl backdrop-blur-sm hover:border-amber-400/70 hover:bg-stone-800/95 transition-colors"
+          className="fixed bottom-40 right-3 sm:bottom-24 sm:right-4 z-50 flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 rounded-xl border border-amber-500/40 bg-stone-900/95 text-amber-100 shadow-2xl backdrop-blur-sm hover:border-amber-400/70 hover:bg-stone-800/95 transition-colors"
           aria-label="Click to enable ambient music"
         >
           <Sparkles className="w-4 h-4 text-amber-300" aria-hidden="true" />
-          <span className="text-sm font-medium">Click to enable music</span>
+          <span className="text-xs sm:text-sm font-medium">Click to enable music</span>
           <span
             role="button"
             tabIndex={-1}

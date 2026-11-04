@@ -1,4 +1,5 @@
 import { Portrait } from './ui/Portrait';
+import ModeSwitch from './ModeSwitch';
 import { PortraitsOffError, setFreePortraitsAllowed } from '../lib/portraits';
 import { clickable } from './ui/a11y';
 import { useDialog } from './ui/useDialog';
@@ -579,7 +580,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   return (
     <div className="min-h-[calc(100vh-56px)] bg-[#0F0F12] text-slate-200 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        
+        <ModeSwitch />
+
         {/* Banner Section */}
         <div className="relative overflow-hidden rounded-lg bg-[#16161D] border border-white/10 p-5 sm:p-8 shadow-2xl">
           <div className="relative z-10 max-w-3xl space-y-2">

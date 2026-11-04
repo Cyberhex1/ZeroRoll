@@ -67,6 +67,13 @@ export interface CharacterSheet {
   backgroundNotes: string;
   avatarUrl?: string;
   physicalDescription?: string;
+  /** Full 5e only. */
+  xp?: number;
+  gold?: number;
+  /** Trained skills (Full 5e); missing means the role's defaults. */
+  proficiencies?: string[];
+  /** Full 5e, while at 0 HP. */
+  deathSaves?: { successes: number; failures: number };
 }
 
 export interface StateDelta {
@@ -77,6 +84,9 @@ export interface StateDelta {
   conditionsRemoved?: string[];
   spellsGained?: string[];
   locationUpdate?: string;
+  goldDelta?: number;
+  /** Full 5e only. */
+  xpGained?: number;
 }
 
 export interface DiceRollResult {
@@ -100,6 +110,8 @@ export interface ActionTurnResult {
   text: string;
   suggestedActions?: string[];
   courseChangeAlert?: CourseChangeAlert | null;
+  /** Every trigger in the reply; courseChangeAlert is the one to show. */
+  alerts?: CourseChangeAlert[];
   requiredCheck?: PendingCheck | null;
   stateDelta?: StateDelta | null;
   avatarEvolution?: AvatarEvolution | null;
@@ -172,6 +184,10 @@ export interface PendingCheck {
   dc: number;
   reason: string;
   difficultyLabel?: 'Easy' | 'Medium' | 'Hard' | 'Very Hard' | 'Heroic';
+  /** Full 5e: roll two d20s and keep the better or worse. */
+  roll?: 'advantage' | 'disadvantage';
+  /** A death saving throw at 0 HP (Full 5e) rather than a check the GM called. */
+  kind?: 'check' | 'death_save';
 }
 
 export interface CourseChangeAlert {
@@ -235,6 +251,12 @@ export interface Experience {
   inspiration?: CampaignInspiration;
   /** Memory list, summary and pending facts. Missing on campaigns from before Phase 3. */
   memory?: MemoryState;
+  /** Rules mode for this campaign; missing means Narrative dice (how older campaigns played). */
+  rulesMode?: 'full5e' | 'narrative';
+  /** Which book of the campaign is being played (Book Two continues in the same save). */
+  book?: number;
+  /** Set when the story concluded or the hero died; input is locked until the player continues. */
+  concluded?: { reason: 'story' | 'death'; at: string } | null;
 }
 
 export interface CampaignInspiration {

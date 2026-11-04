@@ -1,24 +1,26 @@
 // src/audio/catalog.ts
 //
 // Maps each ZeroRoll content area to an ambient background track URL.
-// Tracks are intentionally short (~30–90 s) and seamlessly loopable.
+// Tracks are short, seamlessly loopable ambient pieces.
 //
-// Source policy: every URL below points at a permissive-license audio library.
-// We do NOT hotlink to third-party CDNs without a license check.  All assets
-// in this catalog are sourced from either:
-//   - Pixabay Audio (Pixabay Content License — free for commercial use,
-//     no attribution required, attribution appreciated).  License terms:
-//     https://pixabay.com/service/license/
-//   - Free Music Archive / ccMixter works marked CC0 or CC-BY.
-//
-// See /docs/audio.md for the per-track attribution table and instructions on
-// how to swap a track (drop the file into assets/audio/<key>.mp3 and update
-// the URL here).
+// Source: every track is an original ZeroRoll loop, synthesized for this app
+// (no third-party samples), so there is no outside license or attribution to
+// carry. The files live in the zeroroll-assets R2 bucket as music/<key>.mp3.
+// See /docs/audio.md for the generator and how to swap a track.
 //
 // If a track URL fails to load (offline, 404, CORS, etc.) the AudioManager
-// silently falls back to silence — the app stays usable.
+// silently falls back to silence; the app stays usable.
 
 import type { ExperienceCategory } from '../types';
+
+/** Public R2 folder that holds the original ZeroRoll loops. VITE_MUSIC_BASE overrides it. */
+export const DEFAULT_MUSIC_BASE = 'https://pub-6b60ebc316364d97ac49ce3c63db6106.r2.dev/music';
+
+const ORIGINAL = {
+  source: 'Original ZeroRoll loop',
+  license: 'Original work for ZeroRoll',
+  licenseUrl: ''
+} as const;
 
 export type MusicTrackKey = 'home' | ExperienceCategory;
 
@@ -47,13 +49,9 @@ export const HOME_TRACK: MusicTrack = {
   key: 'home',
   label: 'ZeroRoll Theme',
   mood: 'Calm ambient pads, slow tempo, airy',
-  // Pixabay Audio — "Ambient Piano and Pad" by Pixabay Music.
-  // Pixabay Content License (free for commercial use, no attribution required).
-  url: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
+  url: `${DEFAULT_MUSIC_BASE}/home.mp3`,
   approxLoopSeconds: 60,
-  source: 'Pixabay Audio',
-  license: 'Pixabay Content License',
-  licenseUrl: 'https://pixabay.com/service/license/'
+  ...ORIGINAL
 };
 
 /**
@@ -70,159 +68,128 @@ export const CATEGORY_TRACKS: Record<ExperienceCategory, MusicTrack> = {
     key: 'fantasy',
     label: 'High Fantasy',
     mood: 'Lush strings, harp arpeggios, distant choirs',
-    url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_a0e92b3b3c.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/fantasy.mp3`,
     approxLoopSeconds: 75,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   adventure: {
     key: 'adventure',
     label: 'Open Adventure',
     mood: 'Driving acoustic guitar, marching percussion, wide horizons',
-    url: 'https://cdn.pixabay.com/audio/2022/03/10/audio_1aa9e0d4a8.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/adventure.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   historical_adventure: {
     key: 'historical_adventure',
     label: 'Historical Saga',
     mood: 'Period strings, tavern warmth, candle-lit introspection',
-    url: 'https://cdn.pixabay.com/audio/2022/04/27/audio_3c8c3e5b6e.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/historical_adventure.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   horror: {
     key: 'horror',
     label: 'Horror Dread',
     mood: 'Sub-bass drones, distant whispers, crackling silence',
-    url: 'https://cdn.pixabay.com/audio/2022/03/19/audio_5b1c2e1f7d.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/horror.mp3`,
     approxLoopSeconds: 80,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   cozy_ghibli: {
     key: 'cozy_ghibli',
     label: 'Cozy Ghibli',
     mood: 'Soft marimba, toy piano, gentle wind chimes',
-    url: 'https://cdn.pixabay.com/audio/2022/05/16/audio_7c0c8a9b2a.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/cozy_ghibli.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   romantic: {
     key: 'romantic',
     label: 'Romantic Interlude',
     mood: 'Warm piano, brushed strings, tender sustain',
-    url: 'https://cdn.pixabay.com/audio/2022/03/22/audio_b0e4b8eaa1.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/romantic.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   revenge: {
     key: 'revenge',
     label: 'Vendetta',
     mood: 'Tense low strings, slow pulse, simmering resolve',
-    url: 'https://cdn.pixabay.com/audio/2022/04/20/audio_e4d0b9f2c8.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/revenge.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   apocalypse: {
     key: 'apocalypse',
     label: 'After the Fall',
     mood: 'Desolate pads, radio static, distant wind',
-    url: 'https://cdn.pixabay.com/audio/2022/05/04/audio_d2b1c0a4e7.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/apocalypse.mp3`,
     approxLoopSeconds: 70,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   zombie: {
     key: 'zombie',
     label: 'Zombie Survival',
     mood: 'Pulsing low-end, distant alarms, broken signal',
-    url: 'https://cdn.pixabay.com/audio/2022/05/02/audio_c3f0d8b9a6.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/zombie.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   cosmic_horror: {
     key: 'cosmic_horror',
     label: 'Cosmic Horror',
     mood: 'Disorienting drones, distant bells, geometric unease',
-    url: 'https://cdn.pixabay.com/audio/2022/04/11/audio_a6b7c8d9e0.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/cosmic_horror.mp3`,
     approxLoopSeconds: 90,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   psychedelic_trip: {
     key: 'psychedelic_trip',
     label: 'Psychedelic Drift',
     mood: 'Modular synths, tape delay, swirling pads',
-    url: 'https://cdn.pixabay.com/audio/2022/04/22/audio_f1e2d3c4b5.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/psychedelic_trip.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   tiktok_drama: {
     key: 'tiktok_drama',
     label: 'Drama Beat',
     mood: 'Trendy minor-key synth, sharp percussive hits, club energy',
-    url: 'https://cdn.pixabay.com/audio/2022/03/30/audio_9a8b7c6d5e.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/tiktok_drama.mp3`,
     approxLoopSeconds: 45,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   ancient_greek: {
     key: 'ancient_greek',
     label: 'Hellenic Echo',
     mood: 'Lyre, aulos-inspired woodwinds, marble ambience',
-    url: 'https://cdn.pixabay.com/audio/2022/05/22/audio_4b3c2d1e0f.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/ancient_greek.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   mythology: {
     key: 'mythology',
     label: 'Mythic Saga',
     mood: 'Sweeping brass, frame drums, world-shaping gravitas',
-    url: 'https://cdn.pixabay.com/audio/2022/04/05/audio_2c1d0e9f8a.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/mythology.mp3`,
     approxLoopSeconds: 75,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   },
   real_life: {
     key: 'real_life',
     label: 'Real Life',
     mood: 'Lo-fi chillhop, vinyl crackle, warm focus-friendly loops',
-    url: 'https://cdn.pixabay.com/audio/2022/02/22/audio_5c8b0a9d3e.mp3',
+    url: `${DEFAULT_MUSIC_BASE}/real_life.mp3`,
     approxLoopSeconds: 60,
-    source: 'Pixabay Audio',
-    license: 'Pixabay Content License',
-    licenseUrl: 'https://pixabay.com/service/license/'
+    ...ORIGINAL
   }
 };
 
 /** Resolve the catalog entry for any music key (home or category). */
 /**
- * Self-hosted music (M10): when VITE_MUSIC_BASE is set, every track loads from
- * `${VITE_MUSIC_BASE}/<key>.mp3` (for example an R2 bucket or /audio on the site)
- * instead of the third-party URL above. `npm run music:check` lists what to upload.
+ * When VITE_MUSIC_BASE is set, every track loads from `${VITE_MUSIC_BASE}/<key>.mp3`
+ * instead of DEFAULT_MUSIC_BASE. `npm run music:check` lists what to upload.
  */
 export function musicBase(): string {
   const env = (import.meta as any).env ?? {};

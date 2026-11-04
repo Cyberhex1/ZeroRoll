@@ -73,7 +73,7 @@ export function experienceMemory(exp: Pick<Experience, 'memory'>): MemoryState {
  * The story context for a turn: memory list, summary and as much recent log as fits.
  * The CURRENT STATE sheet is counted in the budget; executeActionTurn sends it itself.
  */
-export function buildDndContext(exp: Experience, logs: LogMessage[] = exp.logs): { contents: string; meter: PromptMeter } {
+export function buildDndContext(exp: Experience, logs: LogMessage[] = exp.logs, recallScores?: Record<string, number> | null): { contents: string; meter: PromptMeter } {
   const memory = experienceMemory(exp);
   const sheet = currentStateBlock(exp.character, exp.gameWorldState);
   const built = buildPrompt({
@@ -82,7 +82,8 @@ export function buildDndContext(exp: Experience, logs: LogMessage[] = exp.logs):
     memory,
     turns: dndTurns(logs).slice(memory.summarizedThrough),
     contextTokens: DND_CONTEXT_TOKENS,
-    replyReserve: DND_REPLY_TOKENS
+    replyReserve: DND_REPLY_TOKENS,
+    recallScores
   });
   const context = built.system.slice(sheet.length).trim();
   const log = built.messages.map((m: ChatMessage) => `${m.role === 'user' ? 'PLAYER' : 'DM'}: ${m.content}`).join('\n');

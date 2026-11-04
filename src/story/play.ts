@@ -61,7 +61,7 @@ export function variantFor(tier: Tier): PromptVariant {
  * The prompt for the next narrator reply: story bible and director block (never trimmed),
  * the memory list, the summary, then as many recent turns as the tier's context allows.
  */
-export function buildPrompt(story: Story, save: PlaySave, tier: Tier): { system: string; messages: ChatMessage[]; meter: PromptMeter } {
+export function buildPrompt(story: Story, save: PlaySave, tier: Tier, recallScores?: Record<string, number> | null): { system: string; messages: ChatMessage[]; meter: PromptMeter } {
   const variant = variantFor(tier);
   const memory = memoryOf(save);
   const built = buildBudgetedPrompt({
@@ -71,7 +71,8 @@ export function buildPrompt(story: Story, save: PlaySave, tier: Tier): { system:
     // Turns the summary already covers are left to it.
     turns: turnsOf(save).slice(memory.summarizedThrough),
     contextTokens: contextTokensFor(tier, localBasicTier()?.context),
-    replyReserve: replyTokens(story, save)
+    replyReserve: replyTokens(story, save),
+    recallScores
   });
   const convo = [...built.messages];
   // Providers need the conversation to start with the player.
@@ -117,9 +118,16 @@ export function addPlayerInput(story: Story, save: PlaySave, input: { text?: str
 }
 
 /** Asks the narrator for the next reply and applies it. Throws the router's AIError on failure. */
-export async function narrate(story: Story, save: PlaySave, complete: Completer, opts: { signal?: AbortSignal } = {}): Promise<{ save: PlaySave; events: EngineEvent[] }> {
+export async function narrate(
+  story: Story,
+  save: PlaySave,
+  complete: Completer,
+  opts: { signal?: AbortSignal; recall?: (memory: MemoryState, turns: ChatMessage[], signal?: AbortSignal) => Promise<Record<string, number> | null> } = {}
+): Promise<{ save: PlaySave; events: EngineEvent[] }> {
   const undo = { state: save.state, messageCount: save.messages.length };
-  const { system, messages } = buildPrompt(story, save, save.tier);
+  const memory = memoryOf(save);
+  const scores = opts.recall ? await opts.recall(memory, turnsOf(save).slice(memory.summarizedThrough), opts.signal) : null;
+  const { system, messages } = buildPrompt(story, save, save.tier, scores);
   const reply = await complete(messages, save.tier, {
     system,
     temperature: 0.85,

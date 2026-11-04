@@ -864,7 +864,7 @@ The storyBlurb MUST read like a compelling back-of-the-book summary, establishin
 
 Output MUST be strictly valid JSON matching this schema with no markdown fences:
 {
-  "title": "Evocative Chapter I Campaign Title",
+  "title": "Evocative Campaign Title (no chapter number)",
   "heroName": "First and Last Name",
   "gender": "${gender || 'she/her'}",
   "roleClass": "Creative Class / Archetype",
@@ -1182,22 +1182,11 @@ Begin the story.`;
       const truncated = !!getLastCallMeta()?.truncated;
       if (truncated) text = stripUnterminatedBlocks(text);
 
-      let suggestedActions: string[] = [];
-
-      // Parse options
-      const optionsMatch = text.match(/---OPTIONS---([\s\S]*)/);
-      if (optionsMatch) {
-        text = text.replace(/---OPTIONS---[\s\S]*/, '').trim();
-        const rawOptions = optionsMatch[1].split('\n').map(line => line.trim()).filter(line => line.length > 0);
-        suggestedActions = rawOptions
-          .map(opt => opt.replace(/^\[\d+\]\s*/, ''))
-          .filter(opt => opt.length > 0)
-          .slice(0, 3);
-      }
-
-      // Cleanup
-      text = text.replace(/---(STATE_UPDATE|END_STATE_UPDATE|AVATAR_EVOLUTION|END_AVATAR_EVOLUTION|COURSE_TRIGGER|END_TRIGGER|CHECK_REQUIRED|END_CHECK)---/g, '');
-      text = text.trim();
+      // Same parser as every other turn: local models often copy the block format into the
+      // opening, and those blocks must not show up as raw text.
+      const parsed = parseGmReply(text);
+      text = parsed.text;
+      let suggestedActions: string[] = parsed.options.filter((o) => o.length > 0).slice(0, 3);
 
       if (!text) throw new AIError('bad_output', 'Chapter One came back empty.');
       let fallbackActions = false;

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { campaignTitle } from '../lib/titles';
 import { uid } from '../lib/ids';
 import {
   ScrollText,
@@ -381,7 +382,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h2 className="text-xs sm:text-base font-bold truncate max-w-[180px] xs:max-w-[240px] sm:max-w-none" style={{ fontFamily: 'var(--sk-font-heading)', color: 'var(--sk-accent)' }}>
-                  {experience.title} <span className="text-amber-500/80 font-normal">| {(experience.book ?? 1) > 1 ? `Book ${experience.book}, ` : ''}Chapter {experience.gameWorldState.currentChapter || 1} of {experience.storyOutline?.chapters?.length || 3}</span>
+                  {campaignTitle(experience.title)} <span className="text-amber-500/80 font-normal">| {(experience.book ?? 1) > 1 ? `Book ${experience.book}, ` : ''}Chapter {experience.gameWorldState.currentChapter || 1} of {experience.storyOutline?.chapters?.length || 3}</span>
                 </h2>
                 <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-mono uppercase font-bold rounded bg-white/5 text-amber-400 border border-white/10 shrink-0">
                   {experience.category.replace('_', ' ')}

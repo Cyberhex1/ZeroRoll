@@ -10,7 +10,7 @@ import { RulesMode, gainXp } from './rules';
 export const rulesModeOf = (exp: Pick<Experience, 'rulesMode'>): RulesMode => exp.rulesMode ?? 'narrative';
 
 /** "Healing Potion x2", "2 Healing Potions", "Healing Potion (3)" → name and count. */
-export function itemCount(raw: string): { name: string; qty: number } {
+export function itemCount(raw: string): { name: string; qty: number; explicit: boolean } {
   let s = raw.trim();
   let qty = 1;
   const tail = s.match(/^(.*?)\s*(?:x\s*(\d+)|\((\d+)\))$/i);
@@ -22,7 +22,7 @@ export function itemCount(raw: string): { name: string; qty: number } {
     qty = parseInt(head[1], 10);
     s = head[2];
   }
-  return { name: s.trim(), qty: Math.max(1, qty || 1) };
+  return { name: s.trim(), qty: Math.max(1, qty || 1), explicit: !!(tail || head) };
 }
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
@@ -43,14 +43,17 @@ export function applyInventory(inv: InventoryItem[], gained: string[], lost: str
   let next = inv.map((i) => ({ ...i }));
   let goldDelta = 0;
   for (const raw of gained) {
-    const { name, qty } = itemCount(raw);
+    const { name, qty, explicit } = itemCount(raw);
     if (!name) continue;
     if (GOLD_RE.test(name)) {
       goldDelta += qty;
       continue;
     }
     const at = findItem(next, name);
-    if (at !== -1) next[at].quantity += qty;
+    // The GM often restates items the hero already has; only an explicit count adds more.
+    if (at !== -1) {
+      if (explicit) next[at].quantity += qty;
+    }
     else next.push({ id: `item_${uid()}`, name, type: guessType(name), quantity: qty, isEquipped: false });
   }
   for (const raw of lost) {

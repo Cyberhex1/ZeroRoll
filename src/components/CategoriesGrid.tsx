@@ -1,4 +1,5 @@
 import { Portrait } from './ui/Portrait';
+import { campaignTitle } from '../lib/titles';
 import ModeSwitch from './ModeSwitch';
 import { PortraitsOffError, setFreePortraitsAllowed } from '../lib/portraits';
 import { clickable } from './ui/a11y';
@@ -746,7 +747,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
                         <div>
                           <h3 className="text-base font-serif font-bold text-slate-100 group-hover:text-amber-300 transition">
-                            {exp.title}
+                            {campaignTitle(exp.title)}
                           </h3>
                           <p className="text-xs text-slate-400 line-clamp-2 mt-1">
                             {exp.description || 'Active campaign session.'}

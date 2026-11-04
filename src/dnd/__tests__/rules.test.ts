@@ -112,7 +112,13 @@ describe('applying a turn', () => {
     const r = applyInventory(inv, ['Healing Potion x2', '15 gold', 'Lantern'], ['Healing Potions', 'Potion', 'Coin']);
     expect(r.inventory.map((i) => `${i.name}:${i.quantity}`)).toEqual(['Healing Potion:4', 'Potion of Fire Breath:1', 'Coin Purse:1', 'Lantern:1']);
     expect(r.goldDelta).toBe(14);
-    expect(itemCount('3 Arrows')).toEqual({ name: 'Arrows', qty: 3 });
+    expect(itemCount('3 Arrows')).toEqual({ name: 'Arrows', qty: 3, explicit: true });
+  });
+
+  it('ignores an item the GM restates without a count', () => {
+    const inv = [{ id: '1', name: 'Brass Key', type: 'misc' as const, quantity: 1 }];
+    expect(applyInventory(inv, ['Brass Key'], []).inventory[0].quantity).toBe(1);
+    expect(applyInventory(inv, ['Brass Key x2'], []).inventory[0].quantity).toBe(3);
   });
 
   it('downs the hero in Full 5e and applies XP, gold, conditions and spells', () => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { campaignTitle } from './lib/titles';
 import { uid } from './lib/ids';
 import { continueToNextBook } from './dnd/nextBook';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
@@ -594,7 +595,7 @@ export default function App() {
         onSignOut={logoutUser}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
-        activeExperienceTitle={activeExperience?.title}
+        activeExperienceTitle={activeExperience ? campaignTitle(activeExperience.title) : undefined}
         onBackToExperiences={activeExperience ? () => handleSelectExperience(null) : undefined}
         userProfile={userProfile}
         isSaving={isSaving}

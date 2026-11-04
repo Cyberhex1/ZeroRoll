@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BackupPanel } from './BackupPanel';
 import { 
   Wand2, 
   Compass, 
@@ -521,9 +522,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         {/* Active Experiences Tab Content */}
         {activeTab === 'experiences' && (
           <div>
-            <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-3">
-              Active Cloud Sessions
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">
+                Active Cloud Sessions
+              </h2>
+              <BackupPanel compact />
+            </div>
             {experiences.length === 0 ? (
               <div className="text-center py-12 bg-[#111118] rounded-lg border border-white/5 space-y-3">
                 <div className="w-10 h-10 mx-auto rounded bg-white/5 flex items-center justify-center text-amber-500 border border-white/10">

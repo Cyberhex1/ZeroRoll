@@ -1,0 +1,2 @@
+# Single-page app: serve index.html for /story, /settings and any other client route.
+/*    /index.html   200

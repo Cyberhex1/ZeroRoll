@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { uid } from './lib/ids';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
+import { STORY_MODE_ENABLED } from './lib/platform';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import {
   auth,
@@ -32,6 +34,7 @@ const ExperienceView = lazy(() => import('./components/ExperienceView').then((m)
 const SettingsModal = lazy(() => import('./components/SettingsModal').then((m) => ({ default: m.SettingsModal })));
 const UserProfileModal = lazy(() => import('./components/UserProfileModal').then((m) => ({ default: m.UserProfileModal })));
 const AuthModal = lazy(() => import('./components/AuthModal').then((m) => ({ default: m.AuthModal })));
+const StoryChat = lazy(() => import('./story/StoryChat'));
 const ApiKeyModal = lazy(() => import('./components/ApiKeyModal').then((m) => ({ default: m.ApiKeyModal })));
 import MusicPlayer from './components/MusicPlayer';
 import {
@@ -115,7 +118,14 @@ export default function App() {
     return saved !== 'false';
   });
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  // Settings is a route (/settings) so it can be linked to and survives a reload.
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isSettingsOpen = location.pathname === '/settings';
+  const setIsSettingsOpen = (open: boolean) => {
+    if (open && !isSettingsOpen) navigate('/settings');
+    else if (!open && isSettingsOpen) navigate('/');
+  };
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -543,6 +553,38 @@ export default function App() {
     }
   };
 
+  // Home: the campaign list, or the open campaign. /settings shows it under the settings modal.
+  const home = (
+    <>
+              {activeExperience ? (
+                <Suspense
+                  fallback={
+                    <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">
+                      Opening your campaign...
+                    </div>
+                  }
+                >
+                  <ExperienceView
+                    experience={activeExperience}
+                    onUpdateExperience={handleUpdateExperience}
+                    onBack={() => handleSelectExperience(null)}
+                    selectedModel={selectedModel}
+                    soundEnabled={soundEnabled}
+                    onStartBookTwo={handleStartBookTwo}
+                  />
+                </Suspense>
+              ) : (
+                <CategoriesGrid
+                  experiences={experiences}
+                  onSelectExperience={handleSelectExperience}
+                  onCreateExperience={handleCreateExperience}
+                  onDeleteExperience={handleDeleteExperience}
+                  selectedModel={selectedModel}
+                />
+              )}
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
       
@@ -580,32 +622,24 @@ export default function App() {
 
       {/* Main Body */}
       <main>
-        {activeExperience ? (
-          <Suspense
-            fallback={
-              <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">
-                Opening your campaign...
-              </div>
-            }
-          >
-            <ExperienceView
-              experience={activeExperience}
-              onUpdateExperience={handleUpdateExperience}
-              onBack={() => handleSelectExperience(null)}
-              selectedModel={selectedModel}
-              soundEnabled={soundEnabled}
-              onStartBookTwo={handleStartBookTwo}
+        <Routes>
+          {STORY_MODE_ENABLED && (
+            <Route
+              path="/story"
+              element={
+                <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">Opening Story mode...</div>}>
+                  <StoryChat />
+                </Suspense>
+              }
             />
-          </Suspense>
-        ) : (
-          <CategoriesGrid
-            experiences={experiences}
-            onSelectExperience={handleSelectExperience}
-            onCreateExperience={handleCreateExperience}
-            onDeleteExperience={handleDeleteExperience}
-            selectedModel={selectedModel}
+          )}
+          <Route
+            path="/settings"
+            element={home}
           />
-        )}
+          <Route path="/" element={home} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       <Suspense fallback={null}>

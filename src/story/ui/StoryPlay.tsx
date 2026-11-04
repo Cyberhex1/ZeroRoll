@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isTauri } from '../../lib/platform';
 import { Link, useParams } from 'react-router';
 import { ArrowLeft, Brain, Download, Map as MapIcon, RefreshCw, RotateCcw, SkipForward } from 'lucide-react';
 import { complete, Tier, TIERS } from '../../ai/router';
@@ -22,7 +23,7 @@ import ArtImage from './ArtImage';
 import Particles from './Particles';
 import { LENGTH_WORDS } from '../prompt';
 
-const TIER_LABEL: Record<Tier, string> = { basic: 'Basic (fast, local on PC)', good: 'Good (default)', best: 'Best (strongest)' };
+const TIER_LABEL: Record<Tier, string> = { basic: 'Basic (fast, local on this PC)', good: 'Good (default)', best: 'Best (strongest)' };
 // What the length slider means, in words of story per reply (LENGTH_WORDS in ../prompt).
 const LENGTHS = [`Short, about ${LENGTH_WORDS.short} words`, `Medium, about ${LENGTH_WORDS.medium} words`, `Long, about ${LENGTH_WORDS.long} words`];
 
@@ -402,7 +403,7 @@ export default function StoryPlay() {
               <label className="flex items-center gap-2">
                 Model
                 <select value={save.tier} onChange={(e) => void persist({ ...save, tier: e.target.value as Tier })} className="rounded px-2 py-1 border bg-transparent" style={{ borderColor: 'color-mix(in srgb, var(--sk-text) 25%, transparent)' }}>
-                  {TIERS.map((t) => (
+                  {TIERS.filter((t) => t !== 'basic' || isTauri()).map((t) => (
                     <option key={t} value={t} style={{ background: '#111' }}>{TIER_LABEL[t]}</option>
                   ))}
                 </select>

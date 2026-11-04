@@ -662,7 +662,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                           {getCategoryIcon(cat.iconName)}
                         </div>
                         <span className="text-[9px] font-mono tracking-widest font-bold uppercase px-1.5 py-0.5 rounded bg-black/40 text-slate-400 border border-white/5">
-                          {cat.id}
+                          {getContent(cat.id).openers.length} openers
                         </span>
                       </div>
 

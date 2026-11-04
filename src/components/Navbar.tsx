@@ -60,6 +60,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const aiStatus = useAIStatus();
   const [modelDropdownOpen, setModelDropdownOpen] = React.useState(false);
+  // The model menu closes on Escape and on a click anywhere outside it.
+  const modelMenuRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (!modelDropdownOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setModelDropdownOpen(false);
+    const onDown = (e: MouseEvent) => {
+      if (modelMenuRef.current && !modelMenuRef.current.contains(e.target as Node)) setModelDropdownOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onDown);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onDown);
+    };
+  }, [modelDropdownOpen]);
   const [userDropdownOpen, setUserDropdownOpen] = React.useState(false);
 
   const activeProvider = getActiveProvider();
@@ -134,7 +149,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {isSaving ? 'SAVING...' : 'MODEL:'}
             </span>
 
-            <div className="relative">
+            <div className="relative" ref={modelMenuRef}>
               <button
                 onClick={() => (isGeminiActive || pcApp ? setModelDropdownOpen(!modelDropdownOpen) : onOpenApiKeyModal?.())}
                 className="bg-transparent border-none outline-none font-semibold text-amber-400 text-xs flex items-center gap-1 hover:text-amber-300"

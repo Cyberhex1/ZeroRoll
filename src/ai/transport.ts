@@ -146,9 +146,91 @@ export async function listGeminiModels(apiKey: string): Promise<string[]> {
   return Array.from(new Set(models));
 }
 
-/** The chosen model first, then known-good fallbacks the key can actually use. */
+/* ------------------------- usable models (probed) ------------------------- */
+
+const GEMINI_USABLE_KEY = 'zeroroll_gemini_usable_models';
+
+/**
+ * Models that actually answered a short test request with this key the last time they were
+ * probed (null = never probed). Listing a model is not the same as being able to use it:
+ * keys see models with zero free-tier quota, previews that 404, and aliases that are overloaded.
+ * The pickers and the cascade only offer models in this list (ohnna, 2026-11-04).
+ */
+export function getUsableGeminiModels(): string[] | null {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(GEMINI_USABLE_KEY) || 'null');
+    return Array.isArray(parsed?.models) ? parsed.models.filter((m: unknown) => typeof m === 'string') : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+export function setUsableGeminiModels(models: string[] | null): void {
+  try {
+    if (models) localStorage.setItem(GEMINI_USABLE_KEY, JSON.stringify({ models, checkedAt: Date.now() }));
+    else localStorage.removeItem(GEMINI_USABLE_KEY);
+  } catch (_) {}
+}
+
+/** Text models worth probing: current generations only, no dated snapshots or experiments. */
+export function probeCandidates(listed: string[], curated: string[], max = 12): string[] {
+  const current = (m: string) =>
+    /^gemini-/.test(m) &&
+    !/^gemini-(1|2)(\.|-)/.test(m) &&
+    !/^gemini-pro(-|$)/.test(m) &&
+    !/-(exp|experimental)(-|$)/.test(m) &&
+    !/-\d{3}$/.test(m) &&
+    !/-\d{2}-\d{2,4}$/.test(m);
+  const fromList = listed.filter(current);
+  const curatedHere = curated.filter((m) => listed.includes(m));
+  return Array.from(new Set([...curatedHere, ...fromList])).slice(0, max);
+}
+
+/** One tiny request: does this model answer with this key right now? */
+export async function probeGeminiModel(apiKey: string, model: string, timeoutMs = 15_000): Promise<{ model: string; ok: boolean; reason?: string }> {
+  try {
+    const res = await withTimeout(
+      (signal) =>
+        fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey.trim() },
+          body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Reply with the word OK.' }] }], generationConfig: { maxOutputTokens: 64, temperature: 0 } }),
+          signal
+        }),
+      timeoutMs,
+      'gemini'
+    );
+    if (res.ok) return { model, ok: true };
+    return { model, ok: false, reason: `HTTP ${res.status}` };
+  } catch (e) {
+    return { model, ok: false, reason: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+/** Probes the candidates a few at a time and returns the ones that answered, in candidate order. */
+export async function probeGeminiModels(apiKey: string, candidates: string[], concurrency = 3): Promise<{ usable: string[]; failed: Array<{ model: string; reason?: string }> }> {
+  const results: Array<{ model: string; ok: boolean; reason?: string }> = [];
+  for (let i = 0; i < candidates.length; i += concurrency) {
+    results.push(...(await Promise.all(candidates.slice(i, i + concurrency).map((m) => probeGeminiModel(apiKey, m)))));
+  }
+  return {
+    usable: candidates.filter((m) => results.find((r) => r.model === m)?.ok),
+    failed: results.filter((r) => !r.ok).map(({ model, reason }) => ({ model, reason }))
+  };
+}
+
+/**
+ * The chosen model first, then known-good fallbacks the key can actually use. Once the key's
+ * models have been probed, only models that answered are tried, so a turn never waits on a
+ * model that cannot serve it.
+ */
 export function getGeminiCandidateModels(preferred?: string): string[] {
   const first = normalizeGeminiModelName(preferred);
+  const usable = getUsableGeminiModels();
+  if (usable && usable.length) {
+    const ordered = [first, ...FALLBACK_MODELS, ...usable].filter((m) => usable.includes(m));
+    return Array.from(new Set(ordered)).slice(0, 4);
+  }
   const available = getCachedGeminiModels();
   const fallbacks = FALLBACK_MODELS.filter((m) => !available || available.includes(m));
   const extras = available
@@ -156,7 +238,6 @@ export function getGeminiCandidateModels(preferred?: string): string[] {
     : [];
   return Array.from(new Set([first, ...fallbacks, ...extras])).slice(0, 5);
 }
-
 
 export async function withTimeout<T>(
   run: (signal: AbortSignal) => Promise<T>,

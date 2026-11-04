@@ -36,7 +36,11 @@ import {
   listGeminiModels,
   normalizeGeminiModelName,
   parseRetryDelayMs,
+  probeCandidates,
+  probeGeminiModels,
   setCachedGeminiModels,
+  getUsableGeminiModels,
+  setUsableGeminiModels,
   supportsJsonMode
 } from '../ai/transport';
 
@@ -50,8 +54,23 @@ export {
   getGeminiCandidateModels,
   listGeminiModels,
   parseRetryDelayMs,
+  getUsableGeminiModels,
   supportsJsonMode
 };
+
+/**
+ * Lists the key's models, then probes the current ones with a tiny request and keeps only
+ * those that answered. The model pickers and the cascade offer only these.
+ */
+export async function refreshUsableGeminiModels(apiKey: string): Promise<{ listed: string[]; usable: string[]; failed: Array<{ model: string; reason?: string }> }> {
+  const listed = await listGeminiModels(apiKey);
+  setCachedGeminiModels(listed);
+  const curated = AI_PROVIDERS.gemini.models.map((m) => m.id);
+  const { usable, failed } = await probeGeminiModels(apiKey, probeCandidates(listed, curated));
+  // Nothing answered (overload, offline): keep the last good list rather than offering nothing.
+  if (usable.length) setUsableGeminiModels(usable);
+  return { listed, usable, failed };
+}
 
 
 // The Firebase web API key in firebase-applet-config.json is NOT a Gemini key: Google
@@ -484,18 +503,29 @@ export async function testProviderConnection(params: {
   reply?: string;
   modelUsed?: string;
   availableModels?: string[];
+  usableModels?: string[];
 }> {
   const { provider, apiKey = '', baseUrl } = params;
-  const model = params.model || AI_PROVIDERS[provider]?.defaultModel || '';
+  let model = params.model || AI_PROVIDERS[provider]?.defaultModel || '';
+  let usableModels: string[] | undefined;
+  let skipped = '';
   const providerName = AI_PROVIDERS[provider]?.name || provider;
   const start = Date.now();
   let availableModels: string[] | undefined;
 
   try {
     if (provider === 'gemini') {
-      // Validates the key and records which models it can use for the fallback cascade.
-      availableModels = await listGeminiModels(apiKey);
-      setCachedGeminiModels(availableModels);
+      // Validates the key, then keeps only the models that actually answer with it.
+      const r = await refreshUsableGeminiModels(apiKey);
+      availableModels = r.listed;
+      usableModels = r.usable;
+      if (usableModels.length && !usableModels.includes(normalizeGeminiModelName(model))) {
+        skipped = normalizeGeminiModelName(model);
+        model = usableModels[0];
+      }
+      if (!usableModels.length) {
+        throw new AIError('overloaded', `None of this key's models answered a test request right now (${r.failed.map((f) => `${f.model}: ${f.reason}`).join('; ')}). Try again in a minute.`, { provider: 'gemini' });
+      }
     }
 
     // Same path as real gameplay calls, including the model cascade. JSON mode only where the
@@ -530,12 +560,15 @@ export async function testProviderConnection(params: {
     return {
       success: true,
       latencyMs,
-      message: swapped
-        ? `Connected in ${latencyMs}ms, but ${normalizeGeminiModelName(model)} isn't available to this key, so ${modelUsed} answered. Pick an available model below.`
-        : `Connected to ${modelUsed} in ${latencyMs}ms.`,
+      message: skipped
+        ? `Connected to ${modelUsed} in ${latencyMs}ms. ${skipped} didn't answer with this key, so it's hidden from the model list.`
+        : swapped
+          ? `Connected in ${latencyMs}ms, but ${normalizeGeminiModelName(model)} didn't answer, so ${modelUsed} did.`
+          : `Connected to ${modelUsed} in ${latencyMs}ms.`,
       reply: replyText,
       modelUsed,
-      availableModels
+      availableModels,
+      usableModels
     };
   } catch (err: any) {
     const aiErr = classifyAIError(err, provider);
@@ -543,7 +576,8 @@ export async function testProviderConnection(params: {
       success: false,
       latencyMs: Date.now() - start,
       message: `${describeAIError(aiErr, providerName)}\n\nDetails: ${aiErr.message}`,
-      availableModels
+      availableModels,
+      usableModels
     };
   }
 }

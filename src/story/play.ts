@@ -130,6 +130,7 @@ export async function narrate(
   const memory = memoryOf(save);
   const scores = opts.recall ? await opts.recall(memory, turnsOf(save).slice(memory.summarizedThrough), opts.signal) : null;
   const { system, messages } = buildPrompt(story, save, save.tier, scores);
+  const startedAt = Date.now();
   const reply = await complete(messages, save.tier, {
     system,
     temperature: 0.85,
@@ -153,7 +154,7 @@ export async function narrate(
       kind: 'narrator',
       text: narration,
       beat: save.state.beat,
-      answeredBy: `${providerName} (${reply.model}), ${reply.tier} tier`,
+      answeredBy: `${providerName} (${reply.model}), ${reply.tier} tier, ${Math.max(1, Math.round((Date.now() - startedAt) / 1000))} s`,
       chips: chipsFor(story, state, tail.choices),
       at: Date.now()
     },

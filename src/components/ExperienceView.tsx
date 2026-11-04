@@ -23,7 +23,8 @@ import { complete } from '../ai/router';
 import { applyDelta, applyWorld, nextAlert, rulesModeOf } from '../dnd/applyTurn';
 import { RULES_MODES, RulesMode, checkOutcome, deathSave, naturalOf, planCheck, rollPlan } from '../dnd/rules';
 import { resolveSkin, skinVars } from '../story/skins';
-import { REFEREE_PREFIX, buildDndContext, experienceMemory, maybeSummarizeExperience, memoryFromTurn } from '../dnd/memory';
+import { turnRecallScores } from '../memory/recallService';
+import { REFEREE_PREFIX, buildDndContext, dndTurns, experienceMemory, maybeSummarizeExperience, memoryFromTurn } from '../dnd/memory';
 import { mergeMemories } from '../memory/summarizer';
 import MemoryPanel from '../memory/ui/MemoryPanel';
 import { useDialog } from './ui/useDialog';
@@ -123,8 +124,10 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     setIsGenerating(true);
 
     try {
+      const tempMemory = experienceMemory(tempExp);
+      const recallScores = await turnRecallScores(tempMemory, dndTurns(updatedLogs).slice(tempMemory.summarizedThrough));
       const data = await executeActionTurn({
-        contents: buildDndContext(tempExp, updatedLogs).contents,
+        contents: buildDndContext(tempExp, updatedLogs, recallScores).contents,
         category: tempExp.category,
         model: selectedModel,
         systemInstruction: tempExp.customSystemPrompt,

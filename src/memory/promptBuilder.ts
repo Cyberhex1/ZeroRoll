@@ -2,7 +2,8 @@
  * Assembles a prompt under a token budget, in four parts:
  *   1. the system prompt and the fixed sheets (character sheet, current state, director
  *      block): never trimmed,
- *   2. the memory list: pinned entries always, unpinned ones dropped oldest first,
+ *   2. the memory list: pinned entries always, then unpinned ones by relevance to the
+ *      recent turns (recall.ts), the least relevant dropped first,
  *   3. the rolling summary of everything before the recent window,
  *   4. recent turns: dropped oldest first, keeping at least the newest two.
  * The meter reports what each part used so the player can see the budget.
@@ -10,6 +11,7 @@
 import type { ChatMessage } from '../ai/transport';
 import type { MemoryState } from './memoryStore';
 import { estimateTokens } from './tokens';
+import { recallOrder, recallQuery } from './recall';
 
 export interface BuildInput {
   system: string;
@@ -22,6 +24,8 @@ export interface BuildInput {
   contextTokens: number;
   /** Tokens kept free for the reply. */
   replyReserve: number;
+  /** Relevance scores per entry id (embedding recall); lexical relevance otherwise. */
+  recallScores?: Record<string, number> | null;
 }
 
 export interface PromptMeter {
@@ -52,7 +56,7 @@ export function buildPrompt(input: BuildInput): BuiltPrompt {
 
   // Memory: pinned first (always), then unpinned newest first until the budget says stop.
   const pinned = input.memory.entries.filter((e) => e.pinned);
-  const unpinned = input.memory.entries.filter((e) => !e.pinned).sort((a, b) => b.createdTurn - a.createdTurn);
+  const unpinned = recallOrder(input.memory.entries.filter((e) => !e.pinned), recallQuery(input.turns), input.recallScores);
   const memLine = (t: string) => `- ${t}`;
   const memTokens = (lines: string[]) => (lines.length ? estimateTokens(`MEMORY (facts that stay true)\n${lines.join('\n')}`) : 0);
 
@@ -67,11 +71,11 @@ export function buildPrompt(input: BuildInput): BuiltPrompt {
     keptTurns.unshift(i);
     used += turnTokens[i];
   }
-  // Then unpinned memories (newest first), then older turns, while they fit.
+  // Then unpinned memories (most relevant first), then older turns, while they fit.
   const keptUnpinned: typeof unpinned = [];
   for (const e of unpinned) {
     const cost = estimateTokens(memLine(e.text)) + 1;
-    if (used + cost > budget) break;
+    if (used + cost > budget) continue;
     keptUnpinned.push(e);
     used += cost;
   }

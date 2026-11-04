@@ -12,6 +12,7 @@ import { BackupStatus, CloudStoryMeta, cloudMovedOn, cloudStoryMeta, createBacku
 import { loadStory } from '../catalog';
 import { beatOf } from '../engine';
 import { PlaySave, addPlayerInput, buildPrompt, currentChips, maybeSummarize, memoryOf, narrate, newSave, rewindForReroll } from '../play';
+import { turnRecallScores } from '../../memory/recallService';
 import MemoryPanel from '../../memory/ui/MemoryPanel';
 import type { MemoryState } from '../../memory/memoryStore';
 import { mergeMemories } from '../../memory/summarizer';
@@ -117,7 +118,7 @@ export default function StoryPlay() {
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      const r = await narrate(story, base, complete, { signal: controller.signal });
+      const r = await narrate(story, base, complete, { signal: controller.signal, recall: turnRecallScores });
       await persist(r.save, Boolean(r.save.state.ending && !base.state.ending));
       // The memory worker runs after the reply is on screen, so it never slows a turn.
       void maybeSummarize(r.save, complete).then((apply) => {

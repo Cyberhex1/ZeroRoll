@@ -12,11 +12,13 @@ import {
   Radio, 
   Database,
   Bot,
-  Key
+  Key,
+  WifiOff
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { GEMINI_MODELS } from '../lib/modelsConfig';
-import { hasActiveGeminiKey, getActiveProvider, getProviderModel } from '../lib/geminiService';
+import { hasActiveGeminiKey, getActiveProvider, getProviderModel, isOfflineMode } from '../lib/geminiService';
+import { useAIStatus } from '../lib/aiStatus';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { GeminiModelOption, UserProfile } from '../types';
 
@@ -55,10 +57,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   onBackToExperiences,
   isSaving
 }) => {
+  const aiStatus = useAIStatus();
   const [modelDropdownOpen, setModelDropdownOpen] = React.useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = React.useState(false);
 
-  const currentModelObj = GEMINI_MODELS.find(m => m.id === selectedModel) || GEMINI_MODELS[0];
+  const activeProvider = getActiveProvider();
+  const activeProviderModel = getProviderModel(activeProvider);
+  const isGeminiActive = activeProvider === 'gemini';
+  const currentModelObj = isGeminiActive
+    ? (GEMINI_MODELS.find(m => m.id === activeProviderModel) || { id: activeProviderModel, name: activeProviderModel })
+    : { id: activeProviderModel, name: `${AI_PROVIDERS[activeProvider]?.name || activeProvider}: ${activeProviderModel}` };
 
   return (
     <header className="sticky top-0 z-40 h-14 bg-[#16161D] border-b border-white/10 px-2.5 sm:px-6 flex items-center justify-between shrink-0">
@@ -103,12 +111,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs">
             <span className={`w-2 h-2 rounded-full ${isSaving ? 'bg-amber-400 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
             <span className="text-slate-400 text-[10px] uppercase font-mono tracking-wider">
-              {isSaving ? 'SAVING...' : 'CONNECTED:'}
+              {isSaving ? 'SAVING...' : 'MODEL:'}
             </span>
 
             <div className="relative">
               <button
-                onClick={() => setModelDropdownOpen(!modelDropdownOpen)}
+                onClick={() => (isGeminiActive ? setModelDropdownOpen(!modelDropdownOpen) : onOpenApiKeyModal?.())}
                 className="bg-transparent border-none outline-none font-semibold text-amber-400 text-xs flex items-center gap-1 hover:text-amber-300"
               >
                 <span>{currentModelObj.name}</span>
@@ -129,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           setModelDropdownOpen(false);
                         }}
                         className={`w-full text-left p-2 rounded transition text-xs flex flex-col gap-0.5 ${
-                          selectedModel === m.id 
+                          activeProviderModel === m.id 
                             ? 'bg-amber-600/20 border border-amber-600/50 text-amber-200' 
                             : 'hover:bg-white/5 text-slate-300'
                         }`}
@@ -167,14 +175,37 @@ export const Navbar: React.FC<NavbarProps> = ({
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
 
-          {/* AI Provider & Key Status Badge */}
-          {hasActiveGeminiKey() ? (
+          {/* AI Provider & Key Status Badge — reflects what the last real AI call did */}
+          {isOfflineMode() ? (
             <button
               onClick={onOpenApiKeyModal || onOpenSettings}
-              className="px-2 sm:px-2.5 py-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-[10px] font-mono flex items-center gap-1.5 transition shadow-sm"
-              title={`Active AI: ${AI_PROVIDERS[getActiveProvider()]?.name || 'AI Engine'} (${getProviderModel(getActiveProvider())}) - Click to Change`}
+              className="px-2 sm:px-2.5 py-1 rounded-lg border border-slate-500/40 bg-slate-500/10 hover:bg-slate-500/20 text-slate-300 text-[10px] font-mono flex items-center gap-1 sm:gap-1.5 transition shadow-sm"
+              title="Offline mode: stories use the built-in procedural generator. Click to connect an AI provider."
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <WifiOff className="w-3 h-3" />
+              <span className="font-bold">Offline</span>
+            </button>
+          ) : hasActiveGeminiKey() && aiStatus.state === 'error' && ['auth', 'no_key', 'model_not_found'].includes(aiStatus.kind || '') ? (
+            <button
+              onClick={onOpenApiKeyModal || onOpenSettings}
+              className="px-2 sm:px-2.5 py-1 rounded-lg border border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-300 text-[10px] font-mono flex items-center gap-1.5 transition shadow-sm"
+              title={`${aiStatus.message || 'AI provider rejected the last request.'} Click to fix.`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+              <span className="font-bold hidden xs:inline">AI Error</span>
+              <span className="font-bold xs:hidden">AI</span>
+            </button>
+          ) : hasActiveGeminiKey() ? (
+            <button
+              onClick={onOpenApiKeyModal || onOpenSettings}
+              className={`px-2 sm:px-2.5 py-1 rounded-lg border text-[10px] font-mono flex items-center gap-1.5 transition shadow-sm ${
+                aiStatus.state === 'ok'
+                  ? 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300'
+                  : 'border-sky-500/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300'
+              }`}
+              title={`${aiStatus.state === 'ok' ? 'Connected' : 'Not verified yet'}: ${AI_PROVIDERS[getActiveProvider()]?.name || 'AI Engine'} (${getProviderModel(getActiveProvider())}) - Click to Change`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${aiStatus.state === 'ok' ? 'bg-emerald-400 animate-pulse' : 'bg-sky-400'}`}></span>
               <span className="font-bold hidden xs:inline">{AI_PROVIDERS[getActiveProvider()]?.name || 'AI Active'}</span>
               <span className="font-bold xs:hidden">AI</span>
             </button>

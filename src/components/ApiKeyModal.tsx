@@ -36,8 +36,12 @@ import {
   getProviderBaseUrl, 
   setProviderBaseUrl,
   testProviderConnection,
-  exportAllProviderSettings
+  exportAllProviderSettings,
+  getCachedGeminiModels,
+  setOfflineMode,
+  isOfflineMode
 } from '../lib/geminiService';
+import { resetAIStatus } from '../lib/aiStatus';
 import { auth, saveUserSettingsToCloud } from '../lib/firebase';
 
 interface ApiKeyModalProps {
@@ -72,7 +76,12 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     latencyMs: number;
     message: string;
     reply?: string;
+    modelUsed?: string;
+    availableModels?: string[];
   } | null>(null);
+
+  // Models the Gemini key can actually call (from the last successful key check).
+  const [availableModels, setAvailableModels] = useState<string[] | null>(() => getCachedGeminiModels());
 
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
 
@@ -86,7 +95,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     setApiKey(key);
     setBaseUrl(url || config?.defaultBaseUrl || '');
 
-    const knownModel = config?.models.find(m => m.id === model);
+    const knownModel = config?.models.some(m => m.id === model)
+      || (selectedProvider === 'gemini' && !!getCachedGeminiModels()?.includes(model));
     if (knownModel) {
       setSelectedModel(model);
       setIsCustomModel(false);
@@ -134,6 +144,17 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 
     setTesting(false);
     setTestResult(res);
+    if (res.availableModels && res.availableModels.length) {
+      setAvailableModels(res.availableModels);
+    }
+  };
+
+  const syncProviderSettingsToCloud = () => {
+    if (auth.currentUser) {
+      saveUserSettingsToCloud(auth.currentUser.uid, exportAllProviderSettings()).catch((err) => {
+        console.warn('Cloud provider settings sync failed:', err);
+      });
+    }
   };
 
   const handleSaveAndApply = () => {
@@ -151,12 +172,10 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
       setProviderBaseUrl(selectedProvider, '');
     }
 
-    if (auth.currentUser) {
-      const allSettings = exportAllProviderSettings();
-      saveUserSettingsToCloud(auth.currentUser.uid, allSettings).catch((err) => {
-        console.warn('Cloud provider settings sync failed:', err);
-      });
-    }
+    // Saving a provider means the player wants AI again; forget any earlier failure.
+    setOfflineMode(false);
+    resetAIStatus();
+    syncProviderSettingsToCloud();
 
     setSavedSuccess(true);
     if (onProviderChanged) {
@@ -173,6 +192,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     setApiKey('');
     setProviderKey(selectedProvider, '');
     setTestResult(null);
+    resetAIStatus();
+    syncProviderSettingsToCloud();
   };
 
   return (
@@ -387,11 +408,23 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                   }}
                   className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500/80"
                 >
-                  {currentConfig.models.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} {m.badge ? `(${m.badge})` : ''}
-                    </option>
-                  ))}
+                  {currentConfig.models.map((m) => {
+                    const unavailable = selectedProvider === 'gemini' && !!availableModels && !availableModels.includes(m.id);
+                    return (
+                      <option key={m.id} value={m.id}>
+                        {m.name} {m.badge ? `(${m.badge})` : ''}{unavailable ? ' — not available to your key' : ''}
+                      </option>
+                    );
+                  })}
+                  {selectedProvider === 'gemini' && availableModels && (
+                    <optgroup label="Other models your key can use">
+                      {availableModels
+                        .filter((id) => !currentConfig.models.some((m) => m.id === id))
+                        .map((id) => (
+                          <option key={id} value={id}>{id}</option>
+                        ))}
+                    </optgroup>
+                  )}
                   <option value="custom_write_in">+ Custom Model ID...</option>
                 </select>
               ) : (
@@ -484,7 +517,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                   <span>{testResult.success ? 'Connection Successful!' : 'Connection Failed'}</span>
                   <span className="font-mono text-[10px] opacity-80">{testResult.latencyMs}ms</span>
                 </div>
-                <p className="text-[11px] leading-relaxed opacity-90">{testResult.message}</p>
+                <p className="text-[11px] leading-relaxed opacity-90 whitespace-pre-line break-words">{testResult.message}</p>
                 {testResult.reply && (
                   <div className="text-[10px] font-mono bg-black/40 p-1.5 rounded border border-white/10 text-slate-300 mt-1">
                     AI Response: &quot;{testResult.reply}&quot;
@@ -500,12 +533,14 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
           <button
             type="button"
             onClick={() => {
-              // Quick dismiss to procedural
+              // Explicit choice: only Offline mode uses procedural generation without warnings.
+              setOfflineMode(true);
               onClose();
             }}
             className="text-[11px] font-mono text-slate-400 hover:text-slate-200 transition"
+            title="Use the built-in procedural generator instead of an AI provider"
           >
-            Play Offline / Procedural Mode
+            {isOfflineMode() ? 'Stay in Offline Mode' : 'Play Offline / Procedural Mode'}
           </button>
 
           <div className="flex items-center gap-2">

@@ -147,7 +147,7 @@ export async function narrate(
   if (!narration) throw new AIError('bad_output', `${reply.model} sent only the story data and no story text. Try Reroll.`);
   const lastNarration = [...save.messages].reverse().find((m) => m.kind === 'narrator');
   const norm = (t: string) => t.toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 200);
-  if (lastNarration && 'text' in lastNarration && norm(lastNarration.text) === norm(narration)) {
+  if (lastNarration && 'text' in lastNarration && norm(lastNarration.text ?? '') === norm(narration)) {
     throw new AIError('bad_output', `${reply.model} repeated its last reply word for word. Press Try again.`);
   }
   // The opening beat's "on enter" art shows before the first narration.

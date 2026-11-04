@@ -100,6 +100,18 @@ describe('planRoute', () => {
     delete (globalThis as any).window;
   });
 
+  it('in the PC app, "use for every turn" puts the Ollama model first at any tier', () => {
+    (globalThis as any).window = { __TAURI_INTERNALS__: {} };
+    localStorage.setItem('zeroroll_local_llm', JSON.stringify({ enabled: true, allTurns: true, model: 'gemma3:12b', context: 8192 }));
+    for (const tier of ['basic', 'good', 'best'] as const) {
+      const plan = router.planRoute(tier);
+      expect(plan[0]).toMatchObject({ source: 'local', model: 'gemma3:12b' });
+      expect(plan.filter((s) => s.source === 'local')).toHaveLength(1);
+      expect(plan.length).toBeGreaterThan(1);
+    }
+    delete (globalThis as any).window;
+  });
+
   it('dedupes a model that sits in two tiers', () => {
     svc.setActiveProvider('openai');
     svc.setProviderKey('openai', 'sk-test-123456');

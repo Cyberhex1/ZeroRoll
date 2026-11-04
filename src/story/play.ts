@@ -20,7 +20,7 @@ import { MemoryState, addEntry, emptyMemory } from '../memory/memoryStore';
 import { PromptMeter, buildPrompt as buildBudgetedPrompt } from '../memory/promptBuilder';
 import { Turn, shouldSummarize, summarize, summaryPatch } from '../memory/summarizer';
 import { contextTokensFor } from '../memory/tokens';
-import { localBasicTier } from '../desktop/localModel';
+import { localContextFor } from '../desktop/localModel';
 
 export type Completer = (messages: ChatMessage[], tier: Tier, opts: CompleteOptions) => Promise<RouterReply>;
 
@@ -70,7 +70,7 @@ export function buildPrompt(story: Story, save: PlaySave, tier: Tier, recallScor
     memory,
     // Turns the summary already covers are left to it.
     turns: turnsOf(save).slice(memory.summarizedThrough),
-    contextTokens: contextTokensFor(tier, localBasicTier()?.context),
+    contextTokens: contextTokensFor(tier, localContextFor(tier)),
     replyReserve: replyTokens(story, save),
     recallScores
   });

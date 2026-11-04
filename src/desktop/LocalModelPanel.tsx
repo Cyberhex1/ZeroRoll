@@ -197,6 +197,10 @@ export default function LocalModelPanel() {
             <input type="checkbox" checked={settings.enabled} onChange={(e) => update({ enabled: e.target.checked })} />
             Use for quick replies
           </label>
+          <label className="flex items-center gap-1 text-[11px] text-slate-400" title="Story and D&D turns go to the local model first; your AI provider answers only if it fails.">
+            <input type="checkbox" checked={settings.allTurns === true} disabled={!settings.enabled} onChange={(e) => update({ allTurns: e.target.checked })} />
+            Use for every turn
+          </label>
         </div>
       )}
 

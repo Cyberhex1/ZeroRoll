@@ -49,7 +49,8 @@ export function turnsOf(save: StorySave): Turn[] {
 }
 
 function replyTokens(story: Story, save: StorySave): number {
-  return Math.round(targetWords(story, save.length) * 2.2) + 220;
+  // Narration plus the JSON block, with room to spare: a reply cut off before its JSON loses the turn's state.
+  return Math.round(targetWords(story, save.length) * 2.2) + 500;
 }
 
 /** Local 12B models (the basic tier) get the compact prompt. */

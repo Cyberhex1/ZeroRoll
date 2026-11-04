@@ -131,6 +131,15 @@ describe('narrator prompts and replies', () => {
     expect(parseNarratorReply('Just prose with {braces} inside.')).toEqual({ narration: 'Just prose with {braces} inside.', tail: {} });
   });
 
+  it('drops director state a local model echoed into the story', () => {
+    const text = 'She steps onto the ferry and holds out her hand.\n\nOdda\'s Landing (Landing)\n- odda_trust = 6\n- lantern_lit = false\n- knows_name = false\n\n```json\n{"beatReached": "none"}\n```';
+    const r = parseNarratorReply(text);
+    expect(r.narration).toBe('She steps onto the ferry and holds out her hand.');
+    expect(r.tail.beatReached).toBe('none');
+    // Ordinary prose with an equals sign or a short line stays.
+    expect(parseNarratorReply('The sign reads: TOLL = 2 coins.\n\nYou wait.').narration).toBe('The sign reads: TOLL = 2 coins.\n\nYou wait.');
+  });
+
   it('keeps the compact prompt short for local models', () => {
     const full = storySystemPrompt(story, 'full', 180);
     const compact = storySystemPrompt(story, 'compact', 180);

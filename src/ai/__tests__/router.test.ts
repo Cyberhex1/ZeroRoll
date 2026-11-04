@@ -86,6 +86,11 @@ describe('planRoute', () => {
     expect(providers).not.toContain('openai');
   });
 
+  it('uses the weekly check\'s replacement for a retired models.json entry', () => {
+    localStorage.setItem('zeroroll_ladder_patch', JSON.stringify({ gemini: { basic: 'gemini-3.9-flash-lite' } }));
+    expect(router.planRoute('basic')[0].model).toBe('gemini-3.9-flash-lite');
+  });
+
   it('dedupes a model that sits in two tiers', () => {
     svc.setActiveProvider('openai');
     svc.setProviderKey('openai', 'sk-test-123456');

@@ -27,6 +27,7 @@ import {
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
 import { watchKeyChanges } from './lib/keySync';
+import { runWeeklyModelCheck } from './ai/weeklyModelCheck';
 import { Navbar } from './components/Navbar';
 import { AIStatusBanner } from './components/AIStatusBanner';
 import { CategoriesGrid } from './components/CategoriesGrid';
@@ -156,6 +157,12 @@ export default function App() {
   // ---------------------------------------------------------------------------
   // Auth State — the authoritative source for user identity and cloud data
   // ---------------------------------------------------------------------------
+  // Weekly latest-model check (Gemini). Runs after start-up so it never delays the first screen.
+  useEffect(() => {
+    const t = setTimeout(() => void runWeeklyModelCheck(), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
   // Opt-in key sync: re-encrypt and upload when a key changes (does nothing while sync is off).
   useEffect(() => {
     if (!user || user.isAnonymous) return;

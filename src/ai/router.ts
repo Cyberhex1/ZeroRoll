@@ -15,6 +15,7 @@ import { AIError, AIErrorKind, classifyAIError } from '../lib/aiErrors';
 import { reportAINotice, reportAISuccess } from '../lib/aiStatus';
 import { getActiveProvider, getProviderBaseUrl, getProviderKey, getProviderModel, getSavedProviderModel } from '../lib/geminiService';
 import { AI_TURN_DEADLINE_MS, ChatMessage, ProviderReply, callProvider } from './transport';
+import { getLadderPatch } from './weeklyModelCheck';
 
 export type Tier = 'basic' | 'good' | 'best';
 export const TIERS: Tier[] = ['basic', 'good', 'best'];
@@ -117,7 +118,8 @@ export function modelForTier(provider: AIProviderId, tier: Tier): { model: strin
   if ((tier === 'good' && saved) || provider === 'custom') {
     return { model: getProviderModel(provider), source: 'player' };
   }
-  const fromJson = LADDERS[provider]?.[tier];
+  // The weekly check replaces models.json entries that the provider has retired.
+  const fromJson = getLadderPatch(provider)[tier] || LADDERS[provider]?.[tier];
   if (fromJson) return { model: fromJson, source: 'models.json' };
   return { model: getProviderModel(provider), source: 'player' };
 }

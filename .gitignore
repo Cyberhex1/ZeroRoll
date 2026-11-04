@@ -11,3 +11,4 @@ bun.lockb
 
 backups/
 service-account*.json
+model-check-report.md

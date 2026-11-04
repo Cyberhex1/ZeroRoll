@@ -8,6 +8,7 @@ import { AI_PROVIDERS } from '../../lib/providersConfig';
 import { getActiveProvider } from '../../lib/geminiService';
 import { isMatureContentEnabled } from '../../lib/contentRating';
 import { StoryProgress, StoryRepository } from '../../storage/storyRepository';
+import { BackupStatus, CloudStoryMeta, cloudMovedOn, cloudStoryMeta, createBackupQueue, describeBackup, loadCloudStory } from '../../storage/storyCloud';
 import { loadStory } from '../catalog';
 import { beatOf } from '../engine';
 import { PlaySave, addPlayerInput, buildPrompt, currentChips, maybeSummarize, memoryOf, narrate, newSave, rewindForReroll } from '../play';
@@ -35,6 +36,17 @@ export default function StoryPlay() {
   const [showMap, setShowMap] = useState(false);
   const [showMemory, setShowMemory] = useState(false);
   const saveRef = useRef<PlaySave | null>(null);
+  const [backup, setBackup] = useState<BackupStatus>({ kind: 'idle' });
+  const [cloudNewer, setCloudNewer] = useState<CloudStoryMeta | null>(null);
+  const [cloudNote, setCloudNote] = useState<string | null>(null);
+  const backupQueue = useRef<ReturnType<typeof createBackupQueue> | null>(null);
+  if (!backupQueue.current) {
+    backupQueue.current = createBackupQueue(setBackup, (storyId, at) => {
+      void StoryRepository.markBackedUp(storyId, at);
+      const cur = saveRef.current;
+      if (cur && cur.storyId === storyId) saveRef.current = { ...cur, cloudBase: Math.max(cur.cloudBase ?? 0, at) };
+    });
+  }
   const abortRef = useRef<AbortController | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -49,6 +61,23 @@ export default function StoryPlay() {
         setStory(s);
         saveRef.current = existing ?? newSave(s);
         setSave(saveRef.current);
+        // A save on another device (or one this device lost) comes from the cloud backup.
+        void cloudStoryMeta(id)
+          .then(async (meta) => {
+            if (!live || !meta) return;
+            if (!existing) {
+              const cloud = await loadCloudStory(id);
+              if (live && cloud && saveRef.current && !saveRef.current.messages.length) {
+                saveRef.current = { ...cloud, cloudBase: cloud.updatedAt } as PlaySave;
+                setSave(saveRef.current);
+                await StoryRepository.save(saveRef.current).catch(() => {});
+                setCloudNote('Loaded your save from the cloud backup.');
+              }
+            } else if (cloudMovedOn(meta.updatedAt, existing)) {
+              setCloudNewer(meta);
+            }
+          })
+          .catch(() => {});
         setProgress(await StoryRepository.progress(id));
       } catch (e) {
         if (live) setLoadError(e instanceof Error ? e.message : String(e));
@@ -68,7 +97,13 @@ export default function StoryPlay() {
     saveRef.current = next;
     setSave(next);
     try {
-      await StoryRepository.save(next);
+      const stamped = await StoryRepository.save(next);
+      // Keep the stamped time on screen too, so the backup knows which version it holds.
+      if (saveRef.current === next) {
+        saveRef.current = stamped;
+        setSave(stamped);
+      }
+      backupQueue.current?.push(stamped);
       setProgress(await StoryRepository.recordProgress(next.state, finished));
     } catch (e) {
       setError(`Your progress could not be saved on this device: ${e instanceof Error ? e.message : String(e)}`);
@@ -136,6 +171,23 @@ export default function StoryPlay() {
 
   const skin = useMemo(() => (story ? resolveSkin(story.meta.category, story.skin) : null), [story]);
   const meter = useMemo(() => (story && save ? buildPrompt(story, save, save.tier).meter : null), [story, save]);
+
+  const takeCloudSave = async () => {
+    try {
+      const cloud = await loadCloudStory(id);
+      if (cloud) await persist({ ...cloud, cloudBase: cloud.updatedAt } as PlaySave);
+      setCloudNewer(null);
+    } catch (e) {
+      setError(`The cloud save could not be loaded: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
+  const keepDeviceSave = async () => {
+    const cur = saveRef.current;
+    if (!cur || !cloudNewer) return;
+    // Treat the cloud copy as seen, so the next backup replaces it with this one.
+    await persist({ ...cur, cloudBase: cloudNewer.updatedAt });
+    setCloudNewer(null);
+  };
 
   const changeMemory = (memory: MemoryState) => {
     if (save) void persist({ ...save, memory });
@@ -209,6 +261,19 @@ export default function StoryPlay() {
           </div>
         </header>
 
+        {cloudNote && <p role="status" className="text-xs" style={{ color: 'var(--sk-muted)' }}>{cloudNote}</p>}
+        {cloudNewer && (
+          <div role="alert" className="rounded p-3 text-xs space-y-2" style={{ background: 'var(--sk-surface)' }}>
+            <p>
+              The cloud backup has a newer save of this story ({cloudNewer.messageCount} messages, saved {new Date(cloudNewer.updatedAt).toLocaleString()}),
+              probably from another device. This device has {save.messages.length} messages. Which one do you want to keep playing?
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className={btn} style={btnStyle} onClick={() => void takeCloudSave()}>Use the cloud save</button>
+              <button type="button" className={btn} style={btnStyle} onClick={() => void keepDeviceSave()}>Keep this device's save</button>
+            </div>
+          </div>
+        )}
         {showMap && progress && <ProgressMap story={story} save={save} progress={progress} />}
         {showMemory && meter && (
           <div className="rounded p-3" style={{ background: 'var(--sk-surface)' }}>
@@ -335,6 +400,9 @@ export default function StoryPlay() {
                   ))}
                 </select>
               </label>
+              {backup.kind !== 'idle' && (
+                <span role="status" className="text-[11px]" style={{ color: backup.kind === 'failed' ? '#fca5a5' : 'var(--sk-muted)' }}>{describeBackup(backup)}</span>
+              )}
             </div>
           </div>
         )}

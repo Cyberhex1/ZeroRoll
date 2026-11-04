@@ -13,6 +13,7 @@ import { User } from 'firebase/auth';
 import { getActiveProvider, getProviderModel } from '../lib/geminiService';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { BackupPanel } from './BackupPanel';
+import { SaveRecoveryPanel } from './SaveRecoveryPanel';
 import { KeySyncPanel } from './KeySyncPanel';
 import { isTauri } from '../lib/platform';
 
@@ -179,6 +180,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Section 4: Backup */}
         <BackupPanel />
+        <SaveRecoveryPanel user={user} />
 
         {/* Section 5: Custom Game Master Directives */}
         <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">

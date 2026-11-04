@@ -35,6 +35,18 @@ service cloud.firestore {
         // Delete: owner only
         allow delete: if request.auth != null && request.auth.uid == userId;
       }
+
+      // -----------------------------------------------------------------------
+      // Story mode cloud backups: one document per story (state, memory,
+      // settings) and its turns in pages of 50 messages. Owner only.
+      // -----------------------------------------------------------------------
+      match /stories/{storyId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+
+        match /turns/{page} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
     }
 
     // -------------------------------------------------------------------------

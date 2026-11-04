@@ -27,8 +27,8 @@ export interface RouteStep {
   tier: Tier;
   /** Where the model choice came from. */
   source: 'override' | 'player' | 'models.json' | 'local';
-  /** Set for the PC app's local llama-server, which is not a configured provider. */
-  baseUrl?: string;
+  /** Set for the PC app's local model in Ollama, which is not a configured provider. */
+  local?: { context: number };
 }
 
 export interface RouterAttempt extends RouteStep {
@@ -147,12 +147,12 @@ export function planRoute(tier: Tier): RouteStep[] {
       steps.push(s);
     }
   };
-  // In the PC app, a running local model is the basic tier (it is free and works offline).
+  // In the PC app, the local model in Ollama is the basic tier (it is free and works offline).
   const local = localBasicTier();
   for (const provider of providers) {
     for (const t of tierLadder(tier)) {
       if (t === 'basic' && local && provider === active) {
-        push({ provider: 'custom', model: local.model, tier: 'basic', source: 'local', baseUrl: local.baseUrl });
+        push({ provider: 'custom', model: local.model, tier: 'basic', source: 'local', local: { context: local.context } });
       }
       const o = overrides[t];
       if (o && provider === active) push({ provider: o.provider, model: o.model, tier: t, source: 'override' });
@@ -186,7 +186,8 @@ export async function complete(messages: ChatMessage[], tier: Tier = 'good', opt
           provider: step.provider,
           apiKey: step.source === 'local' ? '' : getProviderKey(step.provider),
           model: step.model,
-          baseUrl: step.baseUrl ?? getProviderBaseUrl(step.provider)
+          baseUrl: getProviderBaseUrl(step.provider),
+          local: step.local
         },
         {
           system: opts.system,

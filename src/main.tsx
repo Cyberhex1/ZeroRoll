@@ -9,11 +9,6 @@ import './index.css';
 // The PC app loads from a custom protocol with no server to rewrite paths, so it uses #/ routes.
 const Router = isTauri() ? HashRouter : BrowserRouter;
 
-if (isTauri()) {
-  // Loaded only in the PC app, so the web bundle never includes the desktop code.
-  void import('./desktop/bootstrap').then((m) => m.bootstrapDesktop());
-}
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>

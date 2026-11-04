@@ -1,4 +1,4 @@
-//! System check: OS, CPU, RAM and GPUs with their VRAM, plus the llama.cpp backend to use.
+//! System check: OS, CPU, RAM and GPUs with their VRAM, plus the GPU backend.
 
 use serde::Serialize;
 use std::process::Command;
@@ -18,7 +18,7 @@ pub struct SystemInfo {
     pub cpu_threads: usize,
     pub ram_gb: f64,
     pub gpus: Vec<Gpu>,
-    /// "cuda", "vulkan", "metal" or "cpu": which llama-server build to download.
+    /// "cuda", "vulkan", "metal" or "cpu": the GPU backend Ollama will use.
     pub backend: String,
     /// VRAM used for the recommendation (largest GPU; unified memory on Apple Silicon).
     pub usable_vram_gb: f64,

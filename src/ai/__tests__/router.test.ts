@@ -91,12 +91,12 @@ describe('planRoute', () => {
     expect(router.planRoute('basic')[0].model).toBe('gemini-3.9-flash-lite');
   });
 
-  it('in the PC app, a running local model is the basic tier', () => {
+  it('in the PC app, the Ollama model is the basic tier', () => {
     (globalThis as any).window = { __TAURI_INTERNALS__: {} };
-    localStorage.setItem('zeroroll_local_llm', JSON.stringify({ enabled: true, baseUrl: 'http://127.0.0.1:5555/v1', modelName: 'gemma.gguf' }));
+    localStorage.setItem('zeroroll_local_llm', JSON.stringify({ enabled: true, model: 'gemma3:12b', modelName: 'Gemma 3 12B', context: 8192 }));
     const plan = router.planRoute('good');
     expect(plan.map((s) => s.source)).toEqual(['player', 'local', 'models.json']);
-    expect(plan[1]).toMatchObject({ provider: 'custom', baseUrl: 'http://127.0.0.1:5555/v1', model: 'gemma.gguf' });
+    expect(plan[1]).toMatchObject({ provider: 'custom', model: 'gemma3:12b', local: { context: 8192 } });
     delete (globalThis as any).window;
   });
 

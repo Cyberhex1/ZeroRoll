@@ -17,6 +17,8 @@ export interface ProviderCallConfig {
   apiKey: string;
   model: string;
   baseUrl?: string;
+  /** PC app only: send this call to the local model in Ollama (through the Rust side). */
+  local?: { context: number };
 }
 
 export interface ProviderRequest {
@@ -540,6 +542,41 @@ async function callAnthropicApi(
 }
 
 /* -------------------------------------------------------------------------- */
+/*                         LOCAL MODEL (PC APP, OLLAMA)                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Calls the local model through the Rust side, which forwards to Ollama on localhost.
+ * Going through Rust avoids Ollama's CORS rules for the app's webview origin.
+ */
+async function callLocalOllama(
+  model: string,
+  context: number,
+  systemPrompt: string | undefined,
+  chat: ChatMessage[],
+  temperature: number,
+  responseJson: boolean,
+  maxTokens: number,
+  timeoutMs: number
+): Promise<TransportReply> {
+  const { invoke } = await import('@tauri-apps/api/core');
+  let reply: { text: string; truncated: boolean };
+  try {
+    reply = await invoke('ollama_chat', {
+      req: { model, system: systemPrompt, messages: chat, temperature, max_tokens: maxTokens, num_ctx: context, json: responseJson, timeout_ms: timeoutMs }
+    });
+  } catch (err) {
+    const msg = String(err instanceof Error ? err.message : err);
+    if (/not running/i.test(msg)) throw new AIError('network', msg, { provider: 'custom' });
+    if (/^timeout/i.test(msg)) throw new AIError('timeout', msg, { provider: 'custom' });
+    if (/not found|pull/i.test(msg)) throw new AIError('model_not_found', msg, { provider: 'custom' });
+    throw new AIError('network', msg, { provider: 'custom' });
+  }
+  if (!reply.text.trim()) throw new AIError('bad_output', `${model} returned an empty reply.`, { provider: 'custom' });
+  return reply;
+}
+
+/* -------------------------------------------------------------------------- */
 /*                               SINGLE ENTRY POINT                           */
 /* -------------------------------------------------------------------------- */
 
@@ -564,7 +601,9 @@ export async function callProvider(cfg: ProviderCallConfig, req: ProviderRequest
     }
     const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
     let reply: TransportReply;
-    if (provider === 'anthropic') {
+    if (cfg.local) {
+      reply = await callLocalOllama(model, cfg.local.context, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider));
+    } else if (provider === 'anthropic') {
       const baseUrl = cfg.baseUrl || AI_PROVIDERS.anthropic?.defaultBaseUrl || 'https://api.anthropic.com/v1';
       reply = await callAnthropicApi(apiKey, baseUrl, model, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider), signal);
     } else {

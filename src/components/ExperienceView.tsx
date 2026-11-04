@@ -19,9 +19,8 @@ import { getCategoryFallbackActions } from '../lib/experienceHelpers';
 import { NarrativeStream } from './NarrativeStream';
 import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
-import { GEMINI_MODELS } from '../lib/modelsConfig';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
-import { executeActionTurn, generateAvatarAI } from '../lib/geminiService';
+import { executeActionTurn, generateAvatarAI, getLastModelUsedLabel } from '../lib/geminiService';
 
 // Sending the entire log every turn makes each reply slower and costlier as the story grows.
 // Keep the opening scene for context plus the most recent exchanges; the story outline
@@ -72,7 +71,10 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     isGeneratingRef.current = isGenerating;
   }, [isGenerating]);
 
-  const modelObj = GEMINI_MODELS.find(m => m.id === selectedModel) || GEMINI_MODELS[0];
+  // Show who actually answered, not the picker's label (the cascade can swap models).
+  const lastAnsweredBy =
+    [...experience.logs].reverse().find((l) => l.sender !== 'player' && l.modelUsed)?.modelUsed ||
+    getLastModelUsedLabel();
 
   // AI Narrative Turn Call
   const handleSendMessage = async (text: string, diceRoll?: DiceRollResult, checkResolved?: boolean) => {
@@ -460,7 +462,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             onAdjudicateAction={handleAdjudicateAction}
             onQuickRollD20={handleQuickRollD20}
             isGenerating={isGenerating}
-            activeModelName={modelObj.name}
+            activeModelName={lastAnsweredBy}
             experienceCategory={experience.category}
             pendingCheck={experience.pendingCheck}
             activeAlert={experience.activeAlert}

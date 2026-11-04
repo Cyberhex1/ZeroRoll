@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "backup:firestore": "tsx scripts/backup-firestore.ts",
-    "restore:firestore": "tsx scripts/restore-firestore.ts"
+    "restore:firestore": "tsx scripts/restore-firestore.ts",
+    "ai:smoke": "tsx scripts/ai-smoke.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",

@@ -102,6 +102,12 @@ export interface ActionTurnResult {
   stateDelta?: StateDelta | null;
   avatarEvolution?: AvatarEvolution | null;
   modelUsed?: string;
+  /** The reply hit the model's length limit and was cut short. */
+  truncated?: boolean;
+  /** The suggested actions are generic category chips, not the AI's own. */
+  fallbackActions?: boolean;
+  /** Set when the AI call failed; the text is a stand-in the player must accept or retry. */
+  failure?: string;
 }
 
 export interface LogMessage {

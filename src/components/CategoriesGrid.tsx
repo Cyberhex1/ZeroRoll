@@ -31,7 +31,7 @@ import {
 import { CATEGORIES_DATA } from '../lib/categoriesData';
 import { CATEGORY_SEEDLISTS } from '../lib/seedlists';
 import { generateRandomScenarioSetup } from '../lib/randomScenarios';
-import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI } from '../lib/geminiService';
+import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI, OFFLINE_ENGINE_LABEL } from '../lib/geminiService';
 import { getUnifiedScenarioSeeds, PlayableScenarioSeed } from '../lib/scenarioSeedsPool';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory } from '../types';
 
@@ -49,7 +49,8 @@ interface CategoriesGridProps {
     openingPrompt?: string,
     suggestedActions?: string[],
     storyOutline?: DMStoryOutline,
-    chapterOneOpening?: string
+    chapterOneOpening?: string,
+    chapterOneModel?: string
   ) => Promise<void>;
   onDeleteExperience: (id: string) => void;
   selectedModel: string;
@@ -63,6 +64,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   selectedModel
 }) => {
   const [activeTab, setActiveTab] = useState<'experiences' | 'categories'>('categories');
+  const [chapterOneFailure, setChapterOneFailure] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryModal, setSelectedCategoryModal] = useState<CategoryInfo | null>(null);
   const [modalTab, setModalTab] = useState<'configure' | 'seedlist'>('configure');
@@ -295,6 +297,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
   const handleOpenCategoryModal = (cat: CategoryInfo) => {
     setSelectedCategoryModal(cat);
+    setChapterOneFailure(null);
     setModalTab('configure');
     setCurrentStoryOutline(undefined);
     setAvatarError(null);
@@ -308,12 +311,13 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     applyRandomSetup(cat.id as ExperienceCategory);
   };
 
-  const handleConfirmCreate = async () => {
+  const handleConfirmCreate = async (opts: { acceptPremise?: boolean } = {}) => {
     if (!selectedCategoryModal) return;
     if (isGeneratingScenario) return;
 
     setIsGeneratingScenario(true);
     setAvatarError(null);
+    setChapterOneFailure(null);
 
     const resolvedGender = charGender === 'custom' ? (customGender || 'they/them') : charGender;
 
@@ -339,25 +343,30 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
     try {
       let chapterOneText: string | undefined = undefined;
+      let chapterOneModel: string | undefined = undefined;
       let finalSuggestedActions = suggestedActions;
 
-      if (hasActiveGeminiKey()) {
+      if (hasActiveGeminiKey() && !opts.acceptPremise) {
         // Write Chapter 1 with AI; the outline is used when the AI scenario provided one
-        try {
-          const chapterOneRes = await generateChapterOneAI({
-            category: selectedCategoryModal.id,
-            storyBlurb: openingPrompt,
-            storyOutline: currentStoryOutline,
-            characterState: fullChar,
-            model: selectedModel
-          });
-          chapterOneText = chapterOneRes.text;
-          if (chapterOneRes.suggestedActions) {
-            finalSuggestedActions = chapterOneRes.suggestedActions;
-          }
-        } catch (err) {
-          console.warn('Failed to generate Chapter 1, falling back to base experience creation:', err);
+        const chapterOneRes = await generateChapterOneAI({
+          category: selectedCategoryModal.id,
+          storyBlurb: openingPrompt,
+          storyOutline: currentStoryOutline,
+          characterState: fullChar,
+          model: selectedModel
+        });
+        if (chapterOneRes.failure) {
+          // Never start the campaign on a silent stand-in: the player retries or accepts the premise.
+          setChapterOneFailure(chapterOneRes.failure);
+          return;
         }
+        chapterOneText = chapterOneRes.text;
+        chapterOneModel = chapterOneRes.modelUsed;
+        if (chapterOneRes.suggestedActions) {
+          finalSuggestedActions = chapterOneRes.suggestedActions;
+        }
+      } else {
+        chapterOneModel = OFFLINE_ENGINE_LABEL;
       }
 
       await onCreateExperience(
@@ -367,7 +376,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         openingPrompt,
         finalSuggestedActions,
         currentStoryOutline,
-        chapterOneText
+        chapterOneText,
+        chapterOneModel
       );
       setSelectedCategoryModal(null);
     } catch (err: any) {
@@ -1063,7 +1073,32 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
               )}
 
               {/* Actions Footer (Sticky on Mobile) */}
-              <div className="sticky bottom-0 bg-[#111118]/95 backdrop-blur-md pt-3 pb-safe border-t border-white/10 flex items-center justify-end gap-2 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 px-4 sm:px-6 z-10">
+              <div className="sticky bottom-0 bg-[#111118]/95 backdrop-blur-md pt-3 pb-safe border-t border-white/10 flex flex-wrap items-center justify-end gap-2 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 px-4 sm:px-6 z-10">
+                {chapterOneFailure && (
+                  <div role="alert" className="w-full p-2.5 rounded bg-red-950/70 border border-red-700/50 text-[11px] text-red-100 space-y-2">
+                    <p>
+                      <span className="font-bold">Chapter One couldn't be written.</span> {chapterOneFailure}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleConfirmCreate()}
+                        disabled={isGeneratingScenario}
+                        className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-black font-bold text-[10px] font-mono uppercase tracking-wider"
+                      >
+                        Try again
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleConfirmCreate({ acceptPremise: true })}
+                        disabled={isGeneratingScenario}
+                        className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-slate-200 text-[10px] font-mono uppercase tracking-wider"
+                      >
+                        Start with the premise instead
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <button
                   onClick={() => setSelectedCategoryModal(null)}
                   className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:bg-white/5 transition"
@@ -1071,7 +1106,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                   Cancel
                 </button>
                 <button
-                  onClick={handleConfirmCreate}
+                  onClick={() => handleConfirmCreate()}
                   disabled={isGeneratingScenario}
                   title={isGeneratingScenario ? 'Wait for scenario generation to finish' : 'Initialize campaign'}
                   className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg transition flex items-center gap-2 shadow-lg hover:shadow-amber-500/20"

@@ -357,7 +357,8 @@ export default function App() {
     openingPrompt?: string,
     suggestedActions?: string[],
     storyOutline?: DMStoryOutline,
-    chapterOneOpening?: string
+    chapterOneOpening?: string,
+    chapterOneModel?: string
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
@@ -388,6 +389,7 @@ export default function App() {
       sender: 'dm',
       text: initialLogText,
       timestamp: new Date().toISOString(),
+      modelUsed: chapterOneModel,
       suggestedActions: finalActions
     };
 

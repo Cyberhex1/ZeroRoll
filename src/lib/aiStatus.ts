@@ -18,6 +18,13 @@ export interface AIStatus {
   /** False once the player has dismissed the current failure banner. */
   visible: boolean;
   at: number;
+  /** Provider and model that answered the last successful call, e.g. "Google Gemini (gemini-flash-latest)". */
+  lastModel?: string;
+  /**
+   * A soft problem on a call that otherwise worked: a model swap, a cut-off reply,
+   * generic fallback chips, a substitute image engine. Shown, never swallowed.
+   */
+  notice?: { feature: string; message: string; at: number; visible: boolean };
 }
 
 let status: AIStatus = { state: 'unknown', visible: false, at: 0 };
@@ -37,9 +44,21 @@ export function subscribeAIStatus(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
-export function reportAISuccess(): void {
-  if (status.state === 'ok' && !status.visible) return;
-  emit({ state: 'ok', visible: false, at: Date.now() });
+export function reportAISuccess(lastModel?: string): void {
+  const model = lastModel ?? status.lastModel;
+  if (status.state === 'ok' && !status.visible && model === status.lastModel) return;
+  emit({ state: 'ok', visible: false, at: Date.now(), lastModel: model, notice: status.notice });
+}
+
+/** Records a soft failure: the call worked, but not exactly as the player asked. */
+export function reportAINotice(feature: string, message: string): void {
+  console.warn(`[AI] ${feature}: ${message}`);
+  emit({ ...status, notice: { feature, message, at: Date.now(), visible: true } });
+}
+
+export function dismissAINotice(): void {
+  if (!status.notice?.visible) return;
+  emit({ ...status, notice: { ...status.notice, visible: false } });
 }
 
 export function reportAIFailure(
@@ -54,7 +73,9 @@ export function reportAIFailure(
     feature: opts.feature,
     usedFallback: !!opts.usedFallback,
     visible: true,
-    at: Date.now()
+    at: Date.now(),
+    lastModel: status.lastModel,
+    notice: status.notice
   });
 }
 

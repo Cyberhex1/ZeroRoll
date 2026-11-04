@@ -138,3 +138,47 @@ describe('narrator prompts and replies', () => {
     expect(compact).toMatch(/Odda: A broad woman/);
   });
 });
+
+describe('skins', async () => {
+  const { CATEGORY_SKINS, resolveSkin, skinVars } = await import('../skins');
+  const { CATEGORY_IDS } = await import('../../content/categoryIds');
+  it('has a base skin for every category and applies story overrides on top', () => {
+    for (const c of CATEGORY_IDS) expect(CATEGORY_SKINS[c]).toBeTruthy();
+    const s = resolveSkin('fantasy', story.skin);
+    expect(s.palette.accent).toBe('#7cc4ff');
+    expect(s.palette.background).toBe(CATEGORY_SKINS.fantasy.palette.background);
+    expect(skinVars(s)['--sk-accent']).toBe('#7cc4ff');
+    expect(skinVars(resolveSkin('horror'))['--sk-accent']).not.toBe(skinVars(s)['--sk-accent']);
+  });
+});
+
+describe('playing a turn', async () => {
+  const { addPlayerInput, narrate, newSave, rewindForReroll, buildPrompt, currentChips } = await import('../play');
+  const reply = (text: string) => async () => ({ text, truncated: false, provider: 'gemini' as const, model: 'm', tier: 'good' as const, requestedTier: 'good' as const, attempts: [] });
+
+  it('runs a choice and a narrator reply into a saved turn', async () => {
+    let save = newSave(story);
+    save = addPlayerInput(story, save, { choiceId: 'help_chain' }).save;
+    const r = await narrate(story, save, reply('You haul together.\n```json\n{"beatReached":"crossing","flags":{},"choices":["Look back"]}\n```'));
+    expect(r.save.state.beat).toBe('crossing');
+    expect(r.save.messages.map((m) => m.kind)).toEqual(['player', 'art', 'narrator', 'art']);
+    expect(r.save.messages[1].art).toBe('landing');
+    expect(r.save.messages[2].text).toBe('You haul together.');
+    expect(currentChips(story, r.save)[0].choiceId).toBe('relight');
+
+    const back = rewindForReroll(r.save)!;
+    expect(back.state.beat).toBe('landing');
+    expect(back.messages).toHaveLength(1);
+  });
+
+  it('sends the compact prompt on the basic tier and starts history with the player', () => {
+    const save = { ...newSave(story, 'basic'), messages: [{ id: 'a', kind: 'narrator' as const, text: 'Dusk.', beat: 'landing', at: 1 }] };
+    const p = buildPrompt(story, save, 'basic');
+    expect(p.system).toMatch(/DIRECTOR/);
+    expect(p.messages[0]).toEqual({ role: 'user', content: 'Continue the story.' });
+  });
+
+  it('refuses a reply that is only data', async () => {
+    await expect(narrate(story, newSave(story), reply('{"beatReached":"none"}'))).rejects.toMatchObject({ kind: 'bad_output' });
+  });
+});

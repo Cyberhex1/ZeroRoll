@@ -51,3 +51,18 @@
   -webkit-overflow-scrolling: touch;
 }
 
+
+/* Story mode particles (src/story/ui/Particles.tsx) */
+.sk-particles span {
+  position: absolute;
+  border-radius: 9999px;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.sk-rise { bottom: -10px; animation-name: sk-rise; }
+.sk-fall { top: -40px; animation-name: sk-fall; }
+@keyframes sk-rise { to { transform: translateY(-110vh) translateX(20px); } }
+@keyframes sk-fall { to { transform: translateY(110vh) translateX(-20px); } }
+@media (prefers-reduced-motion: reduce) {
+  .sk-particles { display: none; }
+}

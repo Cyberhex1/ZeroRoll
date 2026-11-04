@@ -9,9 +9,10 @@ import {
   Key
 } from 'lucide-react';
 import { User } from 'firebase/auth';
-import { GEMINI_MODELS } from '../lib/modelsConfig';
+
 import { getActiveProvider, getProviderModel } from '../lib/geminiService';
 import { AI_PROVIDERS } from '../lib/providersConfig';
+import { BackupPanel } from './BackupPanel';
 
 interface SettingsModalProps {
   user: User | null;
@@ -161,6 +162,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Section 3: Backup */}
+        <BackupPanel />
 
         {/* Section 4: Custom Game Master Directives */}
         <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">

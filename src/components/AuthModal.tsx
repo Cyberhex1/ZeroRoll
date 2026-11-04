@@ -5,7 +5,6 @@ import {
   Mail,
   Sparkles,
   AlertTriangle,
-  CheckCircle2,
   Loader2,
   ShieldCheck,
   UserPlus,

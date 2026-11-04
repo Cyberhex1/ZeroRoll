@@ -1,6 +1,6 @@
 import React from 'react';
-import { AlertTriangle, Key, WifiOff, X } from 'lucide-react';
-import { dismissAIStatus, useAIStatus } from '../lib/aiStatus';
+import { AlertTriangle, Info, Key, WifiOff, X } from 'lucide-react';
+import { dismissAINotice, dismissAIStatus, useAIStatus } from '../lib/aiStatus';
 import { setOfflineMode } from '../lib/geminiService';
 
 interface AIStatusBannerProps {
@@ -13,7 +13,31 @@ interface AIStatusBannerProps {
  */
 export const AIStatusBanner: React.FC<AIStatusBannerProps> = ({ onOpenApiKeyModal }) => {
   const status = useAIStatus();
-  if (status.state !== 'error' || !status.visible) return null;
+  if (status.state !== 'error' || !status.visible) {
+    // Soft problems on calls that worked: model swap, cut-off reply, generic chips, substitute portrait engine.
+    if (!status.notice?.visible) return null;
+    return (
+      <div
+        className="fixed top-16 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-2rem)] max-w-xl bg-amber-950/95 border border-amber-700/60 text-amber-100 text-xs px-3.5 py-2.5 rounded-lg shadow-xl backdrop-blur-md flex items-start gap-2.5"
+        role="status"
+      >
+        <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+        <p className="flex-1 leading-relaxed">
+          <span className="font-bold">{status.notice.feature}: </span>
+          {status.notice.message}
+        </p>
+        <button
+          type="button"
+          onClick={dismissAINotice}
+          className="p-0.5 text-amber-300 hover:text-amber-100 transition"
+          title="Dismiss"
+          aria-label="Dismiss notice"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
+  }
 
   const isKeyProblem = status.kind === 'no_key' || status.kind === 'auth' || status.kind === 'model_not_found';
 

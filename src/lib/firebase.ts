@@ -9,21 +9,21 @@ import {
   deleteDoc, 
   onSnapshot, 
   getDocFromServer,
-  updateDoc
+  updateDoc,
+  deleteField
 } from 'firebase/firestore';
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInAnonymously,
   updateProfile,
-  signOut, 
-  onAuthStateChanged,
-  User 
+  signOut,
+  User
 } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { Experience, UserProfile, UserSettings } from '../types';
@@ -42,7 +42,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Initialize Firestore with specific database ID if available
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+export const db = firebaseConfig.firestoreDatabaseId ? getFirestore(app, firebaseConfig.firestoreDatabaseId) : getFirestore(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
@@ -286,6 +286,20 @@ export async function saveUserSettingsToCloud(userId: string, settings: Partial<
   }
 }
 
+/**
+ * Deletes plain-text provider keys that older builds wrote into users/{uid}.settings.
+ * Call after importAllProviderSettings has copied them to this device.
+ */
+export async function purgeCloudProviderKeys(userId: string): Promise<void> {
+  if (!userId || userId === 'guest') return;
+  try {
+    await updateDoc(doc(db, 'users', userId), { 'settings.providerKeys': deleteField() });
+  } catch (err: any) {
+    const info = handleFirestoreError(err, OperationType.WRITE, `users/${userId}/settings.providerKeys`);
+    throw new Error(info.error);
+  }
+}
+
 export async function saveActiveExperienceIdToCloud(userId: string, activeExperienceId: string | null): Promise<void> {
   if (!userId || userId === 'guest') return;
   try {
@@ -498,7 +512,7 @@ export async function saveExperienceToCloud(experience: Experience): Promise<Sav
     return obj;
   };
 
-  let payload = removeUndefinedRecursive({
+  const payload = removeUndefinedRecursive({
     ...experience,
     userId: actualUserId,
     updatedAt: new Date().toISOString()

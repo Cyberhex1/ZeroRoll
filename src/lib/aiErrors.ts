@@ -12,6 +12,8 @@ export type AIErrorKind =
   | 'timeout'         // We gave up waiting
   | 'bad_request'     // Other 4xx
   | 'bad_output'      // Provider answered, but not in a shape we can use
+  | 'blocked'         // Provider's safety filter refused the prompt or reply (not a key problem)
+  | 'bad_base_url'    // The configured base URL is not an API (e.g. missing /v1)
   | 'unknown';
 
 export class AIError extends Error {
@@ -118,6 +120,10 @@ export function describeAIError(err: AIError, providerName = 'The AI provider'):
       return `${providerName} took too long to answer.`;
     case 'bad_output':
       return `${providerName} returned a reply the game couldn't read.`;
+    case 'blocked':
+      return `${providerName}'s safety filter blocked this reply. Rephrase your action or try another model.`;
+    case 'bad_base_url':
+      return `The base URL for ${providerName} doesn't answer like an API. Local servers usually need /v1 at the end (Ollama: http://localhost:11434/v1).`;
     case 'bad_request':
       return `${providerName} refused the request${err.status ? ` (${err.status})` : ''}: ${truncate(err.message, 160)}`;
     default:

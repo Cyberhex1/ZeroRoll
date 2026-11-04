@@ -1,17 +1,12 @@
-import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  Settings, 
-  Volume2, 
-  VolumeX, 
-  User as UserIcon, 
-  LogOut, 
-  ChevronDown, 
-  ShieldAlert, 
-  Layers, 
-  Radio, 
-  Database,
-  Bot,
+import React from 'react';
+import {
+  Settings,
+  Volume2,
+  VolumeX,
+  User as UserIcon,
+  LogOut,
+  ChevronDown,
+  Layers,
   Key,
   WifiOff
 } from 'lucide-react';
@@ -20,7 +15,7 @@ import { GEMINI_MODELS } from '../lib/modelsConfig';
 import { hasActiveGeminiKey, getActiveProvider, getProviderModel, isOfflineMode } from '../lib/geminiService';
 import { useAIStatus } from '../lib/aiStatus';
 import { AI_PROVIDERS } from '../lib/providersConfig';
-import { GeminiModelOption, UserProfile } from '../types';
+import { UserProfile } from '../types';
 
 interface NavbarProps {
   user: User | null;
@@ -109,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="hidden md:flex items-center gap-3">
           {/* Connected Model Badge */}
           <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs">
-            <span className={`w-2 h-2 rounded-full ${isSaving ? 'bg-amber-400 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
+            <span className={`w-2 h-2 rounded-full ${isSaving ? 'bg-amber-400 animate-ping' : hasActiveGeminiKey() ? 'bg-emerald-500 animate-pulse' : 'bg-slate-500'}`} />
             <span className="text-slate-400 text-[10px] uppercase font-mono tracking-wider">
               {isSaving ? 'SAVING...' : 'MODEL:'}
             </span>
@@ -203,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   ? 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300'
                   : 'border-sky-500/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300'
               }`}
-              title={`${aiStatus.state === 'ok' ? 'Connected' : 'Not verified yet'}: ${AI_PROVIDERS[getActiveProvider()]?.name || 'AI Engine'} (${getProviderModel(getActiveProvider())}) - Click to Change`}
+              title={`${aiStatus.state === 'ok' ? `Connected. Last answer from ${aiStatus.lastModel || getProviderModel(getActiveProvider())}` : `Not verified yet: ${AI_PROVIDERS[getActiveProvider()]?.name || 'AI Engine'} (${getProviderModel(getActiveProvider())})`} - Click to Change`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${aiStatus.state === 'ok' ? 'bg-emerald-400 animate-pulse' : 'bg-sky-400'}`}></span>
               <span className="font-bold hidden xs:inline">{AI_PROVIDERS[getActiveProvider()]?.name || 'AI Active'}</span>

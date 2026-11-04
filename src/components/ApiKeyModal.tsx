@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Key, 
-  Sparkles, 
-  Bot, 
-  Zap, 
-  Globe, 
-  Server, 
-  ExternalLink, 
-  Check, 
-  AlertCircle, 
-  Eye, 
-  EyeOff, 
-  ShieldCheck, 
-  Cpu, 
-  HelpCircle, 
-  RefreshCw, 
-  ChevronRight,
+import {
+  Key,
+  Sparkles,
+  Bot,
+  Zap,
+  Globe,
+  Server,
+  ExternalLink,
+  Check,
+  AlertCircle,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Cpu,
+  RefreshCw,
   Feather,
   Info,
   CheckCircle2,
@@ -84,6 +82,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   const [availableModels, setAvailableModels] = useState<string[] | null>(() => getCachedGeminiModels());
 
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
+  // Set when Save ran the connection check and it failed; a second click saves anyway.
+  const [saveNeedsConfirm, setSaveNeedsConfirm] = useState<boolean>(false);
 
   // Sync state when provider changes
   useEffect(() => {
@@ -108,6 +108,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     }
 
     setTestResult(null);
+    setSaveNeedsConfirm(false);
     setShowKey(false);
   }, [selectedProvider]);
 
@@ -130,6 +131,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   const handleTestConnection = async () => {
     setTesting(true);
     setTestResult(null);
+    setSaveNeedsConfirm(false);
 
     const activeModel = isCustomModel && customModelInput.trim() 
       ? customModelInput.trim() 
@@ -147,6 +149,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     if (res.availableModels && res.availableModels.length) {
       setAvailableModels(res.availableModels);
     }
+    return res;
   };
 
   const syncProviderSettingsToCloud = () => {
@@ -157,7 +160,17 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     }
   };
 
-  const handleSaveAndApply = () => {
+  const handleSaveAndApply = async () => {
+    // Validate before saving (ListModels plus one tiny call on the chosen model), so a key
+    // that is wrong, blocked or restricted to another API is caught here, not mid-story.
+    if (!saveNeedsConfirm && !testResult?.success && (apiKey.trim() || selectedProvider === 'custom')) {
+      const res = await handleTestConnection();
+      if (!res.success) {
+        setSaveNeedsConfirm(true);
+        return;
+      }
+    }
+    setSaveNeedsConfirm(false);
     const activeModel = isCustomModel && customModelInput.trim()
       ? customModelInput.trim()
       : selectedModel || currentConfig.defaultModel;
@@ -192,6 +205,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     setApiKey('');
     setProviderKey(selectedProvider, '');
     setTestResult(null);
+    setSaveNeedsConfirm(false);
     resetAIStatus();
     syncProviderSettingsToCloud();
   };
@@ -305,6 +319,27 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
           <p className="text-xs text-slate-400 leading-relaxed">
             {currentConfig.guide.overview}
           </p>
+          {selectedProvider === 'gemini' && (
+            <div className="p-2.5 rounded bg-[#0A0A0F] border border-white/10 text-[11px] text-slate-400 space-y-1.5 leading-relaxed">
+              <p className="font-bold text-slate-300">Keep your Gemini key safe</p>
+              <ol className="list-decimal pl-4 space-y-1">
+                <li>
+                  In the{' '}
+                  <a className="text-amber-300 underline" href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">
+                    Google Cloud credentials page
+                  </a>
+                  , open the key and under <em>API restrictions</em> allow only the <em>Generative Language API</em>.
+                </li>
+                <li>
+                  Under <em>Application restrictions</em> choose <em>Websites</em> and add this site's address, so the key only works from ZeroRoll.
+                </li>
+              </ol>
+              <p>
+                Your key stays in this browser. On the free tier Google may use prompts to improve its products and limits
+                requests per minute and per day; a "quota" message is normal there and clears on its own.
+              </p>
+            </div>
+          )}
 
           <div className="space-y-2 pt-1">
             {currentConfig.guide.steps.map((step) => (
@@ -357,7 +392,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
               <input
                 type={showKey ? 'text' : 'password'}
                 value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+                onChange={(e) => { setApiKey(e.target.value); setTestResult(null); setSaveNeedsConfirm(false); }}
                 placeholder={currentConfig.keyPlaceholder}
                 className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg pl-3 pr-20 py-2.5 text-xs text-slate-100 font-mono focus:outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/50"
               />
@@ -404,6 +439,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                       setCustomModelInput('');
                     } else {
                       setSelectedModel(e.target.value);
+                      setTestResult(null);
+                      setSaveNeedsConfirm(false);
                     }
                   }}
                   className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500/80"
@@ -432,7 +469,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                   <input
                     type="text"
                     value={customModelInput}
-                    onChange={(e) => setCustomModelInput(e.target.value)}
+                    onChange={(e) => { setCustomModelInput(e.target.value); setTestResult(null); setSaveNeedsConfirm(false); }}
                     placeholder="e.g. deepseek/deepseek-r1, llama3.3"
                     className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500/80"
                   />
@@ -468,7 +505,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 type="text"
                 value={baseUrl}
                 disabled={currentConfig.id !== 'custom' && !showAdvanced}
-                onChange={(e) => setBaseUrl(e.target.value)}
+                onChange={(e) => { setBaseUrl(e.target.value); setTestResult(null); setSaveNeedsConfirm(false); }}
                 placeholder={currentConfig.defaultBaseUrl || 'https://api.openai.com/v1'}
                 className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg px-3 py-2 text-xs text-slate-300 font-mono focus:outline-none focus:border-amber-500/80 disabled:opacity-60"
               />
@@ -554,10 +591,17 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
             <button
               type="button"
               onClick={handleSaveAndApply}
-              className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider transition shadow-lg flex items-center gap-1.5"
+              disabled={testing}
+              className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-60 text-black font-bold text-xs uppercase tracking-wider transition shadow-lg flex items-center gap-1.5"
             >
               {savedSuccess ? <Check className="w-4 h-4" /> : <Sparkles className="w-4 h-4 text-black" />}
-              {savedSuccess ? 'Provider Activated!' : 'Save & Activate Provider'}
+              {savedSuccess
+                ? 'Provider Activated!'
+                : testing
+                ? 'Checking key…'
+                : saveNeedsConfirm
+                ? 'Save anyway (check failed)'
+                : 'Save & Activate Provider'}
             </button>
           </div>
         </div>

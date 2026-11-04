@@ -1,23 +1,48 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# ZeroRoll
 
-# Run and deploy your AI Studio app
+An AI-powered tabletop storytelling site. Pick a genre, build a character, and play
+a campaign with an AI Game Master.
 
-This contains everything you need to run your app locally.
+ZeroRoll is a static site. There is no backend: every AI call goes straight from
+your browser to the provider you choose, using **your own key** (Gemini, OpenAI,
+Anthropic, xAI Grok, OpenRouter, GitHub Models, or a local model). Keys stay in
+your browser and are never sent to ZeroRoll's database.
 
-View your app in AI Studio: https://ai.studio/apps/9c0aebe7-7997-4d1a-9feb-1386b5178a88
+Signing in (Google, email or guest) only stores your campaigns in Firebase so
+they follow you between devices.
 
-## Run Locally
+## Run locally
 
-**Prerequisites:**  Node.js
+Prerequisite: Node.js 22.
 
+```sh
+npm install
+npm run dev        # http://localhost:3000
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Then open **Connect AI** in the navbar and paste a key. For Gemini, create one at
+[Google AI Studio](https://aistudio.google.com/apikey).
+
+Other scripts:
+
+| Script | What it does |
+| --- | --- |
+| `npm run build` | Static build into `dist/` |
+| `npm run preview` | Serve the build locally |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest |
+| `npm run backup:firestore` | Owner-only Firestore dump, see [docs/backup.md](docs/backup.md) |
+
+## Deploying
+
+`npm run build` and serve `dist/` from any static host. The live site deploys
+from this repo.
+
+## Backups
+
+Players can download all their campaigns from **Settings → Export my campaigns**
+and load them back with **Import**. See [docs/backup.md](docs/backup.md).
 
 ---
 

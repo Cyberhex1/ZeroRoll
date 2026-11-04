@@ -1,26 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  ScrollText, 
-  User as UserIcon, 
-  Sparkles, 
-  ShieldAlert, 
-  Layers, 
-  Compass, 
-  Settings, 
-  Dices,
-  RefreshCw,
-  AlertTriangle,
-  Flame,
-  Volume2
+import { uid } from '../lib/ids';
+import {
+  ScrollText,
+  User as UserIcon,
+  Sparkles,
+  Layers
 } from 'lucide-react';
-import { Experience, CharacterSheet, InventoryItem, LogMessage, DiceRollResult, PendingCheck, CourseChangeAlert, StatBlock } from '../types';
+import {
+  Experience,
+  InventoryItem,
+  LogMessage,
+  DiceRollResult,
+  PendingCheck,
+  CourseChangeAlert,
+  StatBlock
+} from '../types';
 import { getCategoryFallbackActions } from '../lib/experienceHelpers';
 import { NarrativeStream } from './NarrativeStream';
 import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
-import { GEMINI_MODELS } from '../lib/modelsConfig';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
-import { executeActionTurn, generateAvatarAI } from '../lib/geminiService';
+import { executeActionTurn, generateAvatarAI, getLastModelUsedLabel } from '../lib/geminiService';
 
 // Sending the entire log every turn makes each reply slower and costlier as the story grows.
 // Keep the opening scene for context plus the most recent exchanges; the story outline
@@ -59,7 +59,6 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
   const [activeTab, setActiveTab] = useState<'narrative' | 'character'>('narrative');
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeRoll, setActiveRoll] = useState<DiceRollResult | null>(null);
-  const [turnCounter, setTurnCounter] = useState(0);
 
   const latestExpRef = useRef(experience);
   const isGeneratingRef = useRef(isGenerating);
@@ -72,7 +71,10 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     isGeneratingRef.current = isGenerating;
   }, [isGenerating]);
 
-  const modelObj = GEMINI_MODELS.find(m => m.id === selectedModel) || GEMINI_MODELS[0];
+  // Show who actually answered, not the picker's label (the cascade can swap models).
+  const lastAnsweredBy =
+    [...experience.logs].reverse().find((l) => l.sender !== 'player' && l.modelUsed)?.modelUsed ||
+    getLastModelUsedLabel();
 
   // AI Narrative Turn Call
   const handleSendMessage = async (text: string, diceRoll?: DiceRollResult, checkResolved?: boolean) => {
@@ -81,7 +83,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     // Append player log
     const currentExp = latestExpRef.current;
     const playerMsg: LogMessage = {
-      id: `msg_${Date.now()}`,
+      id: `msg_${uid()}`,
       sender: 'player',
       text,
       timestamp: new Date().toISOString(),
@@ -98,7 +100,6 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     onUpdateExperience(tempExp);
 
     setIsGenerating(true);
-    setTurnCounter(prev => prev + 1);
 
     try {
       const data = await executeActionTurn({
@@ -112,7 +113,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       });
 
       const dmMsg: LogMessage = {
-        id: `msg_${Date.now() + 1}`,
+        id: `msg_${uid()}`,
         sender: 'dm',
         text: data.text || 'The Game Master pauses thoughtfully...',
         timestamp: new Date().toISOString(),
@@ -123,8 +124,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       };
 
       // Check for Course Changing Alert & Required Check
-      let newAlert: CourseChangeAlert | null = data.courseChangeAlert || null;
-      let newCheck: PendingCheck | null = data.requiredCheck || null;
+      const newAlert: CourseChangeAlert | null = data.courseChangeAlert || null;
+      const newCheck: PendingCheck | null = data.requiredCheck || null;
 
       // 1. Perform async avatar generation BEFORE reading the final state
       let evoAvatarResult: any = null;
@@ -152,7 +153,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       const finalExp = latestExpRef.current;
 
       // 3. Apply all dynamic updates (Delta + Avatar) to the fresh state
-      let updatedChar = { ...finalExp.character };
+      const updatedChar = { ...finalExp.character };
 
       if (data.stateDelta) {
         const delta = data.stateDelta;
@@ -168,7 +169,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
           const newItems: InventoryItem[] = delta.itemsGained.map((it: any, idx: number) => {
             if (typeof it === 'string') {
               return {
-                id: `item_${Date.now()}_${idx}`,
+                id: `item_${uid()}_${idx}`,
                 name: it,
                 type: 'misc',
                 quantity: 1,
@@ -176,7 +177,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
               };
             }
             return {
-              id: `item_${Date.now()}_${idx}`,
+              id: `item_${uid()}_${idx}`,
               name: it.name || 'Discovered Item',
               type: it.type || 'misc',
               quantity: it.quantity || 1,
@@ -242,7 +243,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         : (err.message || 'Failed to reach AI Game Master.');
 
       const errLog: LogMessage = {
-        id: `msg_err_${Date.now()}`,
+        id: `msg_err_${uid()}`,
         sender: 'system',
         text: `⚠️ System Note: ${cleanMessage}`,
         timestamp: new Date().toISOString()
@@ -260,7 +261,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     
     const currentExp = latestExpRef.current;
     const playerMsg: LogMessage = {
-      id: `msg_${Date.now()}`,
+      id: `msg_${uid()}`,
       sender: 'player',
       text: `[Rules Referee Check]: ${actionText}`,
       timestamp: new Date().toISOString()
@@ -280,7 +281,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       });
 
       const adjudicatorMsg: LogMessage = {
-        id: `msg_${Date.now() + 1}`,
+        id: `msg_${uid()}`,
         sender: 'adjudicator',
         text: data.text || 'Rule Adjudication complete.',
         timestamp: new Date().toISOString(),
@@ -300,7 +301,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         : (err.message || 'Adjudication check failed.');
 
       const errLog: LogMessage = {
-        id: `msg_err_${Date.now()}`,
+        id: `msg_err_${uid()}`,
         sender: 'system',
         text: `⚠️ System Note: ${cleanMessage}`,
         timestamp: new Date().toISOString()
@@ -461,7 +462,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             onAdjudicateAction={handleAdjudicateAction}
             onQuickRollD20={handleQuickRollD20}
             isGenerating={isGenerating}
-            activeModelName={modelObj.name}
+            activeModelName={lastAnsweredBy}
             experienceCategory={experience.category}
             pendingCheck={experience.pendingCheck}
             activeAlert={experience.activeAlert}

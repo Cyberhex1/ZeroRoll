@@ -1,24 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Send, 
-  Dices, 
-  Bot, 
-  User as UserIcon, 
-  ShieldAlert, 
-  Sparkles, 
-  Flame, 
-  ScrollText, 
-  HelpCircle,
-  Clock,
+import {
+  Send,
+  Dices,
+  Bot,
+  User as UserIcon,
+  ShieldAlert,
+  Sparkles,
   AlertTriangle,
-  Zap,
-  Lock,
-  XCircle,
-  CheckCircle2,
-  Volume2
+  Lock
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { LogMessage, DiceRollResult, PendingCheck, CourseChangeAlert, StatBlock } from '../types';
+import {
+  LogMessage,
+  PendingCheck,
+  CourseChangeAlert,
+  StatBlock
+} from '../types';
 import { getCategoryIcon } from '../lib/categoryIcons';
 
 interface NarrativeStreamProps {
@@ -221,6 +218,12 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                   </span>
                   <span>•</span>
                   <span>{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  {!isPlayer && log.modelUsed && (
+                    <>
+                      <span>•</span>
+                      <span className="normal-case truncate max-w-[180px]" title={`Answered by ${log.modelUsed}`}>{log.modelUsed}</span>
+                    </>
+                  )}
                 </div>
 
                 <div className={`p-3 rounded text-xs sm:text-sm leading-relaxed ${

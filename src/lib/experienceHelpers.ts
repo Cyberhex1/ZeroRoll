@@ -4,6 +4,7 @@
 // content + category-grounded fallback suggested actions and inventory.
 
 import { ExperienceCategory, InventoryItem, MapData } from '../types';
+import { uid } from './ids';
 import { CATEGORY_SEEDLISTS } from './seedlists';
 
 // ---------------------------------------------------------------------------
@@ -186,7 +187,7 @@ export function getCategoryDefaultInventory(category: ExperienceCategory): Inven
   // Clone with new IDs so each experience has its own items
   return base.map((item, i) => ({
     ...item,
-    id: `inv_${category}_${Date.now()}_${i}`
+    id: `inv_${category}_${uid()}_${i}`
   }));
 }
 

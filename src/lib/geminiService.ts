@@ -1,23 +1,19 @@
 import firebaseConfig from '../../firebase-applet-config.json';
+import { uid } from './ids';
 import {
   ExperienceCategory,
-  InventoryItem,
-  CourseChangeAlert,
-  PendingCheck,
-  StateDelta,
   DiceRollResult,
-  LogMessage,
   AvatarEvolution,
   ActionTurnResult,
   DMStoryOutline
 } from '../types';
 import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomScenarios';
-import { generateDynamicSeedlist, CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
+import { CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
 import { buildGroundedSeedContext, getCategoryNarrativeProfile } from './narrativeProfiles';
 import { getCategoryFallbackActions } from './experienceHelpers';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError, isTransient, shouldTryNextModel } from './aiErrors';
-import { reportAIFailure, reportAISuccess, resetAIStatus } from './aiStatus';
+import { reportAIFailure, reportAINotice, reportAISuccess, resetAIStatus } from './aiStatus';
 
 // Default Gemini model: the "latest" alias Google keeps pointed at the current Flash release.
 export const GEMINI_DEFAULT_MODEL = 'gemini-flash-latest';
@@ -79,14 +75,8 @@ function getStoredProviderKey(provider: AIProviderId): string {
 }
 
 export function getProviderKey(provider: AIProviderId): string {
-  const stored = getStoredProviderKey(provider);
-  if (stored) return stored;
-
-  if (provider === 'gemini') {
-    const envKey = ((import.meta as any).env?.VITE_GEMINI_API_KEY || '').trim();
-    if (envKey && !isUnusableKey(provider, envKey)) return envKey;
-  }
-  return '';
+  // A player's own key or nothing: no build-time or project key is ever substituted.
+  return getStoredProviderKey(provider);
 }
 
 export function setProviderKey(provider: AIProviderId, key: string): void {
@@ -178,22 +168,18 @@ export function setOfflineMode(enabled: boolean): void {
   resetAIStatus();
 }
 
-// Export and import provider settings for cloud synchronization
+// Export and import provider settings for cloud synchronization.
+// API keys are never exported: they stay on this device (opt-in encrypted sync comes later).
 export function exportAllProviderSettings(): {
   activeProvider: AIProviderId;
-  providerKeys: Record<string, string>;
   providerModels: Record<string, string>;
   providerBaseUrls: Record<string, string>;
 } {
-  const providerKeys: Record<string, string> = {};
   const providerModels: Record<string, string> = {};
   const providerBaseUrls: Record<string, string> = {};
 
   const providerIds = Object.keys(AI_PROVIDERS) as AIProviderId[];
   for (const pid of providerIds) {
-    // Only keys the player actually saved; never env/config fallbacks.
-    const k = getStoredProviderKey(pid);
-    if (k) providerKeys[pid] = k;
     const m = getProviderModel(pid);
     if (m && m !== AI_PROVIDERS[pid]?.defaultModel) providerModels[pid] = m;
     const u = getProviderBaseUrl(pid);
@@ -202,7 +188,6 @@ export function exportAllProviderSettings(): {
 
   return {
     activeProvider: getActiveProvider(),
-    providerKeys,
     providerModels,
     providerBaseUrls
   };
@@ -211,6 +196,10 @@ export function exportAllProviderSettings(): {
 /**
  * Merges cloud provider settings into this device. Settings already present on this
  * device win, so a stale cloud copy can never overwrite a key the player just entered.
+ *
+ * `providerKeys` only exists on profiles written by older builds, which synced keys in
+ * plain text. They are copied to this device once (so nobody loses a key) and the caller
+ * then deletes them from the cloud with purgeCloudProviderKeys.
  */
 export function importAllProviderSettings(settings?: {
   activeProvider?: string;
@@ -371,6 +360,10 @@ export interface UniversalPromptOptions {
    * story writing doesn't need deep reasoning. Default 'low'.
    */
   thinking?: 'minimal' | 'low';
+  /** Upper bound on the reply length. Defaults per provider (see DEFAULT_MAX_OUTPUT_TOKENS). */
+  maxTokens?: number;
+  /** Feature name used in status-line notices, e.g. "Story turn". */
+  feature?: string;
 }
 
 interface ProviderCallConfig {
@@ -380,12 +373,42 @@ interface ProviderCallConfig {
   baseUrl?: string;
 }
 
+/** What one transport call produced. */
+interface TransportReply {
+  text: string;
+  /** The provider stopped because it hit the output limit (the reply is cut off). */
+  truncated: boolean;
+}
+
+/** Details of the last successful call, for status lines and Continue offers. */
+export interface AICallMeta {
+  provider: AIProviderId;
+  model: string;
+  truncated: boolean;
+  /** Set when the Gemini cascade answered with a different model than the one chosen. */
+  swappedFrom?: string;
+  /** Why the chosen model was skipped. */
+  swapReason?: string;
+}
+
+// Room for a long scene plus the trailing blocks. Gemini counts thinking tokens
+// against the same limit, so it gets more headroom.
+export const DEFAULT_MAX_OUTPUT_TOKENS: Record<'gemini' | 'other', number> = { gemini: 8192, other: 4096 };
+
+// A whole turn (every model in the cascade, every retry) gives up after this long.
+export const AI_TURN_DEADLINE_MS = 180_000;
+
 let lastModelUsed = '';
+let lastCallMeta: AICallMeta | null = null;
 
 /** Label of the provider/model that produced the most recent successful reply. */
 export function getLastModelUsedLabel(): string {
-  const provider = getActiveProvider();
+  const provider = lastCallMeta?.provider || getActiveProvider();
   return `${AI_PROVIDERS[provider]?.name || provider} (${lastModelUsed || getProviderModel(provider)})`;
+}
+
+export function getLastCallMeta(): AICallMeta | null {
+  return lastCallMeta;
 }
 
 async function withTimeout<T>(run: (signal: AbortSignal) => Promise<T>, ms: number, provider: string): Promise<T> {
@@ -406,9 +429,27 @@ async function withTimeout<T>(run: (signal: AbortSignal) => Promise<T>, ms: numb
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Time left for a call that must finish by `deadlineAt`, capped at the per-request timeout. */
+function requestBudget(deadlineAt: number, provider: string): number {
+  const remaining = deadlineAt - Date.now();
+  if (remaining < 2_000) {
+    throw new AIError('timeout', `Gave up after ${Math.round(AI_TURN_DEADLINE_MS / 1000)}s without a reply.`, { provider });
+  }
+  return Math.min(AI_REQUEST_TIMEOUT_MS, remaining);
+}
+
+/** Seconds the provider asked us to wait, from "retry in 7.2s" or a RetryInfo "retryDelay": "7s". */
+export function parseRetryDelayMs(message: string): number | undefined {
+  const m = message.match(/retry in ([\d.]+)\s*s/i) || message.match(/retryDelay"?\s*[:=]\s*"?([\d.]+)s/i);
+  if (!m) return undefined;
+  const ms = Math.ceil(parseFloat(m[1]) * 1000);
+  return Number.isFinite(ms) ? ms : undefined;
+}
+
 /**
  * Executes a raw prompt against the currently configured AI provider.
- * Throws an AIError (never falls back silently).
+ * Throws an AIError (never falls back silently). Soft problems on a successful call
+ * (model swap, cut-off reply) are reported to the status line.
  */
 export async function executeUniversalPrompt(options: UniversalPromptOptions): Promise<string> {
   const provider = getActiveProvider();
@@ -421,7 +462,15 @@ export async function executeUniversalPrompt(options: UniversalPromptOptions): P
     },
     options
   );
-  reportAISuccess();
+  reportAISuccess(getLastModelUsedLabel());
+  const meta = lastCallMeta;
+  const feature = options.feature || 'AI reply';
+  if (meta?.swappedFrom) {
+    reportAINotice(feature, `${meta.swappedFrom} was unavailable (${meta.swapReason || 'error'}), so ${meta.model} answered instead.`);
+  }
+  if (meta?.truncated) {
+    reportAINotice(feature, 'The reply was cut short by the model\'s length limit. Use Continue to pick up where it stopped.');
+  }
   return text;
 }
 
@@ -429,6 +478,7 @@ async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalProm
   const { provider, apiKey, model } = cfg;
   const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false, thinking = 'low' } = options;
   const providerName = AI_PROVIDERS[provider]?.name || provider;
+  const deadlineAt = Date.now() + AI_TURN_DEADLINE_MS;
 
   if (provider !== 'custom' && !apiKey.trim()) {
     throw new AIError('no_key', `Missing ${providerName} API key.`, { provider });
@@ -437,21 +487,26 @@ async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalProm
   try {
     // 1. Google Gemini Provider
     if (provider === 'gemini') {
-      return await callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson, thinking);
+      const maxTokens = options.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.gemini;
+      const r = await callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens, deadlineAt);
+      return r.text;
     }
+
+    const maxTokens = options.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
+    let reply: TransportReply;
 
     // 2. Anthropic Claude Provider (Direct client fetch)
     if (provider === 'anthropic') {
-      const text = await callAnthropicApi(apiKey, model, systemPrompt, userPrompt, temperature, responseJson);
-      lastModelUsed = model;
-      return text;
+      const baseUrl = cfg.baseUrl || AI_PROVIDERS.anthropic?.defaultBaseUrl || 'https://api.anthropic.com/v1';
+      reply = await callAnthropicApi(apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson, maxTokens, requestBudget(deadlineAt, provider));
+    } else {
+      // 3. OpenAI-Compatible Providers (OpenAI, Grok, OpenRouter, Copilot/GitHub, Custom)
+      const baseUrl = cfg.baseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
+      reply = await callOpenAICompatibleApi(provider, apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson, maxTokens, requestBudget(deadlineAt, provider));
     }
-
-    // 3. OpenAI-Compatible Providers (OpenAI, Grok, OpenRouter, Copilot/GitHub, Custom)
-    const baseUrl = cfg.baseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
-    const text = await callOpenAICompatibleApi(provider, apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson);
     lastModelUsed = model;
-    return text;
+    lastCallMeta = { provider, model, truncated: reply.truncated };
+    return reply.text;
   } catch (err) {
     throw classifyAIError(err, provider);
   }
@@ -466,7 +521,8 @@ const modelsWithoutThinkingLevel = new Set<string>();
 
 /**
  * One generateContent call over plain REST. The @google/genai SDK added ~500 KB to the
- * page download for this single request.
+ * page download for this single request. The key goes in the x-goog-api-key header,
+ * never in the URL.
  */
 async function callGeminiModel(
   apiKey: string,
@@ -475,9 +531,11 @@ async function callGeminiModel(
   userPrompt: string,
   temperature: number,
   responseJson: boolean,
-  thinking: 'minimal' | 'low'
-): Promise<string> {
-  const generationConfig: Record<string, any> = { temperature };
+  thinking: 'minimal' | 'low',
+  maxTokens: number,
+  timeoutMs: number
+): Promise<TransportReply> {
+  const generationConfig: Record<string, any> = { temperature, maxOutputTokens: maxTokens };
   if (responseJson) generationConfig.responseMimeType = 'application/json';
   const useThinkingLevel = !modelsWithoutThinkingLevel.has(modelName);
   if (useThinkingLevel) generationConfig.thinkingConfig = { thinkingLevel: thinking.toUpperCase() };
@@ -507,24 +565,32 @@ async function callGeminiModel(
         parsedMsg = `${json.error?.status || ''} ${json.error?.message || raw}`.trim();
         const reason = json.error?.details?.find((d: any) => d?.reason)?.reason;
         if (reason) parsedMsg += ` (${reason})`;
+        const retryDelay = json.error?.details?.find((d: any) => d?.retryDelay)?.retryDelay;
+        if (retryDelay) parsedMsg += ` retryDelay: ${retryDelay}`;
       } catch (_) {}
       // Models without thinking levels reject the field; retry once without it.
       if (res.status === 400 && useThinkingLevel && /thinking/i.test(parsedMsg)) {
         modelsWithoutThinkingLevel.add(modelName);
-        return callGeminiModel(apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking);
+        return callGeminiModel(apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens, timeoutMs);
       }
       throw classifyAIError({ status: res.status, message: `[Google Gemini] API Error (${res.status}): ${parsedMsg}` }, 'gemini');
     }
 
     const data = JSON.parse(raw);
-    const parts: any[] = data.candidates?.[0]?.content?.parts || [];
+    const candidate = data.candidates?.[0];
+    const finishReason: string | undefined = candidate?.finishReason;
+    const blockReason: string | undefined = data.promptFeedback?.blockReason;
+    if (blockReason || finishReason === 'SAFETY' || finishReason === 'PROHIBITED_CONTENT' || finishReason === 'BLOCKLIST') {
+      throw new AIError('blocked', `${modelName} blocked the ${blockReason ? 'prompt' : 'reply'} (${blockReason || finishReason}).`, { provider: 'gemini' });
+    }
+    const parts: any[] = candidate?.content?.parts || [];
     const text = parts.filter((p) => !p.thought && typeof p.text === 'string').map((p) => p.text).join('');
     if (!text.trim()) {
-      const reason = data.promptFeedback?.blockReason || data.candidates?.[0]?.finishReason || 'no text';
-      throw new AIError('bad_output', `${modelName} returned an empty reply (${reason}).`, { provider: 'gemini' });
+      const why = finishReason === 'MAX_TOKENS' ? 'it used its whole length limit before writing anything' : finishReason || 'no text';
+      throw new AIError('bad_output', `${modelName} returned an empty reply (${why}).`, { provider: 'gemini' });
     }
-    return text;
-  }, AI_REQUEST_TIMEOUT_MS, 'gemini');
+    return { text, truncated: finishReason === 'MAX_TOKENS' };
+  }, timeoutMs, 'gemini');
 }
 
 async function callGeminiWithCascade(
@@ -534,36 +600,55 @@ async function callGeminiWithCascade(
   userPrompt: string,
   temperature: number,
   responseJson: boolean,
-  thinking: 'minimal' | 'low' = 'low'
-): Promise<string> {
+  thinking: 'minimal' | 'low' = 'low',
+  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.gemini,
+  deadlineAt: number = Date.now() + AI_TURN_DEADLINE_MS
+): Promise<TransportReply> {
   const candidates = getGeminiCandidateModels(model);
   let lastError: AIError | undefined;
+  let firstError: AIError | undefined;
+  let lastBadRequest: string | undefined;
 
   for (const modelName of candidates) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const text = await callGeminiModel(apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking);
-        if (modelName !== candidates[0]) {
-          console.warn(`[Gemini] ${candidates[0]} unavailable (${lastError?.kind}); answered with ${modelName}.`);
-        }
+        const reply = await callGeminiModel(
+          apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens,
+          requestBudget(deadlineAt, 'gemini')
+        );
         lastModelUsed = modelName;
-        return text;
+        lastCallMeta = {
+          provider: 'gemini',
+          model: modelName,
+          truncated: reply.truncated,
+          ...(modelName !== candidates[0] ? { swappedFrom: candidates[0], swapReason: firstError?.kind } : {})
+        };
+        return reply;
       } catch (raw) {
         const err = classifyAIError(raw, 'gemini');
         lastError = err;
-        // A bad key or malformed request fails the same way on every model.
-        if (err.kind === 'auth' || err.kind === 'bad_request') throw err;
+        if (!firstError) firstError = err;
+        // A bad key, a blocked prompt or the overall deadline fail the same way on every model.
+        if (err.kind === 'auth' || err.kind === 'blocked' || (err.kind === 'timeout' && deadlineAt - Date.now() < 2_000)) throw err;
+        const hint = parseRetryDelayMs(err.message);
+        // Honour a short retry hint on quota errors before moving down the cascade.
+        if (attempt === 0 && err.kind === 'quota' && hint !== undefined && hint <= 10_000 && deadlineAt - Date.now() > hint + 5_000) {
+          await sleep(hint);
+          continue;
+        }
         if (attempt === 0 && isTransient(err.kind)) {
-          let waitMs = 1000;
-          const delayMatch = err.message.match(/retry in ([\d.]+)s/);
-          if (delayMatch) waitMs = Math.min(Math.ceil(parseFloat(delayMatch[1]) * 1000), 5000);
-          await sleep(waitMs);
+          await sleep(Math.min(hint ?? 1000, 5000));
           continue;
         }
         break;
       }
     }
-    if (lastError && !shouldTryNextModel(lastError.kind) && lastError.kind !== 'bad_output' && lastError.kind !== 'timeout') {
+    if (lastError?.kind === 'bad_request') {
+      // A 400 that is about this model (unsupported option) is worth one more model;
+      // the same 400 twice means the request itself is the problem.
+      if (lastBadRequest === lastError.message) throw lastError;
+      lastBadRequest = lastError.message;
+    } else if (lastError && !shouldTryNextModel(lastError.kind) && lastError.kind !== 'bad_output' && lastError.kind !== 'timeout') {
       throw lastError;
     }
     console.warn(`[Gemini] ${modelName} failed (${lastError?.kind}): ${lastError?.message}`);
@@ -576,6 +661,25 @@ async function callGeminiWithCascade(
 /*                       OPENAI COMPATIBLE IMPLEMENTATION                     */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * A 404 from /chat/completions means either the model is unknown or the base URL is
+ * wrong (Ollama without /v1, a typo). Probing /models tells the two apart.
+ */
+async function baseUrlLooksLikeApi(base: string, headers: Record<string, string>): Promise<boolean> {
+  try {
+    const res = await withTimeout(
+      (signal) => fetch(`${base}/models`, { method: 'GET', headers: { Authorization: headers['Authorization'] || '' }, signal }),
+      8_000,
+      'probe'
+    );
+    if (res.status === 404) return false;
+    const type = res.headers.get('content-type') || '';
+    return !type.includes('text/html');
+  } catch (_) {
+    return false;
+  }
+}
+
 async function callOpenAICompatibleApi(
   provider: AIProviderId,
   apiKey: string,
@@ -584,9 +688,12 @@ async function callOpenAICompatibleApi(
   systemPrompt: string | undefined,
   userPrompt: string,
   temperature: number,
-  responseJson: boolean
-): Promise<string> {
-  const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
+  responseJson: boolean,
+  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.other,
+  timeoutMs: number = AI_REQUEST_TIMEOUT_MS
+): Promise<TransportReply> {
+  const base = baseUrl.replace(/\/+$/, '');
+  const url = `${base}/chat/completions`;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json'
@@ -613,12 +720,12 @@ async function callOpenAICompatibleApi(
     messages,
     temperature
   };
+  // OpenAI's current models only accept max_completion_tokens; compatible servers use max_tokens.
+  if (provider === 'openai') body.max_completion_tokens = maxTokens;
+  else body.max_tokens = maxTokens;
 
-  if (responseJson) {
-    // Only pass json_object if supported
-    if (provider === 'openai' || provider === 'openrouter' || provider === 'grok') {
-      body.response_format = { type: 'json_object' };
-    }
+  if (responseJson && supportsJsonMode(provider)) {
+    body.response_format = { type: 'json_object' };
   }
 
   return withTimeout(async (signal) => {
@@ -636,18 +743,31 @@ async function callOpenAICompatibleApi(
         const json = JSON.parse(errorBody);
         parsedMsg = json.error?.message || json.message || errorBody;
       } catch (_) {}
+      const providerName = AI_PROVIDERS[provider]?.name || provider;
+      if (res.status === 404 && !(await baseUrlLooksLikeApi(base, headers))) {
+        throw new AIError('bad_base_url', `[${providerName}] ${url} returned 404 and ${base}/models is not an API either.`, { provider, status: 404 });
+      }
       throw classifyAIError(
-        { status: res.status, message: `[${AI_PROVIDERS[provider]?.name || provider}] API Error (${res.status}): ${parsedMsg}` },
+        { status: res.status, message: `[${providerName}] API Error (${res.status}): ${parsedMsg}` },
         provider
       );
     }
 
     const data = await res.json();
-    const content = data.choices?.[0]?.message?.content || '';
+    const choice = data.choices?.[0];
+    const content = choice?.message?.content || '';
     const text = typeof content === 'string' ? content : JSON.stringify(content);
-    if (!text.trim()) throw new AIError('bad_output', `${model} returned an empty reply.`, { provider });
-    return text;
-  }, AI_REQUEST_TIMEOUT_MS, provider);
+    if (!text.trim()) {
+      if (choice?.finish_reason === 'content_filter') throw new AIError('blocked', `${model} filtered the reply.`, { provider });
+      throw new AIError('bad_output', `${model} returned an empty reply.`, { provider });
+    }
+    return { text, truncated: choice?.finish_reason === 'length' };
+  }, timeoutMs, provider);
+}
+
+/** Providers that accept response_format: json_object. Others get JSON instructions in the prompt only. */
+export function supportsJsonMode(provider: AIProviderId): boolean {
+  return provider === 'gemini' || provider === 'openai' || provider === 'openrouter' || provider === 'grok';
 }
 
 /* -------------------------------------------------------------------------- */
@@ -656,13 +776,16 @@ async function callOpenAICompatibleApi(
 
 async function callAnthropicApi(
   apiKey: string,
+  baseUrl: string,
   model: string,
   systemPrompt: string | undefined,
   userPrompt: string,
   temperature: number,
-  responseJson: boolean
-): Promise<string> {
-  const url = 'https://api.anthropic.com/v1/messages';
+  responseJson: boolean,
+  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.other,
+  timeoutMs: number = AI_REQUEST_TIMEOUT_MS
+): Promise<TransportReply> {
+  const url = `${baseUrl.replace(/\/+$/, '')}/messages`;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -678,7 +801,7 @@ async function callAnthropicApi(
 
   const body: any = {
     model: model || 'claude-3-5-haiku-20241022',
-    max_tokens: 4096,
+    max_tokens: maxTokens,
     temperature,
     messages: [
       { role: 'user', content: actualUserPrompt }
@@ -708,11 +831,16 @@ async function callAnthropicApi(
     }
 
     const data = await res.json();
-    const textBlock = data.content?.find((c: any) => c.type === 'text');
-    const text = textBlock?.text || '';
-    if (!text.trim()) throw new AIError('bad_output', `${model} returned an empty reply.`, { provider: 'anthropic' });
-    return text;
-  }, AI_REQUEST_TIMEOUT_MS, 'anthropic');
+    const text = (data.content || [])
+      .filter((c: any) => c.type === 'text' && typeof c.text === 'string')
+      .map((c: any) => c.text)
+      .join('');
+    if (!text.trim()) {
+      if (data.stop_reason === 'refusal') throw new AIError('blocked', `${model} declined to answer.`, { provider: 'anthropic' });
+      throw new AIError('bad_output', `${model} returned an empty reply.`, { provider: 'anthropic' });
+    }
+    return { text, truncated: data.stop_reason === 'max_tokens' };
+  }, timeoutMs, 'anthropic');
 }
 
 /* -------------------------------------------------------------------------- */
@@ -813,20 +941,34 @@ export async function testProviderConnection(params: {
       setCachedGeminiModels(availableModels);
     }
 
-    // Same path as real gameplay calls, including JSON mode and the model cascade.
+    // Same path as real gameplay calls, including the model cascade. JSON mode only where the
+    // provider supports it, so a local model that answers in prose still passes.
+    const jsonMode = supportsJsonMode(provider);
     const raw = await runProviderPrompt(
       { provider, apiKey: apiKey.trim(), model, baseUrl: baseUrl || getProviderBaseUrl(provider) },
       {
-        userPrompt: 'Reply with this exact JSON object: {"status": "Ready for adventure"}',
+        userPrompt: jsonMode
+          ? 'Reply with this exact JSON object: {"status": "Ready for adventure"}'
+          : 'Reply with exactly these words and nothing else: Ready for adventure',
         temperature: 0.2,
-        responseJson: true,
-        thinking: 'minimal'
+        responseJson: jsonMode,
+        thinking: 'minimal',
+        maxTokens: provider === 'gemini' ? 1024 : 256
       }
     );
-    const parsed = parseJsonReply<{ status?: string }>(raw);
+    let replyText = raw.trim().slice(0, 80);
+    if (jsonMode) {
+      try {
+        replyText = parseJsonReply<{ status?: string }>(raw)?.status || replyText;
+      } catch (_) {
+        // JSON mode is requested, but a readable reply still proves the connection works.
+      }
+    }
     const latencyMs = Date.now() - start;
     const modelUsed = lastModelUsed || model;
     const swapped = provider === 'gemini' && normalizeGeminiModelName(model) !== modelUsed;
+    // Only a test of the provider the game is actually using marks the navbar as connected.
+    if (provider === getActiveProvider()) reportAISuccess(`${providerName} (${modelUsed})`);
 
     return {
       success: true,
@@ -834,7 +976,7 @@ export async function testProviderConnection(params: {
       message: swapped
         ? `Connected in ${latencyMs}ms, but ${normalizeGeminiModelName(model)} isn't available to this key, so ${modelUsed} answered. Pick an available model below.`
         : `Connected to ${modelUsed} in ${latencyMs}ms.`,
-      reply: parsed?.status || raw.slice(0, 80),
+      reply: replyText,
       modelUsed,
       availableModels
     };
@@ -852,6 +994,50 @@ export async function testProviderConnection(params: {
 /* -------------------------------------------------------------------------- */
 /*                        GAMEPLAY AI FEATURE ENDPOINTS                       */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Outline lines for a prompt, with only the fields that have content. Campaigns started
+ * from a seed or a typed premise have a partial outline; missing fields used to reach
+ * the model as the word "undefined" (SL4). Returns '' when nothing is usable.
+ */
+export function formatOutlineForPrompt(outline: Partial<DMStoryOutline> | undefined | null, detail: 'full' | 'brief'): string {
+  if (!outline) return '';
+  const text = (v: unknown) => (typeof v === 'string' && v.trim() && v.trim() !== 'undefined' ? v.trim() : '');
+  const list = (v: unknown) => (Array.isArray(v) ? v.map((x) => (typeof x === 'string' ? x.trim() : '')).filter(Boolean) : []);
+  const lines: string[] = [];
+  const add = (label: string, value: string) => { if (value) lines.push(`- ${label}: ${value}`); };
+  add('Starting Circumstances', text(outline.startingCircumstances));
+  add('Backstory', text(outline.backstory));
+  add('Inciting Incident', text(outline.incitingIncident));
+  add('Immediate Goal', text(outline.immediateGoal));
+  const npcs = Array.isArray(outline.keyNpcs) ? outline.keyNpcs.filter((n) => n && text(n.name)) : [];
+  add('Key NPCs', npcs.map((n) => detail === 'full'
+    ? `${text(n.name)} (${[text(n.role), text(n.motivation) && `Motivation: ${text(n.motivation)}`, text(n.secret) && `Secret: ${text(n.secret)}`].filter(Boolean).join(', ')})`
+    : `${text(n.name)}${text(n.role) ? ` (${text(n.role)})` : ''}`).join('; '));
+  if (detail === 'full') {
+    add('Major Conflicts', list(outline.majorConflicts).join('; '));
+    add('Hidden Secrets / Reveals', list(outline.secretsAndReveals).join('; '));
+  }
+  add('Chapter Progression', list(outline.chapters).join(' | '));
+  return lines.join('\n');
+}
+
+/** Chip offered when a reply was cut short by the length limit. */
+export const CONTINUE_ACTION = 'Continue';
+
+const BLOCK_MARKERS = ['STATE_UPDATE', 'AVATAR_EVOLUTION', 'COURSE_TRIGGER', 'CHECK_REQUIRED'];
+
+/** Removes a trailing block that was opened but never closed (reply cut off mid-block). */
+export function stripUnterminatedBlocks(text: string): string {
+  let out = text;
+  for (const name of BLOCK_MARKERS) {
+    const open = out.lastIndexOf(`---${name}---`);
+    if (open === -1) continue;
+    const closeName = name === 'COURSE_TRIGGER' ? 'END_TRIGGER' : name === 'CHECK_REQUIRED' ? 'END_CHECK' : `END_${name}`;
+    if (out.indexOf(`---${closeName}---`, open) === -1) out = out.slice(0, open);
+  }
+  return out.trimEnd();
+}
 
 /**
  * Executes a player's narrative turn with the configured AI provider or procedural fallback.
@@ -880,15 +1066,8 @@ export async function executeActionTurn(params: {
 
 ${narrativeCorpus}
 
-${storyOutline ? `DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference - NOT a rigid script):
-- Starting Circumstances: ${storyOutline.startingCircumstances}
-- Backstory: ${storyOutline.backstory}
-- Inciting Incident: ${storyOutline.incitingIncident}
-- Immediate Goal: ${storyOutline.immediateGoal}
-- Key NPCs: ${storyOutline.keyNpcs?.map(n => `${n.name} (${n.role}, Motivation: ${n.motivation}${n.secret ? `, Secret: ${n.secret}` : ''})`).join('; ') || 'None'}
-- Major Conflicts: ${storyOutline.majorConflicts?.join('; ') || 'None'}
-- Hidden Secrets / Reveals: ${storyOutline.secretsAndReveals?.join('; ') || 'None'}
-- Chapter Progression: ${storyOutline.chapters?.join(' | ') || 'None'}
+${formatOutlineForPrompt(storyOutline, 'full') ? `DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference - NOT a rigid script):
+${formatOutlineForPrompt(storyOutline, 'full')}
 
 ROADMAP GM PRINCIPLES:
 1. DYNAMIC ADAPTATION: The outline is a living roadmap, not a railroad script. Player decisions shape reality. If the player outsmarts an obstacle, befriends an enemy, or takes an unexpected path, adapt the story organically.
@@ -955,8 +1134,12 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
       let text = await executeUniversalPrompt({
         systemPrompt: promptInstruction,
         userPrompt: userMessage,
-        temperature: 0.9
+        temperature: 0.9,
+        feature: 'Story turn'
       });
+      const truncated = !!getLastCallMeta()?.truncated;
+      // A cut-off reply can end inside a block; never show raw block markup to the player.
+      if (truncated) text = stripUnterminatedBlocks(text);
 
       let suggestedActions: string[] = [];
       let courseChangeAlert: any = null;
@@ -1001,7 +1184,7 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
             try {
               if (str.trim().startsWith('[')) return JSON.parse(str);
             } catch (e) {}
-            return str.split(',').map((s: string) => s.replace(/[\[\]"']/g, '').trim()).filter(Boolean);
+            return str.split(',').map((s: string) => s.replace(/[[\]"']/g, '').trim()).filter(Boolean);
           };
 
           stateDelta = {
@@ -1027,7 +1210,7 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
           const subtitleMatch = block.match(/SUBTITLE:\s*(.+)/i);
           const descMatch = block.match(/DESCRIPTION:\s*(.+)/i);
           courseChangeAlert = {
-            id: `alert_${Date.now()}`,
+            id: `alert_${uid()}`,
             title: titleMatch ? titleMatch[1].trim() : 'Story Shift',
             type: (typeMatch ? typeMatch[1].trim() : 'course_change') as any,
             subtitle: subtitleMatch ? subtitleMatch[1].trim() : 'A turning point unfolds',
@@ -1088,19 +1271,29 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
         const optionsBlock = parts[1] || '';
         const lines = optionsBlock.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         suggestedActions = lines
-          .map(l => l.replace(/^\[\d+\]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim())
+          .map(l => l.replace(/^\[\d+\]\s*/, '').replace(/^\d+[.)]\s*/, '').trim())
           .filter(l => l.length > 0);
       }
 
       // Fallback suggested actions — pull from category-flavored pool
       // instead of the old hardcoded "investigate / speak / ready" trio.
+      // Reported, so generic chips are never passed off as the GM's suggestions.
+      let fallbackActions = false;
       if (suggestedActions.length === 0) {
         suggestedActions = getCategoryFallbackActions(category);
+        fallbackActions = true;
+        if (!truncated) {
+          reportAINotice('Story turn', 'The AI did not suggest actions this turn, so generic ones are shown.');
+        }
       }
+      suggestedActions = suggestedActions.slice(0, 3);
+      if (truncated) suggestedActions = [CONTINUE_ACTION, ...suggestedActions.slice(0, 2)];
 
       return {
         text,
-        suggestedActions: suggestedActions.slice(0, 3),
+        truncated,
+        fallbackActions,
+        suggestedActions,
         courseChangeAlert,
         requiredCheck,
         stateDelta,
@@ -1249,7 +1442,7 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
           gender: gender || scenario.gender,
           avatarUrl,
           initialInventory: (scenario.initialInventory || []).map((item: any, idx: number) => ({
-            id: `item_ai_${Date.now()}_${idx}`,
+            id: `item_ai_${uid()}_${idx}`,
             name: item.name || 'Equipment',
             type: item.type || 'misc',
             quantity: item.quantity || 1,
@@ -1330,7 +1523,9 @@ export async function rollSingleFieldAI(
   category: ExperienceCategory,
   fieldType: 'title' | 'heroName' | 'roleClass' | 'raceOrigin' | 'hookText',
   model?: string,
-  contextPrompt?: string
+  contextPrompt?: string,
+  /** When false, AI failures throw instead of returning a procedural value. */
+  allowFallback = true
 ): Promise<string> {
   const hasKey = hasActiveGeminiKey();
 
@@ -1346,14 +1541,16 @@ Output ONLY the generated text with no extra commentary, quotes, or formatting.`
       const text = await executeUniversalPrompt({
         userPrompt: prompt,
         temperature: 1.0,
-        thinking: 'minimal'
+        thinking: 'minimal',
+        feature: 'Field roll'
       });
 
       const clean = text.trim().replace(/^["']|["']$/g, '');
       if (clean && clean.length > 1) return clean;
       throw new AIError('bad_output', 'Reply was empty.');
     } catch (err) {
-      reportFeatureFailure(err, 'Field roll', true);
+      const { message } = reportFeatureFailure(err, 'Field roll', allowFallback);
+      if (!allowFallback) throw new Error(message);
     }
   } else {
     reportMissingKey('Field roll');
@@ -1369,6 +1566,18 @@ Output ONLY the generated text with no extra commentary, quotes, or formatting.`
 }
 
 /**
+ * Pronouns are not a visual description: "portrait of she/her High Elf" confused image
+ * models (PS13). Map the common sets to a visual term; leave custom pronouns out.
+ */
+export function pronounsToVisual(pronouns?: string): string {
+  const p = (pronouns || '').toLowerCase().replace(/\s+/g, '');
+  if (p.startsWith('she')) return 'feminine';
+  if (p.startsWith('he/') || p === 'he') return 'masculine';
+  if (p.startsWith('they')) return 'androgynous';
+  return '';
+}
+
+/**
  * Generates a dramatic cartoonized profile picture character portrait.
  * Supports OpenAI DALL-E, Google Imagen, and high-fidelity Flux AI image engine.
  */
@@ -1381,7 +1590,7 @@ export async function generateAvatarAI(params: {
   physicalDescription?: string;
   recentStoryContext?: string;
   model?: string;
-}): Promise<{ avatarUrl: string }> {
+}): Promise<{ avatarUrl: string; engine: string }> {
   const { characterName, roleClass, raceOrigin, category, gender, physicalDescription, recentStoryContext } = params;
   
   // Format prompt for dramatic cartoonized graphic novel profile picture
@@ -1389,7 +1598,8 @@ export async function generateAvatarAI(params: {
   const storyEvolution = recentStoryContext ? `reflecting recent dramatic story events: ${recentStoryContext.slice(-200)}` : '';
   const genreTheme = (category || 'fantasy').replace('_', ' ');
 
-  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${gender ? `${gender} ` : ''}${raceOrigin} ${roleClass} named ${characterName}, ${cleanDesc}, ${storyEvolution}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
+  const visual = pronounsToVisual(gender);
+  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${visual ? `${visual} ` : ''}${raceOrigin} ${roleClass} named ${characterName}, ${cleanDesc}, ${storyEvolution}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
 
   const seed = Math.floor(Math.random() * 999999);
 
@@ -1417,18 +1627,21 @@ export async function generateAvatarAI(params: {
       if (res.ok) {
         const data = await res.json();
         if (data.data?.[0]?.url) {
-          return { avatarUrl: data.data[0].url };
+          return { avatarUrl: data.data[0].url, engine: 'OpenAI DALL-E 3' };
         }
+        reportAINotice('Portrait', 'DALL-E returned no image, so the free Flux engine (pollinations.ai) drew this portrait instead.');
+      } else {
+        reportAINotice('Portrait', `DALL-E refused the request (${res.status}), so the free Flux engine (pollinations.ai) drew this portrait instead.`);
       }
     } catch (e) {
-      console.warn('OpenAI DALL-E generation error, using Flux engine:', e);
+      reportAINotice('Portrait', `DALL-E could not be reached (${e instanceof Error ? e.message : String(e)}), so the free Flux engine (pollinations.ai) drew this portrait instead.`);
     }
   }
 
   // 2. High-speed Flux Engine for dramatic cartoonized character portraits
   const fluxUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=768&height=768&nologo=true&seed=${seed}&model=flux`;
 
-  return { avatarUrl: fluxUrl };
+  return { avatarUrl: fluxUrl, engine: 'Flux (pollinations.ai)' };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1443,7 +1656,7 @@ export async function generateChapterOneAI(params: {
   characterState: any;
   model: string;
 }): Promise<ActionTurnResult> {
-  const { category, storyBlurb, storyOutline, characterState, model } = params;
+  const { category, storyBlurb, storyOutline, characterState } = params;
   const hasKey = hasActiveGeminiKey();
 
   if (hasKey) {
@@ -1454,14 +1667,9 @@ ${buildGroundedSeedContext(category, storyBlurb)}
 
 STORY PREMISE:
 ${storyBlurb}
-${storyOutline ? `
+${formatOutlineForPrompt(storyOutline, 'brief') ? `
 DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference):
-- Starting Circumstances: ${storyOutline.startingCircumstances || 'Derive from the premise'}
-- Backstory: ${storyOutline.backstory || 'Derive from the premise'}
-- Inciting Incident: ${storyOutline.incitingIncident || 'Derive from the premise'}
-- Immediate Goal: ${storyOutline.immediateGoal || 'Derive from the premise'}
-- Key NPCs: ${storyOutline.keyNpcs?.map(n => `${n.name} (${n.role})`).join('; ') || 'None'}
-- Chapter Progression: ${storyOutline.chapters?.join(' | ') || 'None'}
+${formatOutlineForPrompt(storyOutline, 'brief')}
 ` : ''}
 CREATIVE ASSIGNMENT:
 Write the very first scene (Chapter One, Scene 1) of this campaign. 
@@ -1483,8 +1691,11 @@ Begin the story.`;
       let text = await executeUniversalPrompt({
         systemPrompt: basePrompt,
         userPrompt: userMessage,
-        temperature: 0.9
+        temperature: 0.9,
+        feature: 'Chapter One'
       });
+      const truncated = !!getLastCallMeta()?.truncated;
+      if (truncated) text = stripUnterminatedBlocks(text);
 
       let suggestedActions: string[] = [];
 
@@ -1503,25 +1714,44 @@ Begin the story.`;
       text = text.replace(/---(STATE_UPDATE|END_STATE_UPDATE|AVATAR_EVOLUTION|END_AVATAR_EVOLUTION|COURSE_TRIGGER|END_TRIGGER|CHECK_REQUIRED|END_CHECK)---/g, '');
       text = text.trim();
 
+      if (!text) throw new AIError('bad_output', 'Chapter One came back empty.');
+      let fallbackActions = false;
+      if (suggestedActions.length === 0) {
+        suggestedActions = getCategoryFallbackActions(category);
+        fallbackActions = true;
+        if (!truncated) reportAINotice('Chapter One', 'The AI did not suggest actions for the opening, so generic ones are shown.');
+      }
+      if (truncated) suggestedActions = [CONTINUE_ACTION, ...suggestedActions.slice(0, 2)];
+
       return {
-        text: text || "Your journey begins.",
-        suggestedActions: suggestedActions.length > 0 ? suggestedActions : ['Observe the surroundings', 'Examine your gear', 'Take a tentative step forward'],
+        text,
+        truncated,
+        fallbackActions,
+        suggestedActions,
         modelUsed: getLastModelUsedLabel()
       };
     } catch (err) {
-      reportFeatureFailure(err, 'Chapter One', true);
+      // The caller decides: retry, or knowingly start with the premise. Nothing is substituted here.
+      const { message } = reportFeatureFailure(err, 'Chapter One', false);
+      return {
+        text: storyBlurb,
+        suggestedActions: getCategoryFallbackActions(category),
+        modelUsed: OFFLINE_ENGINE_LABEL,
+        failure: message
+      };
     }
-  } else {
-    reportMissingKey('Chapter One');
   }
 
-  // Fallback: open with the premise itself
+  // Offline mode or no key (reported): open with the premise itself, labelled as such.
+  reportMissingKey('Chapter One');
   return {
     text: storyBlurb,
-    suggestedActions: ['Look around', 'Check equipment', 'Begin the journey'],
-    modelUsed: 'ZeroRoll Offline Procedural Engine'
+    suggestedActions: getCategoryFallbackActions(category),
+    modelUsed: OFFLINE_ENGINE_LABEL
   };
 }
+
+export const OFFLINE_ENGINE_LABEL = 'ZeroRoll offline engine (no AI)';
 
 /* -------------------------------------------------------------------------- */
 /*                         PROCEDURAL ENGINE FALLBACK                         */
@@ -1534,9 +1764,7 @@ function generateProceduralTurn(
   diceRoll?: DiceRollResult,
   targetModel?: string
 ): ActionTurnResult {
-  const hp = characterState?.hp || 12;
   const name = characterState?.name || 'Hero';
-  const role = characterState?.roleClass || 'Adventurer';
 
   let text = '';
   let hpDelta = 0;

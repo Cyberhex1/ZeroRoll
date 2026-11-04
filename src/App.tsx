@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { uid } from './lib/ids';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { 
-  auth, 
-  signInWithGoogle, 
-  signInWithGoogleRedirect, 
-  checkRedirectAuthResult, 
-  logoutUser, 
-  saveExperienceToCloud, 
-  subscribeToUserExperiences, 
-  deleteExperienceFromCloud, 
-  saveUserProfileToCloud, 
+import {
+  auth,
+  signInWithGoogle,
+  checkRedirectAuthResult,
+  logoutUser,
+  saveExperienceToCloud,
+  subscribeToUserExperiences,
+  deleteExperienceFromCloud,
+  saveUserProfileToCloud,
   loadUserProfileFromCloud,
   saveUserSettingsToCloud,
-  saveActiveExperienceIdToCloud,
-  migrateLocalDataToUser
+  purgeCloudProviderKeys,
+  saveActiveExperienceIdToCloud
 } from './lib/firebase';
 import {
   exportAllProviderSettings,
@@ -34,7 +34,15 @@ const UserProfileModal = lazy(() => import('./components/UserProfileModal').then
 const AuthModal = lazy(() => import('./components/AuthModal').then((m) => ({ default: m.AuthModal })));
 const ApiKeyModal = lazy(() => import('./components/ApiKeyModal').then((m) => ({ default: m.ApiKeyModal })));
 import MusicPlayer from './components/MusicPlayer';
-import { Experience, ExperienceCategory, CharacterSheet, MapData, LogMessage, UserProfile, DMStoryOutline, InventoryItem } from './types';
+import {
+  Experience,
+  ExperienceCategory,
+  CharacterSheet,
+  MapData,
+  LogMessage,
+  UserProfile,
+  DMStoryOutline
+} from './types';
 import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
 import { CATEGORIES_DATA } from './lib/categoriesData';
 import {
@@ -147,7 +155,7 @@ export default function App() {
         setUser(currentUser);
 
         // Load cloud profile
-        let loadedProfile = await loadUserProfileFromCloud(currentUser.uid);
+        const loadedProfile = await loadUserProfileFromCloud(currentUser.uid);
         if (generation !== authGeneration.current) return;
 
         if (loadedProfile) {
@@ -177,7 +185,12 @@ export default function App() {
               safeSetStorage('dnd_sound_enabled', String(cs.soundEnabled));
             }
             importAllProviderSettings(cs);
-            // Push the merged result back so stale or invalid cloud keys get replaced.
+            // Older builds synced API keys to the cloud in plain text. They are now copied
+            // to this device (above) and deleted from the profile; keys never go back up.
+            if (cs.providerKeys) {
+              purgeCloudProviderKeys(currentUser.uid)
+                .catch((err) => showCloudSaveError(`Could not remove old cloud key copy: ${err.message}`));
+            }
             saveUserSettingsToCloud(currentUser.uid, exportAllProviderSettings())
               .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
           } else {
@@ -333,7 +346,7 @@ export default function App() {
   //      a baked-in template.
   //   3. Fall back to generateRandomScenarioSetup() — 3 distinct hooks
   //      per category with shuffled names/roles/items (vs the 1 static
-  //      hook per category that scenarioHooks.ts provides).
+  //      hook per category).
   //   4. Last-resort fallback to the original generateScenarioHook()
   //      static dispatcher.
   // ---------------------------------------------------------------------------
@@ -344,7 +357,8 @@ export default function App() {
     openingPrompt?: string,
     suggestedActions?: string[],
     storyOutline?: DMStoryOutline,
-    chapterOneOpening?: string
+    chapterOneOpening?: string,
+    chapterOneModel?: string
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
@@ -371,10 +385,11 @@ export default function App() {
     const initialLogText = chapterOneOpening?.trim() || openingPrompt?.trim() || `${character.name} stands ready. The adventure begins.`;
 
     const initialLog: LogMessage = {
-      id: `msg_init_${Date.now()}`,
+      id: `msg_init_${uid()}`,
       sender: 'dm',
       text: initialLogText,
       timestamp: new Date().toISOString(),
+      modelUsed: chapterOneModel,
       suggestedActions: finalActions
     };
 
@@ -382,7 +397,7 @@ export default function App() {
       || (openingPrompt?.trim() ? { backstory: `Player-supplied campaign premise: ${openingPrompt.trim()}` } as DMStoryOutline : undefined);
 
     const newExp: Experience = {
-      id: `exp_${Date.now()}`,
+      id: `exp_${uid()}`,
       userId: user?.uid || 'guest',
       title: customTitle?.trim() || `${categoryInfo?.name || 'Campaign'} Experience`,
       category,
@@ -471,7 +486,7 @@ export default function App() {
 
       if (data && data.scenario) {
         const newExp: Experience = {
-          id: `exp_${Date.now()}`,
+          id: `exp_${uid()}`,
           userId: user?.uid || 'guest',
           title: `${prevExp.title} - Book Two`,
           category: prevExp.category,
@@ -493,7 +508,7 @@ export default function App() {
           },
           logs: [
             {
-              id: `msg_start_${Date.now()}`,
+              id: `msg_start_${uid()}`,
               sender: 'dm',
               text: data.scenario.storyBlurb || 'A new chapter in your legend begins...',
               timestamp: new Date().toISOString()

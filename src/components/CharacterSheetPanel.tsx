@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  Shield, 
-  Heart, 
-  Sparkles, 
-  Package, 
-  BookOpen, 
+import {
+  Shield,
+  Heart,
+  Sparkles,
+  Package,
+  BookOpen,
   Zap,
   Swords,
   RefreshCw,
   Camera,
-  User,
   Info
 } from 'lucide-react';
-import { CharacterSheet, InventoryItem, ExperienceCategory } from '../types';
+import { CharacterSheet, ExperienceCategory } from '../types';
 import { generateAvatarAI } from '../lib/geminiService';
 
 interface CharacterSheetPanelProps {

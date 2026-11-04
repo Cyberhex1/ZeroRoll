@@ -91,6 +91,8 @@ const GUEST_PROFILE: UserProfile = {
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  // Bumped when Firebase reports "signed out", so the guest list loads again after that callback cleared it.
+  const [signedOutEpoch, setSignedOutEpoch] = useState(0);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [activeExperience, setActiveExperience] = useState<Experience | null>(null);
 
@@ -281,6 +283,7 @@ export default function App() {
         // Signed out — synchronously clear ALL user-specific state first to prevent data leak
         setUser(null);
         setExperiences([]);
+        setSignedOutEpoch((n) => n + 1);
         setActiveExperience(null);
         pendingActiveExpId.current = null;
         setUserProfile(GUEST_PROFILE);
@@ -336,7 +339,7 @@ export default function App() {
     );
 
     return () => unsubscribe();
-  }, [user]); // Only re-subscribe when the user identity changes
+  }, [user, signedOutEpoch]); // Re-subscribe when the user identity changes (or after a sign-out cleared the list)
 
   // ---------------------------------------------------------------------------
   // Settings Persistence

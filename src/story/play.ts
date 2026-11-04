@@ -76,9 +76,11 @@ export function buildPrompt(story: Story, save: PlaySave, tier: Tier, recallScor
     recallScores
   });
   const convo = [...built.messages];
-  // Providers need the conversation to start with the player.
-  while (convo.length && convo[0].role === 'assistant') convo.shift();
+  // Providers need the conversation to start with the player. The opening scene has no player
+  // turn before it, so give it one rather than dropping the scene from the model's view.
+  if (convo.length && convo[0].role === 'assistant') convo.unshift({ role: 'user', content: 'Begin the story.' });
   if (!convo.length) convo.push({ role: 'user', content: save.messages.length ? 'Continue the story.' : 'Begin the story.' });
+  else if (convo[convo.length - 1].role === 'assistant') convo.push({ role: 'user', content: 'Continue the story.' });
   return { system: built.system, messages: convo, meter: built.meter };
 }
 
@@ -134,7 +136,8 @@ export async function narrate(
   const reply = await complete(messages, save.tier, {
     system,
     temperature: 0.85,
-    maxTokens: replyTokens(story, save),
+    // Gemini counts its thinking against this cap, so leave room for it on top of the story.
+    maxTokens: replyTokens(story, save) + 1024,
     signal: opts.signal,
     feature: 'Story mode'
   });
@@ -142,6 +145,11 @@ export async function narrate(
   const { state, events } = applyNarratorTail(story, save.state, tail);
   const providerName = AI_PROVIDERS[reply.provider]?.name || reply.provider;
   if (!narration) throw new AIError('bad_output', `${reply.model} sent only the story data and no story text. Try Reroll.`);
+  const lastNarration = [...save.messages].reverse().find((m) => m.kind === 'narrator');
+  const norm = (t: string) => t.toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 200);
+  if (lastNarration && 'text' in lastNarration && norm(lastNarration.text) === norm(narration)) {
+    throw new AIError('bad_output', `${reply.model} repeated its last reply word for word. Press Try again.`);
+  }
   // The opening beat's "on enter" art shows before the first narration.
   const opening = save.messages.some((m) => m.kind === 'narrator')
     ? []

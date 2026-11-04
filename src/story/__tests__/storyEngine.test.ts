@@ -86,8 +86,19 @@ describe('beat engine', () => {
 
   it('only accepts declared flags with the right type', () => {
     const r = applyNarratorTail(story, newState(story), { flags: { lantern_lit: 'yes', odda_trust: 2, made_up: true, knows_name: true } });
-    expect(r.state.flags).toMatchObject({ lantern_lit: false, odda_trust: 2, knows_name: true });
+    // A reported counter moves one step toward the reported number.
+    expect(r.state.flags).toMatchObject({ lantern_lit: false, odda_trust: 1, knows_name: true });
     expect('made_up' in r.state.flags).toBe(false);
+    // Restating a lower number than the counter has moves it down only one step; the same number is no change.
+    const at3 = { ...newState(story), flags: { ...newState(story).flags, odda_trust: 3 } };
+    expect(applyNarratorTail(story, at3, { flags: { odda_trust: 3 } }).state.flags.odda_trust).toBe(3);
+    expect(applyNarratorTail(story, at3, { flags: { odda_trust: '+1' } }).state.flags.odda_trust).toBe(4);
+  });
+
+  it('treats a claim of the current beat as no move', () => {
+    const r = applyNarratorTail(story, newState(story), { beatReached: newState(story).beat });
+    expect(r.events.some((e) => e.kind === 'rejected')).toBe(false);
+    expect(r.state.notice).toBeUndefined();
   });
 
   it('different choices reach different endings', () => {
@@ -184,7 +195,17 @@ describe('playing a turn', async () => {
     const save = { ...newSave(story, 'basic'), messages: [{ id: 'a', kind: 'narrator' as const, text: 'Dusk.', beat: 'landing', at: 1 }] };
     const p = buildPrompt(story, save, 'basic');
     expect(p.system).toMatch(/DIRECTOR/);
-    expect(p.messages[0]).toEqual({ role: 'user', content: 'Continue the story.' });
+    // The opening scene stays in view, framed by player turns.
+    expect(p.messages).toEqual([
+      { role: 'user', content: 'Begin the story.' },
+      { role: 'assistant', content: 'Dusk.' },
+      { role: 'user', content: 'Continue the story.' }
+    ]);
+  });
+
+  it('hides a data block cut off by the length limit', () => {
+    expect(parseNarratorReply('The bell tolls.\n\n```json\n{"beatReached": "none", "fla').narration).toBe('The bell tolls.');
+    expect(parseNarratorReply('The bell tolls. {"beatReached": "none", "choices": ["Wa').narration).toBe('The bell tolls.');
   });
 
   it('refuses a reply that is only data', async () => {

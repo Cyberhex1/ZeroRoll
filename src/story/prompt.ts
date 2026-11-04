@@ -29,7 +29,7 @@ const TAIL_SPEC = [
   '```json',
   '{"beatReached": "<exit beat id or none>", "flags": {"<flag>": <true|false|number|"+1">}, "artCue": "<art id or none>", "choices": ["<3 or 4 short options>"]}',
   '```',
-  'Report only flags whose value changed this turn. Set beatReached only when the scene has truly arrived at that beat.',
+  'Report only flags whose value changed this turn. beatReached is "none" unless the scene has truly arrived at one of the exit beats the DIRECTOR lists; never name the current beat.',
   'Never copy the DIRECTOR notes, location headings or flag values into the narration; they belong only in the JSON block.'
 ];
 
@@ -139,6 +139,14 @@ export function stripEchoedState(narration: string): string {
   return lines.filter((_, i) => !drop.has(i)).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
+/** A reply cut off inside its data block: drop the unfinished block so no raw JSON shows. */
+function stripUnfinishedTail(text: string): string {
+  const fence = text.lastIndexOf('```');
+  if (fence >= 0 && (text.slice(0, fence).match(/```/g)?.length ?? 0) % 2 === 0) return text.slice(0, fence).trimEnd();
+  const obj = text.search(/\{\s*"(beatReached|flags|artCue|choices)"\s*:[^}]*$/);
+  return obj >= 0 ? text.slice(0, obj).replace(/(STATE|JSON)\s*:?\s*$/i, '').trimEnd() : text;
+}
+
 function splitNarratorReply(text: string): { narration: string; tail: NarratorTail } {
   const fenced = [...text.matchAll(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/gi)].pop();
   if (fenced) {
@@ -150,7 +158,7 @@ function splitNarratorReply(text: string): { narration: string; tail: NarratorTa
     const tail = safeTail(text.slice(start));
     if (tail) return { narration: text.slice(0, start).replace(/(STATE|JSON)\s*:?\s*$/i, '').trim(), tail };
   }
-  return { narration: text.trim(), tail: {} };
+  return { narration: stripUnfinishedTail(text).trim(), tail: {} };
 }
 
 function lastTopLevelObjectStart(text: string): number {

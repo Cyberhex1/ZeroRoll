@@ -1,3 +1,4 @@
+import { useDialog } from './ui/useDialog';
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Sparkles, Trophy, Skull } from 'lucide-react';
@@ -21,6 +22,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
   mandatory = false
 }) => {
   const [isRolling, setIsRolling] = useState(true);
+  // A check roll counts, so it cannot be dismissed with Escape or the backdrop.
+  const dialog = useDialog(onClose, { dismissable: !mandatory, active: !!rollResult });
 
   useEffect(() => {
     if (!rollResult) return;
@@ -55,8 +58,8 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onKeyDown={(e) => e.key === 'Escape' && !mandatory && onClose()}>
-      <div role="dialog" aria-modal="true" aria-label="Dice roll" className="bg-[#111118] border border-white/10 rounded-lg max-w-sm w-full p-5 text-center space-y-4 shadow-2xl relative overflow-hidden text-slate-200">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" {...dialog.overlayProps}>
+      <div {...dialog.dialogProps} aria-label="Dice roll" className="bg-[#111118] border border-white/10 rounded-lg max-w-sm w-full p-5 text-center space-y-4 shadow-2xl relative overflow-hidden text-slate-200">
         
         {/* Glow Background */}
         <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-purple-500/5 pointer-events-none" />

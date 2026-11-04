@@ -1,3 +1,4 @@
+import { useDialog } from './ui/useDialog';
 import React, { useState } from 'react';
 import {
   User as UserIcon,
@@ -120,9 +121,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     { id: 'flame', icon: <Flame className="w-4 h-4" /> }
   ];
 
+  const dialog = useDialog(onClose, { labelledBy: 'profile-title', active: true });
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[90vh] text-slate-200">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...dialog.overlayProps}>
+      <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[90vh] text-slate-200" {...dialog.dialogProps}>
         
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -131,7 +133,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <UserIcon className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-serif font-bold text-amber-50">Player Profile & Custom Avatar</h2>
+              <h2 id="profile-title" className="text-base font-serif font-bold text-amber-50">Player Profile & Custom Avatar</h2>
               <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">
                 Customize your hero identity, avatar components, and profile settings
               </p>

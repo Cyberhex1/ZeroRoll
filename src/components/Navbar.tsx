@@ -1,3 +1,4 @@
+import { clickable } from './ui/a11y';
 import React from 'react';
 import {
   Settings,
@@ -83,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" onClick={onBackToExperiences}>
+          <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" {...clickable(() => onBackToExperiences?.(), 'ZeroRoll home')}>
             <div className="w-7 h-7 sm:w-8 sm:h-8 bg-amber-600 rounded flex items-center justify-center font-black text-black text-xs sm:text-sm tracking-tighter shadow-sm font-mono shrink-0">
               00
             </div>

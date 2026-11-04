@@ -97,7 +97,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ currentTrackKey }) => {
         const n = parseFloat(v);
         if (Number.isFinite(n)) setVolume(Math.max(0, Math.min(1, n)));
       }
-      if (min !== null) setMinimized(min === '1');
+      // Collapsed unless the player opened it, so the panel never sits over a Send button.
+      setMinimized(min !== '0');
       if (toast !== '1' && e !== '0') setToastVisible(true);
     } catch {}
     setHydrated(true);
@@ -228,7 +229,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ currentTrackKey }) => {
       )}
 
       <div
-        className="fixed bottom-4 right-4 z-50 select-none"
+        className="fixed bottom-24 right-3 sm:bottom-4 sm:right-4 z-50 select-none"
         role="region"
         aria-label="Ambient music player"
       >

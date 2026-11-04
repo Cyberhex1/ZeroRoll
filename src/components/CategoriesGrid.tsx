@@ -1,3 +1,5 @@
+import { clickable } from './ui/a11y';
+import { useDialog } from './ui/useDialog';
 import React, { useState, useRef, lazy, Suspense } from 'react';
 import { uid } from '../lib/ids';
 import {
@@ -188,6 +190,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     genRef.current++;
     setSelectedCategoryModal(null);
   };
+  // Cancel, Escape and the backdrop ask before throwing away typed fields (PS14).
+  const requestCloseModal = () => {
+    if (editedFields.size > 0 && !window.confirm('Discard this campaign setup? What you typed will be lost.')) return;
+    closeModal();
+  };
+  const setupDialog = useDialog(requestCloseModal, { labelledBy: 'setup-title', active: !!selectedCategoryModal });
 
   const confirmReplaceEdits = (fields: string[]) => {
     const touched = fields.filter((f) => editedFields.has(f));
@@ -635,8 +643,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                 return (
                   <div
                     key={cat.id}
-                    className="group relative rounded-lg bg-[#111118] border border-white/5 hover:border-amber-600/50 transition-all duration-200 p-4 flex flex-col justify-between hover:bg-white/5 cursor-pointer space-y-3"
-                    onClick={() => handleOpenCategoryModal(cat)}
+                    className="group relative rounded-lg bg-[#111118] border border-white/5 hover:border-amber-600/50 transition-all duration-200 p-4 flex flex-col justify-between hover:bg-white/5 cursor-pointer space-y-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    {...clickable(() => handleOpenCategoryModal(cat), `Start a ${cat.name} campaign`)}
                   >
                     <div className="relative z-10 space-y-2">
                       <div className="flex items-center justify-between">
@@ -793,8 +801,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
         {/* Modal: Create Experience Setup */}
         {selectedCategoryModal && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...setupDialog.overlayProps}>
+            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200" {...setupDialog.dialogProps}>
               
               {/* Header */}
               <div className="flex items-start justify-between border-b border-white/10 pb-3">
@@ -806,14 +814,14 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     {getCategoryIcon(selectedCategoryModal.iconName)}
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold text-amber-50 font-serif leading-tight">
+                    <h2 id="setup-title" className="text-base sm:text-lg font-bold text-amber-50 font-serif leading-tight">
                       Initialize {selectedCategoryModal.name} Campaign
                     </h2>
                     <p className="text-xs text-slate-400 font-sans mt-0.5">{selectedCategoryModal.tagline}</p>
                   </div>
                 </div>
                 <button
-                  onClick={closeModal}
+                  onClick={requestCloseModal}
                   className="text-slate-400 hover:text-slate-100 p-1 rounded bg-white/5 text-xs font-mono"
                   title="Close"
                 >
@@ -1171,8 +1179,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       {(activeSeed?.prompts || []).map((prompt: string, idx: number) => (
                         <div 
                           key={idx} 
-                          className="text-[11px] px-3 py-2 rounded bg-black/40 border border-white/5 text-slate-300 font-mono cursor-pointer hover:border-amber-400/50 hover:text-amber-300 hover:bg-amber-500/10 transition"
-                          onClick={() => handleApplyTrope({ name: `Prompt ${idx + 1}`, premise: prompt })}
+                          className="text-[11px] px-3 py-2 rounded bg-black/40 border border-white/5 text-slate-300 font-mono cursor-pointer hover:border-amber-400/50 hover:text-amber-300 hover:bg-amber-500/10 transition focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          {...clickable(() => handleApplyTrope({ name: `Prompt ${idx + 1}`, premise: prompt }))}
                         >
                           {prompt}
                         </div>
@@ -1208,8 +1216,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       {currentScenarioSeeds.map(({ opener: seed, padded }, idx) => (
                         <div
                           key={seed.id || idx}
-                          onClick={() => handleApplyPlayableSeed(seed, selectedCategoryModal)}
-                          className="p-3.5 rounded-lg bg-black/40 border border-white/5 hover:border-amber-500/50 hover:bg-white/5 cursor-pointer transition text-xs space-y-2 group"
+                          {...clickable(() => handleApplyPlayableSeed(seed, selectedCategoryModal))}
+                          className="p-3.5 rounded-lg bg-black/40 border border-white/5 hover:border-amber-500/50 hover:bg-white/5 cursor-pointer transition text-xs space-y-2 group focus:outline-none focus:ring-2 focus:ring-amber-500"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
@@ -1283,7 +1291,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                   </div>
                 )}
                 <button
-                  onClick={closeModal}
+                  onClick={requestCloseModal}
                   className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:bg-white/5 transition"
                 >
                   Cancel

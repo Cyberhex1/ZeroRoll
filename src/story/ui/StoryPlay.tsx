@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { ArrowLeft, Download, Map as MapIcon, RefreshCw, RotateCcw, SkipForward } from 'lucide-react';
+import { ArrowLeft, Brain, Download, Map as MapIcon, RefreshCw, RotateCcw, SkipForward } from 'lucide-react';
 import { complete, Tier, TIERS } from '../../ai/router';
 import { classifyAIError, describeAIError } from '../../lib/aiErrors';
 import { reportAIFailure } from '../../lib/aiStatus';
@@ -8,9 +8,14 @@ import { AI_PROVIDERS } from '../../lib/providersConfig';
 import { getActiveProvider } from '../../lib/geminiService';
 import { isMatureContentEnabled } from '../../lib/contentRating';
 import { StoryProgress, StoryRepository } from '../../storage/storyRepository';
+import { BackupStatus, CloudStoryMeta, cloudMovedOn, cloudStoryMeta, createBackupQueue, describeBackup, loadCloudStory } from '../../storage/storyCloud';
 import { loadStory } from '../catalog';
 import { beatOf } from '../engine';
-import { PlaySave, addPlayerInput, currentChips, narrate, newSave, rewindForReroll } from '../play';
+import { PlaySave, addPlayerInput, buildPrompt, currentChips, maybeSummarize, memoryOf, narrate, newSave, rewindForReroll } from '../play';
+import { turnRecallScores } from '../../memory/recallService';
+import MemoryPanel from '../../memory/ui/MemoryPanel';
+import type { MemoryState } from '../../memory/memoryStore';
+import { mergeMemories } from '../../memory/summarizer';
 import type { Story } from '../schema';
 import { resolveSkin, skinVars } from '../skins';
 import ArtImage from './ArtImage';
@@ -30,6 +35,19 @@ export default function StoryPlay() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showMap, setShowMap] = useState(false);
+  const [showMemory, setShowMemory] = useState(false);
+  const saveRef = useRef<PlaySave | null>(null);
+  const [backup, setBackup] = useState<BackupStatus>({ kind: 'idle' });
+  const [cloudNewer, setCloudNewer] = useState<CloudStoryMeta | null>(null);
+  const [cloudNote, setCloudNote] = useState<string | null>(null);
+  const backupQueue = useRef<ReturnType<typeof createBackupQueue> | null>(null);
+  if (!backupQueue.current) {
+    backupQueue.current = createBackupQueue(setBackup, (storyId, at) => {
+      void StoryRepository.markBackedUp(storyId, at);
+      const cur = saveRef.current;
+      if (cur && cur.storyId === storyId) saveRef.current = { ...cur, cloudBase: Math.max(cur.cloudBase ?? 0, at) };
+    });
+  }
   const abortRef = useRef<AbortController | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +60,25 @@ export default function StoryPlay() {
         const existing = (await StoryRepository.load(id)) as PlaySave | undefined;
         if (!live) return;
         setStory(s);
-        setSave(existing ?? newSave(s));
+        saveRef.current = existing ?? newSave(s);
+        setSave(saveRef.current);
+        // A save on another device (or one this device lost) comes from the cloud backup.
+        void cloudStoryMeta(id)
+          .then(async (meta) => {
+            if (!live || !meta) return;
+            if (!existing) {
+              const cloud = await loadCloudStory(id);
+              if (live && cloud && saveRef.current && !saveRef.current.messages.length) {
+                saveRef.current = { ...cloud, cloudBase: cloud.updatedAt } as PlaySave;
+                setSave(saveRef.current);
+                await StoryRepository.save(saveRef.current).catch(() => {});
+                setCloudNote('Loaded your save from the cloud backup.');
+              }
+            } else if (cloudMovedOn(meta.updatedAt, existing)) {
+              setCloudNewer(meta);
+            }
+          })
+          .catch(() => {});
         setProgress(await StoryRepository.progress(id));
       } catch (e) {
         if (live) setLoadError(e instanceof Error ? e.message : String(e));
@@ -59,9 +95,16 @@ export default function StoryPlay() {
   }, [save?.messages.length]);
 
   const persist = useCallback(async (next: PlaySave, finished = false) => {
+    saveRef.current = next;
     setSave(next);
     try {
-      await StoryRepository.save(next);
+      const stamped = await StoryRepository.save(next);
+      // Keep the stamped time on screen too, so the backup knows which version it holds.
+      if (saveRef.current === next) {
+        saveRef.current = stamped;
+        setSave(stamped);
+      }
+      backupQueue.current?.push(stamped);
       setProgress(await StoryRepository.recordProgress(next.state, finished));
     } catch (e) {
       setError(`Your progress could not be saved on this device: ${e instanceof Error ? e.message : String(e)}`);
@@ -75,8 +118,13 @@ export default function StoryPlay() {
     const controller = new AbortController();
     abortRef.current = controller;
     try {
-      const r = await narrate(story, base, complete, { signal: controller.signal });
+      const r = await narrate(story, base, complete, { signal: controller.signal, recall: turnRecallScores });
       await persist(r.save, Boolean(r.save.state.ending && !base.state.ending));
+      // The memory worker runs after the reply is on screen, so it never slows a turn.
+      void maybeSummarize(r.save, complete).then((apply) => {
+        const latest = saveRef.current;
+        if (apply && latest && latest.storyId === r.save.storyId) void persist(apply(latest));
+      });
     } catch (err) {
       const aiErr = classifyAIError(err, getActiveProvider());
       if (aiErr.kind === 'cancelled') return;
@@ -123,6 +171,41 @@ export default function StoryPlay() {
   };
 
   const skin = useMemo(() => (story ? resolveSkin(story.meta.category, story.skin) : null), [story]);
+  const meter = useMemo(() => (story && save ? buildPrompt(story, save, save.tier).meter : null), [story, save]);
+
+  const takeCloudSave = async () => {
+    try {
+      const cloud = await loadCloudStory(id);
+      if (cloud) await persist({ ...cloud, cloudBase: cloud.updatedAt } as PlaySave);
+      setCloudNewer(null);
+    } catch (e) {
+      setError(`The cloud save could not be loaded: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
+  const keepDeviceSave = async () => {
+    const cur = saveRef.current;
+    if (!cur || !cloudNewer) return;
+    // Treat the cloud copy as seen, so the next backup replaces it with this one.
+    await persist({ ...cur, cloudBase: cloudNewer.updatedAt });
+    setCloudNewer(null);
+  };
+
+  const changeMemory = (memory: MemoryState) => {
+    if (save) void persist({ ...save, memory });
+  };
+  const runMerge = async (): Promise<string | null> => {
+    const current = saveRef.current;
+    if (!current) return null;
+    try {
+      const r = await mergeMemories(memoryOf(current), current.state.turns, complete);
+      if (!r.ok) return 'The model did not send a usable list, so nothing changed. Try again.';
+      const latest = saveRef.current ?? current;
+      await persist({ ...latest, memory: { ...memoryOf(latest), entries: r.memory.entries } });
+      return null;
+    } catch (err) {
+      return describeAIError(classifyAIError(err, getActiveProvider()), AI_PROVIDERS[getActiveProvider()]?.name || 'The AI provider');
+    }
+  };
 
   if (loadError) {
     return (
@@ -171,12 +254,40 @@ export default function StoryPlay() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => setShowMap((v) => !v)} aria-expanded={showMap} className={btn} style={btnStyle}><MapIcon className="w-3 h-3" />Map</button>
+            <button type="button" onClick={() => setShowMemory((v) => !v)} aria-expanded={showMemory} className={btn} style={btnStyle}>
+              <Brain className="w-3 h-3" />Memory{memoryOf(save).pending.length ? ` (${memoryOf(save).pending.length} new)` : ''}
+            </button>
             <button type="button" onClick={exportSave} className={btn} style={btnStyle}><Download className="w-3 h-3" />Export save</button>
             <button type="button" onClick={restart} disabled={busy} className={btn} style={btnStyle}><RotateCcw className="w-3 h-3" />Restart</button>
           </div>
         </header>
 
+        {cloudNote && <p role="status" className="text-xs" style={{ color: 'var(--sk-muted)' }}>{cloudNote}</p>}
+        {cloudNewer && (
+          <div role="alert" className="rounded p-3 text-xs space-y-2" style={{ background: 'var(--sk-surface)' }}>
+            <p>
+              The cloud backup has a newer save of this story ({cloudNewer.messageCount} messages, saved {new Date(cloudNewer.updatedAt).toLocaleString()}),
+              probably from another device. This device has {save.messages.length} messages. Which one do you want to keep playing?
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" className={btn} style={btnStyle} onClick={() => void takeCloudSave()}>Use the cloud save</button>
+              <button type="button" className={btn} style={btnStyle} onClick={() => void keepDeviceSave()}>Keep this device's save</button>
+            </div>
+          </div>
+        )}
         {showMap && progress && <ProgressMap story={story} save={save} progress={progress} />}
+        {showMemory && meter && (
+          <div className="rounded p-3" style={{ background: 'var(--sk-surface)' }}>
+            <MemoryPanel
+              memory={memoryOf(save)}
+              meter={meter}
+              turn={save.state.turns}
+              onChange={changeMemory}
+              onMerge={runMerge}
+              tone={{ border: 'color-mix(in srgb, var(--sk-text) 25%, transparent)', muted: 'var(--sk-muted)', accent: 'var(--sk-accent)' }}
+            />
+          </div>
+        )}
 
         <section aria-label="Cast" className="flex gap-3 overflow-x-auto pb-1">
           {story.cast.map((c) => (
@@ -290,6 +401,9 @@ export default function StoryPlay() {
                   ))}
                 </select>
               </label>
+              {backup.kind !== 'idle' && (
+                <span role="status" className="text-[11px]" style={{ color: backup.kind === 'failed' ? '#fca5a5' : 'var(--sk-muted)' }}>{describeBackup(backup)}</span>
+              )}
             </div>
           </div>
         )}

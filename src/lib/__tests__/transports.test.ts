@@ -3,6 +3,7 @@
  * assert what the player ends up with. The rule under test: no path returns substituted
  * content without a report to the status store.
  */
+import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 class MemoryStorage {
@@ -41,6 +42,7 @@ let route: (url: string, init: any) => Reply = () => ({ status: 500, body: { err
     headers: { get: (h: string) => (h.toLowerCase() === 'content-type' ? r.contentType || 'application/json' : null) },
     text: async () => text,
     json: async () => JSON.parse(text),
+    blob: async () => new Blob([text], { type: r.contentType || 'application/json' }),
   });
 });
 
@@ -321,14 +323,28 @@ describe('Gameplay features never substitute silently', () => {
     expect(r.suggestedActions).toEqual(['Run', 'Hide', 'Call out']);
   });
 
-  it('an avatar engine swap is reported (AI8)', async () => {
+  it('an avatar engine swap is reported, and free portraits wait for the player (AI8, S18)', async () => {
     useProvider('openai');
     route = () => ({ status: 400, body: errorBody('content policy') });
+    await expect(
+      run(svc.generateAvatarAI({ characterName: 'A', roleClass: 'B', raceOrigin: 'C', category: 'horror' as any }))
+    ).rejects.toThrow(/Free portraits are off/);
+    expect(getAIStatus().notice?.feature).toBe('Portrait');
+    expect(calls.some((c) => c.url.includes('pollinations'))).toBe(false);
+  });
+
+  it('an allowed free portrait is stored on the device and carries no hero name (AI8, H6)', async () => {
+    useProvider('openai');
+    const { setFreePortraitsAllowed, IMG_REF } = await import('../portraits');
+    setFreePortraitsAllowed(true);
+    route = (url) => (url.includes('pollinations') ? { status: 200, body: 'PNGDATA', contentType: 'image/png' } : { status: 400, body: errorBody('content policy') });
     const r = await run(
-      svc.generateAvatarAI({ characterName: 'A', roleClass: 'B', raceOrigin: 'C', category: 'horror' as any })
+      svc.generateAvatarAI({ characterName: 'Zephyrine', roleClass: 'B', raceOrigin: 'C', category: 'horror' as any })
     );
     expect(r.engine).toMatch(/Flux/);
-    expect(getAIStatus().notice?.feature).toBe('Portrait');
+    expect(r.avatarUrl.startsWith(IMG_REF)).toBe(true);
+    const free = calls.find((c) => c.url.includes('pollinations'));
+    expect(free?.url).not.toContain('Zephyrine');
   });
 });
 

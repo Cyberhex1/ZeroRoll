@@ -149,10 +149,14 @@ export function planRoute(tier: Tier): RouteStep[] {
   };
   // In the PC app, the local model in Ollama is the basic tier (it is free and works offline).
   const local = localBasicTier();
+  const localStep = (): RouteStep | null =>
+    local ? { provider: 'custom', model: local.model, tier: 'basic', source: 'local', local: { context: local.context, promptFormat: local.promptFormat } } : null;
+  // "Use for every turn": the local model answers first at any tier; the player's provider is the fallback.
+  if (local?.allTurns) push(localStep()!);
   for (const provider of providers) {
     for (const t of tierLadder(tier)) {
       if (t === 'basic' && local && provider === active) {
-        push({ provider: 'custom', model: local.model, tier: 'basic', source: 'local', local: { context: local.context, promptFormat: local.promptFormat } });
+        push(localStep()!);
       }
       const o = overrides[t];
       if (o && provider === active) push({ provider: o.provider, model: o.model, tier: t, source: 'override' });

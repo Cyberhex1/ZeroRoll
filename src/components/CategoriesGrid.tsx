@@ -1,3 +1,7 @@
+import { Portrait } from './ui/Portrait';
+import { PortraitsOffError, setFreePortraitsAllowed } from '../lib/portraits';
+import { clickable } from './ui/a11y';
+import { useDialog } from './ui/useDialog';
 import React, { useState, useRef, lazy, Suspense } from 'react';
 import { uid } from '../lib/ids';
 import {
@@ -31,6 +35,7 @@ import {
 import { CATEGORIES_DATA, drawOpeners, markOpenersSeen, pickInspiration, gearToInventory, getContent, OpenerDraw, Opener } from '../content';
 import { generateRandomScenarioSetup } from '../content/procedural';
 import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI, OFFLINE_ENGINE_LABEL } from '../lib/geminiService';
+import { RULES_MODES, RulesMode, abilityMod, fmtMod, roleTemplate } from '../dnd/rules';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory, CampaignInspiration } from '../types';
 
 
@@ -60,7 +65,8 @@ interface CategoriesGridProps {
     storyOutline?: DMStoryOutline,
     chapterOneOpening?: string,
     chapterOneModel?: string,
-    inspiration?: CampaignInspiration
+    inspiration?: CampaignInspiration,
+    rulesMode?: RulesMode
   ) => Promise<void>;
   onDeleteExperience: (id: string) => void;
   selectedModel: string;
@@ -93,7 +99,22 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   const [initialInventory, setInitialInventory] = useState<InventoryItem[]>([]);
   const [initialSpells, setInitialSpells] = useState<string[]>([]);
   const [initialConditions, setInitialConditions] = useState<string[]>(['Well-Rested']);
-  const [startingHp, setStartingHp] = useState<number>(12);
+  const [startingHp, setStartingHp] = useState<number>(0);
+  const [rulesMode, setRulesModeState] = useState<RulesMode>(() => {
+    try {
+      return localStorage.getItem('zeroroll_rules_mode') === 'full5e' ? 'full5e' : 'narrative';
+    } catch (_) {
+      return 'narrative';
+    }
+  });
+  const setRulesMode = (m: RulesMode) => {
+    setRulesModeState(m);
+    try {
+      localStorage.setItem('zeroroll_rules_mode', m);
+    } catch (_) {
+      /* the choice still applies to this campaign */
+    }
+  };
   const [suggestedActions, setSuggestedActions] = useState<string[]>([]);
   const [currentStoryOutline, setCurrentStoryOutline] = useState<DMStoryOutline | undefined>(undefined);
   // Where the current setup fields came from, so offline drafts are never mistaken for AI output.
@@ -171,6 +192,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     genRef.current++;
     setSelectedCategoryModal(null);
   };
+  // Cancel, Escape and the backdrop ask before throwing away typed fields (PS14).
+  const requestCloseModal = () => {
+    if (editedFields.size > 0 && !window.confirm('Discard this campaign setup? What you typed will be lost.')) return;
+    closeModal();
+  };
+  const setupDialog = useDialog(requestCloseModal, { labelledBy: 'setup-title', active: !!selectedCategoryModal });
 
   const confirmReplaceEdits = (fields: string[]) => {
     const touched = fields.filter((f) => editedFields.has(f));
@@ -191,9 +218,10 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setPhysicalDesc(randomSetup.physicalDescription);
     setSuggestedActions(randomSetup.suggestedActions);
     setInitialInventory(randomSetup.initialInventory);
-    setInitialSpells(randomSetup.initialSpells);
+    // The random hook's spells and HP are not tied to its role, so the role decides (PS8).
+    setInitialSpells([]);
     setInitialConditions(randomSetup.initialConditions);
-    setStartingHp(randomSetup.startingHp);
+    setStartingHp(0);
 
     // Clear any AI-specific state from previous generations
     setCurrentStoryOutline(undefined);
@@ -295,7 +323,9 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           })));
         }
         if (Array.isArray(sc.initialConditions)) setInitialConditions(sc.initialConditions);
-        if (sc.startingHp) setStartingHp(sc.startingHp);
+        // AI starting spells are kept (S21); HP follows the role (PS8).
+        setInitialSpells(Array.isArray(sc.initialSpells) ? sc.initialSpells.filter((x: unknown): x is string => typeof x === 'string').slice(0, 6) : []);
+        setStartingHp(0);
       } else {
         setEditedFields((prev) => {
           const next = new Set(prev);
@@ -314,6 +344,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
   const handleRandomizeHook = (cat: CategoryInfo) => handleGenerateScenario(cat, 'hook');
 
+  const [portraitsOff, setPortraitsOff] = useState(false);
   const handleRenderPortrait = async (cat: CategoryInfo) => {
     const gen = genRef.current;
     setBusy('portrait', true);
@@ -331,6 +362,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       if (isCurrent(gen) && data?.avatarUrl) setCharAvatarUrl(data.avatarUrl);
     } catch (err: any) {
       if (isCurrent(gen)) setAvatarError(err.message || 'Failed to generate character avatar.');
+      if (err instanceof PortraitsOffError && isCurrent(gen)) setPortraitsOff(true);
     } finally {
       setBusy('portrait', false);
     }
@@ -434,6 +466,16 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     return errors;
   };
 
+  // What the hero sheet will hold, shown before Initialize (PS8, PS9): stats, HP and AC
+  // from the role; spells from the opener or the AI, else the role's.
+  const template = roleTemplate(charRole || 'Adventurer');
+  const heroPreview = {
+    stats: template.stats,
+    maxHp: startingHp || template.maxHp,
+    armorClass: template.armorClass,
+    spells: initialSpells.length ? initialSpells : template.spells
+  };
+
   const handleConfirmCreate = async (opts: { acceptPremise?: boolean } = {}) => {
     if (!selectedCategoryModal) return;
     if (anyBusy) return;
@@ -456,14 +498,15 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       gender: resolvedPronouns().slice(0, FIELD_LIMITS.pronouns),
       roleClass: charRole.trim().slice(0, FIELD_LIMITS.roleClass),
       raceOrigin: charRace.trim().slice(0, FIELD_LIMITS.raceOrigin),
-      level: selectedCategoryModal.defaultCharacter.level || 1,
-      hp: startingHp || selectedCategoryModal.defaultCharacter.hp || 24,
-      maxHp: startingHp || selectedCategoryModal.defaultCharacter.maxHp || 24,
-      armorClass: selectedCategoryModal.defaultCharacter.armorClass || 14,
-      initiativeBonus: selectedCategoryModal.defaultCharacter.initiativeBonus || 2,
-      stats: selectedCategoryModal.defaultCharacter.stats || { str: 12, dex: 12, con: 12, int: 10, wis: 10, cha: 10 },
+      level: 1,
+      hp: heroPreview.maxHp,
+      maxHp: heroPreview.maxHp,
+      armorClass: heroPreview.armorClass,
+      initiativeBonus: abilityMod(heroPreview.stats.dex),
+      stats: heroPreview.stats,
       inventory: initialInventory.length > 0 ? initialInventory : (selectedCategoryModal.defaultCharacter.inventory || []),
-      spells: initialSpells.length > 0 ? initialSpells : (selectedCategoryModal.defaultCharacter.spells || []),
+      spells: heroPreview.spells,
+      ...(rulesMode === 'full5e' ? { xp: 0, gold: 10 } : {}),
       statusEffects: initialConditions.length > 0 ? initialConditions : ['Well-Rested'],
       // The canonical hero's backstory does not belong to a generated hero (PS16).
       backgroundNotes: '',
@@ -510,7 +553,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         currentStoryOutline,
         chapterOneText,
         chapterOneModel,
-        inspiration
+        inspiration,
+        rulesMode
       );
       closeModal();
     } catch (err: any) {
@@ -541,7 +585,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           <div className="relative z-10 max-w-3xl space-y-2">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-amber-400 text-[10px] uppercase tracking-widest font-mono font-bold">
               <Dice5 className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-              ROLL ZERO0 ENGINE • D&D 5E ADJUDICATOR
+              ZEROROLL • D&D 5E ADJUDICATOR
             </div>
             <h1 className="text-2xl sm:text-4xl font-serif tracking-tight text-amber-50">
               Select An Experience
@@ -595,7 +639,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         {/* Categories Tab Content */}
         {activeTab === 'categories' && (
           <div>
-            <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-3">
+            <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mb-3">
               Available Campaign Archetypes
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
@@ -603,8 +647,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                 return (
                   <div
                     key={cat.id}
-                    className="group relative rounded-lg bg-[#111118] border border-white/5 hover:border-amber-600/50 transition-all duration-200 p-4 flex flex-col justify-between hover:bg-white/5 cursor-pointer space-y-3"
-                    onClick={() => handleOpenCategoryModal(cat)}
+                    className="group relative rounded-lg bg-[#111118] border border-white/5 hover:border-amber-600/50 transition-all duration-200 p-4 flex flex-col justify-between hover:bg-white/5 cursor-pointer space-y-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    {...clickable(() => handleOpenCategoryModal(cat))}
                   >
                     <div className="relative z-10 space-y-2">
                       <div className="flex items-center justify-between">
@@ -614,7 +658,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         >
                           {getCategoryIcon(cat.iconName)}
                         </div>
-                        <span className="text-[9px] font-mono tracking-widest font-bold uppercase px-1.5 py-0.5 rounded bg-black/40 text-slate-500 border border-white/5">
+                        <span className="text-[9px] font-mono tracking-widest font-bold uppercase px-1.5 py-0.5 rounded bg-black/40 text-slate-400 border border-white/5">
                           {cat.id}
                         </span>
                       </div>
@@ -710,17 +754,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         {/* Character Snippet */}
                         <div className="p-2.5 rounded bg-[#0A0A0F] border border-white/5 text-xs flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            {exp.character?.avatarUrl ? (
-                              <img 
-                                src={exp.character.avatarUrl} 
-                                alt={exp.character.name || 'Hero'} 
-                                className="w-7 h-7 rounded object-cover border border-amber-600/40"
-                              />
-                            ) : (
-                              <div className="w-6 h-6 rounded bg-amber-600/20 border border-amber-600/40 text-amber-300 flex items-center justify-center font-bold text-xs font-serif">
-                                {exp.character?.name?.[0] || 'H'}
-                              </div>
-                            )}
+                            <Portrait value={exp.character?.avatarUrl} name={exp.character?.name || 'Hero'} className="w-7 h-7 rounded border border-amber-600/40 text-xs" />
                             <div>
                               <div className="font-semibold text-slate-200 text-xs">{exp.character?.name || 'Hero'}</div>
                               <div className="text-[10px] text-slate-500 font-mono">
@@ -744,7 +778,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </button>
 
                         <button
-                          onClick={() => onDeleteExperience(exp.id)}
+                          onClick={() => { if (window.confirm(`Delete "${exp.title}" for good? This removes it from this device and the cloud.`)) onDeleteExperience(exp.id); }}
                           className="p-1.5 rounded bg-white/5 hover:bg-red-950 hover:text-red-300 text-slate-500 transition border border-white/5"
                           title="Delete Experience"
                         >
@@ -761,8 +795,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
         {/* Modal: Create Experience Setup */}
         {selectedCategoryModal && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...setupDialog.overlayProps}>
+            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200" {...setupDialog.dialogProps}>
               
               {/* Header */}
               <div className="flex items-start justify-between border-b border-white/10 pb-3">
@@ -774,14 +808,14 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     {getCategoryIcon(selectedCategoryModal.iconName)}
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold text-amber-50 font-serif leading-tight">
+                    <h2 id="setup-title" className="text-base sm:text-lg font-bold text-amber-50 font-serif leading-tight">
                       Initialize {selectedCategoryModal.name} Campaign
                     </h2>
                     <p className="text-xs text-slate-400 font-sans mt-0.5">{selectedCategoryModal.tagline}</p>
                   </div>
                 </div>
                 <button
-                  onClick={closeModal}
+                  onClick={requestCloseModal}
                   className="text-slate-400 hover:text-slate-100 p-1 rounded bg-white/5 text-xs font-mono"
                   title="Close"
                 >
@@ -996,24 +1030,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     </div>
 
                     <div className="flex items-start gap-3">
-                      {charAvatarUrl ? (
-                        <div className="relative group shrink-0">
-                          <img 
-                            src={charAvatarUrl} 
-                            alt="Hero Portrait" 
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-amber-500 shadow-lg"
-                          />
-                          {(isBusy('portrait') || isBusy('scenario')) && (
-                            <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center">
-                              <RefreshCw className="w-4 h-4 text-amber-400 animate-spin" />
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-amber-600/20 border-2 border-amber-500/40 text-amber-300 font-bold font-serif text-2xl flex items-center justify-center shadow-lg shrink-0">
-                          {charName?.[0] || 'H'}
-                        </div>
-                      )}
+                      <Portrait value={charAvatarUrl} name={charName || 'Hero'} loading={isBusy('portrait')} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-amber-500/60 shadow-lg shrink-0 text-2xl" />
 
                       <div className="flex-1 min-w-0">
                         <textarea
@@ -1029,6 +1046,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </p>
                         {avatarError && (
                           <p className="text-[10px] text-red-400 font-mono mt-1">{avatarError}</p>
+                        )}
+                        {portraitsOff && (
+                          <button
+                            type="button"
+                            className="mt-1 text-[10px] underline text-amber-300"
+                            onClick={() => {
+                              setFreePortraitsAllowed(true);
+                              setPortraitsOff(false);
+                              setAvatarError(null);
+                              void handleRenderPortrait(selectedCategoryModal);
+                            }}
+                          >
+                            Allow free portraits from pollinations.ai (sends only the appearance text) and draw one
+                          </button>
                         )}
                       </div>
                     </div>
@@ -1060,27 +1091,44 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       className="w-full bg-[#0A0A0F] border border-white/10 rounded p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 leading-relaxed resize-none disabled:opacity-60 font-sans"
                     />
                     
-                    {/* Thematic Starting Gear Preview */}
-                    {initialInventory.length > 0 && (
-                      <div className="mt-2.5 p-2 rounded bg-black/40 border border-white/5 space-y-1 text-xs">
-                        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold flex items-center justify-between">
-                          <span>Story-Linked Starting Inventory ({initialInventory.length} items):</span>
-                          <span className="text-amber-400 font-bold">HP {startingHp}</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {initialInventory.map((item, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300">
-                              {item.name}
-                            </span>
-                          ))}
-                          {initialSpells.map((sp, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded bg-blue-950/60 border border-blue-800/40 text-[10px] font-mono text-blue-300">
-                              ⚡ {sp}
-                            </span>
-                          ))}
-                        </div>
+                    {/* Hero sheet preview: what Initialize will create (PS9) */}
+                    <div className="mt-2.5 p-2 rounded bg-black/40 border border-white/5 space-y-1.5 text-xs">
+                      <div className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold flex items-center justify-between">
+                        <span>Hero sheet for a {charRole || 'hero'}</span>
+                        <span className="text-amber-400 font-bold">HP {heroPreview.maxHp}{rulesMode === 'full5e' ? ` · AC ${heroPreview.armorClass}` : ''}</span>
                       </div>
-                    )}
+                      <div className="flex flex-wrap gap-1.5 font-mono text-[10px] text-slate-300">
+                        {(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const).map((k) => (
+                          <span key={k} className="px-1.5 py-0.5 rounded bg-white/5 border border-white/10">{k.toUpperCase()} {heroPreview.stats[k]} ({fmtMod(abilityMod(heroPreview.stats[k]))})</span>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {initialInventory.map((item, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-300">
+                            {item.name}
+                          </span>
+                        ))}
+                        {heroPreview.spells.map((sp, idx) => (
+                          <span key={idx} className="px-2 py-0.5 rounded bg-blue-950/60 border border-blue-800/40 text-[10px] font-mono text-blue-300">
+                            ⚡ {sp}
+                          </span>
+                        ))}
+                      </div>
+                      <fieldset className="pt-1 space-y-1">
+                        <legend className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold">Rules</legend>
+                        <div className="flex flex-wrap gap-2">
+                          {(Object.keys(RULES_MODES) as RulesMode[]).map((m) => (
+                            <label key={m} className={`flex items-start gap-1.5 rounded border px-2 py-1 cursor-pointer ${rulesMode === m ? 'border-amber-500/70 bg-amber-500/10' : 'border-white/10'}`}>
+                              <input type="radio" name="rules-mode" value={m} checked={rulesMode === m} onChange={() => setRulesMode(m)} className="mt-0.5 accent-amber-500" />
+                              <span>
+                                <span className="block text-[11px] font-semibold text-slate-200">{RULES_MODES[m].name}</span>
+                                <span className="block text-[10px] text-slate-400">{RULES_MODES[m].blurb}</span>
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </fieldset>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -1122,8 +1170,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       {(activeSeed?.prompts || []).map((prompt: string, idx: number) => (
                         <div 
                           key={idx} 
-                          className="text-[11px] px-3 py-2 rounded bg-black/40 border border-white/5 text-slate-300 font-mono cursor-pointer hover:border-amber-400/50 hover:text-amber-300 hover:bg-amber-500/10 transition"
-                          onClick={() => handleApplyTrope({ name: `Prompt ${idx + 1}`, premise: prompt })}
+                          className="text-[11px] px-3 py-2 rounded bg-black/40 border border-white/5 text-slate-300 font-mono cursor-pointer hover:border-amber-400/50 hover:text-amber-300 hover:bg-amber-500/10 transition focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          {...clickable(() => handleApplyTrope({ name: `Prompt ${idx + 1}`, premise: prompt }))}
                         >
                           {prompt}
                         </div>
@@ -1159,8 +1207,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       {currentScenarioSeeds.map(({ opener: seed, padded }, idx) => (
                         <div
                           key={seed.id || idx}
-                          onClick={() => handleApplyPlayableSeed(seed, selectedCategoryModal)}
-                          className="p-3.5 rounded-lg bg-black/40 border border-white/5 hover:border-amber-500/50 hover:bg-white/5 cursor-pointer transition text-xs space-y-2 group"
+                          {...clickable(() => handleApplyPlayableSeed(seed, selectedCategoryModal))}
+                          className="p-3.5 rounded-lg bg-black/40 border border-white/5 hover:border-amber-500/50 hover:bg-white/5 cursor-pointer transition text-xs space-y-2 group focus:outline-none focus:ring-2 focus:ring-amber-500"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
@@ -1234,7 +1282,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                   </div>
                 )}
                 <button
-                  onClick={closeModal}
+                  onClick={requestCloseModal}
                   className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:bg-white/5 transition"
                 >
                   Cancel

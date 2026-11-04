@@ -67,9 +67,13 @@ export function mergeInventoryAdditive(
   categoryDefault: InventoryItem[]
 ): InventoryItem[] {
   if (!userInventory || userInventory.length === 0) return categoryDefault;
-  // Keep all user items, append any default items not already represented
+  // A hero who already has a weapon or armour does not get a second set from the category
+  // defaults (PS7); other defaults are added when nothing of that name is carried.
   const userNamesLower = new Set(userInventory.map(i => (i.name || '').toLowerCase().trim()));
-  const extras = categoryDefault.filter(d => !userNamesLower.has((d.name || '').toLowerCase().trim()));
+  const userTypes = new Set(userInventory.map(i => i.type));
+  const extras = categoryDefault
+    .filter(d => !userNamesLower.has((d.name || '').toLowerCase().trim()))
+    .filter(d => !((d.type === 'weapon' || d.type === 'armor' || d.type === 'potion') && userTypes.has(d.type)));
   return [...userInventory, ...extras];
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { uid } from './lib/ids';
+import { continueToNextBook } from './dnd/nextBook';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { STORY_MODE_ENABLED } from './lib/platform';
 import { User, onAuthStateChanged } from 'firebase/auth';
@@ -16,6 +17,7 @@ import {
   saveUserSettingsToCloud,
   purgeCloudProviderKeys,
   saveActiveExperienceIdToCloud,
+  isNewer,
   cloudSyncBlocked
 } from './lib/firebase';
 import {
@@ -23,16 +25,15 @@ import {
   importAllProviderSettings,
   purgeUnusableStoredKeys,
   getActiveProvider,
-  setProviderModel,
-  generateScenarioAI
+  setProviderModel
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
 import { watchKeyChanges } from './lib/keySync';
 import { runWeeklyModelCheck } from './ai/weeklyModelCheck';
 import { Navbar } from './components/Navbar';
 import { AIStatusBanner } from './components/AIStatusBanner';
-import { CategoriesGrid } from './components/CategoriesGrid';
 // Loaded on first use so the home screen downloads and starts faster.
+const CategoriesGrid = lazy(() => import('./components/CategoriesGrid').then((m) => ({ default: m.CategoriesGrid })));
 const ExperienceView = lazy(() => import('./components/ExperienceView').then((m) => ({ default: m.ExperienceView })));
 const SettingsModal = lazy(() => import('./components/SettingsModal').then((m) => ({ default: m.SettingsModal })));
 const UserProfileModal = lazy(() => import('./components/UserProfileModal').then((m) => ({ default: m.UserProfileModal })));
@@ -55,6 +56,7 @@ import {
 import { DEFAULT_GEMINI_MODEL, usableGeminiModelOptions } from './lib/modelsConfig';
 import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
 import { mergeInventoryAdditive, createVariedInitialMap } from './lib/experienceHelpers';
+import { audioManager } from './audio/manager';
 
 function safeGetStorage(key: string): string | null {
   try {
@@ -318,7 +320,8 @@ export default function App() {
           // If we already have an active experience, keep it synced with the latest cloud data
           if (currentActive) {
             const updated = exps.find(e => e.id === currentActive.id);
-            if (updated) {
+            // A snapshot older than what is on screen (a turn still saving) does not roll it back (S5).
+            if (updated && !isNewer(currentActive, updated)) {
               return updated;
             }
           }
@@ -363,6 +366,8 @@ export default function App() {
     const nextVal = !soundEnabled;
     setSoundEnabled(nextVal);
     safeSetStorage('dnd_sound_enabled', String(nextVal));
+    // The navbar speaker is the whole-app mute: music follows it (S24).
+    audioManager.setMuted(!nextVal);
     if (user) {
       saveUserSettingsToCloud(user.uid, { soundEnabled: nextVal })
         .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
@@ -396,7 +401,8 @@ export default function App() {
     storyOutline?: DMStoryOutline,
     chapterOneOpening?: string,
     chapterOneModel?: string,
-    inspiration?: CampaignInspiration
+    inspiration?: CampaignInspiration,
+    rulesMode?: 'full5e' | 'narrative'
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
@@ -460,6 +466,8 @@ export default function App() {
       mapData: initialMap,
       storyOutline: finalStoryOutline,
       inspiration: inspiration ?? pickInspiration(category),
+      rulesMode: rulesMode ?? 'narrative',
+      book: 1,
       pendingCheck: null,
       activeAlert: null
     };
@@ -487,7 +495,9 @@ export default function App() {
     }
   };
 
-  const handleUpdateExperience = async (updated: Experience) => {
+  const handleUpdateExperience = async (next: Experience) => {
+    // Stamped now, so an older cloud snapshot arriving mid-turn cannot replace it.
+    const updated = { ...next, updatedAt: new Date().toISOString() };
     setActiveExperience(updated);
     setIsSaving(true);
     const result = await saveExperienceToCloud(updated);
@@ -508,79 +518,22 @@ export default function App() {
     }
   };
 
+  // The next book continues inside the same campaign save (S11, S12). One at a time.
+  const continuingRef = useRef(false);
   const handleStartBookTwo = async (prevExp: Experience) => {
+    if (continuingRef.current) return;
+    continuingRef.current = true;
     setIsSaving(true);
     try {
-      const data = await generateScenarioAI({
-        category: prevExp.category,
-        model: selectedModel,
-        userPrompt: `Start Book Two of this campaign. The previous book concluded successfully. Generate a new story arc, new chapters, and a new immediate goal for the continuing adventures of ${prevExp.character.name}.`,
-        gender: prevExp.character.gender || 'they/them',
-        characterName: prevExp.character.name,
-        classRole: prevExp.character.roleClass,
-        raceOrigin: prevExp.character.raceOrigin,
-        // Book Two must continue this story; never substitute a random procedural one.
-        allowFallback: false
-      });
-
-      if (data && data.scenario) {
-        const newExp: Experience = {
-          id: `exp_${uid()}`,
-          userId: user?.uid || 'guest',
-          title: `${prevExp.title} - Book Two`,
-          category: prevExp.category,
-          description: data.scenario.storyBlurb || 'The adventure continues...',
-          model: selectedModel,
-          customSystemPrompt: prevExp.customSystemPrompt,
-          // Book Two continues the same campaign, so it keeps the same inspiration.
-          inspiration: prevExp.inspiration,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          character: {
-            ...prevExp.character, // preserve everything: hp, inventory, level, etc.
-          },
-          gameWorldState: {
-            currentLocation: 'New Region',
-            timeOfDay: 'Daybreak',
-            activeQuest: data.scenario.storyOutline?.immediateGoal || 'Begin Book Two',
-            dangerLevel: 'Safe',
-            customNotes: data.scenario.storyOutline?.backstory || '',
-            currentChapter: 1
-          },
-          logs: [
-            {
-              id: `msg_start_${uid()}`,
-              sender: 'dm',
-              text: data.scenario.storyBlurb || 'A new chapter in your legend begins...',
-              timestamp: new Date().toISOString()
-            }
-          ],
-          mapData: createVariedInitialMap(
-            prevExp.category,
-            CATEGORIES_DATA.find((c) => c.id === prevExp.category)?.bgTheme || 'dungeon',
-            prevExp.character.name,
-            prevExp.character.hp,
-            prevExp.character.maxHp
-          ),
-          storyOutline: data.scenario.storyOutline,
-          pendingCheck: null,
-          activeAlert: null
-        };
-
-        const result = await saveExperienceToCloud(newExp);
-        if (!result.ok) {
-          showCloudSaveError('Could not save Book Two to cloud.');
-        }
-        setActiveExperience(newExp);
-        if (user) {
-          saveActiveExperienceIdToCloud(user.uid, newExp.id)
-            .catch((err) => showCloudSaveError(`Active experience sync failed: ${err.message}`));
-        }
-      }
+      const next = await continueToNextBook(prevExp, selectedModel);
+      setActiveExperience(next);
+      const result = await saveExperienceToCloud(next);
+      if (!result.ok) showCloudSaveError('Could not save the new book to the cloud. It is saved on this device.');
     } catch (err: any) {
-      showCloudSaveError(`Failed to generate Book Two. ${err?.message || ''}`.trim());
+      showCloudSaveError(`The next book could not be started. ${err?.message || ''}`.trim());
     } finally {
       setIsSaving(false);
+      continuingRef.current = false;
     }
   };
 
@@ -605,13 +558,15 @@ export default function App() {
                   />
                 </Suspense>
               ) : (
-                <CategoriesGrid
-                  experiences={experiences}
-                  onSelectExperience={handleSelectExperience}
-                  onCreateExperience={handleCreateExperience}
-                  onDeleteExperience={handleDeleteExperience}
-                  selectedModel={selectedModel}
-                />
+                <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+                  <CategoriesGrid
+                    experiences={experiences}
+                    onSelectExperience={handleSelectExperience}
+                    onCreateExperience={handleCreateExperience}
+                    onDeleteExperience={handleDeleteExperience}
+                    selectedModel={selectedModel}
+                  />
+                </Suspense>
               )}
     </>
   );

@@ -219,9 +219,28 @@ export const CATEGORY_TRACKS: Record<ExperienceCategory, MusicTrack> = {
 };
 
 /** Resolve the catalog entry for any music key (home or category). */
+/**
+ * Self-hosted music (M10): when VITE_MUSIC_BASE is set, every track loads from
+ * `${VITE_MUSIC_BASE}/<key>.mp3` (for example an R2 bucket or /audio on the site)
+ * instead of the third-party URL above. `npm run music:check` lists what to upload.
+ */
+export function musicBase(): string {
+  const env = (import.meta as any).env ?? {};
+  const base = String(env.VITE_MUSIC_BASE ?? '').trim();
+  return base.replace(/\/+$/, '');
+}
+
+export function trackFileName(key: MusicTrackKey): string {
+  return `${key}.mp3`;
+}
+
+export function resolveTrackUrl(track: MusicTrack, base = musicBase()): string {
+  return base ? `${base}/${trackFileName(track.key)}` : track.url;
+}
+
 export function getTrack(key: MusicTrackKey): MusicTrack | null {
-  if (key === 'home') return HOME_TRACK;
-  return CATEGORY_TRACKS[key] ?? null;
+  const t = key === 'home' ? HOME_TRACK : CATEGORY_TRACKS[key] ?? null;
+  return t ? { ...t, url: resolveTrackUrl(t) } : null;
 }
 
 /** All track keys, useful for documentation / license audits. */

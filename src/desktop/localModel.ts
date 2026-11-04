@@ -72,6 +72,8 @@ const LOCAL_KEY = 'zeroroll_local_llm';
 export interface LocalModelSettings {
   /** Use the local model for the basic tier. */
   enabled: boolean;
+  /** Use the local model first for every tier (story turns too), with the player's provider as the fallback. */
+  allTurns?: boolean;
   /** Ollama tag of the chosen model. */
   model?: string;
   /** Display name of the chosen model. */
@@ -82,7 +84,7 @@ export interface LocalModelSettings {
 export function getLocalModelSettings(): LocalModelSettings {
   try {
     const raw = JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}');
-    return { enabled: raw.enabled === true, model: typeof raw.model === 'string' ? raw.model : undefined, modelName: raw.modelName, context: raw.context };
+    return { enabled: raw.enabled === true, allTurns: raw.allTurns === true, model: typeof raw.model === 'string' ? raw.model : undefined, modelName: raw.modelName, context: raw.context };
   } catch (_) {
     return { enabled: false };
   }
@@ -95,11 +97,18 @@ export function saveLocalModelSettings(s: LocalModelSettings): void {
 }
 
 /** The local model for the router's basic tier, or null when it should not be used. */
-export function localBasicTier(): { model: string; context: number; promptFormat?: ModelPick['promptFormat'] } | null {
+export function localBasicTier(): { model: string; context: number; promptFormat?: ModelPick['promptFormat']; allTurns: boolean } | null {
   if (!isTauri()) return null;
   const s = getLocalModelSettings();
   if (!s.enabled || !s.model) return null;
-  return { model: s.model, context: s.context ?? 8192, promptFormat: pickForTag(s.model)?.promptFormat };
+  return { model: s.model, context: s.context ?? 8192, promptFormat: pickForTag(s.model)?.promptFormat, allTurns: s.allTurns === true };
+}
+
+/** The local model's context when it answers this tier first, so prompts fit it. */
+export function localContextFor(tier: 'basic' | 'good' | 'best'): number | undefined {
+  const local = localBasicTier();
+  if (!local) return undefined;
+  return tier === 'basic' || local.allTurns ? local.context : undefined;
 }
 
 /** The recommendation a pulled tag came from, if any. */

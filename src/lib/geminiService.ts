@@ -1,12 +1,16 @@
 import firebaseConfig from '../../firebase-applet-config.json';
 import { uid } from './ids';
+import { PortraitsOffError, base64ToBlob, freePortraitsAllowed, storePortraitBlob, storePortraitFromUrl } from './portraits';
+import { currentStateBlock } from '../dnd/memory';
+import { leadAlert, parseGmReply } from '../dnd/turnParser';
+import { RulesMode, rulesLine } from '../dnd/rules';
 import {
   ExperienceCategory,
   DiceRollResult,
-  AvatarEvolution,
   ActionTurnResult,
   DMStoryOutline,
-  CampaignInspiration
+  CampaignInspiration,
+  GameWorldState
 } from '../types';
 
 /** A brainstorm list for the Story Seeds tab (AI refresh or the category's own tropes). */
@@ -643,6 +647,10 @@ export async function executeActionTurn(params: {
   storyOutline?: DMStoryOutline;
   /** The campaign's stored inspiration, sent verbatim every turn. */
   inspiration?: CampaignInspiration;
+  /** Location and quest for the CURRENT STATE sheet. */
+  world?: Partial<GameWorldState>;
+  /** The campaign's rules mode, stated in the prompt. */
+  rulesMode?: RulesMode;
   /** 'referee' is the free-text Rules Referee: no genre corpus and no outline (injection policy). */
   purpose?: 'turn' | 'referee';
 }): Promise<ActionTurnResult> {
@@ -672,6 +680,7 @@ ROADMAP GM PRINCIPLES:
 
 GAMEPLAY GM DIRECTIVES:
 - Address the player as "you". Keep the narrative in present tense.
+- The CURRENT STATE, MEMORY and STORY SO FAR blocks in the player message are true. Never contradict them: the hero only uses items in their inventory, conditions stay until removed, and a hero at 0 HP is down until healed or stabilized.
 - Faithfully reflect the category's narrative profile: voice, atmospheric sensory details, scene architecture, and dramatic pacing.
 - The player's actions, choices, and premise are authoritative. Ground your storytelling craft and encounter emergence in the category profile without overriding the player's choices.
 - PACING: Maintain genre-specific pacing based on the provided narrative profile and seed inspiration. Do not rush to the climax unless the genre demands high-octane speed. Let the plot unfold naturally chapter by chapter, allowing the player to immerse deeply in the environment and conversations.
@@ -686,8 +695,12 @@ ITEMS_GAINED: ["Item Name"]
 ITEMS_LOST: ["Item Name"]
 CONDITIONS_ADDED: ["Condition Name"]
 CONDITIONS_REMOVED: ["Condition Name"]
+GOLD_DELTA: <-5 or +20 or 0>
+XP_GAINED: <0, or XP earned this turn (Full 5e only)>
+SPELLS_GAINED: ["Spell Name"]
 LOCATION: <Location Name>
 ---END_STATE_UPDATE---
+Use one STATE_UPDATE block per reply. Name items exactly as they appear in the inventory when they are used up or lost.
 
 If a MAJOR STORY BEAT or visual change occurs (e.g. Leveling up, acquiring visible legendary weapon/armor, suffering visible battle scars/burns, magical transformation, surviving a boss climax), output:
 ---AVATAR_EVOLUTION---
@@ -710,7 +723,9 @@ SKILL: <Skill Name>
 STAT: <str | dex | con | int | wis | cha>
 DC: <Difficulty 10-20>
 REASON: <Reason>
+ADVANTAGE: <none | advantage | disadvantage> (Full 5e only)
 ---END_CHECK---
+Only a CHECK_REQUIRED block asks for a roll; do not ask for rolls in the story text.
 
 At the end, provide 3 suggested actions formatted as:
 ---OPTIONS---
@@ -722,9 +737,8 @@ At the end, provide 3 suggested actions formatted as:
         ? `${basePrompt}\n\nGM STYLE / VOICE OVERLAY (from user settings):\n${systemInstruction}`
         : basePrompt;
 
-      const userMessage = `Character: ${characterState?.name || 'Hero'} (Gender/Pronouns: ${characterState?.gender || 'they/them'}), a Level ${characterState?.level || 1} ${characterState?.raceOrigin || 'Human'} ${characterState?.roleClass || 'Adventurer'} (HP: ${characterState?.hp || 12}/${characterState?.maxHp || 12}).
-Recent Story Log:
-${contents}
+      const stateSheet = isReferee ? '' : [currentStateBlock(characterState, params.world, storyOutline), rulesLine(params.rulesMode ?? 'narrative')].filter(Boolean).join('\n');
+      const userMessage = `${stateSheet ? `${stateSheet}\n\n` : ''}${/Recent Story Log:/.test(contents) || isReferee ? contents : `Recent Story Log:\n${contents}`}
 
 ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}`;
 
@@ -738,139 +752,13 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
       // A cut-off reply can end inside a block; never show raw block markup to the player.
       if (truncated) text = stripUnterminatedBlocks(text);
 
-      let suggestedActions: string[] = [];
-      let courseChangeAlert: any = null;
-      let requiredCheck: any = null;
-      let stateDelta: any = null;
-      let avatarEvolution: AvatarEvolution | null = null;
-
-      // Parse Avatar Evolution
-      if (text.includes('---AVATAR_EVOLUTION---')) {
-        const match = text.match(/---AVATAR_EVOLUTION---([\s\S]*?)---END_AVATAR_EVOLUTION---/);
-        if (match) {
-          const block = match[1];
-          const evolvedMatch = block.match(/EVOLVED:\s*(true|yes)/i);
-          const reasonMatch = block.match(/REASON:\s*(.+)/i);
-          const descMatch = block.match(/PHYSICAL_DESCRIPTION:\s*(.+)/i);
-          if (evolvedMatch) {
-            avatarEvolution = {
-              evolved: true,
-              visualChangeReason: reasonMatch ? reasonMatch[1].trim() : 'Hero visually transformed after a pivotal story beat.',
-              updatedPhysicalDescription: descMatch ? descMatch[1].trim() : undefined
-            };
-          }
-          text = text.replace(/---AVATAR_EVOLUTION---[\s\S]*?---END_AVATAR_EVOLUTION---/, '').trim();
-        }
-      }
-
-      // Parse State Update
-      if (text.includes('---STATE_UPDATE---')) {
-        const match = text.match(/---STATE_UPDATE---([\s\S]*?)---END_STATE_UPDATE---/);
-        if (match) {
-          const block = match[1];
-          const hpDeltaMatch = block.match(/HP_DELTA:\s*([+-]?\d+)/i);
-          const itemsGainedMatch = block.match(/ITEMS_GAINED:\s*(\[[^\]]*\]|.+)/i);
-          const itemsLostMatch = block.match(/ITEMS_LOST:\s*(\[[^\]]*\]|.+)/i);
-          const conditionsAddedMatch = block.match(/CONDITIONS_ADDED:\s*(\[[^\]]*\]|.+)/i);
-          const conditionsRemovedMatch = block.match(/CONDITIONS_REMOVED:\s*(\[[^\]]*\]|.+)/i);
-          const spellsGainedMatch = block.match(/SPELLS_GAINED:\s*(\[[^\]]*\]|.+)/i);
-          const locationMatch = block.match(/LOCATION:\s*(.+)/i);
-
-          const parseList = (str?: string) => {
-            if (!str) return [];
-            try {
-              if (str.trim().startsWith('[')) return JSON.parse(str);
-            } catch (e) {}
-            return str.split(',').map((s: string) => s.replace(/[[\]"']/g, '').trim()).filter(Boolean);
-          };
-
-          stateDelta = {
-            hpDelta: hpDeltaMatch ? parseInt(hpDeltaMatch[1], 10) : 0,
-            itemsGained: parseList(itemsGainedMatch ? itemsGainedMatch[1] : undefined),
-            itemsLost: parseList(itemsLostMatch ? itemsLostMatch[1] : undefined),
-            conditionsAdded: parseList(conditionsAddedMatch ? conditionsAddedMatch[1] : undefined),
-            conditionsRemoved: parseList(conditionsRemovedMatch ? conditionsRemovedMatch[1] : undefined),
-            spellsGained: parseList(spellsGainedMatch ? spellsGainedMatch[1] : undefined),
-            locationUpdate: locationMatch ? locationMatch[1].trim() : undefined
-          };
-          text = text.replace(/---STATE_UPDATE---[\s\S]*?---END_STATE_UPDATE---/, '').trim();
-        }
-      }
-
-      // Parse Course Trigger
-      if (text.includes('---COURSE_TRIGGER---')) {
-        const match = text.match(/---COURSE_TRIGGER---([\s\S]*?)---END_TRIGGER---/);
-        if (match) {
-          const block = match[1];
-          const titleMatch = block.match(/TITLE:\s*(.+)/i);
-          const typeMatch = block.match(/TYPE:\s*(.+)/i);
-          const subtitleMatch = block.match(/SUBTITLE:\s*(.+)/i);
-          const descMatch = block.match(/DESCRIPTION:\s*(.+)/i);
-          courseChangeAlert = {
-            id: `alert_${uid()}`,
-            title: titleMatch ? titleMatch[1].trim() : 'Story Shift',
-            type: (typeMatch ? typeMatch[1].trim() : 'course_change') as any,
-            subtitle: subtitleMatch ? subtitleMatch[1].trim() : 'A turning point unfolds',
-            description: descMatch ? descMatch[1].trim() : 'The circumstances of your adventure have evolved.'
-          };
-          text = text.replace(/---COURSE_TRIGGER---[\s\S]*?---END_TRIGGER---/, '').trim();
-        }
-      }
-
-      // Parse Check Required
-      if (text.includes('---CHECK_REQUIRED---')) {
-        const match = text.match(/---CHECK_REQUIRED---([\s\S]*?)---END_CHECK---/);
-        if (match) {
-          const block = match[1];
-          const skillMatch = block.match(/SKILL:\s*(.+)/i);
-          const statMatch = block.match(/STAT:\s*(.+)/i);
-          const dcMatch = block.match(/DC:\s*(\d+)/i);
-          const reasonMatch = block.match(/REASON:\s*(.+)/i);
-          requiredCheck = {
-            skill: skillMatch ? skillMatch[1].trim() : 'Perception',
-            stat: (statMatch ? statMatch[1].trim().toLowerCase() : 'wis') as any,
-            dc: dcMatch ? parseInt(dcMatch[1], 10) : 12,
-            reason: reasonMatch ? reasonMatch[1].trim() : 'Resolve the challenge.'
-          };
-          text = text.replace(/---CHECK_REQUIRED---[\s\S]*?---END_CHECK---/, '').trim();
-        }
-      } else {
-        // Fallback regex detection in narrative text if the AI didn't use tags but mentioned e.g. "Roll a DC 14 Athletics check" or "Make a DC 15 Stealth check"
-        const dcRegex = /(?:roll|make|requires?|give me|needs?)\s+(?:an?|your)?\s*(?:DC\s*(\d+)\s+)?([A-Za-z\s]+?)\s+(?:check|saving throw|save)(?:\s*\(?DC\s*(\d+)\)?)?/i;
-        const match = text.match(dcRegex);
-        if (match) {
-          const dcStr = match[1] || match[3] || '13';
-          const skillRaw = match[2].trim();
-          if (skillRaw && skillRaw.length < 30 && !skillRaw.toLowerCase().includes('initiative')) {
-            const dcVal = parseInt(dcStr, 10) || 13;
-            let statGuess: 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha' = 'wis';
-            const sLow = skillRaw.toLowerCase();
-            if (sLow.includes('athletic') || sLow.includes('strength')) statGuess = 'str';
-            else if (sLow.includes('acrobat') || sLow.includes('stealth') || sLow.includes('dexter') || sLow.includes('sleight')) statGuess = 'dex';
-            else if (sLow.includes('constitution') || sLow.includes('endurance')) statGuess = 'con';
-            else if (sLow.includes('arcana') || sLow.includes('history') || sLow.includes('investig') || sLow.includes('nature') || sLow.includes('religion') || sLow.includes('intel')) statGuess = 'int';
-            else if (sLow.includes('persua') || sLow.includes('decept') || sLow.includes('intimid') || sLow.includes('perform') || sLow.includes('charis')) statGuess = 'cha';
-
-            requiredCheck = {
-              skill: skillRaw,
-              stat: statGuess,
-              dc: dcVal,
-              reason: `The Game Master called for a ${skillRaw} check (DC ${dcVal}).`
-            };
-          }
-        }
-      }
-
-      // Parse Options
-      if (text.includes('---OPTIONS---')) {
-        const parts = text.split('---OPTIONS---');
-        text = parts[0].trim();
-        const optionsBlock = parts[1] || '';
-        const lines = optionsBlock.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        suggestedActions = lines
-          .map(l => l.replace(/^\[\d+\]\s*/, '').replace(/^\d+[.)]\s*/, '').trim())
-          .filter(l => l.length > 0);
-      }
+      const parsed = parseGmReply(text);
+      text = parsed.text;
+      let suggestedActions: string[] = parsed.options;
+      const courseChangeAlert = leadAlert(parsed.alerts);
+      const requiredCheck = parsed.check;
+      const stateDelta = parsed.delta;
+      const avatarEvolution = parsed.avatarEvolution;
 
       // Fallback suggested actions — pull from category-flavored pool
       // instead of the old hardcoded "investigate / speak / ready" trio.
@@ -892,6 +780,7 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
         fallbackActions,
         suggestedActions,
         courseChangeAlert,
+        alerts: parsed.alerts,
         requiredCheck,
         stateDelta,
         avatarEvolution,
@@ -926,7 +815,7 @@ export async function generateScenarioAI(params: {
   /** Inspiration picked for this setup; stored on the campaign if the player keeps it. */
   inspiration?: CampaignInspiration;
 }): Promise<{ scenario: RandomizedScenarioData; source: 'ai' | 'procedural' }> {
-  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true, inspiration } = params;
+  const { category, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true, inspiration } = params;
   const hasKey = hasActiveGeminiKey();
 
   if (!hasKey && !allowFallback) {
@@ -1019,20 +908,9 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
         { userPrompt: prompt, temperature: 0.9 },
         (v) => !!(v && v.title && v.storyBlurb)
       );
-      // Generate initial avatar image tailored to this character
-      let avatarUrl: string | undefined = undefined;
-      try {
-        const avatarData = await generateAvatarAI({
-          characterName: scenario.heroName,
-          gender: gender || scenario.gender,
-          roleClass: scenario.roleClass,
-          raceOrigin: scenario.raceOrigin,
-          category,
-          physicalDescription: scenario.physicalDescription,
-          model
-        });
-        avatarUrl = avatarData.avatarUrl;
-      } catch (_) {}
+      // No portrait per roll (PS6): it cost OpenAI players money on every re-roll. The player
+      // draws one from the setup screen or the hero sheet when they want it.
+      const avatarUrl: string | undefined = undefined;
 
       return {
         source: 'ai',
@@ -1198,57 +1076,43 @@ export async function generateAvatarAI(params: {
   recentStoryContext?: string;
   model?: string;
 }): Promise<{ avatarUrl: string; engine: string }> {
-  const { characterName, roleClass, raceOrigin, category, gender, physicalDescription, recentStoryContext } = params;
-  
-  // Format prompt for dramatic cartoonized graphic novel profile picture
-  const cleanDesc = physicalDescription || 'piercing expressive eyes, impeccable posture, distinctive attire';
-  const storyEvolution = recentStoryContext ? `reflecting recent dramatic story events: ${recentStoryContext.slice(-200)}` : '';
+  const { roleClass, raceOrigin, category, gender, physicalDescription } = params;
+
+  // Appearance only: no name and no story text leave the app in an image prompt (S18).
+  const cleanDesc = (physicalDescription || 'piercing expressive eyes, impeccable posture, distinctive attire').slice(0, 400);
   const genreTheme = (category || 'fantasy').replace('_', ' ');
-
   const visual = pronounsToVisual(gender);
-  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${visual ? `${visual} ` : ''}${raceOrigin} ${roleClass} named ${characterName}, ${cleanDesc}, ${storyEvolution}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
+  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${visual ? `${visual} ` : ''}${raceOrigin} ${roleClass}, ${cleanDesc}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
 
-  const seed = Math.floor(Math.random() * 999999);
-
-  // Check active provider for direct image generation APIs
   const provider = getActiveProvider();
   const apiKey = getProviderKey(provider);
 
-  // 1. OpenAI DALL-E 3 (if OpenAI provider key is provided)
+  // 1. OpenAI image model (the player's own key). The image comes back as data and is kept.
   if (provider === 'openai' && apiKey) {
     try {
       const res = await fetch('https://api.openai.com/v1/images/generations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey.trim()}`
-        },
-        body: JSON.stringify({
-          model: 'dall-e-3',
-          prompt: imagePrompt,
-          n: 1,
-          size: '1024x1024',
-          response_format: 'url'
-        })
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey.trim()}` },
+        body: JSON.stringify({ model: 'dall-e-3', prompt: imagePrompt, n: 1, size: '1024x1024', response_format: 'b64_json' })
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.data?.[0]?.url) {
-          return { avatarUrl: data.data[0].url, engine: 'OpenAI DALL-E 3' };
-        }
-        reportAINotice('Portrait', 'DALL-E returned no image, so the free Flux engine (pollinations.ai) drew this portrait instead.');
+        const b64 = data.data?.[0]?.b64_json;
+        if (b64) return { avatarUrl: await storePortraitBlob(base64ToBlob(b64)), engine: 'OpenAI DALL-E 3' };
+        reportAINotice('Portrait', 'DALL-E returned no image.');
       } else {
-        reportAINotice('Portrait', `DALL-E refused the request (${res.status}), so the free Flux engine (pollinations.ai) drew this portrait instead.`);
+        reportAINotice('Portrait', `DALL-E refused the request (${res.status}).`);
       }
     } catch (e) {
-      reportAINotice('Portrait', `DALL-E could not be reached (${e instanceof Error ? e.message : String(e)}), so the free Flux engine (pollinations.ai) drew this portrait instead.`);
+      reportAINotice('Portrait', `DALL-E could not be reached (${e instanceof Error ? e.message : String(e)}).`);
     }
   }
 
-  // 2. High-speed Flux Engine for dramatic cartoonized character portraits
+  // 2. The free Flux engine at pollinations.ai, only when the player allowed it.
+  if (!freePortraitsAllowed()) throw new PortraitsOffError();
+  const seed = Math.floor(Math.random() * 999999);
   const fluxUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=768&height=768&nologo=true&seed=${seed}&model=flux`;
-
-  return { avatarUrl: fluxUrl, engine: 'Flux (pollinations.ai)' };
+  return { avatarUrl: await storePortraitFromUrl(fluxUrl), engine: 'Flux (pollinations.ai)' };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1408,4 +1272,33 @@ function generateProceduralTurn(
     stateDelta: hpDelta !== 0 ? { hpDelta } : null,
     modelUsed: 'ZeroRoll Offline Procedural Engine'
   };
+}
+
+/**
+ * The Rules Referee (S13): its own prompt and the real character, no story narration. It
+ * answers whether an action is possible, which check it takes, the DC and what it needs.
+ * Its replies stay out of the narrator's transcript.
+ */
+export async function refereeAdjudicate(params: { action: string; character: any; category: ExperienceCategory; rulesMode: RulesMode; world?: Partial<GameWorldState> }): Promise<{ text: string; modelUsed: string }> {
+  if (!hasActiveAIKey()) {
+    reportMissingKey('Rules Referee');
+    throw new Error('The Rules Referee needs an AI key. Add one in Settings.');
+  }
+  const system = [
+    'You are the Rules Referee for a tabletop-style game. You do not narrate the story and you do not decide what happens.',
+    'For the proposed action, answer in at most 120 words, as short plain lines:',
+    'Possible: yes, no, or only if ... (say what is missing, e.g. an item the hero does not have).',
+    'Check: the skill or ability, and the DC (5 very easy, 10 easy, 15 medium, 20 hard, 25 very hard).',
+    'Why: one sentence.',
+    'Use only the hero sheet below. Never invent items, spells or abilities the hero does not have.',
+    rulesLine(params.rulesMode)
+  ].join('\n');
+  const user = `${currentStateBlock(params.character, params.world)}\nGenre: ${params.category}\n\nProposed action: ${params.action.trim().slice(0, 600)}`;
+  try {
+    const text = await executeUniversalPrompt({ systemPrompt: system, userPrompt: user, temperature: 0.3, feature: 'Rules Referee' });
+    return { text: text.trim(), modelUsed: getLastModelUsedLabel() };
+  } catch (err) {
+    const { message } = reportFeatureFailure(err, 'Rules Referee', false);
+    throw new Error(message);
+  }
 }

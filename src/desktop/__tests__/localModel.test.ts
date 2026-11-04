@@ -58,4 +58,29 @@ describe('download sources', () => {
     const noDigest = { ...release, assets: release.assets.map((a) => ({ ...a, digest: undefined })) };
     await expect(resolveLlamaBuild(info({ backend: 'cpu' }), fakeFetch(noDigest))).rejects.toThrow(/checksum/);
   });
+
+  it('follows a versioned "latest" release to the nightly build that holds the binaries', async () => {
+    const pointer = {
+      tag_name: 'v0.8.0',
+      body: '**Nightly build:** [b9999](https://github.com/ggml-org/llama.cpp/releases/tag/b9999)',
+      assets: [{ name: 'nightly-tag.txt', browser_download_url: 'https://x/tag.txt', digest: `sha256:${SHA}` }],
+    };
+    const urls: string[] = [];
+    const routed = (async (url: string) => {
+      urls.push(url);
+      const body = url.endsWith('/latest') ? pointer : url.endsWith('/tags/b9999') ? release : [];
+      return { ok: true, status: 200, json: async () => body };
+    }) as unknown as typeof fetch;
+    const files = await resolveLlamaBuild(info({}), routed);
+    expect(files.map((f) => f.url)).toEqual(['https://x/cuda.zip', 'https://x/rt.zip']);
+    expect(urls.some((u) => u.endsWith('/tags/b9999'))).toBe(true);
+  });
+
+  it('falls back to the recent release list when latest names no nightly', async () => {
+    const routed = (async (url: string) => {
+      const body = url.endsWith('/latest') ? { tag_name: 'v0.8.0', assets: [] } : [{ ...release, prerelease: true }];
+      return { ok: true, status: 200, json: async () => body };
+    }) as unknown as typeof fetch;
+    expect((await resolveLlamaBuild(info({ backend: 'cpu' }), routed))[0].url).toBe('https://x/cpu.zip');
+  });
 });

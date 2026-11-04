@@ -89,12 +89,14 @@ export function llamaAssetPatterns(os: string, arch: string, backend: SystemInfo
   return backend === 'cpu' ? [/bin-ubuntu-x64\.zip$/] : [/bin-ubuntu-vulkan-x64\.zip$/, /bin-ubuntu-x64\.zip$/];
 }
 
-/** The newest llama.cpp release build for this machine, with GitHub's SHA-256 of it. */
-export async function resolveLlamaBuild(info: SystemInfo, fetcher: typeof fetch = fetch): Promise<ResolvedFile[]> {
-  const res = await fetcher('https://api.github.com/repos/ggml-org/llama.cpp/releases/latest');
-  if (!res.ok) throw new Error(`Could not read the latest llama.cpp release (HTTP ${res.status}).`);
-  const release = (await res.json()) as { tag_name: string; assets: Array<{ name: string; browser_download_url: string; digest?: string; size?: number }> };
-  const toFile = (a: (typeof release.assets)[number]): ResolvedFile => {
+type GhAsset = { name: string; browser_download_url: string; digest?: string; size?: number };
+type GhRelease = { tag_name: string; body?: string; draft?: boolean; assets: GhAsset[] };
+
+const LLAMA_API = 'https://api.github.com/repos/ggml-org/llama.cpp/releases';
+
+/** The files to download from one release for this machine, or null if it has no build for it. */
+function pickLlamaAssets(release: GhRelease, info: SystemInfo): ResolvedFile[] | null {
+  const toFile = (a: GhAsset): ResolvedFile => {
     const sha = (a.digest || '').replace(/^sha256:/, '');
     if (!/^[a-f0-9]{64}$/i.test(sha)) throw new Error(`GitHub gave no checksum for ${a.name}, so it was not downloaded.`);
     return { url: a.browser_download_url, sha256: sha, name: a.name, sizeBytes: a.size };
@@ -111,7 +113,45 @@ export async function resolveLlamaBuild(info: SystemInfo, fetcher: typeof fetch 
     }
     return files;
   }
-  throw new Error(`llama.cpp ${release.tag_name} has no build for ${info.os} ${info.arch} (${info.backend}).`);
+  return null;
+}
+
+/**
+ * The newest llama.cpp build for this machine, with GitHub's SHA-256 of it.
+ * llama.cpp's "latest" release can be a versioned release (v0.8.0) that only points at a
+ * nightly build (b11960) where the binaries live, and the nightlies are prereleases that
+ * /releases/latest skips. So: try latest, then the nightly it names, then the recent list.
+ */
+export async function resolveLlamaBuild(info: SystemInfo, fetcher: typeof fetch = fetch): Promise<ResolvedFile[]> {
+  const get = async <T,>(url: string): Promise<T> => {
+    const res = await fetcher(url);
+    if (!res.ok) throw new Error(`Could not read llama.cpp releases from GitHub (HTTP ${res.status}).`);
+    return (await res.json()) as T;
+  };
+  const tried: string[] = [];
+  const latest = await get<GhRelease>(`${LLAMA_API}/latest`);
+  tried.push(latest.tag_name);
+  const fromLatest = pickLlamaAssets(latest, info);
+  if (fromLatest) return fromLatest;
+
+  const nightly = latest.body?.match(/\[(b\d+)\]\(https:\/\/github\.com\/ggml-org\/llama\.cpp\/releases\/tag\/b\d+\)/)?.[1];
+  if (nightly && !tried.includes(nightly)) {
+    const r = await get<GhRelease>(`${LLAMA_API}/tags/${nightly}`).catch(() => null);
+    if (r) {
+      tried.push(r.tag_name);
+      const files = pickLlamaAssets(r, info);
+      if (files) return files;
+    }
+  }
+
+  const recent = await get<GhRelease[]>(`${LLAMA_API}?per_page=10`);
+  for (const r of recent) {
+    if (r.draft || tried.includes(r.tag_name)) continue;
+    tried.push(r.tag_name);
+    const files = pickLlamaAssets(r, info);
+    if (files) return files;
+  }
+  throw new Error(`llama.cpp has no ${info.os} ${info.arch} (${info.backend}) build in its recent releases (checked ${tried.slice(0, 4).join(', ')}).`);
 }
 
 /* ------------------------------- local settings ------------------------------ */

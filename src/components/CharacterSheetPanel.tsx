@@ -31,10 +31,10 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
   character,
   onUpdateCharacter,
   onRollStat,
-  experienceCategory = 'fantasy_dnd',
+  experienceCategory = 'fantasy',
   currentLocation = 'Starting Area',
   recentStoryContext = '',
-  selectedModel = 'gemini-2.5-flash',
+  selectedModel = '',
   rulesMode = 'narrative'
 }) => {
   const full = rulesMode === 'full5e';

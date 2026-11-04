@@ -6,6 +6,7 @@ import storyIndex from 'virtual:story-index';
 import type { ExperienceCategory } from '../types';
 import { Story } from './schema';
 import { checkStory } from './validate';
+import { listImportedStories } from './importPackage';
 
 export type StoryMeta = Story['meta'];
 
@@ -33,12 +34,38 @@ export function storiesByCategory(): Map<ExperienceCategory, StoryMeta[]> {
 
 const cache = new Map<string, Story>();
 
+export const builtInIds = () => new Set(storyIndex.map((e) => e.meta.id));
+
+/** Stories imported in the app (IndexedDB), checked again on the way out. */
+export async function importedStories(): Promise<Story[]> {
+  try {
+    const all = await listImportedStories();
+    return all.filter((s) => checkStory(s).ok);
+  } catch (_) {
+    return [];
+  }
+}
+
+/** Cover URL for a full story (imported ones point into IndexedDB). */
+export function storyCoverUrl(story: Story): string | null {
+  const a = story.meta.cover ? story.art[story.meta.cover] : undefined;
+  if (!a) return null;
+  return a.url ?? `${(import.meta.env.VITE_STORY_ART_BASE || '/story-art').replace(/\/+$/, '')}/${story.meta.id}/${a.file}`;
+}
+
 /** Loads and validates a story. Throws with the validator's first error if it is broken. */
 export async function loadStory(id: string): Promise<Story> {
   const hit = cache.get(id);
   if (hit) return hit;
   const path = pathFor(id);
-  if (!path) throw new Error(`There is no story called "${id}".`);
+  if (!path) {
+    const imported = (await importedStories()).find((s) => s.meta.id === id);
+    if (imported) {
+      cache.set(id, imported);
+      return imported;
+    }
+    throw new Error(`There is no story called "${id}".`);
+  }
   const check = checkStory(await loaders[path]());
   if (!check.story) throw new Error(`"${id}" did not pass its checks: ${check.issues[0]?.at} ${check.issues[0]?.message}`);
   cache.set(id, check.story);
@@ -46,5 +73,10 @@ export async function loadStory(id: string): Promise<Story> {
 }
 
 export async function loadAllStories(): Promise<Story[]> {
-  return Promise.all(listStories().map((m) => loadStory(m.id)));
+  return [...(await Promise.all(listStories().map((m) => loadStory(m.id)))), ...(await importedStories())];
+}
+
+/** Forget a cached story (after an import replaced it). */
+export function forgetStory(id: string): void {
+  cache.delete(id);
 }

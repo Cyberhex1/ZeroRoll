@@ -89,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div>
               <h1 className="text-sm sm:text-base md:text-lg font-serif tracking-tight text-amber-50 flex items-center">
-                Roll Zero0
+                ZeroRoll
                 <span className="text-[9px] font-mono text-amber-500/80 ml-1.5 tracking-widest uppercase font-bold hidden lg:inline">
                   TTRPG ENGINE
                 </span>

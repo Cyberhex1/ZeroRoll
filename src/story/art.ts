@@ -14,6 +14,9 @@ export function artUrl(story: Story, artId: string): string | null {
   return a.url ?? `${BASE}/${story.meta.id}/${a.file}`;
 }
 
+/** Art from a story imported in the app lives only in IndexedDB, under this scheme. */
+export const LOCAL_ART = 'zr-local:';
+
 const objectUrls = new Map<string, string>();
 
 /** A URL that shows the image, from the cache when possible. Falls back to the network URL. */
@@ -22,6 +25,7 @@ export async function cachedArtUrl(url: string): Promise<string> {
   if (known) return known;
   try {
     let blob = await idb.get<Blob>('artCache', url);
+    if (!blob && url.startsWith(LOCAL_ART)) return '';
     if (!blob) {
       const res = await fetch(url);
       if (!res.ok) return url;

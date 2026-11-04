@@ -1,10 +1,12 @@
 /**
  * A small promise wrapper over IndexedDB. One database for the app's local data
- * (Story mode saves, progress and the art cache); stores are created on first open.
+ * (Story mode saves, progress, the art cache, imported stories and portraits); stores are
+ * created on first open and on upgrade.
  */
 const DB_NAME = 'zeroroll';
-const DB_VERSION = 1;
-export const STORES = ['storySaves', 'storyProgress', 'artCache'] as const;
+// v2 adds stories imported in the app and generated portraits.
+const DB_VERSION = 2;
+export const STORES = ['storySaves', 'storyProgress', 'artCache', 'userStories', 'images'] as const;
 export type StoreName = (typeof STORES)[number];
 
 let opening: Promise<IDBDatabase> | null = null;

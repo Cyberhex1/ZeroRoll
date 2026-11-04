@@ -18,7 +18,7 @@ export interface ProviderCallConfig {
   model: string;
   baseUrl?: string;
   /** PC app only: send this call to the local model in Ollama (through the Rust side). */
-  local?: { context: number };
+  local?: { context: number; promptFormat?: 'mistral' | 'gemma' };
 }
 
 export interface ProviderRequest {
@@ -551,7 +551,7 @@ async function callAnthropicApi(
  */
 async function callLocalOllama(
   model: string,
-  context: number,
+  local: NonNullable<ProviderCallConfig['local']>,
   systemPrompt: string | undefined,
   chat: ChatMessage[],
   temperature: number,
@@ -563,7 +563,7 @@ async function callLocalOllama(
   let reply: { text: string; truncated: boolean };
   try {
     reply = await invoke('ollama_chat', {
-      req: { model, system: systemPrompt, messages: chat, temperature, max_tokens: maxTokens, num_ctx: context, json: responseJson, timeout_ms: timeoutMs }
+      req: { model, system: systemPrompt, messages: chat, temperature, max_tokens: maxTokens, num_ctx: local.context, json: responseJson, timeout_ms: timeoutMs, prompt_format: local.promptFormat }
     });
   } catch (err) {
     const msg = String(err instanceof Error ? err.message : err);
@@ -602,7 +602,7 @@ export async function callProvider(cfg: ProviderCallConfig, req: ProviderRequest
     const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
     let reply: TransportReply;
     if (cfg.local) {
-      reply = await callLocalOllama(model, cfg.local.context, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider));
+      reply = await callLocalOllama(model, cfg.local, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider));
     } else if (provider === 'anthropic') {
       const baseUrl = cfg.baseUrl || AI_PROVIDERS.anthropic?.defaultBaseUrl || 'https://api.anthropic.com/v1';
       reply = await callAnthropicApi(apiKey, baseUrl, model, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider), signal);

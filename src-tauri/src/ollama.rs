@@ -191,6 +191,9 @@ pub struct ChatRequest {
     num_ctx: Option<u32>,
     json: Option<bool>,
     timeout_ms: Option<u64>,
+    /// Set for models whose GGUF has no chat template Ollama understands (some hf.co
+    /// pulls): "mistral" or "gemma". The prompt is then built here and sent raw.
+    prompt_format: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -199,35 +202,106 @@ pub struct ChatReply {
     truncated: bool,
 }
 
-/// One non-streaming chat turn through Ollama's /api/chat.
+/// Builds a raw prompt in the model's own chat format, plus the stop strings that end its turn.
+/// The BOS token is left to the tokenizer, which adds it for these models.
+pub(crate) fn build_prompt(format: &str, system: Option<&str>, messages: &[Value]) -> Option<(String, Vec<&'static str>)> {
+    let system = system.filter(|s| !s.trim().is_empty());
+    let turns: Vec<(&str, &str)> = messages.iter().map(|m| (m["role"].as_str().unwrap_or("user"), m["content"].as_str().unwrap_or(""))).collect();
+    let last_user = turns.iter().rposition(|(r, _)| *r != "assistant");
+    let mut out = String::new();
+    match format {
+        // Mistral Nemo / Tekken: the system prompt goes at the top of the last user turn.
+        "mistral" => {
+            for (i, (role, text)) in turns.iter().enumerate() {
+                if *role == "assistant" {
+                    out.push_str(text);
+                    out.push_str("</s>");
+                } else {
+                    out.push_str("[INST]");
+                    if let (Some(sys), true) = (system, Some(i) == last_user) {
+                        out.push_str(sys);
+                        out.push_str("\n\n");
+                    }
+                    out.push_str(text);
+                    out.push_str("[/INST]");
+                }
+            }
+            Some((out, vec!["</s>", "[INST]"]))
+        }
+        // Gemma: no system role; the system prompt opens the first user turn.
+        "gemma" => {
+            for (i, (role, text)) in turns.iter().enumerate() {
+                let who = if *role == "assistant" { "model" } else { "user" };
+                out.push_str(&format!("<start_of_turn>{who}\n"));
+                if let (Some(sys), true, "user") = (system, i == 0, who) {
+                    out.push_str(sys);
+                    out.push_str("\n\n");
+                }
+                out.push_str(text);
+                out.push_str("<end_of_turn>\n");
+            }
+            out.push_str("<start_of_turn>model\n");
+            Some((out, vec!["<end_of_turn>", "<start_of_turn>"]))
+        }
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::build_prompt;
+    use serde_json::json;
+
+    #[test]
+    fn mistral_puts_the_system_prompt_in_the_last_user_turn() {
+        let msgs = [json!({"role":"user","content":"Hi"}), json!({"role":"assistant","content":"Hello."}), json!({"role":"user","content":"Go on"})];
+        let (p, stop) = build_prompt("mistral", Some("Be brief."), &msgs).unwrap();
+        assert_eq!(p, "[INST]Hi[/INST]Hello.</s>[INST]Be brief.\n\nGo on[/INST]");
+        assert!(stop.contains(&"[INST]"));
+    }
+
+    #[test]
+    fn gemma_ends_on_an_open_model_turn() {
+        let (p, _) = build_prompt("gemma", Some("Be brief."), &[json!({"role":"user","content":"Hi"})]).unwrap();
+        assert_eq!(p, "<start_of_turn>user\nBe brief.\n\nHi<end_of_turn>\n<start_of_turn>model\n");
+    }
+
+    #[test]
+    fn unknown_formats_use_ollamas_own_template() {
+        assert!(build_prompt("chatml", None, &[]).is_none());
+    }
+}
+
+/// One non-streaming chat turn: /api/chat with Ollama's template, or /api/generate with a
+/// raw prompt when the model needs its format built here.
 #[tauri::command]
 pub async fn ollama_chat(req: ChatRequest) -> Result<ChatReply, String> {
     let c = client(Duration::from_millis(req.timeout_ms.unwrap_or(90_000)))?;
-    let mut messages = vec![];
-    if let Some(s) = req.system.filter(|s| !s.is_empty()) {
-        messages.push(json!({ "role": "system", "content": s }));
-    }
-    messages.extend(req.messages);
-    let mut body = json!({
-        "model": req.model,
-        "messages": messages,
-        "stream": false,
-        "options": {
-            "temperature": req.temperature.unwrap_or(0.8),
-            "num_predict": req.max_tokens.unwrap_or(1024),
-            "num_ctx": req.num_ctx.unwrap_or(8192),
-        },
+    let mut options = json!({
+        "temperature": req.temperature.unwrap_or(0.8),
+        "num_predict": req.max_tokens.unwrap_or(1024),
+        "num_ctx": req.num_ctx.unwrap_or(8192),
     });
+    let raw = req.prompt_format.as_deref().and_then(|f| build_prompt(f, req.system.as_deref(), &req.messages));
+    let (url, mut body) = if let Some((prompt, stop)) = raw {
+        options["stop"] = json!(stop);
+        (format!("{BASE}/api/generate"), json!({ "model": req.model, "prompt": prompt, "raw": true, "stream": false, "options": options }))
+    } else {
+        let mut messages = vec![];
+        if let Some(s) = req.system.filter(|s| !s.is_empty()) {
+            messages.push(json!({ "role": "system", "content": s }));
+        }
+        messages.extend(req.messages);
+        (format!("{BASE}/api/chat"), json!({ "model": req.model, "messages": messages, "stream": false, "options": options }))
+    };
     if req.json.unwrap_or(false) {
         body["format"] = json!("json");
     }
-    let res = c.post(format!("{BASE}/api/chat")).json(&body).send().await.map_err(conn_err)?;
+    let res = c.post(url).json(&body).send().await.map_err(conn_err)?;
     if !res.status().is_success() {
         return Err(error_text(res).await);
     }
     let v: Value = res.json().await.map_err(|e| format!("Ollama sent an unreadable reply: {e}"))?;
-    Ok(ChatReply {
-        text: v["message"]["content"].as_str().unwrap_or("").to_string(),
-        truncated: v["done_reason"].as_str() == Some("length"),
-    })
+    let text = v["message"]["content"].as_str().or_else(|| v["response"].as_str()).unwrap_or("");
+    Ok(ChatReply { text: text.trim().to_string(), truncated: v["done_reason"].as_str() == Some("length") })
 }

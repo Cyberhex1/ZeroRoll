@@ -1,40 +1,40 @@
 {
-  "$comment": "Local model picks per VRAM band: one regular and one uncensored (shown only when Mature content is on). `ollama` is the tag pulled through Ollama (library tags, or hf.co/<repo>:<quant> for Hugging Face GGUFs); Ollama checks each layer's SHA-256. Sizes are approximate downloads. verified=false until the model was pulled and played on a real machine.",
+  "$comment": "Local model picks per VRAM band: one regular and one uncensored (shown only when Mature content is on). `ollama` is the tag pulled through Ollama (library tags, or hf.co/<repo>:<quant> for Hugging Face GGUFs); Ollama checks each layer's SHA-256. Sizes are approximate downloads. `promptFormat` (mistral or gemma) makes the app build the chat prompt itself for hf.co models whose template Ollama does not pick up. verified=false until the model was pulled and played on a real machine.",
   "bands": [
     {
       "id": "cpu",
       "label": "No usable GPU (runs on the CPU, slow)",
       "minVramGb": 0,
       "regular": { "name": "Gemma 3 4B", "ollama": "gemma3:4b", "sizeGb": 3.3, "context": 4096, "verified": false },
-      "uncensored": { "name": "Gemma 3 4B abliterated", "ollama": "hf.co/mlabonne/gemma-3-4b-it-abliterated-GGUF:Q4_K_M", "sizeGb": 2.5, "context": 4096, "verified": false }
+      "uncensored": { "name": "Gemma 3 4B abliterated", "ollama": "hf.co/mlabonne/gemma-3-4b-it-abliterated-GGUF:Q4_K_M", "promptFormat": "gemma", "sizeGb": 2.5, "context": 4096, "verified": false }
     },
     {
       "id": "6gb",
       "label": "6 to 8 GB VRAM",
       "minVramGb": 5.5,
       "regular": { "name": "Gemma 3 4B (high quality)", "ollama": "gemma3:4b-it-q8_0", "sizeGb": 5.0, "context": 8192, "verified": false },
-      "uncensored": { "name": "Gemma 3 4B abliterated (high quality)", "ollama": "hf.co/mlabonne/gemma-3-4b-it-abliterated-GGUF:Q8_0", "sizeGb": 4.1, "context": 8192, "verified": false }
+      "uncensored": { "name": "Gemma 3 4B abliterated (high quality)", "ollama": "hf.co/mlabonne/gemma-3-4b-it-abliterated-GGUF:Q8_0", "promptFormat": "gemma", "sizeGb": 4.1, "context": 8192, "verified": false }
     },
     {
       "id": "10gb",
       "label": "10 to 15 GB VRAM",
       "minVramGb": 9.5,
       "regular": { "name": "Gemma 3 12B", "ollama": "gemma3:12b", "sizeGb": 8.1, "context": 8192, "verified": false },
-      "uncensored": { "name": "Rocinante 12B", "ollama": "hf.co/TheDrummer/Rocinante-12B-v1.1-GGUF:Q4_K_M", "sizeGb": 7.5, "context": 8192, "verified": false }
+      "uncensored": { "name": "Rocinante 12B", "ollama": "hf.co/TheDrummer/Rocinante-12B-v1.1-GGUF:Q4_K_M", "promptFormat": "mistral", "sizeGb": 7.5, "context": 8192, "verified": false }
     },
     {
       "id": "16gb",
       "label": "16 to 23 GB VRAM",
       "minVramGb": 15.5,
       "regular": { "name": "Mistral Small 3.2 24B", "ollama": "mistral-small3.2:24b", "sizeGb": 15, "context": 8192, "verified": false },
-      "uncensored": { "name": "Rocinante 12B (high quality)", "ollama": "hf.co/TheDrummer/Rocinante-12B-v1.1-GGUF:Q8_0", "sizeGb": 13.0, "context": 16384, "verified": false }
+      "uncensored": { "name": "Rocinante 12B (high quality)", "ollama": "hf.co/TheDrummer/Rocinante-12B-v1.1-GGUF:Q8_0", "promptFormat": "mistral", "sizeGb": 13.0, "context": 16384, "verified": false }
     },
     {
       "id": "24gb",
       "label": "24 GB VRAM or more",
       "minVramGb": 23,
       "regular": { "name": "Gemma 3 27B", "ollama": "gemma3:27b", "sizeGb": 17, "context": 16384, "verified": false },
-      "uncensored": { "name": "Mistral Small 3.2 24B (high quality)", "ollama": "hf.co/bartowski/mistralai_Mistral-Small-3.2-24B-Instruct-2506-GGUF:Q6_K", "sizeGb": 19.3, "context": 16384, "verified": false }
+      "uncensored": { "name": "Mistral Small 3.2 24B (high quality)", "ollama": "hf.co/bartowski/mistralai_Mistral-Small-3.2-24B-Instruct-2506-GGUF:Q6_K", "promptFormat": "mistral", "sizeGb": 19.3, "context": 16384, "verified": false }
     }
   ]
 }

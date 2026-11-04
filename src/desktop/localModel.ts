@@ -10,6 +10,8 @@ export interface ModelPick {
   name: string;
   /** Ollama tag, e.g. "gemma3:12b" or "hf.co/<repo>:<quant>". */
   ollama: string;
+  /** Build the chat prompt in this format instead of relying on the GGUF's template. */
+  promptFormat?: 'mistral' | 'gemma';
   sizeGb: number;
   context: number;
   verified: boolean;
@@ -93,8 +95,15 @@ export function saveLocalModelSettings(s: LocalModelSettings): void {
 }
 
 /** The local model for the router's basic tier, or null when it should not be used. */
-export function localBasicTier(): { model: string; context: number } | null {
+export function localBasicTier(): { model: string; context: number; promptFormat?: ModelPick['promptFormat'] } | null {
   if (!isTauri()) return null;
   const s = getLocalModelSettings();
-  return s.enabled && s.model ? { model: s.model, context: s.context ?? 8192 } : null;
+  if (!s.enabled || !s.model) return null;
+  return { model: s.model, context: s.context ?? 8192, promptFormat: pickForTag(s.model)?.promptFormat };
+}
+
+/** The recommendation a pulled tag came from, if any. */
+export function pickForTag(tag: string): ModelPick | undefined {
+  for (const b of BANDS) for (const p of [b.regular, b.uncensored]) if (p.ollama.toLowerCase() === tag.toLowerCase()) return p;
+  return undefined;
 }

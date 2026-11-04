@@ -26,6 +26,12 @@ describe('local model transport (Ollama via Rust)', () => {
     expect(calls.at(-1)).toEqual(['ollama_chat', { req: expect.objectContaining({ model: 'gemma3:12b', system: 'Be brief.', num_ctx: 8192, max_tokens: 50 }) }]);
   });
 
+  it('passes the prompt format for models Ollama has no template for', async () => {
+    answer = async () => ({ text: 'Well met.', truncated: false });
+    await callProvider({ ...cfg, local: { context: 8192, promptFormat: 'mistral' } }, { messages: [{ role: 'user', content: 'Hi' }] });
+    expect(calls.at(-1)?.[1]).toEqual({ req: expect.objectContaining({ prompt_format: 'mistral' }) });
+  });
+
   it('reports Ollama not running as a network error so the router steps on', async () => {
     answer = fail('Ollama is not running on this PC.');
     expect(await kindOf()).toBe('network');

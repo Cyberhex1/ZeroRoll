@@ -28,7 +28,7 @@ export interface RouteStep {
   /** Where the model choice came from. */
   source: 'override' | 'player' | 'models.json' | 'local';
   /** Set for the PC app's local model in Ollama, which is not a configured provider. */
-  local?: { context: number };
+  local?: { context: number; promptFormat?: 'mistral' | 'gemma' };
 }
 
 export interface RouterAttempt extends RouteStep {
@@ -152,7 +152,7 @@ export function planRoute(tier: Tier): RouteStep[] {
   for (const provider of providers) {
     for (const t of tierLadder(tier)) {
       if (t === 'basic' && local && provider === active) {
-        push({ provider: 'custom', model: local.model, tier: 'basic', source: 'local', local: { context: local.context } });
+        push({ provider: 'custom', model: local.model, tier: 'basic', source: 'local', local: { context: local.context, promptFormat: local.promptFormat } });
       }
       const o = overrides[t];
       if (o && provider === active) push({ provider: o.provider, model: o.model, tier: t, source: 'override' });

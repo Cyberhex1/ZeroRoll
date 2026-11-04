@@ -27,6 +27,7 @@ import {
 } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { Experience, UserProfile, UserSettings } from '../types';
+import type { KeyVault } from './keyVault';
 
 // Initialize Firebase App
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -296,6 +297,28 @@ export async function purgeCloudProviderKeys(userId: string): Promise<void> {
     await updateDoc(doc(db, 'users', userId), { 'settings.providerKeys': deleteField() });
   } catch (err: any) {
     const info = handleFirestoreError(err, OperationType.WRITE, `users/${userId}/settings.providerKeys`);
+    throw new Error(info.error);
+  }
+}
+
+/** Encrypted key vault (opt-in key sync). Only ciphertext is stored; null deletes it. */
+export async function saveKeyVaultToCloud(userId: string, vault: KeyVault | null): Promise<void> {
+  if (!userId || userId === 'guest') return;
+  try {
+    await setDoc(doc(db, 'users', userId), { keyVault: vault ?? deleteField(), updatedAt: new Date().toISOString() }, { merge: true });
+  } catch (err: any) {
+    const info = handleFirestoreError(err, OperationType.WRITE, `users/${userId}/keyVault`);
+    throw new Error(info.error);
+  }
+}
+
+export async function loadKeyVaultFromCloud(userId: string): Promise<unknown | null> {
+  if (!userId || userId === 'guest') return null;
+  try {
+    const snap = await getDoc(doc(db, 'users', userId));
+    return snap.exists() ? snap.data()?.keyVault ?? null : null;
+  } catch (err: any) {
+    const info = handleFirestoreError(err, OperationType.GET, `users/${userId}/keyVault`);
     throw new Error(info.error);
   }
 }

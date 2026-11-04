@@ -13,6 +13,7 @@ import { User } from 'firebase/auth';
 import { getActiveProvider, getProviderModel } from '../lib/geminiService';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { BackupPanel } from './BackupPanel';
+import { KeySyncPanel } from './KeySyncPanel';
 
 interface SettingsModalProps {
   user: User | null;
@@ -163,10 +164,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Section 3: Backup */}
+        {/* Section 3: Opt-in encrypted key sync */}
+        <KeySyncPanel user={user} />
+
+        {/* Section 4: Backup */}
         <BackupPanel />
 
-        {/* Section 4: Custom Game Master Directives */}
+        {/* Section 5: Custom Game Master Directives */}
         <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">
           <h3 className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider flex items-center gap-2">
             <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />

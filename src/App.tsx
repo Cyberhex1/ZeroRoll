@@ -26,6 +26,7 @@ import {
   generateScenarioAI
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
+import { watchKeyChanges } from './lib/keySync';
 import { Navbar } from './components/Navbar';
 import { AIStatusBanner } from './components/AIStatusBanner';
 import { CategoriesGrid } from './components/CategoriesGrid';
@@ -155,6 +156,13 @@ export default function App() {
   // ---------------------------------------------------------------------------
   // Auth State — the authoritative source for user identity and cloud data
   // ---------------------------------------------------------------------------
+  // Opt-in key sync: re-encrypt and upload when a key changes (does nothing while sync is off).
+  useEffect(() => {
+    if (!user || user.isAnonymous) return;
+    return watchKeyChanges(user.uid, showCloudSaveError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
+
   useEffect(() => {
     // Process redirect sign-in if returning from Google redirect
     checkRedirectAuthResult();

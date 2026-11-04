@@ -94,7 +94,15 @@ export function getProviderKey(provider: AIProviderId): string {
   return getStoredProviderKey(provider);
 }
 
+// Listeners for key changes (opt-in key sync re-seals the vault when a key changes).
+const keyListeners = new Set<() => void>();
+export function subscribeProviderKeyChanges(listener: () => void): () => void {
+  keyListeners.add(listener);
+  return () => keyListeners.delete(listener);
+}
+
 export function setProviderKey(provider: AIProviderId, key: string): void {
+  queueMicrotask(() => keyListeners.forEach((l) => l()));
   try {
     if (key && key.trim()) {
       localStorage.setItem(`zeroroll_key_${provider}`, key.trim());

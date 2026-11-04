@@ -796,7 +796,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         {/* Modal: Create Experience Setup */}
         {selectedCategoryModal && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...setupDialog.overlayProps}>
-            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200" {...setupDialog.dialogProps}>
+            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 pb-0 sm:p-6 sm:pb-0 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200" {...setupDialog.dialogProps}>
               
               {/* Header */}
               <div className="flex items-start justify-between border-b border-white/10 pb-3">
@@ -1249,7 +1249,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
               )}
 
               {/* Actions Footer (Sticky on Mobile) */}
-              <div className="sticky bottom-0 bg-[#111118]/95 backdrop-blur-md pt-3 pb-safe border-t border-white/10 flex flex-wrap items-center justify-end gap-2 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 px-4 sm:px-6 z-10">
+              <div className="sticky bottom-0 bg-[#111118]/95 backdrop-blur-md pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-6 border-t border-white/10 flex flex-wrap items-center justify-end gap-2 -mx-4 sm:-mx-6 px-4 sm:px-6 z-10">
                 {chapterOneFailure && (
                   <div role="alert" className="w-full p-2.5 rounded bg-red-950/70 border border-red-700/50 text-[11px] text-red-100 space-y-2">
                     <p>

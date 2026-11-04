@@ -220,6 +220,294 @@ export const psychedelicTrip = {
         "Astral Float"
       ],
       "hp": 10
+    },
+    {
+      "id": "seed_psy_03",
+      "title": "The Orchard of Borrowed Echoes",
+      "tagline": "Tomorrow's farewell has ripened before its speaker is ready.",
+      "premise": "You step into an orchard where fruit repeats tomorrow's farewells and a transparent gardener asks which voice you will return before the roots learn it.",
+      "hero": {
+        "name": "Serein Lilt",
+        "role": "Echo Gardener",
+        "origin": "Reverie-born"
+      },
+      "actions": [
+        "Taste the echo in the lowest silver fruit.",
+        "Ask the transparent gardener whose roots are learning the voice.",
+        "Hum a new greeting into the branch before it closes."
+      ],
+      "gear": [
+        {
+          "name": "Tuning Fork Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Echo Fruit",
+          "type": "relic"
+        },
+        {
+          "name": "Velvet Pouch",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Echo Graft",
+        "Color Hearing"
+      ],
+      "hp": 10
+    },
+    {
+      "id": "seed_psy_04",
+      "title": "The Staircase That Tastes of Rain",
+      "tagline": "A folding sun is closing the landing above your tongue.",
+      "premise": "You cross a doorway into stairs that taste blue beneath your feet while a paper sun folds shut around the landing you meant to reach.",
+      "hero": {
+        "name": "Vela Prismatic",
+        "role": "Threshold Cartographer",
+        "origin": "Lucid Dreamer"
+      },
+      "actions": [
+        "Follow the taste of rain toward the next indigo step.",
+        "Ask the paper sun to leave one crease unfolded.",
+        "Sketch the staircase's changing rhythm in the air."
+      ],
+      "gear": [
+        {
+          "name": "Prism Rod",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Folded Raincoat",
+          "type": "misc"
+        },
+        {
+          "name": "Stair Chalk",
+          "type": "relic"
+        }
+      ],
+      "spells": [
+        "Prism Step",
+        "Taste Weather"
+      ],
+      "hp": 11
+    },
+    {
+      "id": "seed_psy_05",
+      "title": "The Museum of Almost",
+      "tagline": "A possibility has stepped out to look for its missing choice.",
+      "premise": "You enter a museum of choices never made and find your unfinished reflection climbing out of its frame as the corridors rearrange around its footsteps.",
+      "hero": {
+        "name": "Nacre Sol",
+        "role": "Possibility Restorer",
+        "origin": "Mirror-born"
+      },
+      "actions": [
+        "Match your reflection's pace without entering its frame.",
+        "Ask the nearest unfinished portrait which corridor remembers you.",
+        "Turn the empty frame toward a choice you can still make."
+      ],
+      "gear": [
+        {
+          "name": "Frame Cane",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Blank Exhibition Ticket",
+          "type": "relic"
+        },
+        {
+          "name": "Silver Cloth",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Frame Turn",
+        "Possibility Sense"
+      ],
+      "hp": 10
+    },
+    {
+      "id": "seed_psy_06",
+      "title": "A Sea Sewn from Sleeves",
+      "tagline": "Your coat has become a sea that needs a reason to sail.",
+      "premise": "You unfold a coat into a phosphorescent sea where the buttons are islands and a needle-shaped boat demands the memory that will serve as its sail.",
+      "hero": {
+        "name": "Omi Afterlight",
+        "role": "Memory Tailor",
+        "origin": "Daydream Wanderer"
+      },
+      "actions": [
+        "Offer the boat a remembered direction rather than a destination.",
+        "Unfasten one island-button to slow the phosphorescent current.",
+        "Ask the needle boat which stitch keeps the sea together."
+      ],
+      "gear": [
+        {
+          "name": "Silver Needle Pike",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Ocean Coat",
+          "type": "relic"
+        },
+        {
+          "name": "Spool of Moon Thread",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Memory Stitch",
+        "Tide Fold"
+      ],
+      "hp": 11
+    },
+    {
+      "id": "seed_psy_07",
+      "title": "The Choir Under Your Footprint",
+      "tagline": "One footprint is singing after its walker has vanished.",
+      "premise": "You arrive on a shore of humming footprints and hear one singing without its walker while a tide of silence approaches the unfinished song.",
+      "hero": {
+        "name": "Quillan Hush",
+        "role": "Resonance Listener",
+        "origin": "Thoughtform"
+      },
+      "actions": [
+        "Answer the lonely footprint with a note of your own.",
+        "Follow the fading song away from the tide of silence.",
+        "Ask the surrounding footprints what shape the walker left."
+      ],
+      "gear": [
+        {
+          "name": "Resonance Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Shell of Hums",
+          "type": "relic"
+        },
+        {
+          "name": "Felt Pouch",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Echo Trace",
+        "Sound Shelter"
+      ],
+      "hp": 10
+    },
+    {
+      "id": "seed_psy_08",
+      "title": "The Umbrella of Sideways Seasons",
+      "tagline": "Four seasons are falling; only one can find the ground.",
+      "premise": "You open an umbrella under a violet sky and four seasons fall sideways from its ribs as a snowflower asks you to choose which season may touch ground.",
+      "hero": {
+        "name": "Luma Venn",
+        "role": "Weather Interpreter",
+        "origin": "Betweenworld Traveler"
+      },
+      "actions": [
+        "Tilt the umbrella toward the season the snowflower can bear.",
+        "Ask each falling season what it will leave behind.",
+        "Catch one sideways raindrop to weigh its unspent spring."
+      ],
+      "gear": [
+        {
+          "name": "Season Cane",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Four-Rib Umbrella",
+          "type": "relic"
+        },
+        {
+          "name": "Clear Vial",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Season Tilt",
+        "Gravity Fold"
+      ],
+      "hp": 11
+    },
+    {
+      "id": "seed_psy_09",
+      "title": "The Door in the Sleeping Color",
+      "tagline": "Amber has fallen asleep with every yellow door locked inside it.",
+      "premise": "You enter a field where amber has fallen asleep and every yellow doorway locks while a blue silhouette offers its own outline as a temporary key.",
+      "hero": {
+        "name": "Eno Saffron",
+        "role": "Chromatic Wayfinder",
+        "origin": "Spectrum-born"
+      },
+      "actions": [
+        "Listen for the sleeping color's slowest pulse.",
+        "Ask the blue silhouette what lending its outline will cost.",
+        "Trace a temporary doorway using the dawn at your feet."
+      ],
+      "gear": [
+        {
+          "name": "Spectrum Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Borrowed Outline",
+          "type": "relic"
+        },
+        {
+          "name": "Dawn Thread",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Color Wake",
+        "Outline Step"
+      ],
+      "hp": 10
+    },
+    {
+      "id": "seed_psy_10",
+      "title": "The Parade of Unfinished Faces",
+      "tagline": "The procession is waiting for a name you have not given it.",
+      "premise": "You cross a bridge of folded laughter into a procession of blank masks and find the final face forming from the name you have not yet spoken.",
+      "hero": {
+        "name": "Ruelle Chime",
+        "role": "Dream Maskmaker",
+        "origin": "Cloud-memory Being"
+      },
+      "actions": [
+        "Turn the unfinished mask toward a sound that belongs to nobody.",
+        "Ask the nearest blank face where the parade began.",
+        "Fold a bridge of laughter toward the procession's open end."
+      ],
+      "gear": [
+        {
+          "name": "Maskmaker's Wand",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Unfinished Mask",
+          "type": "relic"
+        },
+        {
+          "name": "Ribbon of Laughter",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Face Weave",
+        "Name Echo"
+      ],
+      "hp": 11
     }
   ],
   "tropes": [

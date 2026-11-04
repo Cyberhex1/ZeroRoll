@@ -303,6 +303,171 @@ export const realLife = {
       ],
       "spells": [],
       "hp": 10
+    },
+    {
+      "id": "seed_rl_06",
+      "title": "The Shift Nobody Claimed",
+      "tagline": "Two tired coworkers were promised the same morning.",
+      "premise": "You unlock a station cafe before rush hour and find the rota changed overnight while two exhausted coworkers each insist the opening shift was promised to the other.",
+      "hero": {
+        "name": "Naomi Serrano",
+        "role": "Cafe Shift Lead",
+        "origin": "Queens-raised human"
+      },
+      "actions": [
+        "Compare the changed rota with the shift messages.",
+        "Ask both coworkers which hours they can actually cover.",
+        "Call the owner before opening the busiest service window."
+      ],
+      "gear": [
+        {
+          "name": "Cafe Utility Tool",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Shift Notebook",
+          "type": "misc"
+        },
+        {
+          "name": "Apron",
+          "type": "armor"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_rl_07",
+      "title": "The Ramp Before the Opening",
+      "tagline": "The opening cannot be welcoming until the entrance works.",
+      "premise": "You reach a small exhibition venue and discover the hired access ramp does not fit as the first invited guests arrive outside its stepped entrance.",
+      "hero": {
+        "name": "Devika Rao",
+        "role": "Exhibition Producer",
+        "origin": "City-born human"
+      },
+      "actions": [
+        "Measure the doorway and the ramp before moving equipment.",
+        "Ask the venue team to open the accessible side entrance.",
+        "Tell the arriving guests plainly what is being fixed."
+      ],
+      "gear": [
+        {
+          "name": "Exhibition Multitool",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Tape Measure",
+          "type": "misc"
+        },
+        {
+          "name": "Venue Contact List",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_rl_08",
+      "title": "The Interview Without a Room",
+      "tagline": "One panel, one slot, two people trying to stay composed.",
+      "premise": "You arrive for a final interview and find another candidate assigned the same panel and time while the receptionist asks which of you will go first.",
+      "hero": {
+        "name": "Elliot Brooks",
+        "role": "Job Applicant",
+        "origin": "Commuter-town human"
+      },
+      "actions": [
+        "Show the receptionist your confirmation without blaming the other candidate.",
+        "Ask the panel coordinator to explain the duplicated booking.",
+        "Compare availability with the other candidate for a fair adjustment."
+      ],
+      "gear": [
+        {
+          "name": "Key-Ring Multitool",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Interview Folder",
+          "type": "misc"
+        },
+        {
+          "name": "Travel Bottle",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 9
+    },
+    {
+      "id": "seed_rl_09",
+      "title": "The Deposit on Table Four",
+      "tagline": "Two anniversaries have arrived for one carefully set table.",
+      "premise": "You check an evening booking at a neighborhood restaurant and discover two families paid deposits for the same anniversary table as both parties enter together.",
+      "hero": {
+        "name": "Ines Duarte",
+        "role": "Restaurant Bookings Coordinator",
+        "origin": "Riverside-raised human"
+      },
+      "actions": [
+        "Check both deposit receipts against the booking history.",
+        "Ask each family which part of the evening matters most.",
+        "Offer the private alcove after confirming it is truly available."
+      ],
+      "gear": [
+        {
+          "name": "Service Corkscrew",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Booking Tablet",
+          "type": "misc"
+        },
+        {
+          "name": "Receipt Folder",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_rl_10",
+      "title": "The Last Box in the Lift",
+      "tagline": "Ten minutes of lift access will not move everybody's day.",
+      "premise": "You meet neighbors at a moving-day lift and learn its maintenance shutdown starts in ten minutes while an older resident's essential belongings remain upstairs.",
+      "hero": {
+        "name": "Kareem Bell",
+        "role": "Tenant Organizer",
+        "origin": "Estate-raised human"
+      },
+      "actions": [
+        "Ask the maintenance crew whether a safe brief delay is possible.",
+        "Identify the resident's essential boxes before moving anything else.",
+        "Organize neighbors to clear the lift's waiting area."
+      ],
+      "gear": [
+        {
+          "name": "Pocket Multitool",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Building Contact Sheet",
+          "type": "misc"
+        },
+        {
+          "name": "Moving Straps",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
     }
   ],
   "tropes": [

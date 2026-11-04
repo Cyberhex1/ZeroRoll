@@ -279,6 +279,204 @@ export const zombie = {
       ],
       "spells": [],
       "hp": 10
+    },
+    {
+      "id": "seed_zom_05",
+      "title": "The Dialysis Window",
+      "tagline": "One powered station cannot solve two interrupted treatments.",
+      "premise": "You begin a clinic shift when backup lighting fails and an evacuation message leaves one powered treatment station between two patients as infected figures reach the locked entrance.",
+      "hero": {
+        "name": "Priya Mendel",
+        "role": "Dialysis Technician",
+        "origin": "City-raised human"
+      },
+      "actions": [
+        "Check the transfer kits and backup battery before moving either patient.",
+        "Ask the evacuation team to confirm a receiving clinic.",
+        "Brace the entrance while the waiting staff prepare a safe transfer."
+      ],
+      "gear": [
+        {
+          "name": "Emergency Pry Bar",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Transfer Checklist",
+          "type": "misc"
+        },
+        {
+          "name": "Battery Torch",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_zom_06",
+      "title": "The Laundry Chute Route",
+      "tagline": "The service floor's only clear route was built for linen.",
+      "premise": "You collect linen on a hospital service floor when a quarantine shutter drops and a colleague signals from beyond it beside the only clear laundry chute.",
+      "hero": {
+        "name": "Owen Calder",
+        "role": "Hospital Porter",
+        "origin": "River-district human"
+      },
+      "actions": [
+        "Check the chute's lower landing before attempting a descent.",
+        "Ask your colleague to pass the keycard beneath the shutter.",
+        "Secure a linen line to the fixed stair rail for a controlled retreat."
+      ],
+      "gear": [
+        {
+          "name": "Maintenance Crowbar",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Linen Cord",
+          "type": "misc"
+        },
+        {
+          "name": "Work Gloves",
+          "type": "armor"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_zom_07",
+      "title": "The Cold Chain Detour",
+      "tagline": "Your delivery is warming while the receiving bay falls.",
+      "premise": "You bring temperature-sensitive supplies to a relief depot and find its receiving bay compromised while your cooler alarm counts down beside a waiting family.",
+      "hero": {
+        "name": "Salma Idris",
+        "role": "Medical Courier",
+        "origin": "Coastal-city human"
+      },
+      "actions": [
+        "Check the sealed cooler against the alternate depot address.",
+        "Signal the waiting family toward the screened side entrance.",
+        "Call the relief coordinator to confirm a clear unloading point."
+      ],
+      "gear": [
+        {
+          "name": "Vehicle Tire Iron",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Insulated Cooler",
+          "type": "misc"
+        },
+        {
+          "name": "Route Card",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_zom_08",
+      "title": "The School Bus at Triage",
+      "tagline": "The safe gate is closing before the last passengers arrive.",
+      "premise": "You reach a temporary triage lot with an empty school bus as the shelter closes its gate and a stranded group pounds on an adjacent clinic window.",
+      "hero": {
+        "name": "Mateo Reyes",
+        "role": "Evacuation Driver",
+        "origin": "Suburban-raised human"
+      },
+      "actions": [
+        "Ask the gate team to hold a visible pickup lane.",
+        "Signal the clinic group toward the bus's sheltered side.",
+        "Inspect the service-road exit before committing the bus."
+      ],
+      "gear": [
+        {
+          "name": "Bus Emergency Hammer",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Key Ring",
+          "type": "misc"
+        },
+        {
+          "name": "Battery Radio",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_zom_09",
+      "title": "The Red Light in the Kennel",
+      "tagline": "The dogs can hear the danger gathering outside.",
+      "premise": "You open a shelter's isolation wing after a quarantine alert and find a bitten volunteer holding the keys while frightened dogs threaten to draw the infected outside.",
+      "hero": {
+        "name": "Leah Okafor",
+        "role": "Animal Shelter Attendant",
+        "origin": "County-born human"
+      },
+      "actions": [
+        "Ask the volunteer to set the keys down without approaching.",
+        "Close the inner sound barrier to quiet the frightened dogs.",
+        "Radio the evacuation team with the isolation wing's location."
+      ],
+      "gear": [
+        {
+          "name": "Kennel Breaker Bar",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Key Ring",
+          "type": "misc"
+        },
+        {
+          "name": "Thick Work Gloves",
+          "type": "armor"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_zom_10",
+      "title": "The Apartment Intercom Test",
+      "tagline": "A resident is waiting above a stairwell full of movement.",
+      "premise": "You test an apartment intercom after a lockdown broadcast and hear a trapped resident whisper from a floor whose stairwell camera shows movement at every landing.",
+      "hero": {
+        "name": "Jin Parke",
+        "role": "Building Caretaker",
+        "origin": "High-rise human"
+      },
+      "actions": [
+        "Ask the resident to stay behind a locked interior door.",
+        "Compare the camera landings to locate a clear service route.",
+        "Test the roof intercom without opening the stairwell access."
+      ],
+      "gear": [
+        {
+          "name": "Maintenance Pry Bar",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Building Master Keys",
+          "type": "misc"
+        },
+        {
+          "name": "Battery Torch",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
     }
   ],
   "tropes": [

@@ -107,3 +107,17 @@ export async function mergeMemories(memory: MemoryState, turn: number, complete:
     return { memory, ok: false };
   }
 }
+
+/**
+ * The summarizer runs in the background while the player may keep playing. This turns
+ * its result into a patch for whatever the memory is by the time it finishes: the new
+ * summary and newly proposed facts, unless a later run already covered more turns.
+ */
+export function summaryPatch(before: MemoryState, after: MemoryState): (current: MemoryState) => MemoryState {
+  const known = new Set(before.pending.map((p) => p.id));
+  const added = after.pending.filter((p) => !known.has(p.id));
+  return (cur) =>
+    cur.summarizedThrough >= after.summarizedThrough
+      ? cur
+      : { ...cur, summary: after.summary, summarizedThrough: after.summarizedThrough, pending: [...cur.pending, ...added] };
+}

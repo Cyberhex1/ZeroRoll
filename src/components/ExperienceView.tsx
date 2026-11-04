@@ -21,23 +21,10 @@ import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
 import { executeActionTurn, generateAvatarAI, getLastModelUsedLabel } from '../lib/geminiService';
-
-// Sending the entire log every turn makes each reply slower and costlier as the story grows.
-// Keep the opening scene for context plus the most recent exchanges; the story outline
-// carries the long-range plot.
-const RECENT_LOG_MESSAGES = 30;
-
-function buildRecentStoryLog(logs: LogMessage[]): string {
-  const story = logs.filter(l => l.sender !== 'system');
-  const format = (l: LogMessage) => `${l.sender.toUpperCase()}: ${l.text}`;
-  if (story.length <= RECENT_LOG_MESSAGES + 1) return story.map(format).join('\n');
-  const recent = story.slice(-RECENT_LOG_MESSAGES);
-  return [
-    format(story[0]),
-    `[... ${story.length - RECENT_LOG_MESSAGES - 1} earlier messages omitted ...]`,
-    ...recent.map(format)
-  ].join('\n');
-}
+import { complete } from '../ai/router';
+import { buildDndContext, experienceMemory, maybeSummarizeExperience, memoryFromTurn } from '../dnd/memory';
+import { mergeMemories } from '../memory/summarizer';
+import MemoryPanel from '../memory/ui/MemoryPanel';
 
 interface ExperienceViewProps {
   experience: Experience;
@@ -70,6 +57,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
   useEffect(() => {
     isGeneratingRef.current = isGenerating;
   }, [isGenerating]);
+
+  const memoryMeter = React.useMemo(() => buildDndContext(experience).meter, [experience]);
 
   // Show who actually answered, not the picker's label (the cascade can swap models).
   const lastAnsweredBy =
@@ -105,11 +94,12 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
 
     try {
       const data = await executeActionTurn({
-        contents: buildRecentStoryLog(updatedLogs),
+        contents: buildDndContext(tempExp, updatedLogs).contents,
         category: tempExp.category,
         model: selectedModel,
         systemInstruction: tempExp.customSystemPrompt,
         characterState: tempExp.character,
+        world: tempExp.gameWorldState,
         diceRoll,
         storyOutline: tempExp.storyOutline,
         inspiration: tempExp.inspiration
@@ -231,12 +221,22 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         playAlertSound();
       }
 
-      onUpdateExperience({
+      const turnNumber = finalExp.logs.filter((l) => l.sender === 'player').length;
+      const afterTurn: Experience = {
         ...finalExp,
         character: updatedChar,
+        gameWorldState: data.stateDelta?.locationUpdate
+          ? { ...finalExp.gameWorldState, currentLocation: data.stateDelta.locationUpdate }
+          : finalExp.gameWorldState,
+        memory: memoryFromTurn(experienceMemory(finalExp), turnNumber, data.stateDelta, newAlert),
         logs: [...finalExp.logs, dmMsg],
         activeAlert: newAlert || (checkResolved ? null : finalExp.activeAlert),
         pendingCheck: newCheck || (checkResolved ? null : finalExp.pendingCheck)
+      };
+      onUpdateExperience(afterTurn);
+      // The memory worker runs after the reply is on screen, so it never slows a turn.
+      void maybeSummarizeExperience(afterTurn, complete).then((apply) => {
+        if (apply && latestExpRef.current.id === afterTurn.id) onUpdateExperience(apply(latestExpRef.current));
       });
     } catch (err: any) {
       console.error('Narrative turn error:', err);
@@ -490,6 +490,31 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             recentStoryContext={experience.logs.slice(-3).map(l => `${l.sender}: ${l.text}`).join('\n')}
             selectedModel={selectedModel}
           />
+          <details className="mt-4 rounded-lg border border-white/10 bg-[#0A0A0F] p-3">
+            <summary className="cursor-pointer text-xs font-semibold text-amber-400">
+              Memory{experienceMemory(experience).pending.length ? ` (${experienceMemory(experience).pending.length} new)` : ''}
+            </summary>
+            <div className="pt-3 text-slate-200">
+              <MemoryPanel
+                memory={experienceMemory(experience)}
+                meter={memoryMeter}
+                turn={experience.logs.filter((l) => l.sender === 'player').length}
+                onChange={(memory) => onUpdateExperience({ ...latestExpRef.current, memory })}
+                onMerge={async () => {
+                  const cur = latestExpRef.current;
+                  try {
+                    const r = await mergeMemories(experienceMemory(cur), cur.logs.length, complete);
+                    if (!r.ok) return 'The model did not send a usable list, so nothing changed. Try again.';
+                    const latest = latestExpRef.current;
+                    onUpdateExperience({ ...latest, memory: { ...experienceMemory(latest), entries: r.memory.entries } });
+                    return null;
+                  } catch (e) {
+                    return e instanceof Error ? e.message : String(e);
+                  }
+                }}
+              />
+            </div>
+          </details>
         </div>
 
       </div>

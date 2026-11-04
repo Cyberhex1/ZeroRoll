@@ -18,7 +18,7 @@ import type { Story } from './schema';
 import type { StoryMessage, StorySave } from '../storage/storyRepository';
 import { MemoryState, addEntry, emptyMemory } from '../memory/memoryStore';
 import { PromptMeter, buildPrompt as buildBudgetedPrompt } from '../memory/promptBuilder';
-import { Turn, shouldSummarize, summarize } from '../memory/summarizer';
+import { Turn, shouldSummarize, summarize, summaryPatch } from '../memory/summarizer';
 import { contextTokensFor } from '../memory/tokens';
 import { localBasicTier } from '../desktop/localModel';
 
@@ -169,14 +169,8 @@ export async function maybeSummarize(save: PlaySave, complete: Completer, opts: 
   try {
     const r = await summarize(memory, turns, complete, opts);
     if (!r.ok) return null;
-    const known = new Set(memory.pending.map((p) => p.id));
-    const added = r.memory.pending.filter((p) => !known.has(p.id));
-    return (latest) => {
-      const cur = memoryOf(latest);
-      // A newer summary (from a later run) wins.
-      if (cur.summarizedThrough >= r.memory.summarizedThrough) return latest;
-      return { ...latest, memory: { ...cur, summary: r.memory.summary, summarizedThrough: r.memory.summarizedThrough, pending: [...cur.pending, ...added] } };
-    };
+    const patch = summaryPatch(memory, r.memory);
+    return (latest) => ({ ...latest, memory: patch(memoryOf(latest)) });
   } catch (_) {
     return null;
   }

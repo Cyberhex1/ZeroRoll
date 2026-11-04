@@ -1,3 +1,5 @@
+import type { MemoryState } from '../memory/memoryStore';
+
 export type ExperienceCategory =
   | 'fantasy'
   | 'adventure'
@@ -231,6 +233,8 @@ export interface Experience {
    * turn 20 read from the same block. Older campaigns without it get one on their next turn.
    */
   inspiration?: CampaignInspiration;
+  /** Memory list, summary and pending facts. Missing on campaigns from before Phase 3. */
+  memory?: MemoryState;
 }
 
 export interface CampaignInspiration {

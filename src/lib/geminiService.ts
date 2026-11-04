@@ -1,12 +1,14 @@
 import firebaseConfig from '../../firebase-applet-config.json';
 import { uid } from './ids';
+import { currentStateBlock } from '../dnd/memory';
 import {
   ExperienceCategory,
   DiceRollResult,
   AvatarEvolution,
   ActionTurnResult,
   DMStoryOutline,
-  CampaignInspiration
+  CampaignInspiration,
+  GameWorldState
 } from '../types';
 
 /** A brainstorm list for the Story Seeds tab (AI refresh or the category's own tropes). */
@@ -609,6 +611,8 @@ export async function executeActionTurn(params: {
   storyOutline?: DMStoryOutline;
   /** The campaign's stored inspiration, sent verbatim every turn. */
   inspiration?: CampaignInspiration;
+  /** Location and quest for the CURRENT STATE sheet. */
+  world?: Partial<GameWorldState>;
   /** 'referee' is the free-text Rules Referee: no genre corpus and no outline (injection policy). */
   purpose?: 'turn' | 'referee';
 }): Promise<ActionTurnResult> {
@@ -638,6 +642,7 @@ ROADMAP GM PRINCIPLES:
 
 GAMEPLAY GM DIRECTIVES:
 - Address the player as "you". Keep the narrative in present tense.
+- The CURRENT STATE, MEMORY and STORY SO FAR blocks in the player message are true. Never contradict them: the hero only uses items in their inventory, conditions stay until removed, and a hero at 0 HP is down until healed or stabilized.
 - Faithfully reflect the category's narrative profile: voice, atmospheric sensory details, scene architecture, and dramatic pacing.
 - The player's actions, choices, and premise are authoritative. Ground your storytelling craft and encounter emergence in the category profile without overriding the player's choices.
 - PACING: Maintain genre-specific pacing based on the provided narrative profile and seed inspiration. Do not rush to the climax unless the genre demands high-octane speed. Let the plot unfold naturally chapter by chapter, allowing the player to immerse deeply in the environment and conversations.
@@ -688,9 +693,8 @@ At the end, provide 3 suggested actions formatted as:
         ? `${basePrompt}\n\nGM STYLE / VOICE OVERLAY (from user settings):\n${systemInstruction}`
         : basePrompt;
 
-      const userMessage = `Character: ${characterState?.name || 'Hero'} (Gender/Pronouns: ${characterState?.gender || 'they/them'}), a Level ${characterState?.level || 1} ${characterState?.raceOrigin || 'Human'} ${characterState?.roleClass || 'Adventurer'} (HP: ${characterState?.hp || 12}/${characterState?.maxHp || 12}).
-Recent Story Log:
-${contents}
+      const stateSheet = currentStateBlock(characterState, params.world);
+      const userMessage = `${stateSheet ? `${stateSheet}\n\n` : ''}${/Recent Story Log:/.test(contents) || isReferee ? contents : `Recent Story Log:\n${contents}`}
 
 ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}`;
 

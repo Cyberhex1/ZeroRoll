@@ -93,8 +93,9 @@ function pinBeats(story: Story, memory: MemoryState, events: EngineEvent[], turn
   return m;
 }
 
-function artMessages(events: EngineEvent[], beat: string): StoryMessage[] {
-  const seen = new Set<string>();
+/** Art for these events, skipping any picture the chat already shows (the narrator may cue the same art turn after turn). */
+function artMessages(events: EngineEvent[], beat: string, shown: StoryMessage[] = []): StoryMessage[] {
+  const seen = new Set<string>(shown.filter((m) => m.kind === 'art').map((m) => (m as { art: string }).art));
   return events
     .filter((e): e is Extract<EngineEvent, { kind: 'art' }> => e.kind === 'art')
     .filter((e) => (seen.has(e.art) ? false : (seen.add(e.art), true)))
@@ -114,7 +115,7 @@ export function addPlayerInput(story: Story, save: PlaySave, input: { text?: str
   }
   const messages = [...save.messages];
   if (text) messages.push({ id: mid(), kind: 'player', text, beat: save.state.beat, at: Date.now() });
-  messages.push(...artMessages(events, state.beat));
+  messages.push(...artMessages(events, state.beat, messages));
   return { save: { ...save, state, messages, memory: pinBeats(story, memoryOf(save), events, state.turns) }, events };
 }
 
@@ -156,7 +157,7 @@ export async function narrate(
       chips: chipsFor(story, state, tail.choices),
       at: Date.now()
     },
-    ...artMessages(events, state.beat)
+    ...artMessages(events, state.beat, [...save.messages, ...opening])
   ];
   if (state.ending && !save.state.ending) {
     const end = beatOf(story, state.ending);

@@ -1,3 +1,6 @@
+import { RulesMode, XP_FOR_LEVEL, fmtMod, proficienciesOf, proficiencyBonus } from '../dnd/rules';
+import { Portrait } from './ui/Portrait';
+import { PortraitsOffError, setFreePortraitsAllowed } from '../lib/portraits';
 import React, { useState } from 'react';
 import {
   Shield,
@@ -22,20 +25,25 @@ interface CharacterSheetPanelProps {
   currentLocation?: string;
   recentStoryContext?: string;
   selectedModel?: string;
+  /** Full 5e shows AC, initiative, XP, gold, proficiencies and death saves; Narrative dice hides them. */
+  rulesMode?: RulesMode;
 }
 
 export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
   character,
   onUpdateCharacter,
   onRollStat,
-  experienceCategory = 'fantasy_dnd',
+  experienceCategory = 'fantasy',
   currentLocation = 'Starting Area',
   recentStoryContext = '',
-  selectedModel = 'gemini-2.5-flash'
+  selectedModel = '',
+  rulesMode = 'narrative'
 }) => {
+  const full = rulesMode === 'full5e';
   const [physicalDesc, setPhysicalDesc] = useState(character.physicalDescription || '');
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [portraitsOff, setPortraitsOff] = useState(false);
 
   const computeModifier = (val: number) => {
     const mod = Math.floor((val - 10) / 2);
@@ -81,8 +89,8 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
         throw new Error('No avatar image was returned.');
       }
     } catch (err: any) {
-      console.error('Avatar generation error:', err);
       setAvatarError(err.message || 'Failed to generate character avatar.');
+      if (err instanceof PortraitsOffError) setPortraitsOff(true);
     } finally {
       setIsGeneratingAvatar(false);
     }
@@ -104,38 +112,12 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
       <div className="space-y-3 border-b border-white/10 pb-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5">
-            {character.avatarUrl ? (
-              <div className="relative group shrink-0">
-                <img 
-                  src={character.avatarUrl} 
-                  alt={character.name} 
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-amber-500 shadow-xl transition group-hover:scale-105"
-                />
-                <button
-                  onClick={handleGenerateOrUpdateAvatar}
-                  disabled={isGeneratingAvatar}
-                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 rounded-xl flex flex-col items-center justify-center text-amber-300 transition text-[9px] font-bold gap-1"
-                  title="Update avatar to reflect current story"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isGeneratingAvatar ? 'animate-spin' : ''}`} />
-                  <span>Update</span>
-                </button>
-                {isGeneratingAvatar && (
-                  <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center">
-                    <RefreshCw className="w-5 h-5 text-amber-400 animate-spin" />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-amber-600/20 border-2 border-amber-500/40 text-amber-300 font-bold font-serif text-2xl flex items-center justify-center shadow-lg shrink-0">
-                {character.name[0] || 'H'}
-              </div>
-            )}
+            <Portrait value={character.avatarUrl} name={character.name} loading={isGeneratingAvatar} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-amber-500/60 shadow-xl shrink-0 text-2xl" />
 
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-amber-50 font-serif leading-tight">{character.name}</h2>
               <p className="text-xs text-amber-400/90 font-mono mt-0.5">
-                Level {character.level} • {character.raceOrigin} • {character.roleClass}
+                {full ? `Level ${character.level} • ` : ''}{character.raceOrigin} • {character.roleClass}
               </p>
               <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                 {character.gender && (
@@ -143,15 +125,47 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
                     {character.gender}
                   </span>
                 )}
-                <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
-                  <Shield className="w-2.5 h-2.5 text-amber-400" />
-                  AC {character.armorClass}
-                </span>
-                <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
-                  <Zap className="w-2.5 h-2.5 text-amber-400" />
-                  Init +{character.initiativeBonus}
-                </span>
+                {full && (
+                  <>
+                    <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
+                      <Shield className="w-2.5 h-2.5 text-amber-400" />
+                      AC {character.armorClass}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5 flex items-center gap-1">
+                      <Zap className="w-2.5 h-2.5 text-amber-400" />
+                      Init {fmtMod(character.initiativeBonus ?? 0)}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-300 bg-black/40 px-2 py-0.5 rounded border border-white/5">
+                      Prof {fmtMod(proficiencyBonus(character.level || 1))}
+                    </span>
+                  </>
+                )}
+                {character.gold !== undefined && (
+                  <span className="text-[10px] font-mono text-amber-200 bg-black/40 px-2 py-0.5 rounded border border-white/5">{character.gold} gold</span>
+                )}
               </div>
+              {full && (
+                <div className="mt-2 space-y-1 text-[10px] font-mono text-slate-400">
+                  {(() => {
+                    const level = character.level || 1;
+                    const xp = character.xp ?? XP_FOR_LEVEL[level] ?? 0;
+                    const next = XP_FOR_LEVEL[level + 1];
+                    const from = XP_FOR_LEVEL[level] ?? 0;
+                    return next ? (
+                      <div>
+                        <div className="flex justify-between"><span>XP {xp}</span><span>Level {level + 1} at {next}</span></div>
+                        <div className="h-1 rounded bg-white/10 overflow-hidden" role="progressbar" aria-valuemin={from} aria-valuemax={next} aria-valuenow={xp} aria-label="Experience">
+                          <div className="h-full bg-amber-500" style={{ width: `${Math.min(100, ((xp - from) / (next - from)) * 100)}%` }} />
+                        </div>
+                      </div>
+                    ) : <div>XP {xp} (max level)</div>;
+                  })()}
+                  <div>Trained: {proficienciesOf(character).join(', ')}</div>
+                  {character.hp <= 0 && character.deathSaves && (
+                    <div className="text-red-300">Death saves: {'●'.repeat(character.deathSaves.successes)}{'○'.repeat(3 - character.deathSaves.successes)} success, {'●'.repeat(Math.min(3, character.deathSaves.failures))}{'○'.repeat(Math.max(0, 3 - character.deathSaves.failures))} failure</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -184,6 +198,19 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
 
           {avatarError && (
             <p className="text-[10px] text-red-400 font-mono">{avatarError}</p>
+          )}
+          {portraitsOff && (
+            <button
+              type="button"
+              className="text-[10px] underline text-amber-300"
+              onClick={() => {
+                setFreePortraitsAllowed(true);
+                setPortraitsOff(false);
+                void handleGenerateOrUpdateAvatar();
+              }}
+            >
+              Allow free portraits from pollinations.ai (sends only the appearance text) and draw one
+            </button>
           )}
 
           <div className="flex items-center justify-end">

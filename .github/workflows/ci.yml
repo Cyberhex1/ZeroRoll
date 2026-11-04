@@ -18,6 +18,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+      - run: npm run content:check
+      - run: npm run story:check
       - run: npm run build
       - name: Bundle size budget (main chunk at most 1.25 MB)
         run: |

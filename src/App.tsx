@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { uid } from './lib/ids';
+import { continueToNextBook } from './dnd/nextBook';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
+import { STORY_MODE_ENABLED } from './lib/platform';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import {
   auth,
@@ -13,25 +16,31 @@ import {
   loadUserProfileFromCloud,
   saveUserSettingsToCloud,
   purgeCloudProviderKeys,
-  saveActiveExperienceIdToCloud
+  saveActiveExperienceIdToCloud,
+  isNewer,
+  cloudSyncBlocked
 } from './lib/firebase';
 import {
   exportAllProviderSettings,
   importAllProviderSettings,
   purgeUnusableStoredKeys,
   getActiveProvider,
-  setProviderModel,
-  generateScenarioAI
+  setProviderModel
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
+import { watchKeyChanges } from './lib/keySync';
+import { runWeeklyModelCheck } from './ai/weeklyModelCheck';
 import { Navbar } from './components/Navbar';
 import { AIStatusBanner } from './components/AIStatusBanner';
-import { CategoriesGrid } from './components/CategoriesGrid';
 // Loaded on first use so the home screen downloads and starts faster.
+const CategoriesGrid = lazy(() => import('./components/CategoriesGrid').then((m) => ({ default: m.CategoriesGrid })));
 const ExperienceView = lazy(() => import('./components/ExperienceView').then((m) => ({ default: m.ExperienceView })));
 const SettingsModal = lazy(() => import('./components/SettingsModal').then((m) => ({ default: m.SettingsModal })));
 const UserProfileModal = lazy(() => import('./components/UserProfileModal').then((m) => ({ default: m.UserProfileModal })));
 const AuthModal = lazy(() => import('./components/AuthModal').then((m) => ({ default: m.AuthModal })));
+const StoryPicker = lazy(() => import('./story/ui/StoryPicker'));
+const StoryPlay = lazy(() => import('./story/ui/StoryPlay'));
+const storyFallback = <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">Opening Story mode...</div>;
 const ApiKeyModal = lazy(() => import('./components/ApiKeyModal').then((m) => ({ default: m.ApiKeyModal })));
 import MusicPlayer from './components/MusicPlayer';
 import {
@@ -41,16 +50,13 @@ import {
   MapData,
   LogMessage,
   UserProfile,
-  DMStoryOutline
+  DMStoryOutline,
+  CampaignInspiration
 } from './types';
-import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
-import { CATEGORIES_DATA } from './lib/categoriesData';
-import {
-  getCategoryDefaultInventory,
-  mergeInventoryAdditive,
-  getCategoryFallbackActions,
-  createVariedInitialMap
-} from './lib/experienceHelpers';
+import { DEFAULT_GEMINI_MODEL, usableGeminiModelOptions } from './lib/modelsConfig';
+import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
+import { mergeInventoryAdditive, createVariedInitialMap } from './lib/experienceHelpers';
+import { audioManager } from './audio/manager';
 
 function safeGetStorage(key: string): string | null {
   try {
@@ -98,12 +104,14 @@ export default function App() {
   // Settings states — initialized from local cache (acceptable: these are preferences, not identity)
   const [selectedModel, setSelectedModel] = useState<string>(() => {
     const saved = safeGetStorage('dnd_selected_model');
-    const isValid = GEMINI_MODELS.some(m => m.id === saved);
-    if (isValid && saved) {
+    const options = usableGeminiModelOptions();
+    if (saved && options.some(m => m.id === saved)) {
       return saved;
     }
-    safeSetStorage('dnd_selected_model', DEFAULT_GEMINI_MODEL);
-    return DEFAULT_GEMINI_MODEL;
+    // A saved pick that no longer answers falls back to the first model that does.
+    const fallback = options.some(m => m.id === DEFAULT_GEMINI_MODEL) ? DEFAULT_GEMINI_MODEL : options[0]?.id || DEFAULT_GEMINI_MODEL;
+    safeSetStorage('dnd_selected_model', fallback);
+    return fallback;
   });
 
   const [customSystemPrompt, setCustomSystemPrompt] = useState<string>(() => {
@@ -115,7 +123,14 @@ export default function App() {
     return saved !== 'false';
   });
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  // Settings is a route (/settings) so it can be linked to and survives a reload.
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isSettingsOpen = location.pathname === '/settings';
+  const setIsSettingsOpen = (open: boolean) => {
+    if (open && !isSettingsOpen) navigate('/settings');
+    else if (!open && isSettingsOpen) navigate('/');
+  };
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -145,6 +160,30 @@ export default function App() {
   // ---------------------------------------------------------------------------
   // Auth State — the authoritative source for user identity and cloud data
   // ---------------------------------------------------------------------------
+  // Weekly latest-model check (Gemini). Runs after start-up so it never delays the first screen.
+  useEffect(() => {
+    const t = setTimeout(() => void runWeeklyModelCheck(), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Cloud saves need firestore.googleapis.com; an ad blocker that refuses it would otherwise fail silently.
+  const [cloudBlocked, setCloudBlocked] = useState(false);
+  useEffect(() => {
+    if (!user || user.isAnonymous) return;
+    let live = true;
+    void cloudSyncBlocked().then((blocked) => live && setCloudBlocked(blocked));
+    return () => {
+      live = false;
+    };
+  }, [user]);
+
+  // Opt-in key sync: re-encrypt and upload when a key changes (does nothing while sync is off).
+  useEffect(() => {
+    if (!user || user.isAnonymous) return;
+    return watchKeyChanges(user.uid, showCloudSaveError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
+
   useEffect(() => {
     // Process redirect sign-in if returning from Google redirect
     checkRedirectAuthResult();
@@ -281,7 +320,8 @@ export default function App() {
           // If we already have an active experience, keep it synced with the latest cloud data
           if (currentActive) {
             const updated = exps.find(e => e.id === currentActive.id);
-            if (updated) {
+            // A snapshot older than what is on screen (a turn still saving) does not roll it back (S5).
+            if (updated && !isNewer(currentActive, updated)) {
               return updated;
             }
           }
@@ -326,6 +366,8 @@ export default function App() {
     const nextVal = !soundEnabled;
     setSoundEnabled(nextVal);
     safeSetStorage('dnd_sound_enabled', String(nextVal));
+    // The navbar speaker is the whole-app mute: music follows it (S24).
+    audioManager.setMuted(!nextVal);
     if (user) {
       saveUserSettingsToCloud(user.uid, { soundEnabled: nextVal })
         .catch((err) => showCloudSaveError(`Cloud settings sync failed: ${err.message}`));
@@ -358,7 +400,9 @@ export default function App() {
     suggestedActions?: string[],
     storyOutline?: DMStoryOutline,
     chapterOneOpening?: string,
-    chapterOneModel?: string
+    chapterOneModel?: string,
+    inspiration?: CampaignInspiration,
+    rulesMode?: 'full5e' | 'narrative'
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
@@ -421,6 +465,9 @@ export default function App() {
       logs: [initialLog],
       mapData: initialMap,
       storyOutline: finalStoryOutline,
+      inspiration: inspiration ?? pickInspiration(category),
+      rulesMode: rulesMode ?? 'narrative',
+      book: 1,
       pendingCheck: null,
       activeAlert: null
     };
@@ -448,7 +495,9 @@ export default function App() {
     }
   };
 
-  const handleUpdateExperience = async (updated: Experience) => {
+  const handleUpdateExperience = async (next: Experience) => {
+    // Stamped now, so an older cloud snapshot arriving mid-turn cannot replace it.
+    const updated = { ...next, updatedAt: new Date().toISOString() };
     setActiveExperience(updated);
     setIsSaving(true);
     const result = await saveExperienceToCloud(updated);
@@ -469,79 +518,58 @@ export default function App() {
     }
   };
 
+  // The next book continues inside the same campaign save (S11, S12). One at a time.
+  const continuingRef = useRef(false);
   const handleStartBookTwo = async (prevExp: Experience) => {
+    if (continuingRef.current) return;
+    continuingRef.current = true;
     setIsSaving(true);
     try {
-      const data = await generateScenarioAI({
-        category: prevExp.category,
-        model: selectedModel,
-        userPrompt: `Start Book Two of this campaign. The previous book concluded successfully. Generate a new story arc, new chapters, and a new immediate goal for the continuing adventures of ${prevExp.character.name}.`,
-        gender: prevExp.character.gender || 'they/them',
-        characterName: prevExp.character.name,
-        classRole: prevExp.character.roleClass,
-        raceOrigin: prevExp.character.raceOrigin,
-        // Book Two must continue this story; never substitute a random procedural one.
-        allowFallback: false
-      });
-
-      if (data && data.scenario) {
-        const newExp: Experience = {
-          id: `exp_${uid()}`,
-          userId: user?.uid || 'guest',
-          title: `${prevExp.title} - Book Two`,
-          category: prevExp.category,
-          description: data.scenario.storyBlurb || 'The adventure continues...',
-          model: selectedModel,
-          customSystemPrompt: prevExp.customSystemPrompt,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          character: {
-            ...prevExp.character, // preserve everything: hp, inventory, level, etc.
-          },
-          gameWorldState: {
-            currentLocation: 'New Region',
-            timeOfDay: 'Daybreak',
-            activeQuest: data.scenario.storyOutline?.immediateGoal || 'Begin Book Two',
-            dangerLevel: 'Safe',
-            customNotes: data.scenario.storyOutline?.backstory || '',
-            currentChapter: 1
-          },
-          logs: [
-            {
-              id: `msg_start_${uid()}`,
-              sender: 'dm',
-              text: data.scenario.storyBlurb || 'A new chapter in your legend begins...',
-              timestamp: new Date().toISOString()
-            }
-          ],
-          mapData: createVariedInitialMap(
-            prevExp.category,
-            CATEGORIES_DATA.find((c) => c.id === prevExp.category)?.bgTheme || 'dungeon',
-            prevExp.character.name,
-            prevExp.character.hp,
-            prevExp.character.maxHp
-          ),
-          storyOutline: data.scenario.storyOutline,
-          pendingCheck: null,
-          activeAlert: null
-        };
-
-        const result = await saveExperienceToCloud(newExp);
-        if (!result.ok) {
-          showCloudSaveError('Could not save Book Two to cloud.');
-        }
-        setActiveExperience(newExp);
-        if (user) {
-          saveActiveExperienceIdToCloud(user.uid, newExp.id)
-            .catch((err) => showCloudSaveError(`Active experience sync failed: ${err.message}`));
-        }
-      }
+      const next = await continueToNextBook(prevExp, selectedModel);
+      setActiveExperience(next);
+      const result = await saveExperienceToCloud(next);
+      if (!result.ok) showCloudSaveError('Could not save the new book to the cloud. It is saved on this device.');
     } catch (err: any) {
-      showCloudSaveError(`Failed to generate Book Two. ${err?.message || ''}`.trim());
+      showCloudSaveError(`The next book could not be started. ${err?.message || ''}`.trim());
     } finally {
       setIsSaving(false);
+      continuingRef.current = false;
     }
   };
+
+  // Home: the campaign list, or the open campaign. /settings shows it under the settings modal.
+  const home = (
+    <>
+              {activeExperience ? (
+                <Suspense
+                  fallback={
+                    <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">
+                      Opening your campaign...
+                    </div>
+                  }
+                >
+                  <ExperienceView
+                    experience={activeExperience}
+                    onUpdateExperience={handleUpdateExperience}
+                    onBack={() => handleSelectExperience(null)}
+                    selectedModel={selectedModel}
+                    soundEnabled={soundEnabled}
+                    onStartBookTwo={handleStartBookTwo}
+                  />
+                </Suspense>
+              ) : (
+                <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+                  <CategoriesGrid
+                    experiences={experiences}
+                    onSelectExperience={handleSelectExperience}
+                    onCreateExperience={handleCreateExperience}
+                    onDeleteExperience={handleDeleteExperience}
+                    selectedModel={selectedModel}
+                  />
+                </Suspense>
+              )}
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
@@ -578,34 +606,34 @@ export default function App() {
         </div>
       )}
 
+      {cloudBlocked && (
+        <div role="alert" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-amber-950/95 border border-amber-600/60 text-amber-100 text-xs px-4 py-2.5 rounded-lg shadow-xl max-w-md flex items-start gap-3">
+          <span>
+            Cloud sync is blocked in this browser, most likely by an ad blocker or privacy extension. Your saves stay on this device but are not backed up. Allow{' '}
+            <code className="font-mono">firestore.googleapis.com</code> for this site to turn backup back on.
+          </span>
+          <button type="button" onClick={() => setCloudBlocked(false)} className="shrink-0 underline text-amber-300" aria-label="Dismiss cloud sync notice">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Main Body */}
       <main>
-        {activeExperience ? (
-          <Suspense
-            fallback={
-              <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">
-                Opening your campaign...
-              </div>
-            }
-          >
-            <ExperienceView
-              experience={activeExperience}
-              onUpdateExperience={handleUpdateExperience}
-              onBack={() => handleSelectExperience(null)}
-              selectedModel={selectedModel}
-              soundEnabled={soundEnabled}
-              onStartBookTwo={handleStartBookTwo}
-            />
-          </Suspense>
-        ) : (
-          <CategoriesGrid
-            experiences={experiences}
-            onSelectExperience={handleSelectExperience}
-            onCreateExperience={handleCreateExperience}
-            onDeleteExperience={handleDeleteExperience}
-            selectedModel={selectedModel}
+        <Routes>
+          {STORY_MODE_ENABLED && (
+            <>
+              <Route path="/story" element={<Suspense fallback={storyFallback}><StoryPicker /></Suspense>} />
+              <Route path="/story/:id" element={<Suspense fallback={storyFallback}><StoryPlay /></Suspense>} />
+            </>
+          )}
+          <Route
+            path="/settings"
+            element={home}
           />
-        )}
+          <Route path="/" element={home} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       <Suspense fallback={null}>

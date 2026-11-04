@@ -2,14 +2,28 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+import { storyIndex } from './scripts/vite-story-index';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), storyIndex()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          // Vendor code changes rarely, so it gets its own long-cached files.
+          manualChunks: {
+            firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
+            react: ['react', 'react-dom', 'react-dom/client', 'react-router'],
+            // Category seeds change with content work, not with app code.
+            content: ['./src/content/categories/index.ts']
+          }
+        }
+      }
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

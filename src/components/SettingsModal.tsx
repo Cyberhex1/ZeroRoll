@@ -1,3 +1,4 @@
+import { useDialog } from './ui/useDialog';
 import React, { useState } from 'react';
 import { 
   Bot, 
@@ -13,6 +14,12 @@ import { User } from 'firebase/auth';
 import { getActiveProvider, getProviderModel } from '../lib/geminiService';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { BackupPanel } from './BackupPanel';
+import { SaveRecoveryPanel } from './SaveRecoveryPanel';
+import { PortraitSettingsPanel } from './PortraitSettingsPanel';
+import { KeySyncPanel } from './KeySyncPanel';
+import { isTauri } from '../lib/platform';
+
+const LocalModelPanel = React.lazy(() => import('../desktop/LocalModelPanel'));
 
 interface SettingsModalProps {
   user: User | null;
@@ -52,9 +59,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }, 500);
   };
 
+  const dialog = useDialog(onClose, { labelledBy: 'settings-title', active: true });
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative overflow-y-auto max-h-[92dvh] sm:max-h-[90vh] text-slate-200">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...dialog.overlayProps}>
+      <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative overflow-y-auto max-h-[92dvh] sm:max-h-[90vh] text-slate-200" {...dialog.dialogProps}>
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -63,7 +71,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Sliders className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-amber-50 font-serif">Game Master & Account Settings</h2>
+              <h2 id="settings-title" className="text-sm font-bold text-amber-50 font-serif">Game Master & Account Settings</h2>
               <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">Configure Gemini Engine, AI Directives & Cloud Profile</p>
             </div>
           </div>
@@ -163,10 +171,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Section 3: Backup */}
-        <BackupPanel />
+        {/* PC app only: local model */}
+        {isTauri() && (
+          <React.Suspense fallback={null}>
+            <LocalModelPanel />
+          </React.Suspense>
+        )}
 
-        {/* Section 4: Custom Game Master Directives */}
+        {/* Section 3: Opt-in encrypted key sync */}
+        <KeySyncPanel user={user} />
+        <PortraitSettingsPanel />
+
+        {/* Section 4: Backup */}
+        <BackupPanel />
+        <SaveRecoveryPanel user={user} />
+
+        {/* Section 5: Custom Game Master Directives */}
         <div className="p-3 rounded bg-[#0A0A0F] border border-white/10 space-y-2">
           <h3 className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider flex items-center gap-2">
             <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />

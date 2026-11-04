@@ -1,3 +1,4 @@
+import { clickable } from './ui/a11y';
 import React from 'react';
 import {
   Settings,
@@ -8,10 +9,13 @@ import {
   ChevronDown,
   Layers,
   Key,
-  WifiOff
+  WifiOff,
+  BookOpen
 } from 'lucide-react';
+import { Link } from 'react-router';
+import { STORY_MODE_ENABLED } from '../lib/platform';
 import { User } from 'firebase/auth';
-import { GEMINI_MODELS } from '../lib/modelsConfig';
+import { GEMINI_MODELS, usableGeminiModelOptions } from '../lib/modelsConfig';
 import { hasActiveGeminiKey, getActiveProvider, getProviderModel, isOfflineMode } from '../lib/geminiService';
 import { useAIStatus } from '../lib/aiStatus';
 import { AI_PROVIDERS } from '../lib/providersConfig';
@@ -80,13 +84,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" onClick={onBackToExperiences}>
+          <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" {...clickable(() => onBackToExperiences?.())}>
             <div className="w-7 h-7 sm:w-8 sm:h-8 bg-amber-600 rounded flex items-center justify-center font-black text-black text-xs sm:text-sm tracking-tighter shadow-sm font-mono shrink-0">
               00
             </div>
             <div>
               <h1 className="text-sm sm:text-base md:text-lg font-serif tracking-tight text-amber-50 flex items-center">
-                Roll Zero0
+                ZeroRoll
                 <span className="text-[9px] font-mono text-amber-500/80 ml-1.5 tracking-widest uppercase font-bold hidden lg:inline">
                   TTRPG ENGINE
                 </span>
@@ -124,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     Select Gemini Model
                   </div>
                   <div className="py-1 space-y-1">
-                    {GEMINI_MODELS.map((m) => (
+                    {usableGeminiModelOptions().map((m) => (
                       <button
                         key={m.id}
                         onClick={() => {
@@ -165,10 +169,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ? 'bg-amber-600/20 border-amber-600/40 text-amber-300 hover:bg-amber-600/30' 
                 : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'
             }`}
-            title={soundEnabled ? 'Mute Sound Effects' : 'Enable Sound Effects'}
+            title={soundEnabled ? 'Mute all sound' : 'Turn sound on'}
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
+
+          {STORY_MODE_ENABLED && (
+            <Link
+              to="/story"
+              className="p-1.5 sm:p-2 rounded-lg border bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 transition"
+              title="Story mode (preview)"
+              aria-label="Story mode (preview)"
+            >
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </Link>
+          )}
 
           {/* AI Provider & Key Status Badge — reflects what the last real AI call did */}
           {isOfflineMode() ? (
@@ -318,10 +333,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={onOpenAuth || onGoogleSignIn}
-                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider rounded transition-colors flex items-center gap-1.5 shadow-md active:scale-95"
+                aria-label="Sign in or join"
+                className="px-2.5 sm:px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider rounded transition-colors flex items-center gap-1.5 shadow-md active:scale-95"
               >
                 <UserIcon className="w-3.5 h-3.5" />
-                Sign In / Join
+                <span className="hidden xs:inline">Sign In</span>
+                <span className="hidden sm:inline">/ Join</span>
               </button>
             )}
           </div>

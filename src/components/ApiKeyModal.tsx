@@ -1,3 +1,4 @@
+import { useDialog } from './ui/useDialog';
 import React, { useState, useEffect } from 'react';
 import {
   Key,
@@ -36,10 +37,12 @@ import {
   testProviderConnection,
   exportAllProviderSettings,
   getCachedGeminiModels,
+  getUsableGeminiModels,
   setOfflineMode,
   isOfflineMode
 } from '../lib/geminiService';
 import { resetAIStatus } from '../lib/aiStatus';
+import { usableGeminiModelOptions } from '../lib/modelsConfig';
 import { auth, saveUserSettingsToCloud } from '../lib/firebase';
 
 interface ApiKeyModalProps {
@@ -78,8 +81,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     availableModels?: string[];
   } | null>(null);
 
-  // Models the Gemini key can actually call (from the last successful key check).
-  const [availableModels, setAvailableModels] = useState<string[] | null>(() => getCachedGeminiModels());
+  // Models that answered a test request with the key; the only Gemini models offered once known.
+  const [usableModels, setUsableModels] = useState<string[] | null>(() => getUsableGeminiModels());
 
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   // Set when Save ran the connection check and it failed; a second click saves anyway.
@@ -96,7 +99,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     setBaseUrl(url || config?.defaultBaseUrl || '');
 
     const knownModel = config?.models.some(m => m.id === model)
-      || (selectedProvider === 'gemini' && !!getCachedGeminiModels()?.includes(model));
+      || (selectedProvider === 'gemini' && !!(getUsableGeminiModels() ?? getCachedGeminiModels())?.includes(model));
     if (knownModel) {
       setSelectedModel(model);
       setIsCustomModel(false);
@@ -112,6 +115,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     setShowKey(false);
   }, [selectedProvider]);
 
+  const dialog = useDialog(onClose, { labelledBy: 'apikey-title', active: isOpen });
   if (!isOpen) return null;
 
   const currentConfig: AIProviderConfig = AI_PROVIDERS[selectedProvider];
@@ -146,8 +150,10 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 
     setTesting(false);
     setTestResult(res);
-    if (res.availableModels && res.availableModels.length) {
-      setAvailableModels(res.availableModels);
+    if (res.usableModels && res.usableModels.length) {
+      setUsableModels(res.usableModels);
+      // The test fell back to a model that works; make that the selection.
+      if (res.modelUsed && !res.usableModels.includes(activeModel)) setSelectedModel(res.modelUsed);
     }
     return res;
   };
@@ -211,8 +217,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-[#111118] border border-white/15 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative my-0 sm:my-auto max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto text-slate-200">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...dialog.overlayProps}>
+      <div className="bg-[#111118] border border-white/15 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative my-0 sm:my-auto max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto text-slate-200" {...dialog.dialogProps}>
         
         {/* Header */}
         <div className="flex items-start justify-between border-b border-white/10 pb-4">
@@ -221,7 +227,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
               <Key className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-amber-50 font-serif flex items-center gap-2">
+              <h2 id="apikey-title" className="text-base sm:text-lg font-bold text-amber-50 font-serif flex items-center gap-2">
                 Connect AI Provider & API Key
               </h2>
               <p className="text-xs text-slate-400 font-sans">
@@ -445,22 +451,13 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                   }}
                   className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500/80"
                 >
-                  {currentConfig.models.map((m) => {
-                    const unavailable = selectedProvider === 'gemini' && !!availableModels && !availableModels.includes(m.id);
-                    return (
-                      <option key={m.id} value={m.id}>
-                        {m.name} {m.badge ? `(${m.badge})` : ''}{unavailable ? ' — not available to your key' : ''}
-                      </option>
-                    );
-                  })}
-                  {selectedProvider === 'gemini' && availableModels && (
-                    <optgroup label="Other models your key can use">
-                      {availableModels
-                        .filter((id) => !currentConfig.models.some((m) => m.id === id))
-                        .map((id) => (
-                          <option key={id} value={id}>{id}</option>
-                        ))}
-                    </optgroup>
+                  {(selectedProvider === 'gemini' ? usableGeminiModelOptions(usableModels) : currentConfig.models).map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} {m.badge ? `(${m.badge})` : ''}
+                    </option>
+                  ))}
+                  {selectedProvider === 'gemini' && !usableModels && (
+                    <option disabled value="">Run Test Connection to keep only the models your key can use</option>
                   )}
                   <option value="custom_write_in">+ Custom Model ID...</option>
                 </select>

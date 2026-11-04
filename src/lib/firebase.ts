@@ -27,6 +27,7 @@ import {
 } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { Experience, UserProfile, UserSettings } from '../types';
+import type { KeyVault } from './keyVault';
 
 // Initialize Firebase App
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -300,6 +301,28 @@ export async function purgeCloudProviderKeys(userId: string): Promise<void> {
   }
 }
 
+/** Encrypted key vault (opt-in key sync). Only ciphertext is stored; null deletes it. */
+export async function saveKeyVaultToCloud(userId: string, vault: KeyVault | null): Promise<void> {
+  if (!userId || userId === 'guest') return;
+  try {
+    await setDoc(doc(db, 'users', userId), { keyVault: vault ?? deleteField(), updatedAt: new Date().toISOString() }, { merge: true });
+  } catch (err: any) {
+    const info = handleFirestoreError(err, OperationType.WRITE, `users/${userId}/keyVault`);
+    throw new Error(info.error);
+  }
+}
+
+export async function loadKeyVaultFromCloud(userId: string): Promise<unknown | null> {
+  if (!userId || userId === 'guest') return null;
+  try {
+    const snap = await getDoc(doc(db, 'users', userId));
+    return snap.exists() ? snap.data()?.keyVault ?? null : null;
+  } catch (err: any) {
+    const info = handleFirestoreError(err, OperationType.GET, `users/${userId}/keyVault`);
+    throw new Error(info.error);
+  }
+}
+
 export async function saveActiveExperienceIdToCloud(userId: string, activeExperienceId: string | null): Promise<void> {
   if (!userId || userId === 'guest') return;
   try {
@@ -527,10 +550,12 @@ export async function saveExperienceToCloud(experience: Experience): Promise<Sav
 
   // 1. Instant local storage persistence (always succeeds for offline/guest use)
   try {
+    // Same time stamp as the cloud write, so a failed cloud write leaves the device copy newer.
+    const local = JSON.stringify({ ...experience, updatedAt: payload.updatedAt });
     if (actualUserId !== 'guest') {
-      localStorage.setItem(`${USER_EXP_PREFIX}${actualUserId}_${payload.id}`, JSON.stringify(experience));
+      localStorage.setItem(`${USER_EXP_PREFIX}${actualUserId}_${payload.id}`, local);
     } else {
-      localStorage.setItem(`${GUEST_EXP_PREFIX}${payload.id}`, JSON.stringify(experience));
+      localStorage.setItem(`${GUEST_EXP_PREFIX}${payload.id}`, local);
     }
   } catch (storageErr) {
     console.warn('LocalStorage quota or write error:', storageErr);
@@ -600,6 +625,35 @@ function reconstructFogMatrix(exp: Experience): Experience {
   };
 }
 
+/** Device copies the cloud replaced, kept so the player can bring one back. */
+export const REPLACED_EXP_PREFIX = 'zr_replaced_exp_';
+
+export function listReplacedDeviceCopies(userId: string): Experience[] {
+  const out: Experience[] = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key?.startsWith(`${REPLACED_EXP_PREFIX}${userId}_`)) continue;
+      try {
+        const v = JSON.parse(localStorage.getItem(key) || 'null');
+        if (v?.id) out.push(v);
+      } catch (_) {}
+    }
+  } catch (_) {}
+  return out;
+}
+
+export function forgetReplacedDeviceCopy(userId: string, experienceId: string): void {
+  try {
+    localStorage.removeItem(`${REPLACED_EXP_PREFIX}${userId}_${experienceId}`);
+  } catch (_) {}
+}
+
+/** True when `a` was saved after `b`. */
+export function isNewer(a: Pick<Experience, 'updatedAt' | 'createdAt'>, b: Pick<Experience, 'updatedAt' | 'createdAt'>): boolean {
+  return new Date(a.updatedAt || a.createdAt).getTime() > new Date(b.updatedAt || b.createdAt).getTime();
+}
+
 export function subscribeToUserExperiences(
   userId: string,
   onUpdate: (experiences: Experience[]) => void,
@@ -631,17 +685,38 @@ export function subscribeToUserExperiences(
         if (cancelled.current) return;
 
         const cloudExps: Experience[] = [];
+        const unsynced: Experience[] = [];
         snapshot.forEach((docSnap) => {
           let data = docSnap.data() as Experience;
           // Reconstruct fogMatrix if missing from cloud
           data = reconstructFogMatrix(data);
+          const key = `${USER_EXP_PREFIX}${userId}_${data.id}`;
+          let local: Experience | null = null;
+          try {
+            local = JSON.parse(localStorage.getItem(key) || 'null');
+          } catch (_) {}
+          // A device copy newer than the cloud is progress whose cloud write failed:
+          // keep it, and send it up again, instead of overwriting it with the older copy.
+          if (local && isNewer(local, data)) {
+            cloudExps.push(reconstructFogMatrix(local));
+            unsynced.push(local);
+            return;
+          }
           cloudExps.push(data);
+
+          // A different device copy is about to be replaced: keep it for Settings > Saves.
+          if (local && local.updatedAt !== data.updatedAt && (local.logs?.length !== data.logs?.length || local.logs?.at(-1)?.id !== data.logs?.at(-1)?.id)) {
+            try {
+              localStorage.setItem(`${REPLACED_EXP_PREFIX}${userId}_${data.id}`, JSON.stringify(local));
+            } catch (_) {}
+          }
 
           // Write-through to local cache for offline resilience
           try {
-            localStorage.setItem(`${USER_EXP_PREFIX}${userId}_${data.id}`, JSON.stringify(data));
+            localStorage.setItem(key, JSON.stringify(data));
           } catch (_) {}
         });
+        for (const exp of unsynced) void saveExperienceToCloud(exp).catch(() => {});
 
         // Firestore is the source of truth — cloud list replaces local list
         cloudExps.sort(
@@ -719,5 +794,33 @@ export async function deleteExperienceFromCloud(experienceId: string): Promise<S
   } catch (err: any) {
     handleFirestoreError(err, OperationType.DELETE, `users/${actualUserId}/experiences/${experienceId}`);
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/**
+ * True when the browser is online but requests to Firestore are refused before they leave
+ * the browser, which is what an ad blocker or privacy extension does (ERR_BLOCKED_BY_CLIENT).
+ * The SDK only retries quietly in that case, so the player would never learn their saves
+ * are not reaching the cloud.
+ */
+export async function cloudSyncBlocked(timeoutMs = 8000): Promise<boolean> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    // no-cors: any answer from Google proves the path is open; only a block or no network throws.
+    await fetch('https://firestore.googleapis.com/', { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal });
+    return false;
+  } catch (e) {
+    if ((e as Error)?.name === 'AbortError') return false;
+    // Rule out "no network at all": Google's own static host should still answer.
+    try {
+      await fetch('https://www.gstatic.com/generate_204', { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  } finally {
+    clearTimeout(t);
   }
 }

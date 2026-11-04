@@ -31,6 +31,12 @@ interface NarrativeStreamProps {
   onDismissAlert?: () => void;
   onPerformCheckRoll?: (check: PendingCheck) => void;
   characterStats?: StatBlock;
+  /** "+5 (DEX +3, proficiency +2)" for the pending check, from the rules module. */
+  checkModifierLabel?: string;
+  /** When set, the story has ended (or the hero died): input is locked and this explains why. */
+  lockedReason?: string;
+  /** Shown under lockedReason, e.g. a Continue to Book Two button. */
+  lockedAction?: React.ReactNode;
 }
 
 export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
@@ -45,8 +51,13 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
   activeAlert,
   onDismissAlert,
   onPerformCheckRoll,
-  characterStats
+  characterStats,
+  checkModifierLabel,
+  lockedReason,
+  lockedAction
 }) => {
+  // Chips belong to the newest game master message only (S15).
+  const lastDmIndex = logs.reduce((at, l, i) => (l.sender === 'dm' ? i : at), -1);
   const [inputText, setInputText] = useState('');
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const prevLogsCountRef = useRef(logs.length);
@@ -63,13 +74,13 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
   }, [logs.length]);
 
   const handleSend = () => {
-    if (pendingCheck || !inputText.trim() || isGenerating) return;
+    if (pendingCheck || lockedReason || !inputText.trim() || isGenerating) return;
     onSendMessage(inputText.trim());
     setInputText('');
   };
 
   const handleAdjudicate = () => {
-    if (pendingCheck || !inputText.trim() || isGenerating) return;
+    if (pendingCheck || lockedReason || !inputText.trim() || isGenerating) return;
     onAdjudicateAction(inputText.trim());
     setInputText('');
   };
@@ -184,7 +195,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
 
       {/* Messages Feed */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0A0A0F]">
-        {logs.map((log) => {
+        {logs.map((log, logIndex) => {
           const isPlayer = log.sender === 'player';
           const isAdjudicator = log.sender === 'adjudicator';
 
@@ -278,7 +289,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                 </div>
 
                 {/* Suggested Action Chips (Hidden if pending check) */}
-                {!pendingCheck && log.suggestedActions && log.suggestedActions.length > 0 && (
+                {!pendingCheck && !lockedReason && logIndex === lastDmIndex && log.suggestedActions && log.suggestedActions.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 pt-1.5 pb-0.5">
                     {log.suggestedActions.map((sa, idx) => (
                       <button
@@ -315,7 +326,12 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
       <div className="p-3 bg-[#16161D] border-t border-white/10 space-y-2">
         
         {/* MANDATORY CHECK REQUIRED BARRIER */}
-        {pendingCheck ? (
+        {lockedReason && !pendingCheck ? (
+          <div role="status" className="p-3 rounded-lg bg-[#0A0A0F] border border-amber-500/40 space-y-2 text-xs text-slate-200">
+            <p>{lockedReason}</p>
+            {lockedAction}
+          </div>
+        ) : pendingCheck ? (
           <div className="p-3.5 rounded-lg bg-gradient-to-r from-red-950/90 via-amber-950/70 to-slate-900 border-2 border-amber-500/80 shadow-2xl space-y-2.5 animate-pulse">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -344,7 +360,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                   className="w-full py-2.5 px-4 rounded bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg hover:shadow-amber-500/20 transition transform hover:-translate-y-0.5"
                 >
                   <Dices className="w-4 h-4 animate-spin text-slate-950" />
-                  <span>Roll {pendingCheck.skill} (d20 {modifier >= 0 ? `+ ${modifier}` : `- ${Math.abs(modifier)}`} [{statKey}])</span>
+                  <span>{pendingCheck.kind === 'death_save' ? 'Roll a death save (d20, 10 or more succeeds)' : checkModifierLabel ? `Roll ${pendingCheck.skill} (d20 ${checkModifierLabel})` : `Roll ${pendingCheck.skill} (d20 ${modifier >= 0 ? `+ ${modifier}` : `- ${Math.abs(modifier)}`} [${statKey}])`}</span>
                 </button>
               );
             })()}

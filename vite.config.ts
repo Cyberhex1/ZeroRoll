@@ -18,7 +18,9 @@ export default defineConfig(() => {
           // Vendor code changes rarely, so it gets its own long-cached files.
           manualChunks: {
             firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
-            react: ['react', 'react-dom', 'react-router']
+            react: ['react', 'react-dom', 'react-dom/client', 'react-router'],
+            // Category seeds change with content work, not with app code.
+            content: ['./src/content/categories/index.ts']
           }
         }
       }

@@ -585,7 +585,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           <div className="relative z-10 max-w-3xl space-y-2">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-amber-400 text-[10px] uppercase tracking-widest font-mono font-bold">
               <Dice5 className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-              ROLL ZERO0 ENGINE • D&D 5E ADJUDICATOR
+              ZEROROLL • D&D 5E ADJUDICATOR
             </div>
             <h1 className="text-2xl sm:text-4xl font-serif tracking-tight text-amber-50">
               Select An Experience
@@ -639,7 +639,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         {/* Categories Tab Content */}
         {activeTab === 'categories' && (
           <div>
-            <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-3">
+            <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mb-3">
               Available Campaign Archetypes
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
@@ -648,7 +648,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                   <div
                     key={cat.id}
                     className="group relative rounded-lg bg-[#111118] border border-white/5 hover:border-amber-600/50 transition-all duration-200 p-4 flex flex-col justify-between hover:bg-white/5 cursor-pointer space-y-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    {...clickable(() => handleOpenCategoryModal(cat), `Start a ${cat.name} campaign`)}
+                    {...clickable(() => handleOpenCategoryModal(cat))}
                   >
                     <div className="relative z-10 space-y-2">
                       <div className="flex items-center justify-between">
@@ -658,7 +658,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         >
                           {getCategoryIcon(cat.iconName)}
                         </div>
-                        <span className="text-[9px] font-mono tracking-widest font-bold uppercase px-1.5 py-0.5 rounded bg-black/40 text-slate-500 border border-white/5">
+                        <span className="text-[9px] font-mono tracking-widest font-bold uppercase px-1.5 py-0.5 rounded bg-black/40 text-slate-400 border border-white/5">
                           {cat.id}
                         </span>
                       </div>

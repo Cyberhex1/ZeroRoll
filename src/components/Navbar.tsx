@@ -84,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" {...clickable(() => onBackToExperiences?.(), 'ZeroRoll home')}>
+          <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" {...clickable(() => onBackToExperiences?.())}>
             <div className="w-7 h-7 sm:w-8 sm:h-8 bg-amber-600 rounded flex items-center justify-center font-black text-black text-xs sm:text-sm tracking-tighter shadow-sm font-mono shrink-0">
               00
             </div>
@@ -333,10 +333,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={onOpenAuth || onGoogleSignIn}
-                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider rounded transition-colors flex items-center gap-1.5 shadow-md active:scale-95"
+                aria-label="Sign in or join"
+                className="px-2.5 sm:px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider rounded transition-colors flex items-center gap-1.5 shadow-md active:scale-95"
               >
                 <UserIcon className="w-3.5 h-3.5" />
-                Sign In / Join
+                <span className="hidden xs:inline">Sign In</span>
+                <span className="hidden sm:inline">&nbsp;/ Join</span>
               </button>
             )}
           </div>

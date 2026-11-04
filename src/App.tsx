@@ -31,8 +31,8 @@ import { watchKeyChanges } from './lib/keySync';
 import { runWeeklyModelCheck } from './ai/weeklyModelCheck';
 import { Navbar } from './components/Navbar';
 import { AIStatusBanner } from './components/AIStatusBanner';
-import { CategoriesGrid } from './components/CategoriesGrid';
 // Loaded on first use so the home screen downloads and starts faster.
+const CategoriesGrid = lazy(() => import('./components/CategoriesGrid').then((m) => ({ default: m.CategoriesGrid })));
 const ExperienceView = lazy(() => import('./components/ExperienceView').then((m) => ({ default: m.ExperienceView })));
 const SettingsModal = lazy(() => import('./components/SettingsModal').then((m) => ({ default: m.SettingsModal })));
 const UserProfileModal = lazy(() => import('./components/UserProfileModal').then((m) => ({ default: m.UserProfileModal })));
@@ -544,13 +544,15 @@ export default function App() {
                   />
                 </Suspense>
               ) : (
-                <CategoriesGrid
-                  experiences={experiences}
-                  onSelectExperience={handleSelectExperience}
-                  onCreateExperience={handleCreateExperience}
-                  onDeleteExperience={handleDeleteExperience}
-                  selectedModel={selectedModel}
-                />
+                <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+                  <CategoriesGrid
+                    experiences={experiences}
+                    onSelectExperience={handleSelectExperience}
+                    onCreateExperience={handleCreateExperience}
+                    onDeleteExperience={handleDeleteExperience}
+                    selectedModel={selectedModel}
+                  />
+                </Suspense>
               )}
     </>
   );

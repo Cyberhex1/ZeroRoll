@@ -57,11 +57,25 @@ describe('opener draw', () => {
   });
 
   it('pads a short category from its own hooks, labelled', () => {
-    const draw = drawOpeners('ancient_greek', 5);
-    expect(draw).toHaveLength(Math.min(5, CATEGORY_CONTENT.ancient_greek.openers.length + CATEGORY_CONTENT.ancient_greek.procedural.hooks.length));
-    const padded = draw.filter((d) => d.padded);
-    expect(padded.length).toBeGreaterThan(0);
-    for (const p of padded) expect(CATEGORY_CONTENT.ancient_greek.procedural.hooks.map((h) => h.hook)).toContain(p.opener.premise);
+    // Every category is full now, so shorten one for the test and put it back after.
+    const greek = CATEGORY_CONTENT.ancient_greek;
+    const full = greek.openers;
+    greek.openers = full.slice(0, 1);
+    try {
+      const draw = drawOpeners('ancient_greek', 5);
+      expect(draw).toHaveLength(Math.min(5, greek.openers.length + greek.procedural.hooks.length));
+      const padded = draw.filter((d) => d.padded);
+      expect(padded.length).toBeGreaterThan(0);
+      for (const p of padded) expect(greek.procedural.hooks.map((h) => h.hook)).toContain(p.opener.premise);
+    } finally {
+      greek.openers = full;
+    }
+  });
+
+  it('every category has its full set of openers', () => {
+    const { errors, gaps } = validateContent(CATEGORY_CONTENT, [...CATEGORY_IDS], { strict: true });
+    expect(errors).toEqual([]);
+    expect(gaps).toEqual([]);
   });
 
   it('shuffle keeps every item', () => {

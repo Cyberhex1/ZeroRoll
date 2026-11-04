@@ -317,7 +317,7 @@ export function getCategoryNarrativeProfile(categoryId: string): CategoryNarrati
  */
 export function buildGroundedSeedContext(categoryId: string, userPrompt?: string): string {
   const profile = getCategoryNarrativeProfile(categoryId);
-  const seed = CATEGORY_SEEDLISTS[categoryId] || CATEGORY_SEEDLISTS.fantasy;
+  const seed = CATEGORY_SEEDLISTS[categoryId as ExperienceCategory] || CATEGORY_SEEDLISTS.fantasy;
 
   // Smart selection of representative seed elements
   // Shuffle to get a random mix for brainstorming

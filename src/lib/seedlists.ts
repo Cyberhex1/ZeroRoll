@@ -1,3 +1,5 @@
+import type { ExperienceCategory } from '../types';
+
 
 
 export interface CategorySeedInfo {
@@ -7,7 +9,8 @@ export interface CategorySeedInfo {
   prompts: string[];
 }
 
-export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
+// Keyed by ExperienceCategory so a misspelled or missing category fails the build (SL1).
+export const CATEGORY_SEEDLISTS: Record<ExperienceCategory, CategorySeedInfo> = {
   fantasy: {
     categoryId: 'fantasy',
     categoryName: 'Fantasy',
@@ -680,8 +683,8 @@ export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
       'The wild hunt rides across the stormy night sky, and you must hide before the spectral hounds catch your scent.',
     ]
   },
-  real_life_experiences: {
-    categoryId: 'real_life_experiences',
+  real_life: {
+    categoryId: 'real_life',
     categoryName: 'Real Life Experiences',
     mediaReferences: [
       'Office Space (Film)',
@@ -729,21 +732,3 @@ export const CATEGORY_SEEDLISTS: Record<string, CategorySeedInfo> = {
     ]
   },
 };
-
-/**
- * Procedurally generates a fresh, randomized seedlist with diverse tropes,
- * brainstorm concepts, and full 5-field opening hook presets.
- */
-export function generateDynamicSeedlist(categoryId: string): CategorySeedInfo {
-  const base = CATEGORY_SEEDLISTS[categoryId] || CATEGORY_SEEDLISTS.fantasy;
-
-  // Shuffle and sample
-  const shuffledMedia = [...base.mediaReferences].sort(() => 0.5 - Math.random());
-  const shuffledPrompts = [...base.prompts].sort(() => 0.5 - Math.random());
-
-  return {
-    ...base,
-    mediaReferences: shuffledMedia,
-    prompts: shuffledPrompts
-  };
-}

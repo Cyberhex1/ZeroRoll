@@ -995,6 +995,33 @@ export async function testProviderConnection(params: {
 /*                        GAMEPLAY AI FEATURE ENDPOINTS                       */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Outline lines for a prompt, with only the fields that have content. Campaigns started
+ * from a seed or a typed premise have a partial outline; missing fields used to reach
+ * the model as the word "undefined" (SL4). Returns '' when nothing is usable.
+ */
+export function formatOutlineForPrompt(outline: Partial<DMStoryOutline> | undefined | null, detail: 'full' | 'brief'): string {
+  if (!outline) return '';
+  const text = (v: unknown) => (typeof v === 'string' && v.trim() && v.trim() !== 'undefined' ? v.trim() : '');
+  const list = (v: unknown) => (Array.isArray(v) ? v.map((x) => (typeof x === 'string' ? x.trim() : '')).filter(Boolean) : []);
+  const lines: string[] = [];
+  const add = (label: string, value: string) => { if (value) lines.push(`- ${label}: ${value}`); };
+  add('Starting Circumstances', text(outline.startingCircumstances));
+  add('Backstory', text(outline.backstory));
+  add('Inciting Incident', text(outline.incitingIncident));
+  add('Immediate Goal', text(outline.immediateGoal));
+  const npcs = Array.isArray(outline.keyNpcs) ? outline.keyNpcs.filter((n) => n && text(n.name)) : [];
+  add('Key NPCs', npcs.map((n) => detail === 'full'
+    ? `${text(n.name)} (${[text(n.role), text(n.motivation) && `Motivation: ${text(n.motivation)}`, text(n.secret) && `Secret: ${text(n.secret)}`].filter(Boolean).join(', ')})`
+    : `${text(n.name)}${text(n.role) ? ` (${text(n.role)})` : ''}`).join('; '));
+  if (detail === 'full') {
+    add('Major Conflicts', list(outline.majorConflicts).join('; '));
+    add('Hidden Secrets / Reveals', list(outline.secretsAndReveals).join('; '));
+  }
+  add('Chapter Progression', list(outline.chapters).join(' | '));
+  return lines.join('\n');
+}
+
 /** Chip offered when a reply was cut short by the length limit. */
 export const CONTINUE_ACTION = 'Continue';
 
@@ -1039,15 +1066,8 @@ export async function executeActionTurn(params: {
 
 ${narrativeCorpus}
 
-${storyOutline ? `DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference - NOT a rigid script):
-- Starting Circumstances: ${storyOutline.startingCircumstances}
-- Backstory: ${storyOutline.backstory}
-- Inciting Incident: ${storyOutline.incitingIncident}
-- Immediate Goal: ${storyOutline.immediateGoal}
-- Key NPCs: ${storyOutline.keyNpcs?.map(n => `${n.name} (${n.role}, Motivation: ${n.motivation}${n.secret ? `, Secret: ${n.secret}` : ''})`).join('; ') || 'None'}
-- Major Conflicts: ${storyOutline.majorConflicts?.join('; ') || 'None'}
-- Hidden Secrets / Reveals: ${storyOutline.secretsAndReveals?.join('; ') || 'None'}
-- Chapter Progression: ${storyOutline.chapters?.join(' | ') || 'None'}
+${formatOutlineForPrompt(storyOutline, 'full') ? `DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference - NOT a rigid script):
+${formatOutlineForPrompt(storyOutline, 'full')}
 
 ROADMAP GM PRINCIPLES:
 1. DYNAMIC ADAPTATION: The outline is a living roadmap, not a railroad script. Player decisions shape reality. If the player outsmarts an obstacle, befriends an enemy, or takes an unexpected path, adapt the story organically.
@@ -1503,7 +1523,9 @@ export async function rollSingleFieldAI(
   category: ExperienceCategory,
   fieldType: 'title' | 'heroName' | 'roleClass' | 'raceOrigin' | 'hookText',
   model?: string,
-  contextPrompt?: string
+  contextPrompt?: string,
+  /** When false, AI failures throw instead of returning a procedural value. */
+  allowFallback = true
 ): Promise<string> {
   const hasKey = hasActiveGeminiKey();
 
@@ -1527,7 +1549,8 @@ Output ONLY the generated text with no extra commentary, quotes, or formatting.`
       if (clean && clean.length > 1) return clean;
       throw new AIError('bad_output', 'Reply was empty.');
     } catch (err) {
-      reportFeatureFailure(err, 'Field roll', true);
+      const { message } = reportFeatureFailure(err, 'Field roll', allowFallback);
+      if (!allowFallback) throw new Error(message);
     }
   } else {
     reportMissingKey('Field roll');
@@ -1540,6 +1563,18 @@ Output ONLY the generated text with no extra commentary, quotes, or formatting.`
   if (fieldType === 'roleClass') return setup.roleClass;
   if (fieldType === 'raceOrigin') return setup.raceOrigin;
   return setup.storyBlurb;
+}
+
+/**
+ * Pronouns are not a visual description: "portrait of she/her High Elf" confused image
+ * models (PS13). Map the common sets to a visual term; leave custom pronouns out.
+ */
+export function pronounsToVisual(pronouns?: string): string {
+  const p = (pronouns || '').toLowerCase().replace(/\s+/g, '');
+  if (p.startsWith('she')) return 'feminine';
+  if (p.startsWith('he/') || p === 'he') return 'masculine';
+  if (p.startsWith('they')) return 'androgynous';
+  return '';
 }
 
 /**
@@ -1563,7 +1598,8 @@ export async function generateAvatarAI(params: {
   const storyEvolution = recentStoryContext ? `reflecting recent dramatic story events: ${recentStoryContext.slice(-200)}` : '';
   const genreTheme = (category || 'fantasy').replace('_', ' ');
 
-  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${gender ? `${gender} ` : ''}${raceOrigin} ${roleClass} named ${characterName}, ${cleanDesc}, ${storyEvolution}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
+  const visual = pronounsToVisual(gender);
+  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${visual ? `${visual} ` : ''}${raceOrigin} ${roleClass} named ${characterName}, ${cleanDesc}, ${storyEvolution}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
 
   const seed = Math.floor(Math.random() * 999999);
 
@@ -1631,14 +1667,9 @@ ${buildGroundedSeedContext(category, storyBlurb)}
 
 STORY PREMISE:
 ${storyBlurb}
-${storyOutline ? `
+${formatOutlineForPrompt(storyOutline, 'brief') ? `
 DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference):
-- Starting Circumstances: ${storyOutline.startingCircumstances || 'Derive from the premise'}
-- Backstory: ${storyOutline.backstory || 'Derive from the premise'}
-- Inciting Incident: ${storyOutline.incitingIncident || 'Derive from the premise'}
-- Immediate Goal: ${storyOutline.immediateGoal || 'Derive from the premise'}
-- Key NPCs: ${storyOutline.keyNpcs?.map(n => `${n.name} (${n.role})`).join('; ') || 'None'}
-- Chapter Progression: ${storyOutline.chapters?.join(' | ') || 'None'}
+${formatOutlineForPrompt(storyOutline, 'brief')}
 ` : ''}
 CREATIVE ASSIGNMENT:
 Write the very first scene (Chapter One, Scene 1) of this campaign. 

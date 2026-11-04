@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, useRef, lazy, Suspense } from 'react';
 import { uid } from '../lib/ids';
 import {
   Wand2,
@@ -38,6 +38,17 @@ import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, Inventory
 
 // Loaded on demand so the backup code stays out of the main bundle.
 const BackupPanel = lazy(() => import('./BackupPanel'));
+
+/** Input limits on the setup screen (PS10). The premise is re-sent with every turn, so it is capped. */
+const FIELD_LIMITS = {
+  title: 100,
+  heroName: 60,
+  roleClass: 60,
+  raceOrigin: 60,
+  pronouns: 30,
+  description: 500,
+  premise: 2000,
+} as const;
 
 interface CategoriesGridProps {
   experiences: Experience[];
@@ -86,10 +97,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   const [startingHp, setStartingHp] = useState<number>(12);
   const [suggestedActions, setSuggestedActions] = useState<string[]>([]);
   const [currentStoryOutline, setCurrentStoryOutline] = useState<DMStoryOutline | undefined>(undefined);
-  const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
   // Where the current setup fields came from, so offline drafts are never mistaken for AI output.
   const [setupSource, setSetupSource] = useState<'offline' | 'ai' | 'seed'>('offline');
-  const [rollingField, setRollingField] = useState<string | null>(null);
 
   // 100-Pool 5 Scenario Seeds at a time & Dynamic Tropes
   const [currentScenarioSeeds, setCurrentScenarioSeeds] = useState<PlayableScenarioSeed[]>([]);
@@ -118,9 +127,62 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     }
   };
 
+  // --- Setup screen bookkeeping (PS1, PS2, PS4, PS11) -----------------------------------
+  // A generation id bumped whenever the modal opens or closes: a roll that finishes after
+  // the player moved on is dropped instead of landing in another category (PS1).
+  const genRef = useRef(0);
+  const isCurrent = (gen: number) => gen === genRef.current;
+  // Where the premise text came from. Only the player's own words or a chosen seed are
+  // sent to the AI as "the user's concept"; an offline draft never is (PS2).
+  const [premiseSource, setPremiseSource] = useState<'player' | 'procedural' | 'ai' | 'seed'>('procedural');
+  // Fields the player typed since the last roll, so a re-roll asks before replacing them (PS4).
+  const [editedFields, setEditedFields] = useState<Set<string>>(new Set());
+  const markEdited = (field: string) => setEditedFields((prev) => (prev.has(field) ? prev : new Set(prev).add(field)));
+  // One busy flag per action (PS11). Initialize waits until none are running.
+  const [busyActions, setBusyActions] = useState<Set<string>>(new Set());
+  const setBusy = (action: string, on: boolean) =>
+    setBusyActions((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(action);
+      else next.delete(action);
+      return next;
+    });
+  const isBusy = (action: string) => busyActions.has(action);
+  const anyBusy = busyActions.size > 0;
+  // Inline note for a failed roll on this form (PS12).
+  const [formNote, setFormNote] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const resolvedPronouns = () => (charGender === 'custom' ? customGender.trim() || 'they/them' : charGender);
+
+  /** One description of the hero for every single-field roll (PS13). */
+  const characterContext = () => {
+    const parts = [
+      charName.trim() && `Hero name: ${charName.trim()}`,
+      `Pronouns: ${resolvedPronouns()}`,
+      charRole.trim() && `Role: ${charRole.trim()}`,
+      charRace.trim() && `Origin: ${charRace.trim()}`,
+      openingPrompt.trim() && `Premise: ${openingPrompt.trim().slice(0, 600)}`,
+    ].filter(Boolean);
+    return parts.join('. ');
+  };
+
+  const closeModal = () => {
+    genRef.current++;
+    setSelectedCategoryModal(null);
+  };
+
+  const confirmReplaceEdits = (fields: string[]) => {
+    const touched = fields.filter((f) => editedFields.has(f));
+    if (touched.length === 0) return true;
+    return window.confirm(`This replaces what you typed in: ${touched.join(', ')}. Continue?`);
+  };
+
   const applyRandomSetup = (catId: ExperienceCategory) => {
     const randomSetup = generateRandomScenarioSetup(catId);
     setSetupSource('offline');
+    setPremiseSource('procedural');
+    setEditedFields(new Set());
     setCustomTitle(randomSetup.title);
     setCharName(randomSetup.heroName);
     setCharRole(randomSetup.roleClass);
@@ -132,93 +194,97 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setInitialSpells(randomSetup.initialSpells);
     setInitialConditions(randomSetup.initialConditions);
     setStartingHp(randomSetup.startingHp);
-    
+
     // Clear any AI-specific state from previous generations
     setCurrentStoryOutline(undefined);
     setCharAvatarUrl(undefined);
     setAvatarError(null);
   };
 
-  const handleRandomizeTitle = async (cat: CategoryInfo) => {
-    setRollingField('title');
+  const rollField = async (
+    cat: CategoryInfo,
+    field: 'title' | 'heroName' | 'roleClass' | 'raceOrigin',
+    label: string,
+    apply: (value: string) => void
+  ) => {
+    const gen = genRef.current;
+    setBusy(`field:${field}`, true);
+    setFormNote(null);
     try {
-      const t = await rollSingleFieldAI(cat.id as ExperienceCategory, 'title', selectedModel, openingPrompt);
-      setCustomTitle(t);
+      const value = (await rollSingleFieldAI(cat.id as ExperienceCategory, field, selectedModel, characterContext(), !hasActiveGeminiKey()))
+        .trim()
+        .slice(0, FIELD_LIMITS[field]);
+      if (!isCurrent(gen)) return;
+      apply(value);
+      setEditedFields((prev) => {
+        const next = new Set(prev);
+        next.delete(label);
+        return next;
+      });
+    } catch (err) {
+      if (isCurrent(gen)) setFormNote(`Could not roll ${label.toLowerCase()}: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
-      setRollingField(null);
+      setBusy(`field:${field}`, false);
     }
   };
 
-  const handleRandomizeHeroName = async (cat: CategoryInfo) => {
-    setRollingField('heroName');
-    try {
-      const f = await rollSingleFieldAI(cat.id as ExperienceCategory, 'heroName', selectedModel, `${openingPrompt} (${charRole} ${charRace})`);
-      setCharName(f);
-    } finally {
-      setRollingField(null);
-    }
-  };
+  const handleRandomizeTitle = (cat: CategoryInfo) => rollField(cat, 'title', 'Title', setCustomTitle);
+  const handleRandomizeHeroName = (cat: CategoryInfo) => rollField(cat, 'heroName', 'Name', setCharName);
+  const handleRandomizeRole = (cat: CategoryInfo) => rollField(cat, 'roleClass', 'Role', setCharRole);
+  const handleRandomizeRace = (cat: CategoryInfo) => rollField(cat, 'raceOrigin', 'Origin', setCharRace);
 
-  const handleRandomizeRole = async (cat: CategoryInfo) => {
-    setRollingField('roleClass');
-    try {
-      const r = await rollSingleFieldAI(cat.id as ExperienceCategory, 'roleClass', selectedModel, openingPrompt);
-      setCharRole(r);
-    } finally {
-      setRollingField(null);
-    }
-  };
+  /**
+   * AI scenario roll.
+   * - 'all' (AI Re-roll All Fields): replaces every field, after confirming typed edits.
+   * - 'hook' (Roll Hook): replaces only the premise, outline and actions, written for the hero
+   *   as it stands (PS4).
+   */
+  const handleGenerateScenario = async (cat: CategoryInfo, mode: 'all' | 'hook') => {
+    const replaced = mode === 'all' ? ['Title', 'Name', 'Role', 'Origin', 'Premise', 'Description'] : ['Premise'];
+    if (!confirmReplaceEdits(replaced)) return;
 
-  const handleRandomizeRace = async (cat: CategoryInfo) => {
-    setRollingField('raceOrigin');
-    try {
-      const rc = await rollSingleFieldAI(cat.id as ExperienceCategory, 'raceOrigin', selectedModel, openingPrompt);
-      setCharRace(rc);
-    } finally {
-      setRollingField(null);
-    }
-  };
-
-  const handleRandomizeHook = async (cat: CategoryInfo) => {
-    // Generate fresh scenario tailored to current character concept
-    handleGenerateScenario(cat, false);
-  };
-
-  const handleGenerateScenario = async (cat: CategoryInfo, forceNew = false) => {
-    // If not forced and user hasn't typed anything, populate local fallback first
-    if (forceNew && !charName && !openingPrompt) {
-      applyRandomSetup(cat.id as ExperienceCategory);
-    }
-
-    const resolvedGender = charGender === 'custom' ? (customGender || 'they/them') : charGender;
-
-    setIsGeneratingScenario(true);
+    const gen = genRef.current;
+    const action = mode === 'all' ? 'scenario' : 'hook';
+    setBusy(action, true);
+    setFormNote(null);
+    // Only the player's own concept or a chosen seed steers the AI (PS2).
+    const concept = premiseSource === 'player' || premiseSource === 'seed' ? openingPrompt.trim() || undefined : undefined;
+    const keepHero = mode === 'hook' || editedFields.has('Name') || editedFields.has('Role') || editedFields.has('Origin');
     try {
       const data = await generateScenarioAI({
         category: cat.id as ExperienceCategory,
         model: selectedModel,
-        userPrompt: openingPrompt || undefined,
-        gender: resolvedGender,
-        characterName: forceNew ? undefined : (charName || undefined),
-        classRole: forceNew ? undefined : (charRole || undefined),
-        raceOrigin: forceNew ? undefined : (charRace || undefined)
+        userPrompt: concept,
+        gender: resolvedPronouns(),
+        characterName: keepHero ? charName.trim() || undefined : undefined,
+        classRole: keepHero ? charRole.trim() || undefined : undefined,
+        raceOrigin: keepHero ? charRace.trim() || undefined : undefined,
+        // On this screen a failure is shown on the form; the fields stay as they were (PS12).
+        allowFallback: !hasActiveGeminiKey()
       });
+      if (!isCurrent(gen) || !data?.scenario) return;
+      const sc = data.scenario;
+      const fromAI = data.source === 'ai';
 
-      if (data && data.scenario) {
-        setSetupSource(data.source === 'ai' ? 'ai' : 'offline');
-        // Update ALL 5 setup fields with AI's tailored response
-        if (data.scenario.title) setCustomTitle(data.scenario.title);
-        if (data.scenario.heroName) setCharName(data.scenario.heroName);
-        if (data.scenario.roleClass) setCharRole(data.scenario.roleClass);
-        if (data.scenario.raceOrigin) setCharRace(data.scenario.raceOrigin);
-        if (data.scenario.storyBlurb) setOpeningPrompt(data.scenario.storyBlurb);
-        if (data.scenario.physicalDescription) setPhysicalDesc(data.scenario.physicalDescription);
-        if (data.scenario.avatarUrl) setCharAvatarUrl(data.scenario.avatarUrl);
-        if (data.scenario.suggestedActions) setSuggestedActions(data.scenario.suggestedActions);
-        if (data.scenario.storyOutline) setCurrentStoryOutline(data.scenario.storyOutline);
+      // Outline is set or cleared on every apply, never left over from another story (PS3).
+      setCurrentStoryOutline(fromAI ? sc.storyOutline : undefined);
+      if (sc.storyBlurb) {
+        setOpeningPrompt(sc.storyBlurb.slice(0, FIELD_LIMITS.premise));
+        setPremiseSource(fromAI ? 'ai' : 'procedural');
+      }
+      if (sc.suggestedActions) setSuggestedActions(sc.suggestedActions);
 
-        if (data.scenario.initialInventory && Array.isArray(data.scenario.initialInventory)) {
-          setInitialInventory(data.scenario.initialInventory.map((item: any, idx: number) => ({
+      if (mode === 'all') {
+        setSetupSource(fromAI ? 'ai' : 'offline');
+        setEditedFields(new Set());
+        if (sc.title) setCustomTitle(sc.title.slice(0, FIELD_LIMITS.title));
+        if (sc.heroName) setCharName(sc.heroName.slice(0, FIELD_LIMITS.heroName));
+        if (sc.roleClass) setCharRole(sc.roleClass.slice(0, FIELD_LIMITS.roleClass));
+        if (sc.raceOrigin) setCharRace(sc.raceOrigin.slice(0, FIELD_LIMITS.raceOrigin));
+        if (sc.physicalDescription) setPhysicalDesc(sc.physicalDescription.slice(0, FIELD_LIMITS.description));
+        if (sc.avatarUrl) setCharAvatarUrl(sc.avatarUrl);
+        if (Array.isArray(sc.initialInventory)) {
+          setInitialInventory(sc.initialInventory.map((item: any, idx: number) => ({
             id: `item_init_${uid()}_${idx}`,
             name: item.name || 'Adventurer Tool',
             type: item.type || 'misc',
@@ -227,18 +293,45 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
             description: item.description
           })));
         }
-        if (data.scenario.initialConditions && Array.isArray(data.scenario.initialConditions)) {
-          setInitialConditions(data.scenario.initialConditions);
-        }
-        if (data.scenario.startingHp) {
-          setStartingHp(data.scenario.startingHp);
-        }
+        if (Array.isArray(sc.initialConditions)) setInitialConditions(sc.initialConditions);
+        if (sc.startingHp) setStartingHp(sc.startingHp);
+      } else {
+        setEditedFields((prev) => {
+          const next = new Set(prev);
+          next.delete('Premise');
+          return next;
+        });
       }
     } catch (err) {
-      console.warn('AI scenario generation error, using procedural setup:', err);
-      if (!charName) applyRandomSetup(cat.id as ExperienceCategory);
+      if (isCurrent(gen)) {
+        setFormNote(`${mode === 'all' ? 'AI re-roll' : 'Roll Hook'} failed, so nothing was changed: ${err instanceof Error ? err.message : String(err)}`);
+      }
     } finally {
-      setIsGeneratingScenario(false);
+      setBusy(action, false);
+    }
+  };
+
+  const handleRandomizeHook = (cat: CategoryInfo) => handleGenerateScenario(cat, 'hook');
+
+  const handleRenderPortrait = async (cat: CategoryInfo) => {
+    const gen = genRef.current;
+    setBusy('portrait', true);
+    setAvatarError(null);
+    try {
+      const data = await generateAvatarAI({
+        characterName: charName.trim() || 'Hero',
+        roleClass: charRole.trim() || 'Adventurer',
+        raceOrigin: charRace.trim() || 'Human',
+        gender: resolvedPronouns(),
+        category: cat.id as ExperienceCategory,
+        physicalDescription: physicalDesc.trim(),
+        model: selectedModel
+      });
+      if (isCurrent(gen) && data?.avatarUrl) setCharAvatarUrl(data.avatarUrl);
+    } catch (err: any) {
+      if (isCurrent(gen)) setAvatarError(err.message || 'Failed to generate character avatar.');
+    } finally {
+      setBusy('portrait', false);
     }
   };
 
@@ -250,27 +343,37 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   };
 
   const handleApplyPlayableSeed = (seed: PlayableScenarioSeed, cat: CategoryInfo) => {
+    if (!confirmReplaceEdits(['Title', 'Name', 'Role', 'Origin', 'Premise', 'Description'])) return;
     applyRandomSetup(cat.id as ExperienceCategory);
     setCustomTitle(seed.title);
     if (seed.suggestedHeroName) setCharName(seed.suggestedHeroName);
     if (seed.suggestedRole) setCharRole(seed.suggestedRole);
     if (seed.suggestedRace) setCharRace(seed.suggestedRace);
     setOpeningPrompt(seed.premise);
+    setPremiseSource('seed');
     if (seed.suggestedActions && seed.suggestedActions.length > 0) {
       setSuggestedActions(seed.suggestedActions);
     }
+    // A minimal outline from the seed itself, so Chapter One and the roadmap describe this story (PS3).
+    setCurrentStoryOutline({
+      startingCircumstances: seed.premise,
+      immediateGoal: seed.suggestedActions?.[0] || '',
+    } as DMStoryOutline);
     setSetupSource('seed');
     setModalTab('configure');
   };
 
   const handleApplyTrope = (trope: TropeCategory | { name: string; premise?: string; tagline?: string }) => {
     const tropeName = trope.name;
-    const tropePremise = trope.premise || (trope as any).tagline || '';
-    setOpeningPrompt(prev => {
-      const cleanPrev = prev ? `${prev} ` : '';
-      return `${cleanPrev}[Trope: ${tropeName}] ${tropePremise}`.trim();
-    });
-    setCustomTitle(`${tropeName}: Chapter I`);
+    const tropePremise = (trope.premise || (trope as any).tagline || '').trim();
+    // Use the trope's own text; the "[Trope: …]" literal used to leak into premises and titles (SL10).
+    if (tropePremise) {
+      setOpeningPrompt((prev) => `${prev.trim() ? `${prev.trim()} ` : ''}${tropePremise}`.slice(0, FIELD_LIMITS.premise));
+      setPremiseSource('player');
+    }
+    if (!/^prompt \d+$/i.test(tropeName.trim())) setCustomTitle(tropeName.trim().slice(0, FIELD_LIMITS.title));
+    // The premise changed, so any AI outline no longer matches it (PS3).
+    setCurrentStoryOutline(undefined);
     setModalTab('configure');
   };
 
@@ -296,8 +399,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
 
   const handleOpenCategoryModal = (cat: CategoryInfo) => {
+    genRef.current++;
     setSelectedCategoryModal(cat);
     setChapterOneFailure(null);
+    setFormNote(null);
+    setFormErrors({});
+    setBusyActions(new Set());
     setModalTab('configure');
     setCurrentStoryOutline(undefined);
     setAvatarError(null);
@@ -311,22 +418,39 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     applyRandomSetup(cat.id as ExperienceCategory);
   };
 
+  /** Trims every field and returns the problems to show inline (PS10). */
+  const validateSetup = (): Record<string, string> => {
+    const errors: Record<string, string> = {};
+    if (!charName.trim()) errors.name = 'Give your hero a name.';
+    if (!charRole.trim()) errors.role = 'Pick a role or class.';
+    if (!charRace.trim()) errors.origin = 'Pick an origin.';
+    if (charGender === 'custom' && !customGender.trim()) errors.pronouns = 'Type the pronouns to use, or pick one of the options.';
+    if (!openingPrompt.trim()) errors.premise = 'Write a premise or roll one.';
+    return errors;
+  };
+
   const handleConfirmCreate = async (opts: { acceptPremise?: boolean } = {}) => {
     if (!selectedCategoryModal) return;
-    if (isGeneratingScenario) return;
+    if (anyBusy) return;
 
-    setIsGeneratingScenario(true);
+    const errors = validateSetup();
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    const gen = genRef.current;
+    setBusy('create', true);
     setAvatarError(null);
     setChapterOneFailure(null);
+    setFormNote(null);
 
-    const resolvedGender = charGender === 'custom' ? (customGender || 'they/them') : charGender;
+    const premise = openingPrompt.trim().slice(0, FIELD_LIMITS.premise);
 
     const fullChar: CharacterSheet = {
       id: `char_${uid()}`,
-      name: charName || selectedCategoryModal.defaultCharacter.name || 'Hero',
-      gender: resolvedGender,
-      roleClass: charRole || selectedCategoryModal.defaultCharacter.roleClass || 'Adventurer',
-      raceOrigin: charRace || selectedCategoryModal.defaultCharacter.raceOrigin || 'Human',
+      name: charName.trim().slice(0, FIELD_LIMITS.heroName),
+      gender: resolvedPronouns().slice(0, FIELD_LIMITS.pronouns),
+      roleClass: charRole.trim().slice(0, FIELD_LIMITS.roleClass),
+      raceOrigin: charRace.trim().slice(0, FIELD_LIMITS.raceOrigin),
       level: selectedCategoryModal.defaultCharacter.level || 1,
       hp: startingHp || selectedCategoryModal.defaultCharacter.hp || 24,
       maxHp: startingHp || selectedCategoryModal.defaultCharacter.maxHp || 24,
@@ -336,9 +460,10 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       inventory: initialInventory.length > 0 ? initialInventory : (selectedCategoryModal.defaultCharacter.inventory || []),
       spells: initialSpells.length > 0 ? initialSpells : (selectedCategoryModal.defaultCharacter.spells || []),
       statusEffects: initialConditions.length > 0 ? initialConditions : ['Well-Rested'],
-      backgroundNotes: selectedCategoryModal.defaultCharacter.backgroundNotes || '',
+      // The canonical hero's backstory does not belong to a generated hero (PS16).
+      backgroundNotes: '',
       avatarUrl: charAvatarUrl || selectedCategoryModal.defaultCharacter.avatarUrl,
-      physicalDescription: physicalDesc || ''
+      physicalDescription: physicalDesc.trim().slice(0, FIELD_LIMITS.description)
     };
 
     try {
@@ -350,11 +475,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         // Write Chapter 1 with AI; the outline is used when the AI scenario provided one
         const chapterOneRes = await generateChapterOneAI({
           category: selectedCategoryModal.id,
-          storyBlurb: openingPrompt,
+          storyBlurb: premise,
           storyOutline: currentStoryOutline,
           characterState: fullChar,
           model: selectedModel
         });
+        if (!isCurrent(gen)) return;
         if (chapterOneRes.failure) {
           // Never start the campaign on a silent stand-in: the player retries or accepts the premise.
           setChapterOneFailure(chapterOneRes.failure);
@@ -371,19 +497,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
       await onCreateExperience(
         selectedCategoryModal.id,
-        customTitle || `${selectedCategoryModal.name} Experience`,
+        customTitle.trim().slice(0, FIELD_LIMITS.title) || `${selectedCategoryModal.name} Experience`,
         fullChar,
-        openingPrompt,
+        premise,
         finalSuggestedActions,
         currentStoryOutline,
         chapterOneText,
         chapterOneModel
       );
-      setSelectedCategoryModal(null);
+      closeModal();
     } catch (err: any) {
       console.error('Error creating experience:', err);
+      setFormNote(`The campaign could not be created: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
-      setIsGeneratingScenario(false);
+      setBusy('create', false);
     }
   };
 
@@ -644,7 +771,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                   </div>
                 </div>
                 <button
-                  onClick={() => setSelectedCategoryModal(null)}
+                  onClick={closeModal}
                   className="text-slate-400 hover:text-slate-100 p-1 rounded bg-white/5 text-xs font-mono"
                   title="Close"
                 >
@@ -681,12 +808,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                 <div className="flex items-center justify-end gap-2">
                   <button
                     type="button"
-                    disabled={isGeneratingScenario}
-                    onClick={() => handleGenerateScenario(selectedCategoryModal, true)}
+                    disabled={isBusy('scenario') || isBusy('hook') || isBusy('create')}
+                    onClick={() => handleGenerateScenario(selectedCategoryModal, 'all')}
                     className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-[11px] font-mono text-amber-300 flex items-center justify-center gap-1.5 transition disabled:opacity-50 font-semibold"
                     title="Generate with AI"
                   >
-                    <RefreshCw className={`w-3 h-3 ${isGeneratingScenario ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-3 h-3 ${isBusy('scenario') ? 'animate-spin' : ''}`} />
                     AI Re-roll All Fields
                   </button>
                 </div>
@@ -707,19 +834,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       </label>
                       <button
                         type="button"
-                        disabled={rollingField === 'title' || isGeneratingScenario}
+                        disabled={isBusy('field:title') || isBusy('scenario') || isBusy('create')}
                         onClick={() => handleRandomizeTitle(selectedCategoryModal)}
                         className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                         title="Roll random title"
                       >
-                        <RefreshCw className={`w-3 h-3 ${rollingField === 'title' ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-3 h-3 ${isBusy('field:title') ? 'animate-spin' : ''}`} />
                         Roll Title
                       </button>
                     </div>
                     <input
                       type="text"
                       value={customTitle}
-                      onChange={(e) => setCustomTitle(e.target.value)}
+                      onChange={(e) => { setCustomTitle(e.target.value); markEdited('Title'); }}
+                        maxLength={FIELD_LIMITS.title}
                       className="w-full bg-[#0A0A0F] border border-white/10 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50"
                       placeholder="e.g. Chronicles of the Blood Moon"
                     />
@@ -755,6 +883,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                           type="text"
                           value={customGender}
                           onChange={(e) => setCustomGender(e.target.value)}
+                          maxLength={FIELD_LIMITS.pronouns}
                           placeholder="e.g. she/they, ze/zir, non-binary"
                           className="flex-1 min-w-[140px] bg-[#111118] border border-amber-500/50 rounded px-2.5 py-1 text-xs text-amber-200 focus:outline-none font-mono"
                         />
@@ -771,19 +900,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </label>
                         <button
                           type="button"
-                          disabled={rollingField === 'heroName' || isGeneratingScenario}
+                          disabled={isBusy('field:heroName') || isBusy('scenario') || isBusy('create')}
                           onClick={() => handleRandomizeHeroName(selectedCategoryModal)}
                           className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                           title="Roll random hero name"
                         >
-                          <RefreshCw className={`w-2.5 h-2.5 ${rollingField === 'heroName' ? 'animate-spin' : ''}`} />
+                          <RefreshCw className={`w-2.5 h-2.5 ${isBusy('field:heroName') ? 'animate-spin' : ''}`} />
                           Roll Name
                         </button>
                       </div>
                       <input
                         type="text"
                         value={charName}
-                        onChange={(e) => setCharName(e.target.value)}
+                        onChange={(e) => { setCharName(e.target.value); markEdited('Name'); }}
+                        maxLength={FIELD_LIMITS.heroName}
                         className="w-full bg-[#0A0A0F] border border-white/10 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 font-medium"
                       />
                     </div>
@@ -794,19 +924,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </label>
                         <button
                           type="button"
-                          disabled={rollingField === 'roleClass' || isGeneratingScenario}
+                          disabled={isBusy('field:roleClass') || isBusy('scenario') || isBusy('create')}
                           onClick={() => handleRandomizeRole(selectedCategoryModal)}
                           className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                           title="Roll random class role"
                         >
-                          <RefreshCw className={`w-2.5 h-2.5 ${rollingField === 'roleClass' ? 'animate-spin' : ''}`} />
+                          <RefreshCw className={`w-2.5 h-2.5 ${isBusy('field:roleClass') ? 'animate-spin' : ''}`} />
                           Roll Role
                         </button>
                       </div>
                       <input
                         type="text"
                         value={charRole}
-                        onChange={(e) => setCharRole(e.target.value)}
+                        onChange={(e) => { setCharRole(e.target.value); markEdited('Role'); }}
+                        maxLength={FIELD_LIMITS.roleClass}
                         className="w-full bg-[#0A0A0F] border border-white/10 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 font-medium"
                       />
                     </div>
@@ -817,19 +948,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </label>
                         <button
                           type="button"
-                          disabled={rollingField === 'raceOrigin' || isGeneratingScenario}
+                          disabled={isBusy('field:raceOrigin') || isBusy('scenario') || isBusy('create')}
                           onClick={() => handleRandomizeRace(selectedCategoryModal)}
                           className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                           title="Roll random race origin"
                         >
-                          <RefreshCw className={`w-2.5 h-2.5 ${rollingField === 'raceOrigin' ? 'animate-spin' : ''}`} />
+                          <RefreshCw className={`w-2.5 h-2.5 ${isBusy('field:raceOrigin') ? 'animate-spin' : ''}`} />
                           Roll Race
                         </button>
                       </div>
                       <input
                         type="text"
                         value={charRace}
-                        onChange={(e) => setCharRace(e.target.value)}
+                        onChange={(e) => { setCharRace(e.target.value); markEdited('Origin'); }}
+                        maxLength={FIELD_LIMITS.raceOrigin}
                         className="w-full bg-[#0A0A0F] border border-white/10 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 font-medium"
                       />
                     </div>
@@ -844,30 +976,11 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       </label>
                       <button
                         type="button"
-                        disabled={isGeneratingScenario}
-                        onClick={async () => {
-                          setIsGeneratingScenario(true);
-                          setAvatarError(null);
-                          try {
-                            const data = await generateAvatarAI({
-                              characterName: charName || 'Hero',
-                              roleClass: charRole || 'Adventurer',
-                              raceOrigin: charRace || 'Human',
-                              category: selectedCategoryModal.id as ExperienceCategory,
-                              physicalDescription: physicalDesc,
-                              model: selectedModel
-                            });
-                            if (data?.avatarUrl) setCharAvatarUrl(data.avatarUrl);
-                          } catch (err: any) {
-                            console.error('Avatar generation error:', err);
-                            setAvatarError(err.message || 'Failed to generate character avatar.');
-                          } finally {
-                            setIsGeneratingScenario(false);
-                          }
-                        }}
+                        disabled={isBusy('portrait') || isBusy('create')}
+                        onClick={() => handleRenderPortrait(selectedCategoryModal)}
                         className="text-[10px] text-amber-400 hover:text-amber-300 flex items-center gap-1 font-mono disabled:opacity-50"
                       >
-                        <RefreshCw className={`w-3 h-3 ${isGeneratingScenario ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-3 h-3 ${isBusy('portrait') ? 'animate-spin' : ''}`} />
                         Re-render Portrait
                       </button>
                     </div>
@@ -880,7 +993,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                             alt="Hero Portrait" 
                             className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-amber-500 shadow-lg"
                           />
-                          {isGeneratingScenario && (
+                          {(isBusy('portrait') || isBusy('scenario')) && (
                             <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center">
                               <RefreshCw className="w-4 h-4 text-amber-400 animate-spin" />
                             </div>
@@ -896,7 +1009,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         <textarea
                           rows={2}
                           value={physicalDesc}
-                          onChange={(e) => setPhysicalDesc(e.target.value)}
+                          onChange={(e) => { setPhysicalDesc(e.target.value); markEdited('Description'); }}
+                          maxLength={FIELD_LIMITS.description}
                           placeholder="e.g. Simple hotel staff attire with impeccable regal posture, piercing sapphire eyes, carrying an antique heirloom ring..."
                           className="w-full bg-[#111118] border border-white/10 rounded p-2 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 resize-none font-sans"
                         />
@@ -918,20 +1032,21 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       </label>
                       <button
                         type="button"
-                        disabled={isGeneratingScenario}
+                        disabled={isBusy('hook') || isBusy('scenario') || isBusy('create')}
                         onClick={() => handleRandomizeHook(selectedCategoryModal)}
                         className="text-[10px] font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1 disabled:opacity-50"
-                        title="Roll a fresh Act 1 Scene 1 starting hook"
+                        title="Write a new premise for this hero (keeps name, role, origin and gear)"
                       >
-                        <RefreshCw className={`w-3 h-3 ${isGeneratingScenario ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-3 h-3 ${isBusy('hook') ? 'animate-spin' : ''}`} />
                         Roll Hook
                       </button>
                     </div>
                     <textarea
                       rows={4}
                       value={openingPrompt}
-                      onChange={(e) => setOpeningPrompt(e.target.value)}
-                      disabled={isGeneratingScenario}
+                      onChange={(e) => { setOpeningPrompt(e.target.value); setPremiseSource('player'); markEdited('Premise'); }}
+                      maxLength={FIELD_LIMITS.premise}
+                      disabled={isBusy('hook') || isBusy('scenario')}
                       className="w-full bg-[#0A0A0F] border border-white/10 rounded p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 leading-relaxed resize-none disabled:opacity-60 font-sans"
                     />
                     
@@ -1083,7 +1198,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       <button
                         type="button"
                         onClick={() => handleConfirmCreate()}
-                        disabled={isGeneratingScenario}
+                        disabled={anyBusy}
                         className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-black font-bold text-[10px] font-mono uppercase tracking-wider"
                       >
                         Try again
@@ -1091,7 +1206,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       <button
                         type="button"
                         onClick={() => handleConfirmCreate({ acceptPremise: true })}
-                        disabled={isGeneratingScenario}
+                        disabled={anyBusy}
                         className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/15 border border-white/15 text-slate-200 text-[10px] font-mono uppercase tracking-wider"
                       >
                         Start with the premise instead
@@ -1099,20 +1214,26 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     </div>
                   </div>
                 )}
+                {(formNote || Object.keys(formErrors).length > 0) && (
+                  <div role="alert" className="w-full p-2 rounded bg-red-950/60 border border-red-700/40 text-[11px] text-red-100 space-y-0.5">
+                    {formNote && <p>{formNote}</p>}
+                    {Object.values(formErrors).map((msg) => <p key={msg}>{msg}</p>)}
+                  </div>
+                )}
                 <button
-                  onClick={() => setSelectedCategoryModal(null)}
+                  onClick={closeModal}
                   className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:bg-white/5 transition"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleConfirmCreate()}
-                  disabled={isGeneratingScenario}
-                  title={isGeneratingScenario ? 'Wait for scenario generation to finish' : 'Initialize campaign'}
-                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg transition flex items-center gap-2 shadow-lg hover:shadow-amber-500/20"
+                  disabled={anyBusy}
+                  title={anyBusy ? 'Waiting for rolls to finish' : 'Initialize campaign'}
+                  className="disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-lg transition flex items-center gap-2 shadow-lg hover:shadow-amber-500/20"
                 >
                   <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>Initialize Campaign</span>
+                  <span>{isBusy('create') ? 'Writing Chapter One…' : 'Initialize Campaign'}</span>
                 </button>
               </div>
 

@@ -188,27 +188,27 @@ export const AI_PROVIDERS: Record<AIProviderId, AIProviderConfig> = {
     keyPortalUrl: 'https://console.anthropic.com/settings/keys',
     keyPlaceholder: 'sk-ant-...',
     keyPrefixHint: 'sk-ant-',
-    defaultModel: 'claude-3-5-haiku-20241022',
+    defaultModel: 'claude-sonnet-5-5',
     defaultBaseUrl: 'https://api.anthropic.com/v1',
     models: [
       {
-        id: 'claude-3-5-haiku-20241022',
-        name: 'Claude 3.5 Haiku',
-        badge: 'Lightning Prose',
-        description: 'Fast, evocative storytelling with literary prose and quick combat narration.',
+        id: 'claude-sonnet-5-5',
+        name: 'Claude Sonnet 5.5',
+        badge: 'Master Storyteller',
+        description: 'Strong literary prose, character voice and lore continuity at a moderate price.',
         isDefault: true
       },
       {
-        id: 'claude-3-7-sonnet-20250219',
-        name: 'Claude 3.7 Sonnet',
-        badge: 'Next-Gen Master',
-        description: 'Hybrid reasoning GM capable of deep emergent narrative twists and lore continuity.'
+        id: 'claude-haiku-5-5',
+        name: 'Claude Haiku 5.5',
+        badge: 'Lightning Prose',
+        description: 'Fastest and cheapest Claude. Good for quick exchanges and helpers.'
       },
       {
-        id: 'claude-3-5-sonnet-20241022',
-        name: 'Claude 3.5 Sonnet',
-        badge: 'Master Storyteller',
-        description: 'Gold standard for creative fiction, authentic character roleplay, and dramatic immersion.'
+        id: 'claude-opus-5-5',
+        name: 'Claude Opus 5.5',
+        badge: 'Deep Reasoning',
+        description: 'The most capable Claude, for planning and hard rules questions. Highest cost.'
       }
     ],
     guide: {
@@ -232,7 +232,7 @@ export const AI_PROVIDERS: Record<AIProviderId, AIProviderConfig> = {
           tip: 'Requires active credits on console.anthropic.com/settings/plans.'
         }
       ],
-      pricingNote: 'Claude 3.5 Haiku offers exceptional value for roleplay storytelling.'
+      pricingNote: 'Claude Haiku 5.5 is the budget option; Sonnet 5.5 is the default story model.'
     }
   },
 

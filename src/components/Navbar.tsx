@@ -8,10 +8,13 @@ import {
   ChevronDown,
   Layers,
   Key,
-  WifiOff
+  WifiOff,
+  BookOpen
 } from 'lucide-react';
+import { Link } from 'react-router';
+import { STORY_MODE_ENABLED } from '../lib/platform';
 import { User } from 'firebase/auth';
-import { GEMINI_MODELS } from '../lib/modelsConfig';
+import { GEMINI_MODELS, usableGeminiModelOptions } from '../lib/modelsConfig';
 import { hasActiveGeminiKey, getActiveProvider, getProviderModel, isOfflineMode } from '../lib/geminiService';
 import { useAIStatus } from '../lib/aiStatus';
 import { AI_PROVIDERS } from '../lib/providersConfig';
@@ -124,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     Select Gemini Model
                   </div>
                   <div className="py-1 space-y-1">
-                    {GEMINI_MODELS.map((m) => (
+                    {usableGeminiModelOptions().map((m) => (
                       <button
                         key={m.id}
                         onClick={() => {
@@ -169,6 +172,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
+
+          {STORY_MODE_ENABLED && (
+            <Link
+              to="/story"
+              className="p-1.5 sm:p-2 rounded-lg border bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 transition"
+              title="Story mode (preview)"
+              aria-label="Story mode (preview)"
+            >
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </Link>
+          )}
 
           {/* AI Provider & Key Status Badge — reflects what the last real AI call did */}
           {isOfflineMode() ? (

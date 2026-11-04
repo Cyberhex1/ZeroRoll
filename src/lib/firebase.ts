@@ -27,6 +27,7 @@ import {
 } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { Experience, UserProfile, UserSettings } from '../types';
+import type { KeyVault } from './keyVault';
 
 // Initialize Firebase App
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -296,6 +297,28 @@ export async function purgeCloudProviderKeys(userId: string): Promise<void> {
     await updateDoc(doc(db, 'users', userId), { 'settings.providerKeys': deleteField() });
   } catch (err: any) {
     const info = handleFirestoreError(err, OperationType.WRITE, `users/${userId}/settings.providerKeys`);
+    throw new Error(info.error);
+  }
+}
+
+/** Encrypted key vault (opt-in key sync). Only ciphertext is stored; null deletes it. */
+export async function saveKeyVaultToCloud(userId: string, vault: KeyVault | null): Promise<void> {
+  if (!userId || userId === 'guest') return;
+  try {
+    await setDoc(doc(db, 'users', userId), { keyVault: vault ?? deleteField(), updatedAt: new Date().toISOString() }, { merge: true });
+  } catch (err: any) {
+    const info = handleFirestoreError(err, OperationType.WRITE, `users/${userId}/keyVault`);
+    throw new Error(info.error);
+  }
+}
+
+export async function loadKeyVaultFromCloud(userId: string): Promise<unknown | null> {
+  if (!userId || userId === 'guest') return null;
+  try {
+    const snap = await getDoc(doc(db, 'users', userId));
+    return snap.exists() ? snap.data()?.keyVault ?? null : null;
+  } catch (err: any) {
+    const info = handleFirestoreError(err, OperationType.GET, `users/${userId}/keyVault`);
     throw new Error(info.error);
   }
 }
@@ -719,5 +742,33 @@ export async function deleteExperienceFromCloud(experienceId: string): Promise<S
   } catch (err: any) {
     handleFirestoreError(err, OperationType.DELETE, `users/${actualUserId}/experiences/${experienceId}`);
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/**
+ * True when the browser is online but requests to Firestore are refused before they leave
+ * the browser, which is what an ad blocker or privacy extension does (ERR_BLOCKED_BY_CLIENT).
+ * The SDK only retries quietly in that case, so the player would never learn their saves
+ * are not reaching the cloud.
+ */
+export async function cloudSyncBlocked(timeoutMs = 8000): Promise<boolean> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    // no-cors: any answer from Google proves the path is open; only a block or no network throws.
+    await fetch('https://firestore.googleapis.com/', { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal });
+    return false;
+  } catch (e) {
+    if ((e as Error)?.name === 'AbortError') return false;
+    // Rule out "no network at all": Google's own static host should still answer.
+    try {
+      await fetch('https://www.gstatic.com/generate_204', { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  } finally {
+    clearTimeout(t);
   }
 }

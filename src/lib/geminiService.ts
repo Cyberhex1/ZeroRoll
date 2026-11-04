@@ -5,31 +5,73 @@ import {
   DiceRollResult,
   AvatarEvolution,
   ActionTurnResult,
-  DMStoryOutline
+  DMStoryOutline,
+  CampaignInspiration
 } from '../types';
-import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomScenarios';
-import { CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
-import { buildGroundedSeedContext, getCategoryNarrativeProfile } from './narrativeProfiles';
-import { getCategoryFallbackActions } from './experienceHelpers';
+
+/** A brainstorm list for the Story Seeds tab (AI refresh or the category's own tropes). */
+export interface CategorySeedInfo {
+  categoryId: string;
+  categoryName: string;
+  mediaReferences: string[];
+  prompts: string[];
+}
+import { generateRandomScenarioSetup, RandomizedScenarioData } from '../content/procedural';
+import { getCategoryFallbackActions, getCategoryProfile, getContent } from '../content';
+import { fullProfileBlock, turnContextBlock } from '../content/injection';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
-import { AIError, classifyAIError, describeAIError, isTransient, shouldTryNextModel } from './aiErrors';
+import { AIError, classifyAIError, describeAIError } from './aiErrors';
 import { reportAIFailure, reportAINotice, reportAISuccess, resetAIStatus } from './aiStatus';
 
-// Default Gemini model: the "latest" alias Google keeps pointed at the current Flash release.
-export const GEMINI_DEFAULT_MODEL = 'gemini-flash-latest';
+import {
+  AI_REQUEST_TIMEOUT_MS,
+  AI_TURN_DEADLINE_MS,
+  DEFAULT_MAX_OUTPUT_TOKENS,
+  FALLBACK_MODELS,
+  GEMINI_DEFAULT_MODEL,
+  ProviderCallConfig,
+  callProvider,
+  getCachedGeminiModels,
+  getGeminiCandidateModels,
+  listGeminiModels,
+  normalizeGeminiModelName,
+  parseRetryDelayMs,
+  probeCandidates,
+  probeGeminiModels,
+  setCachedGeminiModels,
+  getUsableGeminiModels,
+  setUsableGeminiModels,
+  supportsJsonMode
+} from '../ai/transport';
 
-// Models tried, in order, after the player's chosen model when it is unavailable,
-// rate-limited or overloaded. Stable IDs from https://ai.google.dev/gemini-api/docs/models
-export const FALLBACK_MODELS = [
-  'gemini-flash-latest',
-  'gemini-3.8-flash',
-  'gemini-3.6-flash',
-  'gemini-3.5-flash-lite',
-  'gemini-3.1-flash-lite'
-];
+export {
+  AI_REQUEST_TIMEOUT_MS,
+  AI_TURN_DEADLINE_MS,
+  DEFAULT_MAX_OUTPUT_TOKENS,
+  FALLBACK_MODELS,
+  GEMINI_DEFAULT_MODEL,
+  getCachedGeminiModels,
+  getGeminiCandidateModels,
+  listGeminiModels,
+  parseRetryDelayMs,
+  getUsableGeminiModels,
+  supportsJsonMode
+};
 
-// Give up on a single provider request after this long.
-export const AI_REQUEST_TIMEOUT_MS = 90_000;
+/**
+ * Lists the key's models, then probes the current ones with a tiny request and keeps only
+ * those that answered. The model pickers and the cascade offer only these.
+ */
+export async function refreshUsableGeminiModels(apiKey: string): Promise<{ listed: string[]; usable: string[]; failed: Array<{ model: string; reason?: string }> }> {
+  const listed = await listGeminiModels(apiKey);
+  setCachedGeminiModels(listed);
+  const curated = AI_PROVIDERS.gemini.models.map((m) => m.id);
+  const { usable, failed } = await probeGeminiModels(apiKey, probeCandidates(listed, curated));
+  // Nothing answered (overload, offline): keep the last good list rather than offering nothing.
+  if (usable.length) setUsableGeminiModels(usable);
+  return { listed, usable, failed };
+}
+
 
 // The Firebase web API key in firebase-applet-config.json is NOT a Gemini key: Google
 // blocks it for the Generative Language API (403 API_KEY_SERVICE_BLOCKED). Older builds
@@ -79,7 +121,15 @@ export function getProviderKey(provider: AIProviderId): string {
   return getStoredProviderKey(provider);
 }
 
+// Listeners for key changes (opt-in key sync re-seals the vault when a key changes).
+const keyListeners = new Set<() => void>();
+export function subscribeProviderKeyChanges(listener: () => void): () => void {
+  keyListeners.add(listener);
+  return () => keyListeners.delete(listener);
+}
+
 export function setProviderKey(provider: AIProviderId, key: string): void {
+  queueMicrotask(() => keyListeners.forEach((l) => l()));
   try {
     if (key && key.trim()) {
       localStorage.setItem(`zeroroll_key_${provider}`, key.trim());
@@ -111,6 +161,15 @@ export function purgeUnusableStoredKeys(): boolean {
     }
   } catch (_) {}
   return removed;
+}
+
+/** The model the player picked for this provider, or '' if they never chose one. */
+export function getSavedProviderModel(provider: AIProviderId): string {
+  try {
+    return (localStorage.getItem(`zeroroll_model_${provider}`) || '').trim();
+  } catch (_) {
+    return '';
+  }
 }
 
 export function getProviderModel(provider: AIProviderId): string {
@@ -267,88 +326,9 @@ export function hasActiveAIKey(): boolean {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                         GEMINI MODEL DISCOVERY                             */
-/* -------------------------------------------------------------------------- */
-
-const GEMINI_MODELS_CACHE_KEY = 'zeroroll_gemini_available_models';
-const NON_TEXT_MODEL_PATTERN = /(image|tts|live|audio|embedding|transcribe|robotics|imagen|veo|lyria|aqa)/;
-
-function normalizeGeminiModelName(model?: string): string {
-  const clean = (model || '').trim().replace(/^models\//, '');
-  return clean || GEMINI_DEFAULT_MODEL;
-}
-
-/** Models the saved key could use the last time it was checked (null = never checked). */
-export function getCachedGeminiModels(): string[] | null {
-  try {
-    const raw = localStorage.getItem(GEMINI_MODELS_CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((m) => typeof m === 'string') : null;
-  } catch (_) {
-    return null;
-  }
-}
-
-function setCachedGeminiModels(models: string[] | null): void {
-  try {
-    if (models && models.length) localStorage.setItem(GEMINI_MODELS_CACHE_KEY, JSON.stringify(models));
-    else localStorage.removeItem(GEMINI_MODELS_CACHE_KEY);
-  } catch (_) {}
-}
-
-/**
- * Lists the text-generation models this key can call. Doubles as a key check:
- * a bad key throws an AIError of kind "auth".
- */
-export async function listGeminiModels(apiKey: string): Promise<string[]> {
-  const models: string[] = [];
-  let pageToken = '';
-  for (let page = 0; page < 5; page++) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
-    const data = await withTimeout(async (signal) => {
-      const res = await fetch(url, { headers: { 'x-goog-api-key': apiKey.trim() }, signal });
-      const body = await res.text();
-      if (!res.ok) {
-        let parsedMsg = body;
-        try {
-          const json = JSON.parse(body);
-          parsedMsg = `${json.error?.status || ''} ${json.error?.message || body}`.trim();
-          const reason = json.error?.details?.find((d: any) => d?.reason)?.reason;
-          if (reason) parsedMsg += ` (${reason})`;
-        } catch (_) {}
-        throw classifyAIError({ status: res.status, message: `[Google Gemini] API Error (${res.status}): ${parsedMsg}` }, 'gemini');
-      }
-      return JSON.parse(body);
-    }, 20_000, 'gemini');
-
-    for (const m of data.models || []) {
-      const name = normalizeGeminiModelName(m.name);
-      const methods: string[] = m.supportedGenerationMethods || m.supportedActions || [];
-      if (methods.includes('generateContent') && !NON_TEXT_MODEL_PATTERN.test(name)) {
-        models.push(name);
-      }
-    }
-    pageToken = data.nextPageToken || '';
-    if (!pageToken) break;
-  }
-  return Array.from(new Set(models));
-}
-
-/** The chosen model first, then known-good fallbacks the key can actually use. */
-export function getGeminiCandidateModels(preferred?: string): string[] {
-  const first = normalizeGeminiModelName(preferred);
-  const available = getCachedGeminiModels();
-  const fallbacks = FALLBACK_MODELS.filter((m) => !available || available.includes(m));
-  const extras = available
-    ? available.filter((m) => m.includes('flash') && !m.includes('preview') && !m.includes('exp')).slice(0, 3)
-    : [];
-  return Array.from(new Set([first, ...fallbacks, ...extras])).slice(0, 5);
-}
-
-/* -------------------------------------------------------------------------- */
 /*                  UNIVERSAL CLIENT-SIDE MULTI-PROVIDER CALLER               */
 /* -------------------------------------------------------------------------- */
+// The transports, Gemini model discovery and cascade live in src/ai/transport.ts.
 
 export interface UniversalPromptOptions {
   systemPrompt?: string;
@@ -366,20 +346,6 @@ export interface UniversalPromptOptions {
   feature?: string;
 }
 
-interface ProviderCallConfig {
-  provider: AIProviderId;
-  apiKey: string;
-  model: string;
-  baseUrl?: string;
-}
-
-/** What one transport call produced. */
-interface TransportReply {
-  text: string;
-  /** The provider stopped because it hit the output limit (the reply is cut off). */
-  truncated: boolean;
-}
-
 /** Details of the last successful call, for status lines and Continue offers. */
 export interface AICallMeta {
   provider: AIProviderId;
@@ -390,13 +356,6 @@ export interface AICallMeta {
   /** Why the chosen model was skipped. */
   swapReason?: string;
 }
-
-// Room for a long scene plus the trailing blocks. Gemini counts thinking tokens
-// against the same limit, so it gets more headroom.
-export const DEFAULT_MAX_OUTPUT_TOKENS: Record<'gemini' | 'other', number> = { gemini: 8192, other: 4096 };
-
-// A whole turn (every model in the cascade, every retry) gives up after this long.
-export const AI_TURN_DEADLINE_MS = 180_000;
 
 let lastModelUsed = '';
 let lastCallMeta: AICallMeta | null = null;
@@ -409,41 +368,6 @@ export function getLastModelUsedLabel(): string {
 
 export function getLastCallMeta(): AICallMeta | null {
   return lastCallMeta;
-}
-
-async function withTimeout<T>(run: (signal: AbortSignal) => Promise<T>, ms: number, provider: string): Promise<T> {
-  const controller = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => {
-      controller.abort();
-      reject(new AIError('timeout', `No response after ${Math.round(ms / 1000)}s`, { provider }));
-    }, ms);
-  });
-  try {
-    return await Promise.race([run(controller.signal), timeout]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-/** Time left for a call that must finish by `deadlineAt`, capped at the per-request timeout. */
-function requestBudget(deadlineAt: number, provider: string): number {
-  const remaining = deadlineAt - Date.now();
-  if (remaining < 2_000) {
-    throw new AIError('timeout', `Gave up after ${Math.round(AI_TURN_DEADLINE_MS / 1000)}s without a reply.`, { provider });
-  }
-  return Math.min(AI_REQUEST_TIMEOUT_MS, remaining);
-}
-
-/** Seconds the provider asked us to wait, from "retry in 7.2s" or a RetryInfo "retryDelay": "7s". */
-export function parseRetryDelayMs(message: string): number | undefined {
-  const m = message.match(/retry in ([\d.]+)\s*s/i) || message.match(/retryDelay"?\s*[:=]\s*"?([\d.]+)s/i);
-  if (!m) return undefined;
-  const ms = Math.ceil(parseFloat(m[1]) * 1000);
-  return Number.isFinite(ms) ? ms : undefined;
 }
 
 /**
@@ -475,372 +399,24 @@ export async function executeUniversalPrompt(options: UniversalPromptOptions): P
 }
 
 async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalPromptOptions): Promise<string> {
-  const { provider, apiKey, model } = cfg;
-  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false, thinking = 'low' } = options;
-  const providerName = AI_PROVIDERS[provider]?.name || provider;
-  const deadlineAt = Date.now() + AI_TURN_DEADLINE_MS;
-
-  if (provider !== 'custom' && !apiKey.trim()) {
-    throw new AIError('no_key', `Missing ${providerName} API key.`, { provider });
-  }
-
-  try {
-    // 1. Google Gemini Provider
-    if (provider === 'gemini') {
-      const maxTokens = options.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.gemini;
-      const r = await callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens, deadlineAt);
-      return r.text;
-    }
-
-    const maxTokens = options.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
-    let reply: TransportReply;
-
-    // 2. Anthropic Claude Provider (Direct client fetch)
-    if (provider === 'anthropic') {
-      const baseUrl = cfg.baseUrl || AI_PROVIDERS.anthropic?.defaultBaseUrl || 'https://api.anthropic.com/v1';
-      reply = await callAnthropicApi(apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson, maxTokens, requestBudget(deadlineAt, provider));
-    } else {
-      // 3. OpenAI-Compatible Providers (OpenAI, Grok, OpenRouter, Copilot/GitHub, Custom)
-      const baseUrl = cfg.baseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
-      reply = await callOpenAICompatibleApi(provider, apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson, maxTokens, requestBudget(deadlineAt, provider));
-    }
-    lastModelUsed = model;
-    lastCallMeta = { provider, model, truncated: reply.truncated };
-    return reply.text;
-  } catch (err) {
-    throw classifyAIError(err, provider);
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/*                            GEMINI IMPLEMENTATION                           */
-/* -------------------------------------------------------------------------- */
-
-// Models that rejected a thinking level (older or non-thinking models); sent without it from then on.
-const modelsWithoutThinkingLevel = new Set<string>();
-
-/**
- * One generateContent call over plain REST. The @google/genai SDK added ~500 KB to the
- * page download for this single request. The key goes in the x-goog-api-key header,
- * never in the URL.
- */
-async function callGeminiModel(
-  apiKey: string,
-  modelName: string,
-  systemPrompt: string | undefined,
-  userPrompt: string,
-  temperature: number,
-  responseJson: boolean,
-  thinking: 'minimal' | 'low',
-  maxTokens: number,
-  timeoutMs: number
-): Promise<TransportReply> {
-  const generationConfig: Record<string, any> = { temperature, maxOutputTokens: maxTokens };
-  if (responseJson) generationConfig.responseMimeType = 'application/json';
-  const useThinkingLevel = !modelsWithoutThinkingLevel.has(modelName);
-  if (useThinkingLevel) generationConfig.thinkingConfig = { thinkingLevel: thinking.toUpperCase() };
-
-  const body: Record<string, any> = {
-    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-    generationConfig
-  };
-  if (systemPrompt) body.systemInstruction = { parts: [{ text: systemPrompt }] };
-
-  return withTimeout(async (signal) => {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey.trim() },
-        body: JSON.stringify(body),
-        signal
-      }
-    );
-    const raw = await res.text();
-
-    if (!res.ok) {
-      let parsedMsg = raw;
-      try {
-        const json = JSON.parse(raw);
-        parsedMsg = `${json.error?.status || ''} ${json.error?.message || raw}`.trim();
-        const reason = json.error?.details?.find((d: any) => d?.reason)?.reason;
-        if (reason) parsedMsg += ` (${reason})`;
-        const retryDelay = json.error?.details?.find((d: any) => d?.retryDelay)?.retryDelay;
-        if (retryDelay) parsedMsg += ` retryDelay: ${retryDelay}`;
-      } catch (_) {}
-      // Models without thinking levels reject the field; retry once without it.
-      if (res.status === 400 && useThinkingLevel && /thinking/i.test(parsedMsg)) {
-        modelsWithoutThinkingLevel.add(modelName);
-        return callGeminiModel(apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens, timeoutMs);
-      }
-      throw classifyAIError({ status: res.status, message: `[Google Gemini] API Error (${res.status}): ${parsedMsg}` }, 'gemini');
-    }
-
-    const data = JSON.parse(raw);
-    const candidate = data.candidates?.[0];
-    const finishReason: string | undefined = candidate?.finishReason;
-    const blockReason: string | undefined = data.promptFeedback?.blockReason;
-    if (blockReason || finishReason === 'SAFETY' || finishReason === 'PROHIBITED_CONTENT' || finishReason === 'BLOCKLIST') {
-      throw new AIError('blocked', `${modelName} blocked the ${blockReason ? 'prompt' : 'reply'} (${blockReason || finishReason}).`, { provider: 'gemini' });
-    }
-    const parts: any[] = candidate?.content?.parts || [];
-    const text = parts.filter((p) => !p.thought && typeof p.text === 'string').map((p) => p.text).join('');
-    if (!text.trim()) {
-      const why = finishReason === 'MAX_TOKENS' ? 'it used its whole length limit before writing anything' : finishReason || 'no text';
-      throw new AIError('bad_output', `${modelName} returned an empty reply (${why}).`, { provider: 'gemini' });
-    }
-    return { text, truncated: finishReason === 'MAX_TOKENS' };
-  }, timeoutMs, 'gemini');
-}
-
-async function callGeminiWithCascade(
-  apiKey: string,
-  model: string,
-  systemPrompt: string | undefined,
-  userPrompt: string,
-  temperature: number,
-  responseJson: boolean,
-  thinking: 'minimal' | 'low' = 'low',
-  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.gemini,
-  deadlineAt: number = Date.now() + AI_TURN_DEADLINE_MS
-): Promise<TransportReply> {
-  const candidates = getGeminiCandidateModels(model);
-  let lastError: AIError | undefined;
-  let firstError: AIError | undefined;
-  let lastBadRequest: string | undefined;
-
-  for (const modelName of candidates) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const reply = await callGeminiModel(
-          apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens,
-          requestBudget(deadlineAt, 'gemini')
-        );
-        lastModelUsed = modelName;
-        lastCallMeta = {
-          provider: 'gemini',
-          model: modelName,
-          truncated: reply.truncated,
-          ...(modelName !== candidates[0] ? { swappedFrom: candidates[0], swapReason: firstError?.kind } : {})
-        };
-        return reply;
-      } catch (raw) {
-        const err = classifyAIError(raw, 'gemini');
-        lastError = err;
-        if (!firstError) firstError = err;
-        // A bad key, a blocked prompt or the overall deadline fail the same way on every model.
-        if (err.kind === 'auth' || err.kind === 'blocked' || (err.kind === 'timeout' && deadlineAt - Date.now() < 2_000)) throw err;
-        const hint = parseRetryDelayMs(err.message);
-        // Honour a short retry hint on quota errors before moving down the cascade.
-        if (attempt === 0 && err.kind === 'quota' && hint !== undefined && hint <= 10_000 && deadlineAt - Date.now() > hint + 5_000) {
-          await sleep(hint);
-          continue;
-        }
-        if (attempt === 0 && isTransient(err.kind)) {
-          await sleep(Math.min(hint ?? 1000, 5000));
-          continue;
-        }
-        break;
-      }
-    }
-    if (lastError?.kind === 'bad_request') {
-      // A 400 that is about this model (unsupported option) is worth one more model;
-      // the same 400 twice means the request itself is the problem.
-      if (lastBadRequest === lastError.message) throw lastError;
-      lastBadRequest = lastError.message;
-    } else if (lastError && !shouldTryNextModel(lastError.kind) && lastError.kind !== 'bad_output' && lastError.kind !== 'timeout') {
-      throw lastError;
-    }
-    console.warn(`[Gemini] ${modelName} failed (${lastError?.kind}): ${lastError?.message}`);
-  }
-
-  throw lastError || new AIError('unknown', 'No Gemini model could answer.', { provider: 'gemini' });
-}
-
-/* -------------------------------------------------------------------------- */
-/*                       OPENAI COMPATIBLE IMPLEMENTATION                     */
-/* -------------------------------------------------------------------------- */
-
-/**
- * A 404 from /chat/completions means either the model is unknown or the base URL is
- * wrong (Ollama without /v1, a typo). Probing /models tells the two apart.
- */
-async function baseUrlLooksLikeApi(base: string, headers: Record<string, string>): Promise<boolean> {
-  try {
-    const res = await withTimeout(
-      (signal) => fetch(`${base}/models`, { method: 'GET', headers: { Authorization: headers['Authorization'] || '' }, signal }),
-      8_000,
-      'probe'
-    );
-    if (res.status === 404) return false;
-    const type = res.headers.get('content-type') || '';
-    return !type.includes('text/html');
-  } catch (_) {
-    return false;
-  }
-}
-
-async function callOpenAICompatibleApi(
-  provider: AIProviderId,
-  apiKey: string,
-  baseUrl: string,
-  model: string,
-  systemPrompt: string | undefined,
-  userPrompt: string,
-  temperature: number,
-  responseJson: boolean,
-  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.other,
-  timeoutMs: number = AI_REQUEST_TIMEOUT_MS
-): Promise<TransportReply> {
-  const base = baseUrl.replace(/\/+$/, '');
-  const url = `${base}/chat/completions`;
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
-  };
-
-  if (apiKey && apiKey.trim()) {
-    headers['Authorization'] = `Bearer ${apiKey.trim()}`;
-  }
-
-  // OpenRouter specific attribution headers
-  if (provider === 'openrouter') {
-    headers['HTTP-Referer'] = 'https://zeroroll.app';
-    headers['X-Title'] = 'ZeroRoll TTRPG Engine';
-  }
-
-  const messages: Array<{ role: string; content: string }> = [];
-  if (systemPrompt) {
-    messages.push({ role: 'system', content: systemPrompt });
-  }
-  messages.push({ role: 'user', content: userPrompt });
-
-  const body: any = {
-    model: model || 'gpt-4o-mini',
-    messages,
-    temperature
-  };
-  // OpenAI's current models only accept max_completion_tokens; compatible servers use max_tokens.
-  if (provider === 'openai') body.max_completion_tokens = maxTokens;
-  else body.max_tokens = maxTokens;
-
-  if (responseJson && supportsJsonMode(provider)) {
-    body.response_format = { type: 'json_object' };
-  }
-
-  return withTimeout(async (signal) => {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-      signal
-    });
-
-    if (!res.ok) {
-      const errorBody = await res.text();
-      let parsedMsg = errorBody;
-      try {
-        const json = JSON.parse(errorBody);
-        parsedMsg = json.error?.message || json.message || errorBody;
-      } catch (_) {}
-      const providerName = AI_PROVIDERS[provider]?.name || provider;
-      if (res.status === 404 && !(await baseUrlLooksLikeApi(base, headers))) {
-        throw new AIError('bad_base_url', `[${providerName}] ${url} returned 404 and ${base}/models is not an API either.`, { provider, status: 404 });
-      }
-      throw classifyAIError(
-        { status: res.status, message: `[${providerName}] API Error (${res.status}): ${parsedMsg}` },
-        provider
-      );
-    }
-
-    const data = await res.json();
-    const choice = data.choices?.[0];
-    const content = choice?.message?.content || '';
-    const text = typeof content === 'string' ? content : JSON.stringify(content);
-    if (!text.trim()) {
-      if (choice?.finish_reason === 'content_filter') throw new AIError('blocked', `${model} filtered the reply.`, { provider });
-      throw new AIError('bad_output', `${model} returned an empty reply.`, { provider });
-    }
-    return { text, truncated: choice?.finish_reason === 'length' };
-  }, timeoutMs, provider);
-}
-
-/** Providers that accept response_format: json_object. Others get JSON instructions in the prompt only. */
-export function supportsJsonMode(provider: AIProviderId): boolean {
-  return provider === 'gemini' || provider === 'openai' || provider === 'openrouter' || provider === 'grok';
-}
-
-/* -------------------------------------------------------------------------- */
-/*                          ANTHROPIC CLAUDE IMPLEMENTATION                   */
-/* -------------------------------------------------------------------------- */
-
-async function callAnthropicApi(
-  apiKey: string,
-  baseUrl: string,
-  model: string,
-  systemPrompt: string | undefined,
-  userPrompt: string,
-  temperature: number,
-  responseJson: boolean,
-  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.other,
-  timeoutMs: number = AI_REQUEST_TIMEOUT_MS
-): Promise<TransportReply> {
-  const url = `${baseUrl.replace(/\/+$/, '')}/messages`;
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'x-api-key': apiKey.trim(),
-    'anthropic-version': '2023-06-01',
-    'anthropic-dangerous-direct-browser-access': 'true'
-  };
-
-  let actualUserPrompt = userPrompt;
-  if (responseJson) {
-    actualUserPrompt += '\n\nIMPORTANT: Respond ONLY with valid, parseable JSON with no markdown wrapping.';
-  }
-
-  const body: any = {
-    model: model || 'claude-3-5-haiku-20241022',
-    max_tokens: maxTokens,
+  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false, thinking = 'low', maxTokens } = options;
+  const reply = await callProvider(cfg, {
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userPrompt }],
     temperature,
-    messages: [
-      { role: 'user', content: actualUserPrompt }
-    ]
+    json: responseJson,
+    thinking,
+    maxTokens
+  });
+  lastModelUsed = reply.model;
+  lastCallMeta = {
+    provider: reply.provider,
+    model: reply.model,
+    truncated: reply.truncated,
+    swappedFrom: reply.swappedFrom,
+    swapReason: reply.swapReason
   };
-
-  if (systemPrompt) {
-    body.system = systemPrompt;
-  }
-
-  return withTimeout(async (signal) => {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-      signal
-    });
-
-    if (!res.ok) {
-      const errorBody = await res.text();
-      let parsedMsg = errorBody;
-      try {
-        const json = JSON.parse(errorBody);
-        parsedMsg = json.error?.message || json.message || errorBody;
-      } catch (_) {}
-      throw classifyAIError({ status: res.status, message: `[Anthropic Claude] API Error (${res.status}): ${parsedMsg}` }, 'anthropic');
-    }
-
-    const data = await res.json();
-    const text = (data.content || [])
-      .filter((c: any) => c.type === 'text' && typeof c.text === 'string')
-      .map((c: any) => c.text)
-      .join('');
-    if (!text.trim()) {
-      if (data.stop_reason === 'refusal') throw new AIError('blocked', `${model} declined to answer.`, { provider: 'anthropic' });
-      throw new AIError('bad_output', `${model} returned an empty reply.`, { provider: 'anthropic' });
-    }
-    return { text, truncated: data.stop_reason === 'max_tokens' };
-  }, timeoutMs, 'anthropic');
+  return reply.text;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -927,18 +503,29 @@ export async function testProviderConnection(params: {
   reply?: string;
   modelUsed?: string;
   availableModels?: string[];
+  usableModels?: string[];
 }> {
   const { provider, apiKey = '', baseUrl } = params;
-  const model = params.model || AI_PROVIDERS[provider]?.defaultModel || '';
+  let model = params.model || AI_PROVIDERS[provider]?.defaultModel || '';
+  let usableModels: string[] | undefined;
+  let skipped = '';
   const providerName = AI_PROVIDERS[provider]?.name || provider;
   const start = Date.now();
   let availableModels: string[] | undefined;
 
   try {
     if (provider === 'gemini') {
-      // Validates the key and records which models it can use for the fallback cascade.
-      availableModels = await listGeminiModels(apiKey);
-      setCachedGeminiModels(availableModels);
+      // Validates the key, then keeps only the models that actually answer with it.
+      const r = await refreshUsableGeminiModels(apiKey);
+      availableModels = r.listed;
+      usableModels = r.usable;
+      if (usableModels.length && !usableModels.includes(normalizeGeminiModelName(model))) {
+        skipped = normalizeGeminiModelName(model);
+        model = usableModels[0];
+      }
+      if (!usableModels.length) {
+        throw new AIError('overloaded', `None of this key's models answered a test request right now (${r.failed.map((f) => `${f.model}: ${f.reason}`).join('; ')}). Try again in a minute.`, { provider: 'gemini' });
+      }
     }
 
     // Same path as real gameplay calls, including the model cascade. JSON mode only where the
@@ -973,12 +560,15 @@ export async function testProviderConnection(params: {
     return {
       success: true,
       latencyMs,
-      message: swapped
-        ? `Connected in ${latencyMs}ms, but ${normalizeGeminiModelName(model)} isn't available to this key, so ${modelUsed} answered. Pick an available model below.`
-        : `Connected to ${modelUsed} in ${latencyMs}ms.`,
+      message: skipped
+        ? `Connected to ${modelUsed} in ${latencyMs}ms. ${skipped} didn't answer with this key, so it's hidden from the model list.`
+        : swapped
+          ? `Connected in ${latencyMs}ms, but ${normalizeGeminiModelName(model)} didn't answer, so ${modelUsed} did.`
+          : `Connected to ${modelUsed} in ${latencyMs}ms.`,
       reply: replyText,
       modelUsed,
-      availableModels
+      availableModels,
+      usableModels
     };
   } catch (err: any) {
     const aiErr = classifyAIError(err, provider);
@@ -986,7 +576,8 @@ export async function testProviderConnection(params: {
       success: false,
       latencyMs: Date.now() - start,
       message: `${describeAIError(aiErr, providerName)}\n\nDetails: ${aiErr.message}`,
-      availableModels
+      availableModels,
+      usableModels
     };
   }
 }
@@ -1050,13 +641,19 @@ export async function executeActionTurn(params: {
   characterState?: any;
   diceRoll?: DiceRollResult;
   storyOutline?: DMStoryOutline;
+  /** The campaign's stored inspiration, sent verbatim every turn. */
+  inspiration?: CampaignInspiration;
+  /** 'referee' is the free-text Rules Referee: no genre corpus and no outline (injection policy). */
+  purpose?: 'turn' | 'referee';
 }): Promise<ActionTurnResult> {
-  const { contents, category, model, systemInstruction, characterState, diceRoll, storyOutline } = params;
+  const { contents, category, model, systemInstruction, characterState, diceRoll, inspiration, purpose = 'turn' } = params;
+  const isReferee = purpose === 'referee';
+  const storyOutline = isReferee ? undefined : params.storyOutline;
   const hasKey = hasActiveGeminiKey();
 
   if (hasKey) {
     try {
-      const narrativeCorpus = buildGroundedSeedContext(category, contents);
+      const narrativeCorpus = isReferee ? '' : turnContextBlock(category, inspiration);
       // Issue #5: ALWAYS include the base GM prompt + narrative corpus +
       // story outline. The user's custom system instruction is appended as
       // a stylistic flavor on top, so the AI always has the campaign
@@ -1326,8 +923,10 @@ export async function generateScenarioAI(params: {
   raceOrigin?: string;
   /** When false, AI failures throw instead of returning a procedural scenario. */
   allowFallback?: boolean;
+  /** Inspiration picked for this setup; stored on the campaign if the player keeps it. */
+  inspiration?: CampaignInspiration;
 }): Promise<{ scenario: RandomizedScenarioData; source: 'ai' | 'procedural' }> {
-  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true } = params;
+  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true, inspiration } = params;
   const hasKey = hasActiveGeminiKey();
 
   if (!hasKey && !allowFallback) {
@@ -1342,7 +941,7 @@ export async function generateScenarioAI(params: {
 
   if (hasKey) {
     try {
-      const narrativeCorpus = buildGroundedSeedContext(category, userPrompt);
+      const narrativeCorpus = fullProfileBlock(category, inspiration);
       const prompt = `You are a master tabletop RPG Game Master, author, and worldbuilder.
 
 ${narrativeCorpus}
@@ -1513,7 +1112,15 @@ Output MUST be strictly valid JSON matching this schema:
     reportMissingKey('Seedlist refresh');
   }
 
-  return { seedlist: CATEGORY_SEEDLISTS[category] || CATEGORY_SEEDLISTS.fantasy };
+  const c = getContent(category);
+  return {
+    seedlist: {
+      categoryId: category,
+      categoryName: c.card.name,
+      mediaReferences: c.media.map((m) => `${m.title} (${m.medium})`),
+      prompts: c.tropes.map((t) => t.premise)
+    }
+  };
 }
 
 /**
@@ -1531,7 +1138,7 @@ export async function rollSingleFieldAI(
 
   if (hasKey) {
     try {
-      const profile = getCategoryNarrativeProfile(category);
+      const profile = getCategoryProfile(category);
       const prompt = `You are a creative tabletop RPG generator. Generate a SINGLE unique, imaginative "${fieldType}" for a "${profile.name}" campaign.
 ${contextPrompt ? `Context / Story Theme: "${contextPrompt}"` : ''}
 Genre Profile: ${profile.name} (${profile.voice}).
@@ -1655,15 +1262,16 @@ export async function generateChapterOneAI(params: {
   storyOutline?: DMStoryOutline;
   characterState: any;
   model: string;
+  inspiration?: CampaignInspiration;
 }): Promise<ActionTurnResult> {
-  const { category, storyBlurb, storyOutline, characterState } = params;
+  const { category, storyBlurb, storyOutline, characterState, inspiration } = params;
   const hasKey = hasActiveGeminiKey();
 
   if (hasKey) {
     try {
       const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
 
-${buildGroundedSeedContext(category, storyBlurb)}
+${fullProfileBlock(category, inspiration)}
 
 STORY PREMISE:
 ${storyBlurb}

@@ -28,12 +28,10 @@ import {
   Dices,
   Camera
 } from 'lucide-react';
-import { CATEGORIES_DATA } from '../lib/categoriesData';
-import { CATEGORY_SEEDLISTS } from '../lib/seedlists';
-import { generateRandomScenarioSetup } from '../lib/randomScenarios';
+import { CATEGORIES_DATA, drawOpeners, markOpenersSeen, pickInspiration, gearToInventory, getContent, OpenerDraw, Opener } from '../content';
+import { generateRandomScenarioSetup } from '../content/procedural';
 import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI, OFFLINE_ENGINE_LABEL } from '../lib/geminiService';
-import { getUnifiedScenarioSeeds, PlayableScenarioSeed } from '../lib/scenarioSeedsPool';
-import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory } from '../types';
+import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory, CampaignInspiration } from '../types';
 
 
 // Loaded on demand so the backup code stays out of the main bundle.
@@ -61,7 +59,8 @@ interface CategoriesGridProps {
     suggestedActions?: string[],
     storyOutline?: DMStoryOutline,
     chapterOneOpening?: string,
-    chapterOneModel?: string
+    chapterOneModel?: string,
+    inspiration?: CampaignInspiration
   ) => Promise<void>;
   onDeleteExperience: (id: string) => void;
   selectedModel: string;
@@ -100,9 +99,10 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   // Where the current setup fields came from, so offline drafts are never mistaken for AI output.
   const [setupSource, setSetupSource] = useState<'offline' | 'ai' | 'seed'>('offline');
 
-  // 100-Pool 5 Scenario Seeds at a time & Dynamic Tropes
-  const [currentScenarioSeeds, setCurrentScenarioSeeds] = useState<PlayableScenarioSeed[]>([]);
-  const [recentSeedIds, setRecentSeedIds] = useState<string[]>([]);
+  // Five openers at a time from this category; seen ones are skipped until all have been shown.
+  const [currentScenarioSeeds, setCurrentScenarioSeeds] = useState<OpenerDraw[]>([]);
+  // Media and story seeds for this setup, picked once and stored on the campaign (injection policy).
+  const [inspiration, setInspiration] = useState<CampaignInspiration | undefined>(undefined);
   const [dynamicSeeds, setDynamicSeeds] = useState<{ [category: string]: any }>({});
   const [isRegeneratingSeedlist, setIsRegeneratingSeedlist] = useState(false);
 
@@ -260,7 +260,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         classRole: keepHero ? charRole.trim() || undefined : undefined,
         raceOrigin: keepHero ? charRace.trim() || undefined : undefined,
         // On this screen a failure is shown on the form; the fields stay as they were (PS12).
-        allowFallback: !hasActiveGeminiKey()
+        allowFallback: !hasActiveGeminiKey(),
+        inspiration
       });
       if (!isCurrent(gen) || !data?.scenario) return;
       const sc = data.scenario;
@@ -335,30 +336,36 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     }
   };
 
-  const handleShuffle5Seeds = (catId: string) => {
-    const nextSeeds = getUnifiedScenarioSeeds(catId, 5, recentSeedIds);
-    setCurrentScenarioSeeds(nextSeeds);
-    const newIds = nextSeeds.map(s => s.id);
-    setRecentSeedIds(prev => [...prev.slice(-15), ...newIds]);
+  const showOpeners = (catId: ExperienceCategory) => {
+    const draw = drawOpeners(catId, 5);
+    setCurrentScenarioSeeds(draw);
+    markOpenersSeen(catId, draw.filter((d) => !d.padded).map((d) => d.opener.id));
   };
 
-  const handleApplyPlayableSeed = (seed: PlayableScenarioSeed, cat: CategoryInfo) => {
+  /** A chosen opener fills every field from itself: hero, premise, actions, gear, spells and HP. */
+  const handleApplyPlayableSeed = (seed: Opener, cat: CategoryInfo) => {
     if (!confirmReplaceEdits(['Title', 'Name', 'Role', 'Origin', 'Premise', 'Description'])) return;
-    applyRandomSetup(cat.id as ExperienceCategory);
+    genRef.current++;
+    setEditedFields(new Set());
     setCustomTitle(seed.title);
-    if (seed.suggestedHeroName) setCharName(seed.suggestedHeroName);
-    if (seed.suggestedRole) setCharRole(seed.suggestedRole);
-    if (seed.suggestedRace) setCharRace(seed.suggestedRace);
+    setCharName(seed.hero.name);
+    setCharRole(seed.hero.role);
+    setCharRace(seed.hero.origin);
     setOpeningPrompt(seed.premise);
     setPremiseSource('seed');
-    if (seed.suggestedActions && seed.suggestedActions.length > 0) {
-      setSuggestedActions(seed.suggestedActions);
-    }
-    // A minimal outline from the seed itself, so Chapter One and the roadmap describe this story (PS3).
+    setPhysicalDesc('');
+    setSuggestedActions([...seed.actions]);
+    setInitialInventory(gearToInventory(seed.gear));
+    setInitialSpells([...seed.spells]);
+    setInitialConditions(['Well-Rested']);
+    setStartingHp(seed.hp);
+    setCharAvatarUrl(undefined);
+    // A minimal outline from the opener itself, so Chapter One and the roadmap describe this story (PS3).
     setCurrentStoryOutline({
       startingCircumstances: seed.premise,
-      immediateGoal: seed.suggestedActions?.[0] || '',
+      immediateGoal: seed.actions[0],
     } as DMStoryOutline);
+    setInspiration(pickInspiration(cat.id as ExperienceCategory, seed.id));
     setSetupSource('seed');
     setModalTab('configure');
   };
@@ -409,10 +416,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setCurrentStoryOutline(undefined);
     setAvatarError(null);
 
-    // Populate initial 5 seeds from 100-pool
-    const initial5 = getUnifiedScenarioSeeds(cat.id, 5, []);
-    setCurrentScenarioSeeds(initial5);
-    setRecentSeedIds(initial5.map(s => s.id));
+    showOpeners(cat.id as ExperienceCategory);
+    setInspiration(pickInspiration(cat.id as ExperienceCategory));
 
     // Instantly roll a complete, randomized 5-field campaign setup
     applyRandomSetup(cat.id as ExperienceCategory);
@@ -478,7 +483,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           storyBlurb: premise,
           storyOutline: currentStoryOutline,
           characterState: fullChar,
-          model: selectedModel
+          model: selectedModel,
+          inspiration
         });
         if (!isCurrent(gen)) return;
         if (chapterOneRes.failure) {
@@ -503,7 +509,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         finalSuggestedActions,
         currentStoryOutline,
         chapterOneText,
-        chapterOneModel
+        chapterOneModel,
+        inspiration
       );
       closeModal();
     } catch (err: any) {
@@ -520,7 +527,10 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     c.tagline.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const activeSeed = selectedCategoryModal ? (dynamicSeeds[selectedCategoryModal.id] || CATEGORY_SEEDLISTS[selectedCategoryModal.id]) : null;
+  const activeSeed = selectedCategoryModal
+    ? (dynamicSeeds[selectedCategoryModal.id] || { prompts: getContent(selectedCategoryModal.id).tropes.map((t) => t.premise) })
+    : null;
+  const openerTotal = selectedCategoryModal ? getContent(selectedCategoryModal.id).openers.length : 0;
 
   return (
     <div className="min-h-[calc(100vh-56px)] bg-[#0F0F12] text-slate-200 p-4 sm:p-6">
@@ -801,7 +811,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     }`}
                   >
                     <Lightbulb className="w-3 h-3 text-amber-400" />
-                    <span>Seed Tropes</span>
+                    <span>Story Seeds</span>
                   </button>
                 </div>
 
@@ -1074,7 +1084,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                   </div>
                 </div>
               ) : (
-                /* Seed Tropes & Playable Scenario Seeds Tab */
+                /* Story Seeds tab: tropes and ready-to-play openers */
                 <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-1">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 rounded bg-amber-950/20 border border-amber-600/30 text-xs text-amber-200">
                     <div className="space-y-0.5">
@@ -1083,7 +1093,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         Inspiration Source: {selectedCategoryModal.name} Media & Tropes
                       </div>
                       <p className="text-[11px] text-amber-200/80">
-                        Explore popular narrative tropes and 5 playable scenario seeds drawn from the 100-seed pool.
+                        Story seeds set your premise; an opener fills in the whole setup. {openerTotal} opener{openerTotal === 1 ? '' : 's'} in this category.
                       </p>
                     </div>
 
@@ -1103,7 +1113,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5" />
-                        Immersive Scenarios & Prompts
+                        Story seeds
                       </h4>
                       <span className="text-[10px] text-slate-500 font-mono">Click to set premise</span>
                     </div>
@@ -1127,26 +1137,26 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       <div className="space-y-0.5">
                         <h4 className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center gap-1.5">
                           <Dices className="w-3.5 h-3.5" />
-                          Playable Scenario Seeds (5 from 100-Pool)
+                          Ready-to-play openers
                         </h4>
                         <p className="text-[10px] text-slate-400">
-                          Curated story premises starting at the causal beginning.
+                          A hero, a premise, three first moves and starting gear.
                         </p>
                       </div>
 
                       <button
                         type="button"
-                        onClick={() => handleShuffle5Seeds(selectedCategoryModal.id)}
+                        onClick={() => showOpeners(selectedCategoryModal.id)}
                         className="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-[11px] font-mono font-bold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
-                        title="Draw 5 new non-repeating seeds from the 100-pool"
+                        title="Show openers you have not seen yet"
                       >
                         <Dices className="w-3.5 h-3.5" />
-                        <span>Shuffle 5 Seeds</span>
+                        <span>Show others</span>
                       </button>
                     </div>
 
                     <div className="space-y-2.5">
-                      {currentScenarioSeeds.map((seed, idx) => (
+                      {currentScenarioSeeds.map(({ opener: seed, padded }, idx) => (
                         <div
                           key={seed.id || idx}
                           onClick={() => handleApplyPlayableSeed(seed, selectedCategoryModal)}
@@ -1160,9 +1170,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                               <div className="text-amber-200/70 text-[11px] italic mt-0.5">
                                 "{seed.tagline}"
                               </div>
+                              {padded && (
+                                <div className="text-[10px] font-mono text-slate-500 mt-0.5">Quick start from the built-in generator</div>
+                              )}
                             </div>
                             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 shrink-0">
-                              {seed.suggestedHeroName} • {seed.suggestedRole}
+                              {seed.hero.name} • {seed.hero.role}
                             </span>
                           </div>
 
@@ -1170,9 +1183,9 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                             {seed.premise}
                           </p>
 
-                          {seed.suggestedActions && seed.suggestedActions.length > 0 && (
+                          {seed.actions.length > 0 && (
                             <div className="text-[10px] text-slate-400 flex flex-wrap gap-1.5 pt-1">
-                              {seed.suggestedActions.map((act, aIdx) => (
+                              {seed.actions.map((act, aIdx) => (
                                 <span key={aIdx} className="bg-white/5 px-2 py-0.5 rounded text-slate-300">
                                   ▸ {act}
                                 </span>

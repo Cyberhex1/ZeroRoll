@@ -14,10 +14,16 @@
     "test": "vitest run",
     "backup:firestore": "tsx scripts/backup-firestore.ts",
     "restore:firestore": "tsx scripts/restore-firestore.ts",
-    "ai:smoke": "tsx scripts/ai-smoke.ts"
+    "ai:smoke": "tsx scripts/ai-smoke.ts",
+    "models:check": "tsx scripts/check-models.ts",
+    "content:check": "tsx scripts/validate-content.ts",
+    "tauri": "tauri",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
+    "@tauri-apps/api": "^2.12.4",
     "@vitejs/plugin-react": "^5.0.4",
     "canvas-confetti": "^1.9.4",
     "firebase": "^12.18.0",
@@ -26,10 +32,12 @@
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
     "react-markdown": "^10.1.0",
+    "react-router": "^7.18.5",
     "vite": "^6.2.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@tauri-apps/cli": "^2.12.4",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^22.14.0",
     "@types/react": "^19.3.0",

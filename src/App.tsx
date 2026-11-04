@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { uid } from './lib/ids';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
+import { STORY_MODE_ENABLED } from './lib/platform';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import {
   auth,
@@ -13,7 +15,8 @@ import {
   loadUserProfileFromCloud,
   saveUserSettingsToCloud,
   purgeCloudProviderKeys,
-  saveActiveExperienceIdToCloud
+  saveActiveExperienceIdToCloud,
+  cloudSyncBlocked
 } from './lib/firebase';
 import {
   exportAllProviderSettings,
@@ -24,6 +27,8 @@ import {
   generateScenarioAI
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
+import { watchKeyChanges } from './lib/keySync';
+import { runWeeklyModelCheck } from './ai/weeklyModelCheck';
 import { Navbar } from './components/Navbar';
 import { AIStatusBanner } from './components/AIStatusBanner';
 import { CategoriesGrid } from './components/CategoriesGrid';
@@ -32,6 +37,7 @@ const ExperienceView = lazy(() => import('./components/ExperienceView').then((m)
 const SettingsModal = lazy(() => import('./components/SettingsModal').then((m) => ({ default: m.SettingsModal })));
 const UserProfileModal = lazy(() => import('./components/UserProfileModal').then((m) => ({ default: m.UserProfileModal })));
 const AuthModal = lazy(() => import('./components/AuthModal').then((m) => ({ default: m.AuthModal })));
+const StoryChat = lazy(() => import('./story/StoryChat'));
 const ApiKeyModal = lazy(() => import('./components/ApiKeyModal').then((m) => ({ default: m.ApiKeyModal })));
 import MusicPlayer from './components/MusicPlayer';
 import {
@@ -41,16 +47,12 @@ import {
   MapData,
   LogMessage,
   UserProfile,
-  DMStoryOutline
+  DMStoryOutline,
+  CampaignInspiration
 } from './types';
-import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
-import { CATEGORIES_DATA } from './lib/categoriesData';
-import {
-  getCategoryDefaultInventory,
-  mergeInventoryAdditive,
-  getCategoryFallbackActions,
-  createVariedInitialMap
-} from './lib/experienceHelpers';
+import { DEFAULT_GEMINI_MODEL, usableGeminiModelOptions } from './lib/modelsConfig';
+import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
+import { mergeInventoryAdditive, createVariedInitialMap } from './lib/experienceHelpers';
 
 function safeGetStorage(key: string): string | null {
   try {
@@ -98,12 +100,14 @@ export default function App() {
   // Settings states — initialized from local cache (acceptable: these are preferences, not identity)
   const [selectedModel, setSelectedModel] = useState<string>(() => {
     const saved = safeGetStorage('dnd_selected_model');
-    const isValid = GEMINI_MODELS.some(m => m.id === saved);
-    if (isValid && saved) {
+    const options = usableGeminiModelOptions();
+    if (saved && options.some(m => m.id === saved)) {
       return saved;
     }
-    safeSetStorage('dnd_selected_model', DEFAULT_GEMINI_MODEL);
-    return DEFAULT_GEMINI_MODEL;
+    // A saved pick that no longer answers falls back to the first model that does.
+    const fallback = options.some(m => m.id === DEFAULT_GEMINI_MODEL) ? DEFAULT_GEMINI_MODEL : options[0]?.id || DEFAULT_GEMINI_MODEL;
+    safeSetStorage('dnd_selected_model', fallback);
+    return fallback;
   });
 
   const [customSystemPrompt, setCustomSystemPrompt] = useState<string>(() => {
@@ -115,7 +119,14 @@ export default function App() {
     return saved !== 'false';
   });
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  // Settings is a route (/settings) so it can be linked to and survives a reload.
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isSettingsOpen = location.pathname === '/settings';
+  const setIsSettingsOpen = (open: boolean) => {
+    if (open && !isSettingsOpen) navigate('/settings');
+    else if (!open && isSettingsOpen) navigate('/');
+  };
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState<boolean>(false);
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -145,6 +156,30 @@ export default function App() {
   // ---------------------------------------------------------------------------
   // Auth State — the authoritative source for user identity and cloud data
   // ---------------------------------------------------------------------------
+  // Weekly latest-model check (Gemini). Runs after start-up so it never delays the first screen.
+  useEffect(() => {
+    const t = setTimeout(() => void runWeeklyModelCheck(), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Cloud saves need firestore.googleapis.com; an ad blocker that refuses it would otherwise fail silently.
+  const [cloudBlocked, setCloudBlocked] = useState(false);
+  useEffect(() => {
+    if (!user || user.isAnonymous) return;
+    let live = true;
+    void cloudSyncBlocked().then((blocked) => live && setCloudBlocked(blocked));
+    return () => {
+      live = false;
+    };
+  }, [user]);
+
+  // Opt-in key sync: re-encrypt and upload when a key changes (does nothing while sync is off).
+  useEffect(() => {
+    if (!user || user.isAnonymous) return;
+    return watchKeyChanges(user.uid, showCloudSaveError);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
+
   useEffect(() => {
     // Process redirect sign-in if returning from Google redirect
     checkRedirectAuthResult();
@@ -358,7 +393,8 @@ export default function App() {
     suggestedActions?: string[],
     storyOutline?: DMStoryOutline,
     chapterOneOpening?: string,
-    chapterOneModel?: string
+    chapterOneModel?: string,
+    inspiration?: CampaignInspiration
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
@@ -421,6 +457,7 @@ export default function App() {
       logs: [initialLog],
       mapData: initialMap,
       storyOutline: finalStoryOutline,
+      inspiration: inspiration ?? pickInspiration(category),
       pendingCheck: null,
       activeAlert: null
     };
@@ -493,6 +530,8 @@ export default function App() {
           description: data.scenario.storyBlurb || 'The adventure continues...',
           model: selectedModel,
           customSystemPrompt: prevExp.customSystemPrompt,
+          // Book Two continues the same campaign, so it keeps the same inspiration.
+          inspiration: prevExp.inspiration,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           character: {
@@ -543,6 +582,38 @@ export default function App() {
     }
   };
 
+  // Home: the campaign list, or the open campaign. /settings shows it under the settings modal.
+  const home = (
+    <>
+              {activeExperience ? (
+                <Suspense
+                  fallback={
+                    <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">
+                      Opening your campaign...
+                    </div>
+                  }
+                >
+                  <ExperienceView
+                    experience={activeExperience}
+                    onUpdateExperience={handleUpdateExperience}
+                    onBack={() => handleSelectExperience(null)}
+                    selectedModel={selectedModel}
+                    soundEnabled={soundEnabled}
+                    onStartBookTwo={handleStartBookTwo}
+                  />
+                </Suspense>
+              ) : (
+                <CategoriesGrid
+                  experiences={experiences}
+                  onSelectExperience={handleSelectExperience}
+                  onCreateExperience={handleCreateExperience}
+                  onDeleteExperience={handleDeleteExperience}
+                  selectedModel={selectedModel}
+                />
+              )}
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
       
@@ -578,34 +649,38 @@ export default function App() {
         </div>
       )}
 
+      {cloudBlocked && (
+        <div role="alert" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-amber-950/95 border border-amber-600/60 text-amber-100 text-xs px-4 py-2.5 rounded-lg shadow-xl max-w-md flex items-start gap-3">
+          <span>
+            Cloud sync is blocked in this browser, most likely by an ad blocker or privacy extension. Your saves stay on this device but are not backed up. Allow{' '}
+            <code className="font-mono">firestore.googleapis.com</code> for this site to turn backup back on.
+          </span>
+          <button type="button" onClick={() => setCloudBlocked(false)} className="shrink-0 underline text-amber-300" aria-label="Dismiss cloud sync notice">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Main Body */}
       <main>
-        {activeExperience ? (
-          <Suspense
-            fallback={
-              <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">
-                Opening your campaign...
-              </div>
-            }
-          >
-            <ExperienceView
-              experience={activeExperience}
-              onUpdateExperience={handleUpdateExperience}
-              onBack={() => handleSelectExperience(null)}
-              selectedModel={selectedModel}
-              soundEnabled={soundEnabled}
-              onStartBookTwo={handleStartBookTwo}
+        <Routes>
+          {STORY_MODE_ENABLED && (
+            <Route
+              path="/story"
+              element={
+                <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">Opening Story mode...</div>}>
+                  <StoryChat />
+                </Suspense>
+              }
             />
-          </Suspense>
-        ) : (
-          <CategoriesGrid
-            experiences={experiences}
-            onSelectExperience={handleSelectExperience}
-            onCreateExperience={handleCreateExperience}
-            onDeleteExperience={handleDeleteExperience}
-            selectedModel={selectedModel}
+          )}
+          <Route
+            path="/settings"
+            element={home}
           />
-        )}
+          <Route path="/" element={home} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       <Suspense fallback={null}>

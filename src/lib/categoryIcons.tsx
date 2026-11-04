@@ -17,7 +17,7 @@ import {
   Briefcase,
   Bot
 } from 'lucide-react';
-import { CATEGORIES_DATA } from './categoriesData';
+import { CATEGORIES_DATA } from '../content';
 
 export function getCategoryIcon(categoryOrIconName?: string, className: string = 'w-4 h-4') {
   if (!categoryOrIconName) return <Bot className={className} />;

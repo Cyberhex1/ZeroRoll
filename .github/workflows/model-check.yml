@@ -1,0 +1,49 @@
+name: Weekly model check
+
+# Compares src/ai/models.json with the models each provider lists today and opens a
+# pull request when a model was retired or a newer release exists. Add the API keys as
+# repository secrets (GEMINI_API_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY); any that are
+# missing are skipped and noted in the report.
+on:
+  schedule:
+    - cron: '0 14 * * 1' # Mondays 14:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - id: check
+        run: npx tsx scripts/check-models.ts --write
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - run: cat model-check-report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Open a pull request with the updates
+        if: steps.check.outputs.changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch="model-check/$(date -u +%Y-%m-%d)"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "Branch $branch already exists; skipping."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add src/ai/models.json
+          git commit -m "Update models.json from the weekly model check"
+          git push -u origin "$branch"
+          gh pr create --draft --title "Weekly model check: update models.json" --body-file model-check-report.md

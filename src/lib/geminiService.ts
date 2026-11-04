@@ -12,24 +12,39 @@ import { CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
 import { buildGroundedSeedContext, getCategoryNarrativeProfile } from './narrativeProfiles';
 import { getCategoryFallbackActions } from './experienceHelpers';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
-import { AIError, classifyAIError, describeAIError, isTransient, shouldTryNextModel } from './aiErrors';
+import { AIError, classifyAIError, describeAIError } from './aiErrors';
 import { reportAIFailure, reportAINotice, reportAISuccess, resetAIStatus } from './aiStatus';
 
-// Default Gemini model: the "latest" alias Google keeps pointed at the current Flash release.
-export const GEMINI_DEFAULT_MODEL = 'gemini-flash-latest';
+import {
+  AI_REQUEST_TIMEOUT_MS,
+  AI_TURN_DEADLINE_MS,
+  DEFAULT_MAX_OUTPUT_TOKENS,
+  FALLBACK_MODELS,
+  GEMINI_DEFAULT_MODEL,
+  ProviderCallConfig,
+  callProvider,
+  getCachedGeminiModels,
+  getGeminiCandidateModels,
+  listGeminiModels,
+  normalizeGeminiModelName,
+  parseRetryDelayMs,
+  setCachedGeminiModels,
+  supportsJsonMode
+} from '../ai/transport';
 
-// Models tried, in order, after the player's chosen model when it is unavailable,
-// rate-limited or overloaded. Stable IDs from https://ai.google.dev/gemini-api/docs/models
-export const FALLBACK_MODELS = [
-  'gemini-flash-latest',
-  'gemini-3.8-flash',
-  'gemini-3.6-flash',
-  'gemini-3.5-flash-lite',
-  'gemini-3.1-flash-lite'
-];
+export {
+  AI_REQUEST_TIMEOUT_MS,
+  AI_TURN_DEADLINE_MS,
+  DEFAULT_MAX_OUTPUT_TOKENS,
+  FALLBACK_MODELS,
+  GEMINI_DEFAULT_MODEL,
+  getCachedGeminiModels,
+  getGeminiCandidateModels,
+  listGeminiModels,
+  parseRetryDelayMs,
+  supportsJsonMode
+};
 
-// Give up on a single provider request after this long.
-export const AI_REQUEST_TIMEOUT_MS = 90_000;
 
 // The Firebase web API key in firebase-applet-config.json is NOT a Gemini key: Google
 // blocks it for the Generative Language API (403 API_KEY_SERVICE_BLOCKED). Older builds
@@ -267,88 +282,9 @@ export function hasActiveAIKey(): boolean {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                         GEMINI MODEL DISCOVERY                             */
-/* -------------------------------------------------------------------------- */
-
-const GEMINI_MODELS_CACHE_KEY = 'zeroroll_gemini_available_models';
-const NON_TEXT_MODEL_PATTERN = /(image|tts|live|audio|embedding|transcribe|robotics|imagen|veo|lyria|aqa)/;
-
-function normalizeGeminiModelName(model?: string): string {
-  const clean = (model || '').trim().replace(/^models\//, '');
-  return clean || GEMINI_DEFAULT_MODEL;
-}
-
-/** Models the saved key could use the last time it was checked (null = never checked). */
-export function getCachedGeminiModels(): string[] | null {
-  try {
-    const raw = localStorage.getItem(GEMINI_MODELS_CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter((m) => typeof m === 'string') : null;
-  } catch (_) {
-    return null;
-  }
-}
-
-function setCachedGeminiModels(models: string[] | null): void {
-  try {
-    if (models && models.length) localStorage.setItem(GEMINI_MODELS_CACHE_KEY, JSON.stringify(models));
-    else localStorage.removeItem(GEMINI_MODELS_CACHE_KEY);
-  } catch (_) {}
-}
-
-/**
- * Lists the text-generation models this key can call. Doubles as a key check:
- * a bad key throws an AIError of kind "auth".
- */
-export async function listGeminiModels(apiKey: string): Promise<string[]> {
-  const models: string[] = [];
-  let pageToken = '';
-  for (let page = 0; page < 5; page++) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
-    const data = await withTimeout(async (signal) => {
-      const res = await fetch(url, { headers: { 'x-goog-api-key': apiKey.trim() }, signal });
-      const body = await res.text();
-      if (!res.ok) {
-        let parsedMsg = body;
-        try {
-          const json = JSON.parse(body);
-          parsedMsg = `${json.error?.status || ''} ${json.error?.message || body}`.trim();
-          const reason = json.error?.details?.find((d: any) => d?.reason)?.reason;
-          if (reason) parsedMsg += ` (${reason})`;
-        } catch (_) {}
-        throw classifyAIError({ status: res.status, message: `[Google Gemini] API Error (${res.status}): ${parsedMsg}` }, 'gemini');
-      }
-      return JSON.parse(body);
-    }, 20_000, 'gemini');
-
-    for (const m of data.models || []) {
-      const name = normalizeGeminiModelName(m.name);
-      const methods: string[] = m.supportedGenerationMethods || m.supportedActions || [];
-      if (methods.includes('generateContent') && !NON_TEXT_MODEL_PATTERN.test(name)) {
-        models.push(name);
-      }
-    }
-    pageToken = data.nextPageToken || '';
-    if (!pageToken) break;
-  }
-  return Array.from(new Set(models));
-}
-
-/** The chosen model first, then known-good fallbacks the key can actually use. */
-export function getGeminiCandidateModels(preferred?: string): string[] {
-  const first = normalizeGeminiModelName(preferred);
-  const available = getCachedGeminiModels();
-  const fallbacks = FALLBACK_MODELS.filter((m) => !available || available.includes(m));
-  const extras = available
-    ? available.filter((m) => m.includes('flash') && !m.includes('preview') && !m.includes('exp')).slice(0, 3)
-    : [];
-  return Array.from(new Set([first, ...fallbacks, ...extras])).slice(0, 5);
-}
-
-/* -------------------------------------------------------------------------- */
 /*                  UNIVERSAL CLIENT-SIDE MULTI-PROVIDER CALLER               */
 /* -------------------------------------------------------------------------- */
+// The transports, Gemini model discovery and cascade live in src/ai/transport.ts.
 
 export interface UniversalPromptOptions {
   systemPrompt?: string;
@@ -366,20 +302,6 @@ export interface UniversalPromptOptions {
   feature?: string;
 }
 
-interface ProviderCallConfig {
-  provider: AIProviderId;
-  apiKey: string;
-  model: string;
-  baseUrl?: string;
-}
-
-/** What one transport call produced. */
-interface TransportReply {
-  text: string;
-  /** The provider stopped because it hit the output limit (the reply is cut off). */
-  truncated: boolean;
-}
-
 /** Details of the last successful call, for status lines and Continue offers. */
 export interface AICallMeta {
   provider: AIProviderId;
@@ -390,13 +312,6 @@ export interface AICallMeta {
   /** Why the chosen model was skipped. */
   swapReason?: string;
 }
-
-// Room for a long scene plus the trailing blocks. Gemini counts thinking tokens
-// against the same limit, so it gets more headroom.
-export const DEFAULT_MAX_OUTPUT_TOKENS: Record<'gemini' | 'other', number> = { gemini: 8192, other: 4096 };
-
-// A whole turn (every model in the cascade, every retry) gives up after this long.
-export const AI_TURN_DEADLINE_MS = 180_000;
 
 let lastModelUsed = '';
 let lastCallMeta: AICallMeta | null = null;
@@ -409,41 +324,6 @@ export function getLastModelUsedLabel(): string {
 
 export function getLastCallMeta(): AICallMeta | null {
   return lastCallMeta;
-}
-
-async function withTimeout<T>(run: (signal: AbortSignal) => Promise<T>, ms: number, provider: string): Promise<T> {
-  const controller = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => {
-      controller.abort();
-      reject(new AIError('timeout', `No response after ${Math.round(ms / 1000)}s`, { provider }));
-    }, ms);
-  });
-  try {
-    return await Promise.race([run(controller.signal), timeout]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-/** Time left for a call that must finish by `deadlineAt`, capped at the per-request timeout. */
-function requestBudget(deadlineAt: number, provider: string): number {
-  const remaining = deadlineAt - Date.now();
-  if (remaining < 2_000) {
-    throw new AIError('timeout', `Gave up after ${Math.round(AI_TURN_DEADLINE_MS / 1000)}s without a reply.`, { provider });
-  }
-  return Math.min(AI_REQUEST_TIMEOUT_MS, remaining);
-}
-
-/** Seconds the provider asked us to wait, from "retry in 7.2s" or a RetryInfo "retryDelay": "7s". */
-export function parseRetryDelayMs(message: string): number | undefined {
-  const m = message.match(/retry in ([\d.]+)\s*s/i) || message.match(/retryDelay"?\s*[:=]\s*"?([\d.]+)s/i);
-  if (!m) return undefined;
-  const ms = Math.ceil(parseFloat(m[1]) * 1000);
-  return Number.isFinite(ms) ? ms : undefined;
 }
 
 /**
@@ -475,372 +355,24 @@ export async function executeUniversalPrompt(options: UniversalPromptOptions): P
 }
 
 async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalPromptOptions): Promise<string> {
-  const { provider, apiKey, model } = cfg;
-  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false, thinking = 'low' } = options;
-  const providerName = AI_PROVIDERS[provider]?.name || provider;
-  const deadlineAt = Date.now() + AI_TURN_DEADLINE_MS;
-
-  if (provider !== 'custom' && !apiKey.trim()) {
-    throw new AIError('no_key', `Missing ${providerName} API key.`, { provider });
-  }
-
-  try {
-    // 1. Google Gemini Provider
-    if (provider === 'gemini') {
-      const maxTokens = options.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.gemini;
-      const r = await callGeminiWithCascade(apiKey, model, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens, deadlineAt);
-      return r.text;
-    }
-
-    const maxTokens = options.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
-    let reply: TransportReply;
-
-    // 2. Anthropic Claude Provider (Direct client fetch)
-    if (provider === 'anthropic') {
-      const baseUrl = cfg.baseUrl || AI_PROVIDERS.anthropic?.defaultBaseUrl || 'https://api.anthropic.com/v1';
-      reply = await callAnthropicApi(apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson, maxTokens, requestBudget(deadlineAt, provider));
-    } else {
-      // 3. OpenAI-Compatible Providers (OpenAI, Grok, OpenRouter, Copilot/GitHub, Custom)
-      const baseUrl = cfg.baseUrl || AI_PROVIDERS[provider]?.defaultBaseUrl || 'https://api.openai.com/v1';
-      reply = await callOpenAICompatibleApi(provider, apiKey, baseUrl, model, systemPrompt, userPrompt, temperature, responseJson, maxTokens, requestBudget(deadlineAt, provider));
-    }
-    lastModelUsed = model;
-    lastCallMeta = { provider, model, truncated: reply.truncated };
-    return reply.text;
-  } catch (err) {
-    throw classifyAIError(err, provider);
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/*                            GEMINI IMPLEMENTATION                           */
-/* -------------------------------------------------------------------------- */
-
-// Models that rejected a thinking level (older or non-thinking models); sent without it from then on.
-const modelsWithoutThinkingLevel = new Set<string>();
-
-/**
- * One generateContent call over plain REST. The @google/genai SDK added ~500 KB to the
- * page download for this single request. The key goes in the x-goog-api-key header,
- * never in the URL.
- */
-async function callGeminiModel(
-  apiKey: string,
-  modelName: string,
-  systemPrompt: string | undefined,
-  userPrompt: string,
-  temperature: number,
-  responseJson: boolean,
-  thinking: 'minimal' | 'low',
-  maxTokens: number,
-  timeoutMs: number
-): Promise<TransportReply> {
-  const generationConfig: Record<string, any> = { temperature, maxOutputTokens: maxTokens };
-  if (responseJson) generationConfig.responseMimeType = 'application/json';
-  const useThinkingLevel = !modelsWithoutThinkingLevel.has(modelName);
-  if (useThinkingLevel) generationConfig.thinkingConfig = { thinkingLevel: thinking.toUpperCase() };
-
-  const body: Record<string, any> = {
-    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-    generationConfig
-  };
-  if (systemPrompt) body.systemInstruction = { parts: [{ text: systemPrompt }] };
-
-  return withTimeout(async (signal) => {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey.trim() },
-        body: JSON.stringify(body),
-        signal
-      }
-    );
-    const raw = await res.text();
-
-    if (!res.ok) {
-      let parsedMsg = raw;
-      try {
-        const json = JSON.parse(raw);
-        parsedMsg = `${json.error?.status || ''} ${json.error?.message || raw}`.trim();
-        const reason = json.error?.details?.find((d: any) => d?.reason)?.reason;
-        if (reason) parsedMsg += ` (${reason})`;
-        const retryDelay = json.error?.details?.find((d: any) => d?.retryDelay)?.retryDelay;
-        if (retryDelay) parsedMsg += ` retryDelay: ${retryDelay}`;
-      } catch (_) {}
-      // Models without thinking levels reject the field; retry once without it.
-      if (res.status === 400 && useThinkingLevel && /thinking/i.test(parsedMsg)) {
-        modelsWithoutThinkingLevel.add(modelName);
-        return callGeminiModel(apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens, timeoutMs);
-      }
-      throw classifyAIError({ status: res.status, message: `[Google Gemini] API Error (${res.status}): ${parsedMsg}` }, 'gemini');
-    }
-
-    const data = JSON.parse(raw);
-    const candidate = data.candidates?.[0];
-    const finishReason: string | undefined = candidate?.finishReason;
-    const blockReason: string | undefined = data.promptFeedback?.blockReason;
-    if (blockReason || finishReason === 'SAFETY' || finishReason === 'PROHIBITED_CONTENT' || finishReason === 'BLOCKLIST') {
-      throw new AIError('blocked', `${modelName} blocked the ${blockReason ? 'prompt' : 'reply'} (${blockReason || finishReason}).`, { provider: 'gemini' });
-    }
-    const parts: any[] = candidate?.content?.parts || [];
-    const text = parts.filter((p) => !p.thought && typeof p.text === 'string').map((p) => p.text).join('');
-    if (!text.trim()) {
-      const why = finishReason === 'MAX_TOKENS' ? 'it used its whole length limit before writing anything' : finishReason || 'no text';
-      throw new AIError('bad_output', `${modelName} returned an empty reply (${why}).`, { provider: 'gemini' });
-    }
-    return { text, truncated: finishReason === 'MAX_TOKENS' };
-  }, timeoutMs, 'gemini');
-}
-
-async function callGeminiWithCascade(
-  apiKey: string,
-  model: string,
-  systemPrompt: string | undefined,
-  userPrompt: string,
-  temperature: number,
-  responseJson: boolean,
-  thinking: 'minimal' | 'low' = 'low',
-  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.gemini,
-  deadlineAt: number = Date.now() + AI_TURN_DEADLINE_MS
-): Promise<TransportReply> {
-  const candidates = getGeminiCandidateModels(model);
-  let lastError: AIError | undefined;
-  let firstError: AIError | undefined;
-  let lastBadRequest: string | undefined;
-
-  for (const modelName of candidates) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const reply = await callGeminiModel(
-          apiKey, modelName, systemPrompt, userPrompt, temperature, responseJson, thinking, maxTokens,
-          requestBudget(deadlineAt, 'gemini')
-        );
-        lastModelUsed = modelName;
-        lastCallMeta = {
-          provider: 'gemini',
-          model: modelName,
-          truncated: reply.truncated,
-          ...(modelName !== candidates[0] ? { swappedFrom: candidates[0], swapReason: firstError?.kind } : {})
-        };
-        return reply;
-      } catch (raw) {
-        const err = classifyAIError(raw, 'gemini');
-        lastError = err;
-        if (!firstError) firstError = err;
-        // A bad key, a blocked prompt or the overall deadline fail the same way on every model.
-        if (err.kind === 'auth' || err.kind === 'blocked' || (err.kind === 'timeout' && deadlineAt - Date.now() < 2_000)) throw err;
-        const hint = parseRetryDelayMs(err.message);
-        // Honour a short retry hint on quota errors before moving down the cascade.
-        if (attempt === 0 && err.kind === 'quota' && hint !== undefined && hint <= 10_000 && deadlineAt - Date.now() > hint + 5_000) {
-          await sleep(hint);
-          continue;
-        }
-        if (attempt === 0 && isTransient(err.kind)) {
-          await sleep(Math.min(hint ?? 1000, 5000));
-          continue;
-        }
-        break;
-      }
-    }
-    if (lastError?.kind === 'bad_request') {
-      // A 400 that is about this model (unsupported option) is worth one more model;
-      // the same 400 twice means the request itself is the problem.
-      if (lastBadRequest === lastError.message) throw lastError;
-      lastBadRequest = lastError.message;
-    } else if (lastError && !shouldTryNextModel(lastError.kind) && lastError.kind !== 'bad_output' && lastError.kind !== 'timeout') {
-      throw lastError;
-    }
-    console.warn(`[Gemini] ${modelName} failed (${lastError?.kind}): ${lastError?.message}`);
-  }
-
-  throw lastError || new AIError('unknown', 'No Gemini model could answer.', { provider: 'gemini' });
-}
-
-/* -------------------------------------------------------------------------- */
-/*                       OPENAI COMPATIBLE IMPLEMENTATION                     */
-/* -------------------------------------------------------------------------- */
-
-/**
- * A 404 from /chat/completions means either the model is unknown or the base URL is
- * wrong (Ollama without /v1, a typo). Probing /models tells the two apart.
- */
-async function baseUrlLooksLikeApi(base: string, headers: Record<string, string>): Promise<boolean> {
-  try {
-    const res = await withTimeout(
-      (signal) => fetch(`${base}/models`, { method: 'GET', headers: { Authorization: headers['Authorization'] || '' }, signal }),
-      8_000,
-      'probe'
-    );
-    if (res.status === 404) return false;
-    const type = res.headers.get('content-type') || '';
-    return !type.includes('text/html');
-  } catch (_) {
-    return false;
-  }
-}
-
-async function callOpenAICompatibleApi(
-  provider: AIProviderId,
-  apiKey: string,
-  baseUrl: string,
-  model: string,
-  systemPrompt: string | undefined,
-  userPrompt: string,
-  temperature: number,
-  responseJson: boolean,
-  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.other,
-  timeoutMs: number = AI_REQUEST_TIMEOUT_MS
-): Promise<TransportReply> {
-  const base = baseUrl.replace(/\/+$/, '');
-  const url = `${base}/chat/completions`;
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
-  };
-
-  if (apiKey && apiKey.trim()) {
-    headers['Authorization'] = `Bearer ${apiKey.trim()}`;
-  }
-
-  // OpenRouter specific attribution headers
-  if (provider === 'openrouter') {
-    headers['HTTP-Referer'] = 'https://zeroroll.app';
-    headers['X-Title'] = 'ZeroRoll TTRPG Engine';
-  }
-
-  const messages: Array<{ role: string; content: string }> = [];
-  if (systemPrompt) {
-    messages.push({ role: 'system', content: systemPrompt });
-  }
-  messages.push({ role: 'user', content: userPrompt });
-
-  const body: any = {
-    model: model || 'gpt-4o-mini',
-    messages,
-    temperature
-  };
-  // OpenAI's current models only accept max_completion_tokens; compatible servers use max_tokens.
-  if (provider === 'openai') body.max_completion_tokens = maxTokens;
-  else body.max_tokens = maxTokens;
-
-  if (responseJson && supportsJsonMode(provider)) {
-    body.response_format = { type: 'json_object' };
-  }
-
-  return withTimeout(async (signal) => {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-      signal
-    });
-
-    if (!res.ok) {
-      const errorBody = await res.text();
-      let parsedMsg = errorBody;
-      try {
-        const json = JSON.parse(errorBody);
-        parsedMsg = json.error?.message || json.message || errorBody;
-      } catch (_) {}
-      const providerName = AI_PROVIDERS[provider]?.name || provider;
-      if (res.status === 404 && !(await baseUrlLooksLikeApi(base, headers))) {
-        throw new AIError('bad_base_url', `[${providerName}] ${url} returned 404 and ${base}/models is not an API either.`, { provider, status: 404 });
-      }
-      throw classifyAIError(
-        { status: res.status, message: `[${providerName}] API Error (${res.status}): ${parsedMsg}` },
-        provider
-      );
-    }
-
-    const data = await res.json();
-    const choice = data.choices?.[0];
-    const content = choice?.message?.content || '';
-    const text = typeof content === 'string' ? content : JSON.stringify(content);
-    if (!text.trim()) {
-      if (choice?.finish_reason === 'content_filter') throw new AIError('blocked', `${model} filtered the reply.`, { provider });
-      throw new AIError('bad_output', `${model} returned an empty reply.`, { provider });
-    }
-    return { text, truncated: choice?.finish_reason === 'length' };
-  }, timeoutMs, provider);
-}
-
-/** Providers that accept response_format: json_object. Others get JSON instructions in the prompt only. */
-export function supportsJsonMode(provider: AIProviderId): boolean {
-  return provider === 'gemini' || provider === 'openai' || provider === 'openrouter' || provider === 'grok';
-}
-
-/* -------------------------------------------------------------------------- */
-/*                          ANTHROPIC CLAUDE IMPLEMENTATION                   */
-/* -------------------------------------------------------------------------- */
-
-async function callAnthropicApi(
-  apiKey: string,
-  baseUrl: string,
-  model: string,
-  systemPrompt: string | undefined,
-  userPrompt: string,
-  temperature: number,
-  responseJson: boolean,
-  maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.other,
-  timeoutMs: number = AI_REQUEST_TIMEOUT_MS
-): Promise<TransportReply> {
-  const url = `${baseUrl.replace(/\/+$/, '')}/messages`;
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'x-api-key': apiKey.trim(),
-    'anthropic-version': '2023-06-01',
-    'anthropic-dangerous-direct-browser-access': 'true'
-  };
-
-  let actualUserPrompt = userPrompt;
-  if (responseJson) {
-    actualUserPrompt += '\n\nIMPORTANT: Respond ONLY with valid, parseable JSON with no markdown wrapping.';
-  }
-
-  const body: any = {
-    model: model || 'claude-3-5-haiku-20241022',
-    max_tokens: maxTokens,
+  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false, thinking = 'low', maxTokens } = options;
+  const reply = await callProvider(cfg, {
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userPrompt }],
     temperature,
-    messages: [
-      { role: 'user', content: actualUserPrompt }
-    ]
+    json: responseJson,
+    thinking,
+    maxTokens
+  });
+  lastModelUsed = reply.model;
+  lastCallMeta = {
+    provider: reply.provider,
+    model: reply.model,
+    truncated: reply.truncated,
+    swappedFrom: reply.swappedFrom,
+    swapReason: reply.swapReason
   };
-
-  if (systemPrompt) {
-    body.system = systemPrompt;
-  }
-
-  return withTimeout(async (signal) => {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-      signal
-    });
-
-    if (!res.ok) {
-      const errorBody = await res.text();
-      let parsedMsg = errorBody;
-      try {
-        const json = JSON.parse(errorBody);
-        parsedMsg = json.error?.message || json.message || errorBody;
-      } catch (_) {}
-      throw classifyAIError({ status: res.status, message: `[Anthropic Claude] API Error (${res.status}): ${parsedMsg}` }, 'anthropic');
-    }
-
-    const data = await res.json();
-    const text = (data.content || [])
-      .filter((c: any) => c.type === 'text' && typeof c.text === 'string')
-      .map((c: any) => c.text)
-      .join('');
-    if (!text.trim()) {
-      if (data.stop_reason === 'refusal') throw new AIError('blocked', `${model} declined to answer.`, { provider: 'anthropic' });
-      throw new AIError('bad_output', `${model} returned an empty reply.`, { provider: 'anthropic' });
-    }
-    return { text, truncated: data.stop_reason === 'max_tokens' };
-  }, timeoutMs, 'anthropic');
+  return reply.text;
 }
 
 /* -------------------------------------------------------------------------- */

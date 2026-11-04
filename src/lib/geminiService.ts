@@ -128,6 +128,15 @@ export function purgeUnusableStoredKeys(): boolean {
   return removed;
 }
 
+/** The model the player picked for this provider, or '' if they never chose one. */
+export function getSavedProviderModel(provider: AIProviderId): string {
+  try {
+    return (localStorage.getItem(`zeroroll_model_${provider}`) || '').trim();
+  } catch (_) {
+    return '';
+  }
+}
+
 export function getProviderModel(provider: AIProviderId): string {
   try {
     const saved = localStorage.getItem(`zeroroll_model_${provider}`);

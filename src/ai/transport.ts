@@ -30,6 +30,8 @@ export interface ProviderRequest {
   deadlineAt?: number;
   /** Cancels the call (e.g. the player navigated away). */
   signal?: AbortSignal;
+  /** Gemini only: call exactly this model, without the fallback cascade (the router runs its own ladder). */
+  noCascade?: boolean;
 }
 
 export interface ProviderReply {
@@ -296,9 +298,10 @@ async function callGeminiWithCascade(
   thinking: 'minimal' | 'low' = 'low',
   maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.gemini,
   deadlineAt: number = Date.now() + AI_TURN_DEADLINE_MS,
-  outer?: AbortSignal
+  outer?: AbortSignal,
+  noCascade = false
 ): Promise<ProviderReply> {
-  const candidates = getGeminiCandidateModels(model);
+  const candidates = noCascade ? [normalizeGeminiModelName(model)] : getGeminiCandidateModels(model);
   let lastError: AIError | undefined;
   let firstError: AIError | undefined;
   let lastBadRequest: string | undefined;
@@ -495,7 +498,7 @@ async function callAnthropicApi(
   }
 
   const body: any = {
-    model: model || 'claude-3-5-haiku-20241022',
+    model: model || AI_PROVIDERS.anthropic.defaultModel,
     max_tokens: maxTokens,
     temperature,
     messages
@@ -557,7 +560,7 @@ export async function callProvider(cfg: ProviderCallConfig, req: ProviderRequest
   try {
     if (provider === 'gemini') {
       const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.gemini;
-      return await callGeminiWithCascade(apiKey, model, system, messages, temperature, json, thinking, maxTokens, deadlineAt, signal);
+      return await callGeminiWithCascade(apiKey, model, system, messages, temperature, json, thinking, maxTokens, deadlineAt, signal, req.noCascade);
     }
     const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
     let reply: TransportReply;

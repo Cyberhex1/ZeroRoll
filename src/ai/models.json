@@ -1,0 +1,36 @@
+{
+  "$comment": "Model ladder per provider. basic = cheapest/fastest, good = default story model, best = strongest. The weekly model check (scripts/check-models.ts, .github/workflows/model-check.yml) proposes updates to this file.",
+  "checkedAt": "2026-11-04",
+  "providers": {
+    "gemini": {
+      "basic": "gemini-3.5-flash-lite",
+      "good": "gemini-flash-latest",
+      "best": "gemini-3.1-pro-preview"
+    },
+    "anthropic": {
+      "basic": "claude-haiku-5-5",
+      "good": "claude-sonnet-5-5",
+      "best": "claude-opus-5-5"
+    },
+    "openai": {
+      "basic": "gpt-5-mini",
+      "good": "gpt-5",
+      "best": "gpt-5"
+    },
+    "grok": {
+      "basic": "grok-2-mini",
+      "good": "grok-2",
+      "best": "grok-2"
+    },
+    "openrouter": {
+      "basic": "deepseek/deepseek-chat",
+      "good": "deepseek/deepseek-chat",
+      "best": "deepseek/deepseek-r1"
+    },
+    "copilot": {
+      "basic": "gpt-4o-mini",
+      "good": "gpt-4o",
+      "best": "gpt-4o"
+    }
+  }
+}

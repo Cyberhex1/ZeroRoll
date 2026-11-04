@@ -347,3 +347,36 @@ describe('Gameplay features never substitute silently', () => {
     expect(free?.url).not.toContain('Zephyrine');
   });
 });
+
+describe('only usable Gemini models are offered (ohnna, 2026-11-04)', () => {
+  it('Test Connection keeps the models that answer and the cascade skips the rest', async () => {
+    useProvider('gemini');
+    localStorage.removeItem('zeroroll_gemini_available_models');
+    const listed = ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-argon', 'gemini-2.0-flash', 'gemini-3.8-flash-001', 'gemini-exp-1206', 'text-embedding-004'];
+    route = (url) => {
+      if (url.includes('/models?')) return { status: 200, body: { models: listed.map((n) => ({ name: `models/${n}`, supportedGenerationMethods: n.startsWith('text-') ? ['embedContent'] : ['generateContent'] })) } };
+      if (url.includes('gemini-flash-latest:')) return { status: 503, body: errorBody('UNAVAILABLE overloaded') };
+      if (url.includes('gemini-argon:')) return { status: 429, body: errorBody('RESOURCE_EXHAUSTED limit: 0') };
+      return gemini('{"status": "Ready for adventure"}');
+    };
+    const r = await run(svc.testProviderConnection({ provider: 'gemini', apiKey: 'AIzaTest', model: 'gemini-flash-latest' }));
+    expect(r.success).toBe(true);
+    expect(r.usableModels).toEqual(['gemini-3.8-flash', 'gemini-3.5-flash-lite']);
+    expect(r.modelUsed).toBe('gemini-3.8-flash');
+    expect(r.message).toMatch(/gemini-flash-latest didn't answer/);
+    // Old generations, dated snapshots and experiments are never probed.
+    const probed = calls.filter((c) => c.url.includes(':generateContent')).map((c) => c.url.match(/models\/([^:]+):/)![1]);
+    expect(probed).not.toContain('gemini-2.0-flash');
+    expect(probed).not.toContain('gemini-3.8-flash-001');
+    expect(probed).not.toContain('gemini-exp-1206');
+    expect(svc.getGeminiCandidateModels('gemini-flash-latest')).toEqual(['gemini-3.8-flash', 'gemini-3.5-flash-lite']);
+    const { usableGeminiModelOptions } = await import('../modelsConfig');
+    expect(usableGeminiModelOptions().map((m) => m.id)).toEqual(['gemini-3.8-flash', 'gemini-3.5-flash-lite']);
+  });
+
+  it('a model outside the curated list that answers is offered by name', async () => {
+    const { usableGeminiModelOptions, prettyGeminiName } = await import('../modelsConfig');
+    expect(prettyGeminiName('gemini-argon')).toBe('Gemini Argon');
+    expect(usableGeminiModelOptions(['gemini-3.8-flash', 'gemini-argon']).map((m) => m.name)).toEqual(['Gemini 3.8 Flash', 'Gemini Argon']);
+  });
+});

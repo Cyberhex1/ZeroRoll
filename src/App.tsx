@@ -17,7 +17,8 @@ import {
   saveUserSettingsToCloud,
   purgeCloudProviderKeys,
   saveActiveExperienceIdToCloud,
-  isNewer
+  isNewer,
+  cloudSyncBlocked
 } from './lib/firebase';
 import {
   exportAllProviderSettings,
@@ -52,7 +53,7 @@ import {
   DMStoryOutline,
   CampaignInspiration
 } from './types';
-import { DEFAULT_GEMINI_MODEL, GEMINI_MODELS } from './lib/modelsConfig';
+import { DEFAULT_GEMINI_MODEL, usableGeminiModelOptions } from './lib/modelsConfig';
 import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
 import { mergeInventoryAdditive, createVariedInitialMap } from './lib/experienceHelpers';
 import { audioManager } from './audio/manager';
@@ -103,12 +104,14 @@ export default function App() {
   // Settings states — initialized from local cache (acceptable: these are preferences, not identity)
   const [selectedModel, setSelectedModel] = useState<string>(() => {
     const saved = safeGetStorage('dnd_selected_model');
-    const isValid = GEMINI_MODELS.some(m => m.id === saved);
-    if (isValid && saved) {
+    const options = usableGeminiModelOptions();
+    if (saved && options.some(m => m.id === saved)) {
       return saved;
     }
-    safeSetStorage('dnd_selected_model', DEFAULT_GEMINI_MODEL);
-    return DEFAULT_GEMINI_MODEL;
+    // A saved pick that no longer answers falls back to the first model that does.
+    const fallback = options.some(m => m.id === DEFAULT_GEMINI_MODEL) ? DEFAULT_GEMINI_MODEL : options[0]?.id || DEFAULT_GEMINI_MODEL;
+    safeSetStorage('dnd_selected_model', fallback);
+    return fallback;
   });
 
   const [customSystemPrompt, setCustomSystemPrompt] = useState<string>(() => {
@@ -162,6 +165,17 @@ export default function App() {
     const t = setTimeout(() => void runWeeklyModelCheck(), 5000);
     return () => clearTimeout(t);
   }, []);
+
+  // Cloud saves need firestore.googleapis.com; an ad blocker that refuses it would otherwise fail silently.
+  const [cloudBlocked, setCloudBlocked] = useState(false);
+  useEffect(() => {
+    if (!user || user.isAnonymous) return;
+    let live = true;
+    void cloudSyncBlocked().then((blocked) => live && setCloudBlocked(blocked));
+    return () => {
+      live = false;
+    };
+  }, [user]);
 
   // Opt-in key sync: re-encrypt and upload when a key changes (does nothing while sync is off).
   useEffect(() => {
@@ -589,6 +603,18 @@ export default function App() {
           role="alert"
         >
           ⚠ {cloudSaveError}
+        </div>
+      )}
+
+      {cloudBlocked && (
+        <div role="alert" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-amber-950/95 border border-amber-600/60 text-amber-100 text-xs px-4 py-2.5 rounded-lg shadow-xl max-w-md flex items-start gap-3">
+          <span>
+            Cloud sync is blocked in this browser, most likely by an ad blocker or privacy extension. Your saves stay on this device but are not backed up. Allow{' '}
+            <code className="font-mono">firestore.googleapis.com</code> for this site to turn backup back on.
+          </span>
+          <button type="button" onClick={() => setCloudBlocked(false)} className="shrink-0 underline text-amber-300" aria-label="Dismiss cloud sync notice">
+            Dismiss
+          </button>
         </div>
       )}
 

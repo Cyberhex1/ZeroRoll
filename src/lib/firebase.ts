@@ -796,3 +796,31 @@ export async function deleteExperienceFromCloud(experienceId: string): Promise<S
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
+
+/**
+ * True when the browser is online but requests to Firestore are refused before they leave
+ * the browser, which is what an ad blocker or privacy extension does (ERR_BLOCKED_BY_CLIENT).
+ * The SDK only retries quietly in that case, so the player would never learn their saves
+ * are not reaching the cloud.
+ */
+export async function cloudSyncBlocked(timeoutMs = 8000): Promise<boolean> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    // no-cors: any answer from Google proves the path is open; only a block or no network throws.
+    await fetch('https://firestore.googleapis.com/', { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal });
+    return false;
+  } catch (e) {
+    if ((e as Error)?.name === 'AbortError') return false;
+    // Rule out "no network at all": Google's own static host should still answer.
+    try {
+      await fetch('https://www.gstatic.com/generate_204', { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  } finally {
+    clearTimeout(t);
+  }
+}

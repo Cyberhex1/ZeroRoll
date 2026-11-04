@@ -1,0 +1,634 @@
+{
+  "title": "ZeroRoll story package",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "fantasy",
+            "adventure",
+            "historical_adventure",
+            "horror",
+            "cozy_ghibli",
+            "romantic",
+            "revenge",
+            "apocalypse",
+            "zombie",
+            "cosmic_horror",
+            "psychedelic_trip",
+            "tiktok_drama",
+            "ancient_greek",
+            "mythology",
+            "real_life"
+          ]
+        },
+        "rating": {
+          "type": "string",
+          "enum": [
+            "everyone",
+            "teen",
+            "mature"
+          ]
+        },
+        "mode": {
+          "default": "story",
+          "type": "string",
+          "enum": [
+            "story",
+            "character"
+          ]
+        },
+        "character": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "blurb": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 400
+        },
+        "cover": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "author": {
+          "type": "string",
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "category",
+        "rating",
+        "blurb"
+      ],
+      "additionalProperties": false
+    },
+    "world": {
+      "type": "string",
+      "minLength": 40,
+      "maxLength": 2000
+    },
+    "tone": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 300
+    },
+    "playerRole": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500
+    },
+    "lengthTarget": {
+      "default": "medium",
+      "type": "string",
+      "enum": [
+        "short",
+        "medium",
+        "long"
+      ]
+    },
+    "narratorStyle": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500
+    },
+    "strictness": {
+      "default": "hard",
+      "type": "string",
+      "enum": [
+        "hard",
+        "soft"
+      ]
+    },
+    "hintAfterTurns": {
+      "default": 6,
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "cast": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "appearance": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 400
+          },
+          "voice": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
+          },
+          "stance": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
+          },
+          "portrait": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "appearance",
+          "voice",
+          "stance"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "flags": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^[a-z0-9][a-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "bool",
+              "counter"
+            ]
+          },
+          "initial": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            ]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "type",
+          "initial",
+          "description"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "start": {
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "beats": {
+      "minItems": 3,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "goal": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "flag": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                },
+                "is": {
+                  "type": "boolean"
+                },
+                "atLeast": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "atMost": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "equals": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "flag"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "entry": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "flag": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                },
+                "is": {
+                  "type": "boolean"
+                },
+                "atLeast": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "atMost": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "equals": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "flag"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "sceneBrief": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 1500
+          },
+          "choices": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 120
+                },
+                "target": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                },
+                "sets": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "flag": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                      },
+                      "set": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        ]
+                      },
+                      "add": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "flag"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "artCues": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "art": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                },
+                "on": {
+                  "type": "string",
+                  "enum": [
+                    "enter",
+                    "choice",
+                    "flag"
+                  ]
+                },
+                "choice": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                },
+                "when": {
+                  "type": "object",
+                  "properties": {
+                    "flag": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+                    },
+                    "is": {
+                      "type": "boolean"
+                    },
+                    "atLeast": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "atMost": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "equals": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "flag"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "art",
+                "on"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "exits": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9][a-z0-9_-]*$"
+            }
+          },
+          "isEnding": {
+            "default": false,
+            "type": "boolean"
+          },
+          "endingTitle": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "hint": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "hintAfterTurns": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "sceneBrief"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "art": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^[a-z0-9][a-z0-9_-]*$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[a-z0-9_-]+\\.webp$"
+          },
+          "alt": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "file",
+          "alt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "skin": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "palette": {
+          "type": "object",
+          "properties": {
+            "background": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "surface": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "accent": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "text": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "muted": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "playerBubble": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "narratorBubble": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "fonts": {
+          "type": "object",
+          "properties": {
+            "heading": {
+              "type": "string",
+              "enum": [
+                "serif",
+                "sans",
+                "mono",
+                "display",
+                "hand"
+              ]
+            },
+            "body": {
+              "type": "string",
+              "enum": [
+                "serif",
+                "sans",
+                "mono"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "bubble": {
+          "type": "string",
+          "enum": [
+            "rounded",
+            "square",
+            "soft",
+            "scroll"
+          ]
+        },
+        "pattern": {
+          "type": "string",
+          "enum": [
+            "none",
+            "dots",
+            "grid",
+            "grain",
+            "stars",
+            "waves"
+          ]
+        },
+        "backgroundArt": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "particles": {
+          "type": "string",
+          "enum": [
+            "none",
+            "embers",
+            "snow",
+            "petals",
+            "rain",
+            "motes",
+            "ash"
+          ]
+        },
+        "ambient": {
+          "type": "string",
+          "maxLength": 40
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "meta",
+    "world",
+    "tone",
+    "playerRole",
+    "narratorStyle",
+    "cast",
+    "start",
+    "beats"
+  ],
+  "additionalProperties": false
+}

@@ -2,10 +2,11 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+import { storyIndex } from './scripts/vite-story-index';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), storyIndex()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

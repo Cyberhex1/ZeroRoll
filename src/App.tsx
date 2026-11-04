@@ -37,7 +37,9 @@ const ExperienceView = lazy(() => import('./components/ExperienceView').then((m)
 const SettingsModal = lazy(() => import('./components/SettingsModal').then((m) => ({ default: m.SettingsModal })));
 const UserProfileModal = lazy(() => import('./components/UserProfileModal').then((m) => ({ default: m.UserProfileModal })));
 const AuthModal = lazy(() => import('./components/AuthModal').then((m) => ({ default: m.AuthModal })));
-const StoryChat = lazy(() => import('./story/StoryChat'));
+const StoryPicker = lazy(() => import('./story/ui/StoryPicker'));
+const StoryPlay = lazy(() => import('./story/ui/StoryPlay'));
+const storyFallback = <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">Opening Story mode...</div>;
 const ApiKeyModal = lazy(() => import('./components/ApiKeyModal').then((m) => ({ default: m.ApiKeyModal })));
 import MusicPlayer from './components/MusicPlayer';
 import {
@@ -665,14 +667,10 @@ export default function App() {
       <main>
         <Routes>
           {STORY_MODE_ENABLED && (
-            <Route
-              path="/story"
-              element={
-                <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-slate-400">Opening Story mode...</div>}>
-                  <StoryChat />
-                </Suspense>
-              }
-            />
+            <>
+              <Route path="/story" element={<Suspense fallback={storyFallback}><StoryPicker /></Suspense>} />
+              <Route path="/story/:id" element={<Suspense fallback={storyFallback}><StoryPlay /></Suspense>} />
+            </>
           )}
           <Route
             path="/settings"

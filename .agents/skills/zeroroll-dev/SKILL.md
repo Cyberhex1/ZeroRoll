@@ -16,29 +16,29 @@ This skill provides step-by-step procedures, architectural invariants, and runbo
 
 | File / Folder | Purpose |
 | :--- | :--- |
-| [`src/lib/geminiService.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/geminiService.ts) | Universal LLM executor, multi-model fallback cascade, turn execution, scenario setup, and Flux/DALL-E avatar generator. |
-| [`src/lib/narrativeProfiles.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/narrativeProfiles.ts) | 15 Category Narrative Profiles (Voice, Atmosphere, Sensory Anchors, Scene Architecture, Story Beats, Avoid lists) & compiler. |
-| [`src/lib/seedlists.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/seedlists.ts) | Category seed corpus (Themes, Tropes, Encounters, Opening Hooks) across all 15 genres. |
-| [`src/lib/categoriesData.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/categoriesData.ts) | Category definitions, icons, color gradients, and default character stat blocks. |
-| [`src/lib/providersConfig.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/providersConfig.ts) | Multi-provider AI configurations (Gemini, OpenAI, Claude, Grok, Copilot, OpenRouter, Custom). |
-| [`src/components/CategoriesGrid.tsx`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/components/CategoriesGrid.tsx) | Category selection, campaign setup modal, gender/pronoun selector, and live portrait preview. |
-| [`src/components/NarrativeStream.tsx`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/components/NarrativeStream.tsx) | Game Master story feed, action bar, forced D&D roll barrier, and course-change alert banner. |
-| [`src/components/CharacterSheetPanel.tsx`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/components/CharacterSheetPanel.tsx) | Character stats, D&D 5e modifiers, avatar portrait, and live physical prompt re-renderer. |
+| [`src/lib/geminiService.ts`](../../../src/lib/geminiService.ts) | Universal LLM executor, multi-model fallback cascade, turn execution, scenario setup, and Flux/DALL-E avatar generator. |
+| [`src/lib/narrativeProfiles.ts`](../../../src/lib/narrativeProfiles.ts) | 15 Category Narrative Profiles (Voice, Atmosphere, Sensory Anchors, Scene Architecture, Story Beats, Avoid lists) & compiler. |
+| [`src/lib/seedlists.ts`](../../../src/lib/seedlists.ts) | Category seed corpus (Themes, Tropes, Encounters, Opening Hooks) across all 15 genres. |
+| [`src/lib/categoriesData.ts`](../../../src/lib/categoriesData.ts) | Category definitions, icons, color gradients, and default character stat blocks. |
+| [`src/lib/providersConfig.ts`](../../../src/lib/providersConfig.ts) | Multi-provider AI configurations (Gemini, OpenAI, Claude, Grok, Copilot, OpenRouter, Custom). |
+| [`src/components/CategoriesGrid.tsx`](../../../src/components/CategoriesGrid.tsx) | Category selection, campaign setup modal, gender/pronoun selector, and live portrait preview. |
+| [`src/components/NarrativeStream.tsx`](../../../src/components/NarrativeStream.tsx) | Game Master story feed, action bar, forced D&D roll barrier, and course-change alert banner. |
+| [`src/components/CharacterSheetPanel.tsx`](../../../src/components/CharacterSheetPanel.tsx) | Character stats, D&D 5e modifiers, avatar portrait, and live physical prompt re-renderer. |
 
 ---
 
 ## 2. Adding or Modifying a Category
 
 When adding or updating a category in ZeroRoll:
-1. **Define in [`src/types/index.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/types/index.ts)**:
+1. **Define in [`src/types/index.ts`](../../../src/types/index.ts)**:
    Add category identifier to `ExperienceCategory` union.
-2. **Add Seed Data in [`src/lib/seedlists.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/seedlists.ts)**:
+2. **Add Seed Data in [`src/lib/seedlists.ts`](../../../src/lib/seedlists.ts)**:
    Provide `coreThemes`, `narrativeTropes`, `encounterSeeds`, and `openingHooks`.
-3. **Add Narrative Profile in [`src/lib/narrativeProfiles.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/narrativeProfiles.ts)**:
+3. **Add Narrative Profile in [`src/lib/narrativeProfiles.ts`](../../../src/lib/narrativeProfiles.ts)**:
    Define `voice`, `atmosphere`, `sceneStructure`, `storyBeats`, `characterDynamics`, `encounterPatterns`, `sensoryMotifs`, and `avoid`.
-4. **Register in [`src/lib/categoriesData.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/categoriesData.ts)**:
+4. **Register in [`src/lib/categoriesData.ts`](../../../src/lib/categoriesData.ts)**:
    Add entry with icon, colors, default character sheet, and sample prompts.
-5. **Add Fallback Procedural Rollers in [`src/lib/randomScenarios.ts`](file:///c:/Users/kdlin/OneDrive/Old/Apps/Documents/AVIBECODE/ZeroRoll/src/lib/randomScenarios.ts)**.
+5. **Add Fallback Procedural Rollers in [`src/lib/randomScenarios.ts`](../../../src/lib/randomScenarios.ts)**.
 
 ---
 

@@ -1,5 +1,5 @@
 import { ExperienceCategory } from '../types';
-import { CATEGORY_SEEDLISTS, CategorySeedInfo } from './seedlists';
+import { CATEGORY_SEEDLISTS } from './seedlists';
 
 export interface CategoryNarrativeProfile {
   id: ExperienceCategory;

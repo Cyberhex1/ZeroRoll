@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { BackupPanel } from './BackupPanel';
-import { 
-  Wand2, 
-  Compass, 
-  ShieldAlert, 
-  Ghost, 
-  Sparkles, 
-  Heart, 
-  Flame, 
-  Eye, 
-  Palette, 
-  Briefcase, 
-  Plus, 
-  Play, 
-  Trash2, 
-  Search, 
-  Radio, 
-  Clock, 
+import React, { useState, lazy, Suspense } from 'react';
+import { uid } from '../lib/ids';
+import {
+  Wand2,
+  Compass,
+  ShieldAlert,
+  Ghost,
+  Sparkles,
+  Heart,
+  Flame,
+  Eye,
+  Palette,
+  Briefcase,
+  Plus,
+  Play,
+  Trash2,
+  Search,
+  Radio,
+  Clock,
   Layers,
   Skull,
   Clapperboard,
@@ -24,17 +24,20 @@ import {
   Zap,
   RefreshCw,
   Lightbulb,
-  ChevronRight,
   Dice5,
   Dices,
   Camera
 } from 'lucide-react';
 import { CATEGORIES_DATA } from '../lib/categoriesData';
 import { CATEGORY_SEEDLISTS } from '../lib/seedlists';
-import { generateRandomScenarioSetup, CATEGORY_GENERATOR_DATA } from '../lib/randomScenarios';
+import { generateRandomScenarioSetup } from '../lib/randomScenarios';
 import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI } from '../lib/geminiService';
 import { getUnifiedScenarioSeeds, PlayableScenarioSeed } from '../lib/scenarioSeedsPool';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory } from '../types';
+
+
+// Loaded on demand so the backup code stays out of the main bundle.
+const BackupPanel = lazy(() => import('./BackupPanel'));
 
 interface CategoriesGridProps {
   experiences: Experience[];
@@ -134,10 +137,6 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setAvatarError(null);
   };
 
-  const handleRandomizeAll = (cat: CategoryInfo) => {
-    handleGenerateScenario(cat, true);
-  };
-
   const handleRandomizeTitle = async (cat: CategoryInfo) => {
     setRollingField('title');
     try {
@@ -218,7 +217,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
         if (data.scenario.initialInventory && Array.isArray(data.scenario.initialInventory)) {
           setInitialInventory(data.scenario.initialInventory.map((item: any, idx: number) => ({
-            id: `item_init_${Date.now()}_${idx}`,
+            id: `item_init_${uid()}_${idx}`,
             name: item.name || 'Adventurer Tool',
             type: item.type || 'misc',
             quantity: item.quantity || 1,
@@ -293,24 +292,6 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     }
   };
 
-  const handleApplySeedHook = (hookItem: any, cat: CategoryInfo) => {
-    if (typeof hookItem === 'string') {
-      applyRandomSetup(cat.id as ExperienceCategory);
-      const titleWords = hookItem.split(' ').slice(0, 6).join(' ').replace(/[.,:;!?]/g, '');
-      setCustomTitle(`${titleWords}: Chapter I`);
-      setOpeningPrompt(hookItem);
-    } else {
-      applyRandomSetup(cat.id as ExperienceCategory);
-      if (hookItem.title) setCustomTitle(hookItem.title);
-      if (hookItem.heroName) setCharName(hookItem.heroName);
-      if (hookItem.roleClass) setCharRole(hookItem.roleClass);
-      if (hookItem.raceOrigin) setCharRace(hookItem.raceOrigin);
-      if (hookItem.hook) setOpeningPrompt(hookItem.hook);
-      if (hookItem.suggestedActions) setSuggestedActions(hookItem.suggestedActions);
-    }
-    setSetupSource('seed');
-    setModalTab('configure');
-  };
 
   const handleOpenCategoryModal = (cat: CategoryInfo) => {
     setSelectedCategoryModal(cat);
@@ -337,7 +318,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     const resolvedGender = charGender === 'custom' ? (customGender || 'they/them') : charGender;
 
     const fullChar: CharacterSheet = {
-      id: `char_${Date.now()}`,
+      id: `char_${uid()}`,
       name: charName || selectedCategoryModal.defaultCharacter.name || 'Hero',
       gender: resolvedGender,
       roleClass: charRole || selectedCategoryModal.defaultCharacter.roleClass || 'Adventurer',
@@ -472,7 +453,6 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
               {filteredCategories.map((cat) => {
-                const catSeed = CATEGORY_SEEDLISTS[cat.id];
                 return (
                   <div
                     key={cat.id}
@@ -526,7 +506,11 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
               <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">
                 Active Cloud Sessions
               </h2>
-              <BackupPanel compact />
+              <Suspense fallback={null}>
+                <Suspense fallback={null}>
+                <BackupPanel compact />
+              </Suspense>
+              </Suspense>
             </div>
             {experiences.length === 0 ? (
               <div className="text-center py-12 bg-[#111118] rounded-lg border border-white/5 space-y-3">

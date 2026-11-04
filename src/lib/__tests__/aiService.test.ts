@@ -60,10 +60,13 @@ describe('Gemini key handling', () => {
     expect(localStorage.getItem('dnd_gemini_api_key')).toBeNull();
   });
 
-  it('exports only keys the player saved', () => {
-    expect(svc.exportAllProviderSettings().providerKeys).toEqual({});
+  it('never exports API keys to the cloud profile', () => {
     svc.setProviderKey('gemini', GOOD_KEY);
-    expect(svc.exportAllProviderSettings().providerKeys).toEqual({ gemini: GOOD_KEY });
+    svc.setProviderKey('openai', 'sk-local');
+    const exported = svc.exportAllProviderSettings() as any;
+    expect(exported.providerKeys).toBeUndefined();
+    expect(JSON.stringify(exported)).not.toContain(GOOD_KEY);
+    expect(JSON.stringify(exported)).not.toContain('sk-local');
   });
 
   it('does not let cloud settings overwrite a local key, and skips the Firebase key', () => {

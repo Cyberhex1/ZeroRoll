@@ -20,7 +20,17 @@
 //   zr.musicToastSeen '0' | '1' — suppresses the unlock prompt after first accept
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Music2, Music3, Volume2, VolumeX, Play, Pause, ChevronDown, ChevronUp, X, Sparkles } from 'lucide-react';
+import {
+  Music2,
+  Music3,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  ChevronDown,
+  X,
+  Sparkles
+} from 'lucide-react';
 import { audioManager } from '../audio/manager';
 import { getTrack, MusicTrackKey } from '../audio/catalog';
 

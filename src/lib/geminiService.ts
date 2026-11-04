@@ -1,18 +1,14 @@
 import firebaseConfig from '../../firebase-applet-config.json';
+import { uid } from './ids';
 import {
   ExperienceCategory,
-  InventoryItem,
-  CourseChangeAlert,
-  PendingCheck,
-  StateDelta,
   DiceRollResult,
-  LogMessage,
   AvatarEvolution,
   ActionTurnResult,
   DMStoryOutline
 } from '../types';
 import { generateRandomScenarioSetup, RandomizedScenarioData } from './randomScenarios';
-import { generateDynamicSeedlist, CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
+import { CategorySeedInfo, CATEGORY_SEEDLISTS } from './seedlists';
 import { buildGroundedSeedContext, getCategoryNarrativeProfile } from './narrativeProfiles';
 import { getCategoryFallbackActions } from './experienceHelpers';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
@@ -79,14 +75,8 @@ function getStoredProviderKey(provider: AIProviderId): string {
 }
 
 export function getProviderKey(provider: AIProviderId): string {
-  const stored = getStoredProviderKey(provider);
-  if (stored) return stored;
-
-  if (provider === 'gemini') {
-    const envKey = ((import.meta as any).env?.VITE_GEMINI_API_KEY || '').trim();
-    if (envKey && !isUnusableKey(provider, envKey)) return envKey;
-  }
-  return '';
+  // A player's own key or nothing: no build-time or project key is ever substituted.
+  return getStoredProviderKey(provider);
 }
 
 export function setProviderKey(provider: AIProviderId, key: string): void {
@@ -178,22 +168,18 @@ export function setOfflineMode(enabled: boolean): void {
   resetAIStatus();
 }
 
-// Export and import provider settings for cloud synchronization
+// Export and import provider settings for cloud synchronization.
+// API keys are never exported: they stay on this device (opt-in encrypted sync comes later).
 export function exportAllProviderSettings(): {
   activeProvider: AIProviderId;
-  providerKeys: Record<string, string>;
   providerModels: Record<string, string>;
   providerBaseUrls: Record<string, string>;
 } {
-  const providerKeys: Record<string, string> = {};
   const providerModels: Record<string, string> = {};
   const providerBaseUrls: Record<string, string> = {};
 
   const providerIds = Object.keys(AI_PROVIDERS) as AIProviderId[];
   for (const pid of providerIds) {
-    // Only keys the player actually saved; never env/config fallbacks.
-    const k = getStoredProviderKey(pid);
-    if (k) providerKeys[pid] = k;
     const m = getProviderModel(pid);
     if (m && m !== AI_PROVIDERS[pid]?.defaultModel) providerModels[pid] = m;
     const u = getProviderBaseUrl(pid);
@@ -202,7 +188,6 @@ export function exportAllProviderSettings(): {
 
   return {
     activeProvider: getActiveProvider(),
-    providerKeys,
     providerModels,
     providerBaseUrls
   };
@@ -211,6 +196,10 @@ export function exportAllProviderSettings(): {
 /**
  * Merges cloud provider settings into this device. Settings already present on this
  * device win, so a stale cloud copy can never overwrite a key the player just entered.
+ *
+ * `providerKeys` only exists on profiles written by older builds, which synced keys in
+ * plain text. They are copied to this device once (so nobody loses a key) and the caller
+ * then deletes them from the cloud with purgeCloudProviderKeys.
  */
 export function importAllProviderSettings(settings?: {
   activeProvider?: string;
@@ -1001,7 +990,7 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
             try {
               if (str.trim().startsWith('[')) return JSON.parse(str);
             } catch (e) {}
-            return str.split(',').map((s: string) => s.replace(/[\[\]"']/g, '').trim()).filter(Boolean);
+            return str.split(',').map((s: string) => s.replace(/[[\]"']/g, '').trim()).filter(Boolean);
           };
 
           stateDelta = {
@@ -1027,7 +1016,7 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
           const subtitleMatch = block.match(/SUBTITLE:\s*(.+)/i);
           const descMatch = block.match(/DESCRIPTION:\s*(.+)/i);
           courseChangeAlert = {
-            id: `alert_${Date.now()}`,
+            id: `alert_${uid()}`,
             title: titleMatch ? titleMatch[1].trim() : 'Story Shift',
             type: (typeMatch ? typeMatch[1].trim() : 'course_change') as any,
             subtitle: subtitleMatch ? subtitleMatch[1].trim() : 'A turning point unfolds',
@@ -1088,7 +1077,7 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
         const optionsBlock = parts[1] || '';
         const lines = optionsBlock.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         suggestedActions = lines
-          .map(l => l.replace(/^\[\d+\]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim())
+          .map(l => l.replace(/^\[\d+\]\s*/, '').replace(/^\d+[.)]\s*/, '').trim())
           .filter(l => l.length > 0);
       }
 
@@ -1249,7 +1238,7 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
           gender: gender || scenario.gender,
           avatarUrl,
           initialInventory: (scenario.initialInventory || []).map((item: any, idx: number) => ({
-            id: `item_ai_${Date.now()}_${idx}`,
+            id: `item_ai_${uid()}_${idx}`,
             name: item.name || 'Equipment',
             type: item.type || 'misc',
             quantity: item.quantity || 1,
@@ -1443,7 +1432,7 @@ export async function generateChapterOneAI(params: {
   characterState: any;
   model: string;
 }): Promise<ActionTurnResult> {
-  const { category, storyBlurb, storyOutline, characterState, model } = params;
+  const { category, storyBlurb, storyOutline, characterState } = params;
   const hasKey = hasActiveGeminiKey();
 
   if (hasKey) {
@@ -1534,9 +1523,7 @@ function generateProceduralTurn(
   diceRoll?: DiceRollResult,
   targetModel?: string
 ): ActionTurnResult {
-  const hp = characterState?.hp || 12;
   const name = characterState?.name || 'Hero';
-  const role = characterState?.roleClass || 'Adventurer';
 
   let text = '';
   let hpDelta = 0;

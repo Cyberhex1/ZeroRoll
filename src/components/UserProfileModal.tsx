@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import { 
-  User as UserIcon, 
-  Upload, 
-  Sparkles, 
-  Shield, 
-  Swords, 
-  Wand2, 
-  Crown, 
-  Skull, 
-  Heart, 
-  Flame, 
-  X, 
-  Check, 
-  Palette, 
-  Camera 
+import {
+  User as UserIcon,
+  Sparkles,
+  Shield,
+  Swords,
+  Wand2,
+  Crown,
+  Skull,
+  Heart,
+  Flame,
+  X,
+  Check,
+  Palette,
+  Camera
 } from 'lucide-react';
 import { UserProfile, AvatarConfig } from '../types';
 

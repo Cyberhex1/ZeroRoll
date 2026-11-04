@@ -9,7 +9,7 @@ import {
   Key
 } from 'lucide-react';
 import { User } from 'firebase/auth';
-import { GEMINI_MODELS } from '../lib/modelsConfig';
+
 import { getActiveProvider, getProviderModel } from '../lib/geminiService';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { BackupPanel } from './BackupPanel';

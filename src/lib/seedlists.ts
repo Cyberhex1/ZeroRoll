@@ -1,4 +1,4 @@
-import { TropeCategory } from '../types';
+
 
 export interface CategorySeedInfo {
   categoryId: string;

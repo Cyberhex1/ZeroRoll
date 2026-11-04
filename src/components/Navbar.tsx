@@ -1,17 +1,12 @@
-import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  Settings, 
-  Volume2, 
-  VolumeX, 
-  User as UserIcon, 
-  LogOut, 
-  ChevronDown, 
-  ShieldAlert, 
-  Layers, 
-  Radio, 
-  Database,
-  Bot,
+import React from 'react';
+import {
+  Settings,
+  Volume2,
+  VolumeX,
+  User as UserIcon,
+  LogOut,
+  ChevronDown,
+  Layers,
   Key,
   WifiOff
 } from 'lucide-react';
@@ -20,7 +15,7 @@ import { GEMINI_MODELS } from '../lib/modelsConfig';
 import { hasActiveGeminiKey, getActiveProvider, getProviderModel, isOfflineMode } from '../lib/geminiService';
 import { useAIStatus } from '../lib/aiStatus';
 import { AI_PROVIDERS } from '../lib/providersConfig';
-import { GeminiModelOption, UserProfile } from '../types';
+import { UserProfile } from '../types';
 
 interface NavbarProps {
   user: User | null;

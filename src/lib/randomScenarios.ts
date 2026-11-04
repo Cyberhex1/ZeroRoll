@@ -1,4 +1,5 @@
 import { ExperienceCategory, InventoryItem, DMStoryOutline } from '../types';
+import { uid } from './ids';
 
 export interface RandomizedScenarioData {
   title: string;
@@ -735,10 +736,10 @@ export function generateRandomScenarioSetup(category: ExperienceCategory): Rando
   }];
 
   const hookObj = hooks[Math.floor(Math.random() * hooks.length)];
-  let formattedHook = hookObj.hook;
+  const formattedHook = hookObj.hook;
 
   const inventory: InventoryItem[] = (hookObj.gear || []).map((g, idx) => ({
-    id: `item_${Date.now()}_${idx}_${Math.floor(Math.random() * 10000)}`,
+    id: `item_${uid()}_${idx}`,
     name: g.name,
     type: g.type,
     quantity: 1,

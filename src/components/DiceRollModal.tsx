@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Dices, Sparkles, Trophy, Skull } from 'lucide-react';
+import { Sparkles, Trophy, Skull } from 'lucide-react';
 import { DiceRollResult } from '../types';
 import { playDiceSound } from '../lib/diceRoller';
 

@@ -13,10 +13,12 @@ import {
   BookOpen
 } from 'lucide-react';
 import { Link } from 'react-router';
-import { STORY_MODE_ENABLED } from '../lib/platform';
+import { STORY_MODE_ENABLED, isTauri } from '../lib/platform';
+import { listOllamaModels, localModelLabel } from '../desktop/localModel';
 import { User } from 'firebase/auth';
 import { GEMINI_MODELS, usableGeminiModelOptions } from '../lib/modelsConfig';
-import { hasActiveGeminiKey, getActiveProvider, getProviderModel, isOfflineMode } from '../lib/geminiService';
+import { hasActiveGeminiKey, getActiveProvider, getProviderModel, isOfflineMode, setActiveProvider, setProviderModel, setProviderBaseUrl } from '../lib/geminiService';
+import { resetAIStatus } from '../lib/aiStatus';
 import { useAIStatus } from '../lib/aiStatus';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { UserProfile } from '../types';
@@ -63,9 +65,28 @@ export const Navbar: React.FC<NavbarProps> = ({
   const activeProvider = getActiveProvider();
   const activeProviderModel = getProviderModel(activeProvider);
   const isGeminiActive = activeProvider === 'gemini';
+  const pcApp = isTauri();
   const currentModelObj = isGeminiActive
     ? (GEMINI_MODELS.find(m => m.id === activeProviderModel) || { id: activeProviderModel, name: activeProviderModel })
-    : { id: activeProviderModel, name: `${AI_PROVIDERS[activeProvider]?.name || activeProvider}: ${activeProviderModel}` };
+    : pcApp && activeProvider === 'custom'
+      ? { id: activeProviderModel, name: `This PC: ${localModelLabel(activeProviderModel)}` }
+      : { id: activeProviderModel, name: `${AI_PROVIDERS[activeProvider]?.name || activeProvider}: ${activeProviderModel}` };
+
+  // PC app: the picker also lists the models already pulled into Ollama.
+  const [localModels, setLocalModels] = React.useState<string[] | null>(null);
+  const [, bump] = React.useState(0);
+  React.useEffect(() => {
+    if (!pcApp || !modelDropdownOpen) return;
+    listOllamaModels().then(setLocalModels).catch(() => setLocalModels([]));
+  }, [pcApp, modelDropdownOpen]);
+  const pickLocal = (tag: string) => {
+    setActiveProvider('custom');
+    setProviderModel('custom', tag);
+    setProviderBaseUrl('custom', '');
+    resetAIStatus();
+    setModelDropdownOpen(false);
+    bump((n) => n + 1);
+  };
 
   return (
     <header className="sticky top-0 z-40 h-14 bg-[#16161D] border-b border-white/10 px-2.5 sm:px-6 flex items-center justify-between shrink-0">
@@ -115,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="relative">
               <button
-                onClick={() => (isGeminiActive ? setModelDropdownOpen(!modelDropdownOpen) : onOpenApiKeyModal?.())}
+                onClick={() => (isGeminiActive || pcApp ? setModelDropdownOpen(!modelDropdownOpen) : onOpenApiKeyModal?.())}
                 className="bg-transparent border-none outline-none font-semibold text-amber-400 text-xs flex items-center gap-1 hover:text-amber-300"
               >
                 <span>{currentModelObj.name}</span>
@@ -125,8 +146,28 @@ export const Navbar: React.FC<NavbarProps> = ({
               {modelDropdownOpen && (
                 <div className="absolute left-0 mt-2 w-72 bg-[#111118] border border-white/10 rounded shadow-2xl p-2 z-50 divide-y divide-white/5">
                   <div className="p-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">
-                    Select Gemini Model
+                    {pcApp ? "Gemini (online)" : "Select Gemini Model"}
                   </div>
+                  {pcApp && (
+                    <div className="py-1 space-y-1">
+                      <div className="p-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">On this PC (Ollama)</div>
+                      {localModels === null && <p className="px-2 text-[11px] text-slate-500">Checking Ollama...</p>}
+                      {localModels?.length === 0 && <p className="px-2 text-[11px] text-slate-400">No local models yet. Open Ollama, or download one in Settings &gt; Local model.</p>}
+                      {localModels?.map((tag) => {
+                        const active = activeProvider === 'custom' && activeProviderModel.toLowerCase() === tag.toLowerCase();
+                        return (
+                          <button
+                            key={tag}
+                            onClick={() => pickLocal(tag)}
+                            className={`w-full text-left p-2 rounded transition text-xs flex items-center justify-between gap-2 ${active ? 'bg-amber-600/20 border border-amber-600/50 text-amber-200' : 'hover:bg-white/5 text-slate-300'}`}
+                          >
+                            <span className="font-semibold text-amber-300 break-all">{localModelLabel(tag)}</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/40 text-slate-400 border border-white/5 font-mono shrink-0">free, offline</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div className="py-1 space-y-1">
                     {usableGeminiModelOptions().map((m) => (
                       <button

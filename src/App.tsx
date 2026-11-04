@@ -25,7 +25,9 @@ import {
   importAllProviderSettings,
   purgeUnusableStoredKeys,
   getActiveProvider,
-  setProviderModel
+  setProviderModel,
+  setActiveProvider,
+  getProviderKey
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
 import { watchKeyChanges } from './lib/keySync';
@@ -343,6 +345,8 @@ export default function App() {
     setSelectedModel(modelId);
     safeSetStorage('dnd_selected_model', modelId);
     // The navbar picker lists Gemini models; make the choice the one AI calls actually use.
+    // Picking a Gemini model while a local model is active switches back to Gemini.
+    if (getActiveProvider() !== 'gemini' && getProviderKey('gemini').trim()) setActiveProvider('gemini');
     if (getActiveProvider() === 'gemini') {
       setProviderModel('gemini', modelId);
       resetAIStatus();

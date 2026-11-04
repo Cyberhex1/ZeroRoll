@@ -44,6 +44,8 @@ import {
 import { resetAIStatus } from '../lib/aiStatus';
 import { usableGeminiModelOptions } from '../lib/modelsConfig';
 import { auth, saveUserSettingsToCloud } from '../lib/firebase';
+import { isTauri } from '../lib/platform';
+import { listOllamaModels, localModelLabel } from '../desktop/localModel';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -114,6 +116,37 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     setSaveNeedsConfirm(false);
     setShowKey(false);
   }, [selectedProvider]);
+
+  // PC app: the Custom / Local provider offers the models already pulled into Ollama.
+  const pcLocal = isTauri() && selectedProvider === 'custom';
+  const [ollamaModels, setOllamaModels] = useState<string[] | null>(null);
+  const [ollamaNote, setOllamaNote] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isOpen || !pcLocal) return;
+    let cancelled = false;
+    setOllamaNote(null);
+    listOllamaModels()
+      .then((models) => {
+        if (cancelled) return;
+        setOllamaModels(models);
+        if (!models.length) {
+          setOllamaNote('Ollama is not running or has no models yet. Open Ollama, or download a model in Settings > Local model.');
+          return;
+        }
+        const saved = getProviderModel('custom');
+        const pick = models.find((m) => m.toLowerCase() === saved.toLowerCase()) ?? models[0];
+        setSelectedModel(pick);
+        setIsCustomModel(false);
+        setCustomModelInput('');
+        if (!getProviderBaseUrl('custom')) setBaseUrl(AI_PROVIDERS.custom.defaultBaseUrl || '');
+      })
+      .catch((err) => {
+        if (!cancelled) setOllamaNote(`Could not reach Ollama: ${err instanceof Error ? err.message : String(err)}`);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, pcLocal]);
 
   const dialog = useDialog(onClose, { labelledBy: 'apikey-title', active: isOpen });
   if (!isOpen) return null;
@@ -451,7 +484,12 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                   }}
                   className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500/80"
                 >
-                  {(selectedProvider === 'gemini' ? usableGeminiModelOptions(usableModels) : currentConfig.models).map((m) => (
+                  {(selectedProvider === 'gemini'
+                    ? usableGeminiModelOptions(usableModels)
+                    : pcLocal && ollamaModels?.length
+                      ? ollamaModels.map((id) => ({ id, name: localModelLabel(id), badge: 'on this PC' }))
+                      : currentConfig.models
+                  ).map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.name} {m.badge ? `(${m.badge})` : ''}
                     </option>
@@ -461,7 +499,9 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                   )}
                   <option value="custom_write_in">+ Custom Model ID...</option>
                 </select>
-              ) : (
+              ) : null}
+              {pcLocal && ollamaNote && <p className="mt-1 text-[10px] text-amber-300">{ollamaNote}</p>}
+              {!isCustomModel ? null : (
                 <div className="flex items-center gap-1.5">
                   <input
                     type="text"

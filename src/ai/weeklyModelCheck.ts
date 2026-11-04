@@ -5,10 +5,9 @@
  * them; anything the player should act on is shown as a status notice.
  */
 import modelsJson from './models.json';
-import { listGeminiModels, setCachedGeminiModels } from './transport';
 import { suggestModelUpdates, ModelSuggestion } from './modelCheck';
 import type { Tier } from './router';
-import { getActiveProvider, getProviderKey, getSavedProviderModel } from '../lib/geminiService';
+import { getActiveProvider, getProviderKey, getSavedProviderModel, refreshUsableGeminiModels } from '../lib/geminiService';
 import { reportAINotice } from '../lib/aiStatus';
 
 const LAST_CHECK_KEY = 'zeroroll_model_check_at';
@@ -50,7 +49,8 @@ export async function runWeeklyModelCheck(force = false): Promise<ModelSuggestio
 
   let available: string[];
   try {
-    available = await listGeminiModels(key);
+    // Also re-probes which models answer, so the pickers drop models that stopped working.
+    available = (await refreshUsableGeminiModels(key)).listed;
   } catch (err) {
     // A failed check is retried next session; real calls report their own errors.
     console.warn('[Model check] could not list Gemini models:', err);
@@ -59,7 +59,6 @@ export async function runWeeklyModelCheck(force = false): Promise<ModelSuggestio
   try {
     localStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
   } catch (_) {}
-  setCachedGeminiModels(available);
 
   const ladder = (modelsJson.providers as Record<string, Partial<Record<Tier, string>>>).gemini || {};
   const suggestions = suggestModelUpdates('gemini', ladder, available);

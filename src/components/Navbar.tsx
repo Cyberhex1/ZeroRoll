@@ -15,7 +15,7 @@ import {
 import { Link } from 'react-router';
 import { STORY_MODE_ENABLED } from '../lib/platform';
 import { User } from 'firebase/auth';
-import { GEMINI_MODELS } from '../lib/modelsConfig';
+import { GEMINI_MODELS, usableGeminiModelOptions } from '../lib/modelsConfig';
 import { hasActiveGeminiKey, getActiveProvider, getProviderModel, isOfflineMode } from '../lib/geminiService';
 import { useAIStatus } from '../lib/aiStatus';
 import { AI_PROVIDERS } from '../lib/providersConfig';
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     Select Gemini Model
                   </div>
                   <div className="py-1 space-y-1">
-                    {GEMINI_MODELS.map((m) => (
+                    {usableGeminiModelOptions().map((m) => (
                       <button
                         key={m.id}
                         onClick={() => {

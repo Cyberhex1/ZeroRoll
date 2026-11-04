@@ -37,10 +37,12 @@ import {
   testProviderConnection,
   exportAllProviderSettings,
   getCachedGeminiModels,
+  getUsableGeminiModels,
   setOfflineMode,
   isOfflineMode
 } from '../lib/geminiService';
 import { resetAIStatus } from '../lib/aiStatus';
+import { usableGeminiModelOptions } from '../lib/modelsConfig';
 import { auth, saveUserSettingsToCloud } from '../lib/firebase';
 
 interface ApiKeyModalProps {
@@ -79,8 +81,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     availableModels?: string[];
   } | null>(null);
 
-  // Models the Gemini key can actually call (from the last successful key check).
-  const [availableModels, setAvailableModels] = useState<string[] | null>(() => getCachedGeminiModels());
+  // Models that answered a test request with the key; the only Gemini models offered once known.
+  const [usableModels, setUsableModels] = useState<string[] | null>(() => getUsableGeminiModels());
 
   const [savedSuccess, setSavedSuccess] = useState<boolean>(false);
   // Set when Save ran the connection check and it failed; a second click saves anyway.
@@ -97,7 +99,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     setBaseUrl(url || config?.defaultBaseUrl || '');
 
     const knownModel = config?.models.some(m => m.id === model)
-      || (selectedProvider === 'gemini' && !!getCachedGeminiModels()?.includes(model));
+      || (selectedProvider === 'gemini' && !!(getUsableGeminiModels() ?? getCachedGeminiModels())?.includes(model));
     if (knownModel) {
       setSelectedModel(model);
       setIsCustomModel(false);
@@ -148,8 +150,10 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 
     setTesting(false);
     setTestResult(res);
-    if (res.availableModels && res.availableModels.length) {
-      setAvailableModels(res.availableModels);
+    if (res.usableModels && res.usableModels.length) {
+      setUsableModels(res.usableModels);
+      // The test fell back to a model that works; make that the selection.
+      if (res.modelUsed && !res.usableModels.includes(activeModel)) setSelectedModel(res.modelUsed);
     }
     return res;
   };
@@ -447,22 +451,13 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                   }}
                   className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500/80"
                 >
-                  {currentConfig.models.map((m) => {
-                    const unavailable = selectedProvider === 'gemini' && !!availableModels && !availableModels.includes(m.id);
-                    return (
-                      <option key={m.id} value={m.id}>
-                        {m.name} {m.badge ? `(${m.badge})` : ''}{unavailable ? ' — not available to your key' : ''}
-                      </option>
-                    );
-                  })}
-                  {selectedProvider === 'gemini' && availableModels && (
-                    <optgroup label="Other models your key can use">
-                      {availableModels
-                        .filter((id) => !currentConfig.models.some((m) => m.id === id))
-                        .map((id) => (
-                          <option key={id} value={id}>{id}</option>
-                        ))}
-                    </optgroup>
+                  {(selectedProvider === 'gemini' ? usableGeminiModelOptions(usableModels) : currentConfig.models).map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} {m.badge ? `(${m.badge})` : ''}
+                    </option>
+                  ))}
+                  {selectedProvider === 'gemini' && !usableModels && (
+                    <option disabled value="">Run Test Connection to keep only the models your key can use</option>
                   )}
                   <option value="custom_write_in">+ Custom Model ID...</option>
                 </select>

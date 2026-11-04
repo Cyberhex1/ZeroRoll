@@ -19,7 +19,9 @@
     "content:check": "tsx scripts/validate-content.ts",
     "tauri": "tauri",
     "desktop:dev": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:build": "tauri build",
+    "story:check": "tsx scripts/story-check.ts",
+    "story:import": "tsx scripts/story-import.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
@@ -33,7 +35,8 @@
     "react-dom": "^19.0.1",
     "react-markdown": "^10.1.0",
     "react-router": "^7.18.5",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
@@ -45,6 +48,7 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9.39.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "fake-indexeddb": "^6.2.2",
     "firebase-admin": "^13.10.0",
     "globals": "^15.15.0",
     "tailwindcss": "^4.1.14",

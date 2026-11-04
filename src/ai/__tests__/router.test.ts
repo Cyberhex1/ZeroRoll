@@ -91,6 +91,15 @@ describe('planRoute', () => {
     expect(router.planRoute('basic')[0].model).toBe('gemini-3.9-flash-lite');
   });
 
+  it('in the PC app, a running local model is the basic tier', () => {
+    (globalThis as any).window = { __TAURI_INTERNALS__: {} };
+    localStorage.setItem('zeroroll_local_llm', JSON.stringify({ enabled: true, baseUrl: 'http://127.0.0.1:5555/v1', modelName: 'gemma.gguf' }));
+    const plan = router.planRoute('good');
+    expect(plan.map((s) => s.source)).toEqual(['player', 'local', 'models.json']);
+    expect(plan[1]).toMatchObject({ provider: 'custom', baseUrl: 'http://127.0.0.1:5555/v1', model: 'gemma.gguf' });
+    delete (globalThis as any).window;
+  });
+
   it('dedupes a model that sits in two tiers', () => {
     svc.setActiveProvider('openai');
     svc.setProviderKey('openai', 'sk-test-123456');

@@ -14,6 +14,9 @@ import { getActiveProvider, getProviderModel } from '../lib/geminiService';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { BackupPanel } from './BackupPanel';
 import { KeySyncPanel } from './KeySyncPanel';
+import { isTauri } from '../lib/platform';
+
+const LocalModelPanel = React.lazy(() => import('../desktop/LocalModelPanel'));
 
 interface SettingsModalProps {
   user: User | null;
@@ -163,6 +166,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* PC app only: local model */}
+        {isTauri() && (
+          <React.Suspense fallback={null}>
+            <LocalModelPanel />
+          </React.Suspense>
+        )}
 
         {/* Section 3: Opt-in encrypted key sync */}
         <KeySyncPanel user={user} />

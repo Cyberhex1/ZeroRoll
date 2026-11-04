@@ -12,3 +12,7 @@ bun.lockb
 backups/
 service-account*.json
 model-check-report.md
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/

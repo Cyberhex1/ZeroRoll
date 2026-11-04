@@ -16,6 +16,7 @@ import { reportAINotice, reportAISuccess } from '../lib/aiStatus';
 import { getActiveProvider, getProviderBaseUrl, getProviderKey, getProviderModel, getSavedProviderModel } from '../lib/geminiService';
 import { AI_TURN_DEADLINE_MS, ChatMessage, ProviderReply, callProvider } from './transport';
 import { getLadderPatch } from './weeklyModelCheck';
+import { localBasicTier } from '../desktop/localModel';
 
 export type Tier = 'basic' | 'good' | 'best';
 export const TIERS: Tier[] = ['basic', 'good', 'best'];
@@ -25,7 +26,9 @@ export interface RouteStep {
   model: string;
   tier: Tier;
   /** Where the model choice came from. */
-  source: 'override' | 'player' | 'models.json';
+  source: 'override' | 'player' | 'models.json' | 'local';
+  /** Set for the PC app's local llama-server, which is not a configured provider. */
+  baseUrl?: string;
 }
 
 export interface RouterAttempt extends RouteStep {
@@ -144,8 +147,13 @@ export function planRoute(tier: Tier): RouteStep[] {
       steps.push(s);
     }
   };
+  // In the PC app, a running local model is the basic tier (it is free and works offline).
+  const local = localBasicTier();
   for (const provider of providers) {
     for (const t of tierLadder(tier)) {
+      if (t === 'basic' && local && provider === active) {
+        push({ provider: 'custom', model: local.model, tier: 'basic', source: 'local', baseUrl: local.baseUrl });
+      }
       const o = overrides[t];
       if (o && provider === active) push({ provider: o.provider, model: o.model, tier: t, source: 'override' });
       const m = modelForTier(provider, t);
@@ -176,9 +184,9 @@ export async function complete(messages: ChatMessage[], tier: Tier = 'good', opt
       const reply = await callProvider(
         {
           provider: step.provider,
-          apiKey: getProviderKey(step.provider),
+          apiKey: step.source === 'local' ? '' : getProviderKey(step.provider),
           model: step.model,
-          baseUrl: getProviderBaseUrl(step.provider)
+          baseUrl: step.baseUrl ?? getProviderBaseUrl(step.provider)
         },
         {
           system: opts.system,

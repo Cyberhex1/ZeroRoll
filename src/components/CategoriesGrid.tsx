@@ -1,3 +1,5 @@
+import { Portrait } from './ui/Portrait';
+import { PortraitsOffError, setFreePortraitsAllowed } from '../lib/portraits';
 import { clickable } from './ui/a11y';
 import { useDialog } from './ui/useDialog';
 import React, { useState, useRef, lazy, Suspense } from 'react';
@@ -342,6 +344,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
   const handleRandomizeHook = (cat: CategoryInfo) => handleGenerateScenario(cat, 'hook');
 
+  const [portraitsOff, setPortraitsOff] = useState(false);
   const handleRenderPortrait = async (cat: CategoryInfo) => {
     const gen = genRef.current;
     setBusy('portrait', true);
@@ -359,6 +362,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       if (isCurrent(gen) && data?.avatarUrl) setCharAvatarUrl(data.avatarUrl);
     } catch (err: any) {
       if (isCurrent(gen)) setAvatarError(err.message || 'Failed to generate character avatar.');
+      if (err instanceof PortraitsOffError && isCurrent(gen)) setPortraitsOff(true);
     } finally {
       setBusy('portrait', false);
     }
@@ -750,17 +754,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         {/* Character Snippet */}
                         <div className="p-2.5 rounded bg-[#0A0A0F] border border-white/5 text-xs flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            {exp.character?.avatarUrl ? (
-                              <img 
-                                src={exp.character.avatarUrl} 
-                                alt={exp.character.name || 'Hero'} 
-                                className="w-7 h-7 rounded object-cover border border-amber-600/40"
-                              />
-                            ) : (
-                              <div className="w-6 h-6 rounded bg-amber-600/20 border border-amber-600/40 text-amber-300 flex items-center justify-center font-bold text-xs font-serif">
-                                {exp.character?.name?.[0] || 'H'}
-                              </div>
-                            )}
+                            <Portrait value={exp.character?.avatarUrl} name={exp.character?.name || 'Hero'} className="w-7 h-7 rounded border border-amber-600/40 text-xs" />
                             <div>
                               <div className="font-semibold text-slate-200 text-xs">{exp.character?.name || 'Hero'}</div>
                               <div className="text-[10px] text-slate-500 font-mono">
@@ -1036,24 +1030,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     </div>
 
                     <div className="flex items-start gap-3">
-                      {charAvatarUrl ? (
-                        <div className="relative group shrink-0">
-                          <img 
-                            src={charAvatarUrl} 
-                            alt="Hero Portrait" 
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-amber-500 shadow-lg"
-                          />
-                          {(isBusy('portrait') || isBusy('scenario')) && (
-                            <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center">
-                              <RefreshCw className="w-4 h-4 text-amber-400 animate-spin" />
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-amber-600/20 border-2 border-amber-500/40 text-amber-300 font-bold font-serif text-2xl flex items-center justify-center shadow-lg shrink-0">
-                          {charName?.[0] || 'H'}
-                        </div>
-                      )}
+                      <Portrait value={charAvatarUrl} name={charName || 'Hero'} loading={isBusy('portrait')} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-amber-500/60 shadow-lg shrink-0 text-2xl" />
 
                       <div className="flex-1 min-w-0">
                         <textarea
@@ -1069,6 +1046,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </p>
                         {avatarError && (
                           <p className="text-[10px] text-red-400 font-mono mt-1">{avatarError}</p>
+                        )}
+                        {portraitsOff && (
+                          <button
+                            type="button"
+                            className="mt-1 text-[10px] underline text-amber-300"
+                            onClick={() => {
+                              setFreePortraitsAllowed(true);
+                              setPortraitsOff(false);
+                              setAvatarError(null);
+                              void handleRenderPortrait(selectedCategoryModal);
+                            }}
+                          >
+                            Allow free portraits from pollinations.ai (sends only the appearance text) and draw one
+                          </button>
                         )}
                       </div>
                     </div>

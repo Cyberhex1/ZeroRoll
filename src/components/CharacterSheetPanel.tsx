@@ -1,4 +1,6 @@
 import { RulesMode, XP_FOR_LEVEL, fmtMod, proficienciesOf, proficiencyBonus } from '../dnd/rules';
+import { Portrait } from './ui/Portrait';
+import { PortraitsOffError, setFreePortraitsAllowed } from '../lib/portraits';
 import React, { useState } from 'react';
 import {
   Shield,
@@ -41,6 +43,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
   const [physicalDesc, setPhysicalDesc] = useState(character.physicalDescription || '');
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [portraitsOff, setPortraitsOff] = useState(false);
 
   const computeModifier = (val: number) => {
     const mod = Math.floor((val - 10) / 2);
@@ -86,8 +89,8 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
         throw new Error('No avatar image was returned.');
       }
     } catch (err: any) {
-      console.error('Avatar generation error:', err);
       setAvatarError(err.message || 'Failed to generate character avatar.');
+      if (err instanceof PortraitsOffError) setPortraitsOff(true);
     } finally {
       setIsGeneratingAvatar(false);
     }
@@ -109,33 +112,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
       <div className="space-y-3 border-b border-white/10 pb-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5">
-            {character.avatarUrl ? (
-              <div className="relative group shrink-0">
-                <img 
-                  src={character.avatarUrl} 
-                  alt={character.name} 
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-amber-500 shadow-xl transition group-hover:scale-105"
-                />
-                <button
-                  onClick={handleGenerateOrUpdateAvatar}
-                  disabled={isGeneratingAvatar}
-                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 rounded-xl flex flex-col items-center justify-center text-amber-300 transition text-[9px] font-bold gap-1"
-                  title="Update avatar to reflect current story"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isGeneratingAvatar ? 'animate-spin' : ''}`} />
-                  <span>Update</span>
-                </button>
-                {isGeneratingAvatar && (
-                  <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center">
-                    <RefreshCw className="w-5 h-5 text-amber-400 animate-spin" />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-amber-600/20 border-2 border-amber-500/40 text-amber-300 font-bold font-serif text-2xl flex items-center justify-center shadow-lg shrink-0">
-                {character.name[0] || 'H'}
-              </div>
-            )}
+            <Portrait value={character.avatarUrl} name={character.name} loading={isGeneratingAvatar} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-amber-500/60 shadow-xl shrink-0 text-2xl" />
 
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-amber-50 font-serif leading-tight">{character.name}</h2>
@@ -221,6 +198,19 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
 
           {avatarError && (
             <p className="text-[10px] text-red-400 font-mono">{avatarError}</p>
+          )}
+          {portraitsOff && (
+            <button
+              type="button"
+              className="text-[10px] underline text-amber-300"
+              onClick={() => {
+                setFreePortraitsAllowed(true);
+                setPortraitsOff(false);
+                void handleGenerateOrUpdateAvatar();
+              }}
+            >
+              Allow free portraits from pollinations.ai (sends only the appearance text) and draw one
+            </button>
           )}
 
           <div className="flex items-center justify-end">

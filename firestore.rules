@@ -1,3 +1,9 @@
+// DO NOT DEPLOY THIS FILE AS-IS. The Firebase project is shared with another app
+// (MentalMedic), whose data also lives under users/{uid}. These rules only describe
+// ZeroRoll's paths, so publishing them would lock that app out. The live rules are a
+// single owner-only `match /users/{userId}/{document=**}` rule, which already covers
+// everything ZeroRoll stores (experiences, stories, turns). Keep this file as the record
+// of what ZeroRoll needs; merge any change into the live rules by hand in the console.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {

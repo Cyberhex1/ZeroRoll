@@ -163,7 +163,338 @@ export const adventure = {
       "medium": "Game"
     }
   ],
-  "openers": [],
+  "openers": [
+    {
+      "id": "seed_adv_01",
+      "title": "The Reef That Sails",
+      "tagline": "Your anchorage is leaving without a tide.",
+      "premise": "You reach a coral anchorage to find the island carrying your missing expedition drifting seaward while your hired boat strains at its last mooring.",
+      "hero": {
+        "name": "Tessa Brinewake",
+        "role": "Reef Navigator",
+        "origin": "Atoll-born human"
+      },
+      "actions": [
+        "Board the drifting reef before the mooring gives way.",
+        "Trim your boat's sail to follow the moving island safely.",
+        "Question the pearl divers about the marks on the coral."
+      ],
+      "gear": [
+        {
+          "name": "Reef Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Sounding Line",
+          "type": "misc"
+        },
+        {
+          "name": "Waxed Chart",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_adv_02",
+      "title": "A Ransom in Sailcloth",
+      "tagline": "The hostage left a course only a sailmaker can read.",
+      "premise": "You unfold a damaged sail at a sunlit dock and find a hostage's route stitched into its seams as the waiting privateer demands it back.",
+      "hero": {
+        "name": "Nilo Vey",
+        "role": "Sailmaker",
+        "origin": "Harbor-born human"
+      },
+      "actions": [
+        "Trace the stitched bearings beneath the torn sail's hem.",
+        "Stall the privateer by demanding payment for the repair.",
+        "Slip the marked seam to a trusted dockside runner."
+      ],
+      "gear": [
+        {
+          "name": "Sailmaker's Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Sailcloth Patch",
+          "type": "misc"
+        },
+        {
+          "name": "Waxed Twine",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_adv_03",
+      "title": "The Copper Diver's Bargain",
+      "tagline": "A few breaths remain beneath the salvage camp.",
+      "premise": "You arrive at a floating salvage camp where a trapped diver signals from a sunken strongroom and a rival crew prepares to cut the air hose.",
+      "hero": {
+        "name": "Imani Saltglass",
+        "role": "Wreck Diver",
+        "origin": "Pearl-coast human"
+      },
+      "actions": [
+        "Secure the air hose to your own weighted line.",
+        "Bargain with the rival crew for time to reach the diver.",
+        "Descend along the bubbles toward the trapped strongroom."
+      ],
+      "gear": [
+        {
+          "name": "Diving Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Weighted Rope",
+          "type": "misc"
+        },
+        {
+          "name": "Hand Air Pump",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 12
+    },
+    {
+      "id": "seed_adv_04",
+      "title": "Seven Knots to Sundown",
+      "tagline": "A lost knot leaves three channels and one safe passage.",
+      "premise": "You board a supply brig with a knotted route-cord whose final knot comes loose just as the lookout spots three identical reef channels.",
+      "hero": {
+        "name": "Orren Keel",
+        "role": "Rigging Runner",
+        "origin": "Estuary-born human"
+      },
+      "actions": [
+        "Compare the loose cord with the shapes of the reef mouths.",
+        "Climb the rigging for a clear view of the breaking water.",
+        "Ask the oldest deckhand where the cord was last repaired."
+      ],
+      "gear": [
+        {
+          "name": "Deck Hatchet",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Route Cord",
+          "type": "relic"
+        },
+        {
+          "name": "Brass Spyglass",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_adv_05",
+      "title": "The Orchard Above the Surf",
+      "tagline": "The missing expedition is sending its trail down as fruit.",
+      "premise": "You land beneath a cliff orchard to discover fresh expedition markings on falling fruit while the only rope ascent begins to unravel.",
+      "hero": {
+        "name": "Sabela Quince",
+        "role": "Expedition Forager",
+        "origin": "Island-raised human"
+      },
+      "actions": [
+        "Catch a marked fruit and examine the fresh cuts in its skin.",
+        "Reinforce the ascent rope with your spare coil.",
+        "Signal the cliff orchard with your polished cooking tin."
+      ],
+      "gear": [
+        {
+          "name": "Foraging Machete",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Rope Coil",
+          "type": "misc"
+        },
+        {
+          "name": "Cooking Tin",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_adv_06",
+      "title": "The Auction of Empty Chests",
+      "tagline": "The only clue to your lost vessel is about to become ash.",
+      "premise": "You enter a quayside salvage auction and recognize a false bottom from your lost vessel while the winning bidder orders the chest burned.",
+      "hero": {
+        "name": "Daro Pennant",
+        "role": "Cargo Appraiser",
+        "origin": "Port-raised human"
+      },
+      "actions": [
+        "Offer a rival bid before the chest reaches the brazier.",
+        "Inspect the false bottom while the porters change their grip.",
+        "Follow the buyer's runner toward the warehouse quay."
+      ],
+      "gear": [
+        {
+          "name": "Belt Dagger",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Brass Calipers",
+          "type": "misc"
+        },
+        {
+          "name": "Trade Coins",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_adv_07",
+      "title": "The Windward Drum",
+      "tagline": "The flotilla needs a rhythm its broken drum can barely carry.",
+      "premise": "You join a festival flotilla where a damaged signal drum holds the rhythm for crossing a reef and a squall scatters the boats before you can learn it.",
+      "hero": {
+        "name": "Fenna Rusk",
+        "role": "Shipboard Musician",
+        "origin": "Archipelago-born human"
+      },
+      "actions": [
+        "Copy the surviving beat onto the side of a water barrel.",
+        "Lash two scattered boats together before the squall reaches them.",
+        "Ask the drummer to signal the missing beat with a flag."
+      ],
+      "gear": [
+        {
+          "name": "Boarding Pike",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Signal Drum",
+          "type": "misc"
+        },
+        {
+          "name": "Flag Roll",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_adv_08",
+      "title": "A Bridge of Broken Anchors",
+      "tagline": "Your guide is across the ravine; your bridge is coming apart.",
+      "premise": "You reach a jungle ravine where an expedition's anchor-chain bridge is pulling free and your missing guide calls from the far bank.",
+      "hero": {
+        "name": "Jori Flintcap",
+        "role": "Coastal Pathfinder",
+        "origin": "Cliffside human"
+      },
+      "actions": [
+        "Brace the loose anchor against the nearest stone buttress.",
+        "Call to your guide for a safe landing point beyond the gap.",
+        "Descend to the lower ledge with your climbing rope."
+      ],
+      "gear": [
+        {
+          "name": "Climbing Pick",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Hemp Rope",
+          "type": "misc"
+        },
+        {
+          "name": "Anchor Wedge",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 12
+    },
+    {
+      "id": "seed_adv_09",
+      "title": "The Sandbar Post",
+      "tagline": "A familiar delivery mark waits on a wreck the tide just exposed.",
+      "premise": "You deliver a sealed chart to a sandbar trading post just as the tide exposes a wreck bearing tomorrow's version of your own delivery mark.",
+      "hero": {
+        "name": "Amara Kest",
+        "role": "Packet Courier",
+        "origin": "Delta-born human"
+      },
+      "actions": [
+        "Compare the wreck's mark with the seal on your chart tube.",
+        "Ask the post keeper who logged the wreck's cargo.",
+        "Secure your boat above the rising tideline before investigating."
+      ],
+      "gear": [
+        {
+          "name": "Courier's Hanger",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Sealed Chart Tube",
+          "type": "relic"
+        },
+        {
+          "name": "Tide Slate",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 10
+    },
+    {
+      "id": "seed_adv_10",
+      "title": "The Gullkeeper's Bearing",
+      "tagline": "A trained gull has brought back a piece of an absent island.",
+      "premise": "You collect a trained gull from a harbor loft and find its message tube stuffed with volcanic grit as every bird wheels toward a supposedly empty horizon.",
+      "hero": {
+        "name": "Pell Ardent",
+        "role": "Harbor Scout",
+        "origin": "Headland-born human"
+      },
+      "actions": [
+        "Release the gull with a bright tracking streamer.",
+        "Examine the grit against the harbor's stored volcanic samples.",
+        "Hire a light skiff before the birds pass beyond the headland."
+      ],
+      "gear": [
+        {
+          "name": "Short Cutlass",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Grit-Filled Message Tube",
+          "type": "relic"
+        },
+        {
+          "name": "Bird Streamer",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    }
+  ],
   "tropes": [
     {
       "premise": "A cannonball shreds the mainsail above you as the ghost ship rams your starboard side, splintering the deck."

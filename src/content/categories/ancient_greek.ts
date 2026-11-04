@@ -196,6 +196,321 @@ export const ancientGreek = {
         "Spartan Courage"
       ],
       "hp": 13
+    },
+    {
+      "id": "seed_grk_02",
+      "title": "The Oar Beneath the Altar",
+      "tagline": "An offering carries the voices of a crew still waiting below.",
+      "premise": "You bring a votive oar to a coastal shrine and hear a wrecked crew calling through its grain as the tide withdraws from a hidden path.",
+      "hero": {
+        "name": "Myrine of Naxos",
+        "role": "Sacred Boatwright",
+        "origin": "Naxian"
+      },
+      "actions": [
+        "Listen to the oar where the temple stone amplifies its grain.",
+        "Follow the exposed path while marking the returning tide.",
+        "Ask the shrine keeper which vessel gave this wood."
+      ],
+      "gear": [
+        {
+          "name": "Bronze Adze",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Votive Oar",
+          "type": "relic"
+        },
+        {
+          "name": "Rope Coil",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Guiding Breeze"
+      ],
+      "hp": 12
+    },
+    {
+      "id": "seed_grk_03",
+      "title": "The Olive Crown's Burden",
+      "tagline": "The crown grows heavy where a promise is light.",
+      "premise": "You approach the games with a borrowed olive crown that turns to lead whenever your rival speaks and the herald calls you both to swear an oath.",
+      "hero": {
+        "name": "Diores of Elis",
+        "role": "Footrace Champion",
+        "origin": "Elean"
+      },
+      "actions": [
+        "Ask your rival to repeat the disputed promise before the altar.",
+        "Lay the borrowed crown down and inspect its hidden fastening.",
+        "Request a witness before swearing the herald's oath."
+      ],
+      "gear": [
+        {
+          "name": "Practice Javelin",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Olive Crown",
+          "type": "relic"
+        },
+        {
+          "name": "Athlete's Oil",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Steady Heart"
+      ],
+      "hp": 11
+    },
+    {
+      "id": "seed_grk_04",
+      "title": "The Silent Bronze of Argos",
+      "tagline": "Bronze reflects the breach before anyone will admit it.",
+      "premise": "You bring a new bronze shield to a temple and see its reflection show the gate standing open while the city watch insists it is barred.",
+      "hero": {
+        "name": "Klea of Argos",
+        "role": "Bronze Founder",
+        "origin": "Argive"
+      },
+      "actions": [
+        "Turn the shield toward the city gate to compare the image.",
+        "Ask a gate watcher to inspect the inner bar with you.",
+        "Carry the shield to the temple threshold for a clearer omen."
+      ],
+      "gear": [
+        {
+          "name": "Bronze Casting Hammer",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Polished Aspis",
+          "type": "armor"
+        },
+        {
+          "name": "Charcoal Tablet",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Bronze Reflection"
+      ],
+      "hp": 12
+    },
+    {
+      "id": "seed_grk_05",
+      "title": "The Ninth Stone of the Maze",
+      "tagline": "One moving stone is enough to lose the way home.",
+      "premise": "You reach a hillside sanctuary where a rescued child carries a moving maze-stone and the entrance shifts before the next search party can leave.",
+      "hero": {
+        "name": "Phaidros of Knossos",
+        "role": "Labyrinth Guide",
+        "origin": "Cretan"
+      },
+      "actions": [
+        "Compare the stone's turns with the sanctuary floor.",
+        "Ask the rescued child where the corridor first changed.",
+        "Stretch a guide cord across the entrance before following it."
+      ],
+      "gear": [
+        {
+          "name": "Bronze Short Sword",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Guide Cord",
+          "type": "misc"
+        },
+        {
+          "name": "Maze Stone",
+          "type": "relic"
+        }
+      ],
+      "spells": [
+        "Thread Sense"
+      ],
+      "hp": 12
+    },
+    {
+      "id": "seed_grk_06",
+      "title": "The Unshared Loaf",
+      "tagline": "Bread cannot bless a threshold that refuses a guest.",
+      "premise": "You carry barley bread to a wayside altar and find strangers refusing each other shelter while thunder answers every broken promise.",
+      "hero": {
+        "name": "Thaleia of Miletos",
+        "role": "Shrine Provisioner",
+        "origin": "Milesian"
+      },
+      "actions": [
+        "Offer the first loaf to the strangers at the edge of the fire.",
+        "Ask each traveler which promise brought them to the altar.",
+        "Gather dry branches to make shelter before the storm breaks."
+      ],
+      "gear": [
+        {
+          "name": "Harvest Sickle",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Barley Loaves",
+          "type": "misc"
+        },
+        {
+          "name": "Wool Cloak",
+          "type": "armor"
+        }
+      ],
+      "spells": [
+        "Hearth Blessing"
+      ],
+      "hp": 10
+    },
+    {
+      "id": "seed_grk_07",
+      "title": "The Spear That Points Home",
+      "tagline": "Your arms point toward the people your orders turn away.",
+      "premise": "You return to a sea-cliff watchpost and find your bronze spear drawn toward a refugee boat while the signal fire orders every vessel turned away.",
+      "hero": {
+        "name": "Nikandros of Teos",
+        "role": "Coastal Sentinel",
+        "origin": "Ionian"
+      },
+      "actions": [
+        "Signal the refugee boat to hold outside the rocks.",
+        "Ask the watchpost who ordered the harbor closed.",
+        "Test the spear's pull against the headland's visible bearings."
+      ],
+      "gear": [
+        {
+          "name": "Bronze Spear",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Round Shield",
+          "type": "armor"
+        },
+        {
+          "name": "Signal Cloth",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Oathward"
+      ],
+      "hp": 13
+    },
+    {
+      "id": "seed_grk_08",
+      "title": "The Thread Across the Isthmus",
+      "tagline": "Two processions are walking into the same narrowing thread.",
+      "premise": "You deliver a ceremonial cloth to an isthmus shrine and watch its woven road unravel toward two processions about to meet on a narrow causeway.",
+      "hero": {
+        "name": "Ione of Corinth",
+        "role": "Festival Weaver",
+        "origin": "Corinthian"
+      },
+      "actions": [
+        "Raise the cloth so both processions can see the unraveling road.",
+        "Follow the loose thread to the causeway's weakest section.",
+        "Ask the heralds to halt while you compare their routes."
+      ],
+      "gear": [
+        {
+          "name": "Weaving Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Ceremonial Cloth",
+          "type": "relic"
+        },
+        {
+          "name": "Linen Cord",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Woven Warning"
+      ],
+      "hp": 10
+    },
+    {
+      "id": "seed_grk_09",
+      "title": "The Wine Jar of Unsaid Vows",
+      "tagline": "The jar remembers the vows the company would rather forget.",
+      "premise": "You uncork a wine jar at a grove altar and hear the vows your companions concealed as a waiting envoy demands your oath first.",
+      "hero": {
+        "name": "Melanthos of Chios",
+        "role": "Libation Bearer",
+        "origin": "Chian"
+      },
+      "actions": [
+        "Pour a small libation and listen for the oldest promise.",
+        "Ask the envoy to state the purpose of the demanded oath.",
+        "Seal the jar until your companions agree to hear it together."
+      ],
+      "gear": [
+        {
+          "name": "Bronze Utility Knife",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Speaking Wine Jar",
+          "type": "relic"
+        },
+        {
+          "name": "Clay Stopper",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Hear Oath"
+      ],
+      "hp": 11
+    },
+    {
+      "id": "seed_grk_10",
+      "title": "The Ash Tree at the Boundary",
+      "tagline": "A truce needs roots stronger than its boundary stones.",
+      "premise": "You reach a boundary grove where an ash tree bears two rival families' tokens and its roots begin lifting the stones before their truce is sworn.",
+      "hero": {
+        "name": "Lysippe of Aulis",
+        "role": "Oath Witness",
+        "origin": "Boeotian"
+      },
+      "actions": [
+        "Read the two families' tokens against the shifting roots.",
+        "Ask both households to repeat the terms before witnesses.",
+        "Brace the loosening stones while the elders approach."
+      ],
+      "gear": [
+        {
+          "name": "Ash Spear",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Witness Tokens",
+          "type": "relic"
+        },
+        {
+          "name": "Leather Water Flask",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Rootward"
+      ],
+      "hp": 12
     }
   ],
   "tropes": [

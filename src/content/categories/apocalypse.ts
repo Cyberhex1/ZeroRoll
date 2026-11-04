@@ -314,6 +314,175 @@ export const apocalypse = {
       ],
       "spells": [],
       "hp": 10
+    },
+    {
+      "id": "seed_apo_06",
+      "title": "The Filter Beneath the Ash",
+      "tagline": "A clean filter waits below a fast-moving wall of dust.",
+      "premise": "You emerge into an ash valley to find a fallen clinic holding the last compatible water filter while a dust front closes over its exposed basement.",
+      "hero": {
+        "name": "Anik Silt",
+        "role": "Filter Salvager",
+        "origin": "Bunker-raised human"
+      },
+      "actions": [
+        "Check the basement opening for a second way out.",
+        "Secure a guide line before entering the clinic ruin.",
+        "Trade your spare cell to the scavenger watching the storm."
+      ],
+      "gear": [
+        {
+          "name": "Salvage Hatchet",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Filter Gauge",
+          "type": "misc"
+        },
+        {
+          "name": "Dust Wrap",
+          "type": "armor"
+        },
+        {
+          "name": "Rope Coil",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 12
+    },
+    {
+      "id": "seed_apo_07",
+      "title": "The Last Dry Bearing",
+      "tagline": "One bearing can keep two camps from going dark.",
+      "premise": "You reach a rusting wind tower with one replacement bearing and discover its power line also feeds the settlement that drove your caravan away.",
+      "hero": {
+        "name": "Petra Coil",
+        "role": "Turbine Repairer",
+        "origin": "Ridge-settlement human"
+      },
+      "actions": [
+        "Inspect the tower's shared power junction before climbing.",
+        "Ask the rival settlement for help lifting the replacement.",
+        "Calculate which loads can wait while the turbine is stopped."
+      ],
+      "gear": [
+        {
+          "name": "Repair Hammer",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Dry Bearing",
+          "type": "misc"
+        },
+        {
+          "name": "Climbing Harness",
+          "type": "armor"
+        }
+      ],
+      "spells": [],
+      "hp": 12
+    },
+    {
+      "id": "seed_apo_08",
+      "title": "The Toll of Green Copper",
+      "tagline": "The cheaper path may cost more than copper.",
+      "premise": "You enter a reclaimed rail cutting where traders demand copper for safe passage and your radiation meter rises beside the only alternative path.",
+      "hero": {
+        "name": "Dax Marrow",
+        "role": "Caravan Broker",
+        "origin": "Salt-flat human"
+      },
+      "actions": [
+        "Test the alternative route from the cutting's sheltered edge.",
+        "Offer a useful repair instead of the full copper toll.",
+        "Ask another caravan what the passage fee actually protects."
+      ],
+      "gear": [
+        {
+          "name": "Caravan Spear",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Radiation Meter",
+          "type": "misc"
+        },
+        {
+          "name": "Copper Wire",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_apo_09",
+      "title": "The Seed Bank's Warm Wall",
+      "tagline": "The power to open the bank is also keeping its seeds alive.",
+      "premise": "You inspect a buried seed bank and find roots warming its refrigeration wall while your failing battery can power either the doors or the cooling system.",
+      "hero": {
+        "name": "Etta Thimble",
+        "role": "Seed Custodian",
+        "origin": "Underpass-born human"
+      },
+      "actions": [
+        "Inspect the root-warmed wall for a manual service hatch.",
+        "Ration the battery between a short door cycle and cooling.",
+        "Ask the neighboring camp to lend a hand generator."
+      ],
+      "gear": [
+        {
+          "name": "Utility Machete",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Failing Battery",
+          "type": "misc"
+        },
+        {
+          "name": "Seed Ledger",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 11
+    },
+    {
+      "id": "seed_apo_10",
+      "title": "The Rain Catcher's Shadow",
+      "tagline": "The rain is clean; the place where it will land is not.",
+      "premise": "You climb an abandoned overpass to test a rain-catching rig and spot a clean cloud moving toward a contaminated basin where another camp has already gathered.",
+      "hero": {
+        "name": "Rafi Cinder",
+        "role": "Weather Scout",
+        "origin": "Ruin-raised human"
+      },
+      "actions": [
+        "Signal the other camp before the cloud reaches the basin.",
+        "Rig a clean catch sheet above the contaminated ground.",
+        "Test the first drops against the basin's runoff."
+      ],
+      "gear": [
+        {
+          "name": "Climbing Pick",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Water Test Kit",
+          "type": "misc"
+        },
+        {
+          "name": "Catch Sheet",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 12
     }
   ],
   "tropes": [

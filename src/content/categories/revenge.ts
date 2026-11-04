@@ -399,6 +399,72 @@ export const revenge = {
         "Pass Without Trace"
       ],
       "hp": 11
+    },
+    {
+      "id": "seed_rev_09",
+      "title": "The Funeral Seat Reserved",
+      "tagline": "Someone has placed the last witness within your reach.",
+      "premise": "You return by midnight train to the funeral of the broker who sold your family and find your seat reserved beside the only witness your enemies failed to silence.",
+      "hero": {
+        "name": "Sevran Locke",
+        "role": "Syndicate Infiltrator",
+        "origin": "Harbor exile"
+      },
+      "actions": [
+        "Inspect the seating token for the hand that arranged it.",
+        "Approach the witness before the mourners take their places.",
+        "Watch the broker's associates from the station-side entrance."
+      ],
+      "gear": [
+        {
+          "name": "Concealed Stiletto",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Funeral Token",
+          "type": "misc"
+        },
+        {
+          "name": "Witness Sketch",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 12
+    },
+    {
+      "id": "seed_rev_10",
+      "title": "The Quarry Payroll",
+      "tagline": "The wages may reveal who paid for your sentence.",
+      "premise": "You enter a rain-soaked workers' diner with proof that the foreman bought your conviction and learn his wage courier will arrive before the witness can escape.",
+      "hero": {
+        "name": "Mirel Dusk",
+        "role": "Claims Investigator",
+        "origin": "Quarry-camp survivor"
+      },
+      "actions": [
+        "Compare the payroll seal with the proof of your conviction.",
+        "Arrange a quiet back exit for the waiting witness.",
+        "Observe the courier's escort before choosing an approach."
+      ],
+      "gear": [
+        {
+          "name": "Weighted Cane",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Payroll Copy",
+          "type": "relic"
+        },
+        {
+          "name": "Diner Back-Door Key",
+          "type": "misc"
+        }
+      ],
+      "spells": [],
+      "hp": 12
     }
   ],
   "tropes": [

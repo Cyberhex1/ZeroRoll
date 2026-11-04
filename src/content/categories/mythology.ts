@@ -193,6 +193,321 @@ export const mythology = {
         "Rune Ward"
       ],
       "hp": 12
+    },
+    {
+      "id": "seed_myth_02",
+      "title": "The Hearth That Forgets Its Kin",
+      "tagline": "An empty place at the hearth is not an empty promise.",
+      "premise": "You return to a snowbound hall where the hearth refuses warmth to one family and a guest claims the forgotten place beside your ancestors.",
+      "hero": {
+        "name": "Sigrun Ashwake",
+        "role": "Oath Keeper",
+        "origin": "Fjord-born human"
+      },
+      "actions": [
+        "Ask the guest whose name belongs to the cold bench.",
+        "Lay your household token beside the failing embers.",
+        "Hear the excluded family's account before the feast begins."
+      ],
+      "gear": [
+        {
+          "name": "Hearth Spear",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Household Token",
+          "type": "relic"
+        },
+        {
+          "name": "Wool Mantle",
+          "type": "armor"
+        }
+      ],
+      "spells": [
+        "Kinfire"
+      ],
+      "hp": 12
+    },
+    {
+      "id": "seed_myth_03",
+      "title": "The Wolf Beneath the Keel",
+      "tagline": "The vessel will float when the thing beneath it finishes counting.",
+      "premise": "You trace runes on a beached longship and hear a bound wolf counting the crew beneath its keel as the tide begins to lift it.",
+      "hero": {
+        "name": "Eirik Mereborn",
+        "role": "Rune Carver",
+        "origin": "Northern islander"
+      },
+      "actions": [
+        "Trace the damaged binding rune along the keel.",
+        "Ask the waiting crew which oath launched this vessel.",
+        "Shore the longship above the next rise of the tide."
+      ],
+      "gear": [
+        {
+          "name": "Carving Axe",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Rune Chisel",
+          "type": "misc"
+        },
+        {
+          "name": "Shore Rope",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Rune Listening"
+      ],
+      "hp": 13
+    },
+    {
+      "id": "seed_myth_04",
+      "title": "The Cup Beyond the Ninth Wave",
+      "tagline": "The returning boat expects more than a cup.",
+      "premise": "You reach a stone-ring shore where a cup from the otherworld washes back with an old promise and your companion steps toward its returning boat.",
+      "hero": {
+        "name": "Nessa Rowanfern",
+        "role": "Shore Warden",
+        "origin": "Western-isle human"
+      },
+      "actions": [
+        "Speak the remembered terms of the old shore bargain.",
+        "Ask your companion what the cup has promised them.",
+        "Follow the cup's wet trail back to the outer stones."
+      ],
+      "gear": [
+        {
+          "name": "Shore Spear",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Otherworld Cup",
+          "type": "relic"
+        },
+        {
+          "name": "Salt Cord",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Waveward"
+      ],
+      "hp": 12
+    },
+    {
+      "id": "seed_myth_05",
+      "title": "The Antler Road",
+      "tagline": "Winter has opened a road and hidden its price.",
+      "premise": "You stand before a winter stone circle when antler shadows open a road toward a captive season and the grove's last green branch starts to fade.",
+      "hero": {
+        "name": "Branoc Hazel",
+        "role": "Grove Pathfinder",
+        "origin": "Forest-born human"
+      },
+      "actions": [
+        "Examine the antler shadows before stepping between them.",
+        "Tie the living branch to a stone where it can be found again.",
+        "Call into the road for the captive season's own account."
+      ],
+      "gear": [
+        {
+          "name": "Hazel Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Green Branch",
+          "type": "relic"
+        },
+        {
+          "name": "Stone Token",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Grove Listening"
+      ],
+      "hp": 11
+    },
+    {
+      "id": "seed_myth_06",
+      "title": "The Weight of the Unfinished Name",
+      "tagline": "A missing name has made an unjust weight.",
+      "premise": "You enter a mythic weighing hall bearing a broken name tablet and find the scales tipping against someone whose final act has been erased.",
+      "hero": {
+        "name": "Merit Iset",
+        "role": "Funerary Scribe",
+        "origin": "Nile-valley human"
+      },
+      "actions": [
+        "Fit the broken tablet against the empty place on the scale.",
+        "Ask the waiting soul to name the act no record preserves.",
+        "Request that the weighing pause until a witness is heard."
+      ],
+      "gear": [
+        {
+          "name": "Reed Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Broken Name Tablet",
+          "type": "relic"
+        },
+        {
+          "name": "Ink Palette",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Name Recall"
+      ],
+      "hp": 10
+    },
+    {
+      "id": "seed_myth_07",
+      "title": "The Door of Borrowed Dawn",
+      "tagline": "Your household has promised away the morning.",
+      "premise": "You climb a frostbound ridge to light the morning beacon and find dawn pledged as payment for an oath your household never heard.",
+      "hero": {
+        "name": "Hrafna Reedcloak",
+        "role": "Dawn Watcher",
+        "origin": "Frost-coast human"
+      },
+      "actions": [
+        "Read the old pledge beneath the frost on the beacon stone.",
+        "Light a small witness flame before offering any new oath.",
+        "Ask the unseen creditor what debt the first promise answered."
+      ],
+      "gear": [
+        {
+          "name": "Watch Axe",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Beacon Flint",
+          "type": "misc"
+        },
+        {
+          "name": "Frost-Carved Token",
+          "type": "relic"
+        }
+      ],
+      "spells": [
+        "Dawnward"
+      ],
+      "hp": 12
+    },
+    {
+      "id": "seed_myth_08",
+      "title": "The Ferryman's Winter Guest",
+      "tagline": "Spring is waiting on the wrong side of a remembered kindness.",
+      "premise": "You reach an icebound ferry stone where a silent traveler carries spring beneath a cloak and the river demands a remembered kindness as its fare.",
+      "hero": {
+        "name": "Solveig Tarn",
+        "role": "River Guide",
+        "origin": "Inland-valley human"
+      },
+      "actions": [
+        "Ask the traveler what help they have given along the road.",
+        "Offer the river a true account of a kindness you witnessed.",
+        "Inspect the ferry stone for the terms of an earlier crossing."
+      ],
+      "gear": [
+        {
+          "name": "Ferryman's Staff",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Oar Token",
+          "type": "relic"
+        },
+        {
+          "name": "Wool Blanket",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "River Memory"
+      ],
+      "hp": 11
+    },
+    {
+      "id": "seed_myth_09",
+      "title": "The Hammer Under the Feast",
+      "tagline": "Every oath at the feast strikes a hidden anvil.",
+      "premise": "You bring a repaired hammer to a mountain feast and hear it strike from beneath the floor whenever a guest swears loyalty to the host.",
+      "hero": {
+        "name": "Ketil Embermere",
+        "role": "Hall Smith",
+        "origin": "Volcanic-island human"
+      },
+      "actions": [
+        "Set the repaired hammer against the sounding floorboards.",
+        "Ask the host to explain the oldest oath of the hall.",
+        "Mark which guests make the buried blows grow louder."
+      ],
+      "gear": [
+        {
+          "name": "Repaired Hammer",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Iron Tongs",
+          "type": "misc"
+        },
+        {
+          "name": "Hearth Chalk",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Stone Hearing"
+      ],
+      "hp": 13
+    },
+    {
+      "id": "seed_myth_10",
+      "title": "The Stag at the Last Ember",
+      "tagline": "The last ember can be saved, but an oath must still mean something.",
+      "premise": "You tend a hilltop vigil where a white stag guards the final ember and a voice from the stones offers to save it by taking your oldest promise.",
+      "hero": {
+        "name": "Ailbhe Mossward",
+        "role": "Boundary Singer",
+        "origin": "Mist-isle human"
+      },
+      "actions": [
+        "Ask the voice whose loss would keep the ember alive.",
+        "Sing the history of the promise before accepting new terms.",
+        "Offer the stag shelter from the wind while you inspect the stones."
+      ],
+      "gear": [
+        {
+          "name": "Ashwood Bow",
+          "type": "weapon",
+          "isEquipped": true
+        },
+        {
+          "name": "Ember Bowl",
+          "type": "relic"
+        },
+        {
+          "name": "Weathered Oath Cord",
+          "type": "misc"
+        }
+      ],
+      "spells": [
+        "Ember Ward"
+      ],
+      "hp": 11
     }
   ],
   "tropes": [

@@ -97,7 +97,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ currentTrackKey }) => {
         const n = parseFloat(v);
         if (Number.isFinite(n)) setVolume(Math.max(0, Math.min(1, n)));
       }
-      if (min !== null) setMinimized(min === '1');
+      // Collapsed unless the player opened it, so the panel never sits over a Send button.
+      setMinimized(min !== '0');
       if (toast !== '1' && e !== '0') setToastVisible(true);
     } catch {}
     setHydrated(true);
@@ -135,9 +136,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ currentTrackKey }) => {
     const unsub = audioManager.subscribe(key => {
       setIsPlaying(key !== null);
     });
+    const unsubMute = audioManager.subscribeMuted(setMuted);
     const onVis = () => audioManager.onVisibilityChange(document.visibilityState === 'visible');
     document.addEventListener('visibilitychange', onVis);
-    return () => { unsub(); document.removeEventListener('visibilitychange', onVis); };
+    return () => { unsub(); unsubMute(); document.removeEventListener('visibilitychange', onVis); };
   }, []);
 
   // ---------- handlers ----------
@@ -228,7 +230,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ currentTrackKey }) => {
       )}
 
       <div
-        className="fixed bottom-4 right-4 z-50 select-none"
+        className="fixed bottom-24 right-3 sm:bottom-4 sm:right-4 z-50 select-none"
         role="region"
         aria-label="Ambient music player"
       >

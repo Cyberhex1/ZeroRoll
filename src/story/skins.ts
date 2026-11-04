@@ -21,6 +21,19 @@ const P = (background: string, surface: string, accent: string, text: string, mu
   background, surface, accent, text, muted, playerBubble, narratorBubble
 });
 
+/**
+ * Story mode's own look (Phase 4): night-sky indigo with sakura pink and cyan highlights,
+ * soft bubbles and drifting petals. The story picker wears it, and it is the base for any
+ * category without a skin of its own.
+ */
+export const ANIME_SKIN: Skin = {
+  palette: P('#0e0b1f', '#1a1533', '#ff8fc7', '#f6f1ff', '#b3a9d6', '#3b1d4f', '#1b1736'),
+  fonts: { heading: 'display', body: 'sans' },
+  bubble: 'soft',
+  pattern: 'stars',
+  particles: 'petals'
+};
+
 export const CATEGORY_SKINS: Record<ExperienceCategory, Skin> = {
   fantasy: { palette: P('#120f1a', '#1c1728', '#e0a84f', '#ece4d4', '#a89c88', '#3a2b14', '#1b1626'), fonts: { heading: 'display', body: 'serif' }, bubble: 'scroll', pattern: 'stars', particles: 'motes' },
   adventure: { palette: P('#0f1712', '#17221b', '#7fc77a', '#e6efe4', '#98ab95', '#23402a', '#162019'), fonts: { heading: 'display', body: 'sans' }, bubble: 'rounded', pattern: 'grid', particles: 'none' },
@@ -40,7 +53,7 @@ export const CATEGORY_SKINS: Record<ExperienceCategory, Skin> = {
 };
 
 export function resolveSkin(category: ExperienceCategory, override: SkinOverride = {}): Skin {
-  const base = CATEGORY_SKINS[category] ?? CATEGORY_SKINS.fantasy;
+  const base = CATEGORY_SKINS[category] ?? ANIME_SKIN;
   return {
     palette: { ...base.palette, ...override.palette },
     fonts: { ...base.fonts, ...override.fonts },

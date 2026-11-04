@@ -1,5 +1,6 @@
 import firebaseConfig from '../../firebase-applet-config.json';
 import { uid } from './ids';
+import { PortraitsOffError, base64ToBlob, freePortraitsAllowed, storePortraitBlob, storePortraitFromUrl } from './portraits';
 import { currentStateBlock } from '../dnd/memory';
 import { leadAlert, parseGmReply } from '../dnd/turnParser';
 import { RulesMode, rulesLine } from '../dnd/rules';
@@ -814,7 +815,7 @@ export async function generateScenarioAI(params: {
   /** Inspiration picked for this setup; stored on the campaign if the player keeps it. */
   inspiration?: CampaignInspiration;
 }): Promise<{ scenario: RandomizedScenarioData; source: 'ai' | 'procedural' }> {
-  const { category, model, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true, inspiration } = params;
+  const { category, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true, inspiration } = params;
   const hasKey = hasActiveGeminiKey();
 
   if (!hasKey && !allowFallback) {
@@ -907,20 +908,9 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
         { userPrompt: prompt, temperature: 0.9 },
         (v) => !!(v && v.title && v.storyBlurb)
       );
-      // Generate initial avatar image tailored to this character
-      let avatarUrl: string | undefined = undefined;
-      try {
-        const avatarData = await generateAvatarAI({
-          characterName: scenario.heroName,
-          gender: gender || scenario.gender,
-          roleClass: scenario.roleClass,
-          raceOrigin: scenario.raceOrigin,
-          category,
-          physicalDescription: scenario.physicalDescription,
-          model
-        });
-        avatarUrl = avatarData.avatarUrl;
-      } catch (_) {}
+      // No portrait per roll (PS6): it cost OpenAI players money on every re-roll. The player
+      // draws one from the setup screen or the hero sheet when they want it.
+      const avatarUrl: string | undefined = undefined;
 
       return {
         source: 'ai',
@@ -1086,57 +1076,43 @@ export async function generateAvatarAI(params: {
   recentStoryContext?: string;
   model?: string;
 }): Promise<{ avatarUrl: string; engine: string }> {
-  const { characterName, roleClass, raceOrigin, category, gender, physicalDescription, recentStoryContext } = params;
-  
-  // Format prompt for dramatic cartoonized graphic novel profile picture
-  const cleanDesc = physicalDescription || 'piercing expressive eyes, impeccable posture, distinctive attire';
-  const storyEvolution = recentStoryContext ? `reflecting recent dramatic story events: ${recentStoryContext.slice(-200)}` : '';
+  const { roleClass, raceOrigin, category, gender, physicalDescription } = params;
+
+  // Appearance only: no name and no story text leave the app in an image prompt (S18).
+  const cleanDesc = (physicalDescription || 'piercing expressive eyes, impeccable posture, distinctive attire').slice(0, 400);
   const genreTheme = (category || 'fantasy').replace('_', ' ');
-
   const visual = pronounsToVisual(gender);
-  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${visual ? `${visual} ` : ''}${raceOrigin} ${roleClass} named ${characterName}, ${cleanDesc}, ${storyEvolution}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
+  const imagePrompt = `dramatic cartoonised profile picture, graphic novel character portrait of ${visual ? `${visual} ` : ''}${raceOrigin} ${roleClass}, ${cleanDesc}, ${genreTheme} aesthetic, cinematic lighting, rich shadows, cel shaded comic book art, sharp outlines, vibrant colors, centered avatar, masterpiece`;
 
-  const seed = Math.floor(Math.random() * 999999);
-
-  // Check active provider for direct image generation APIs
   const provider = getActiveProvider();
   const apiKey = getProviderKey(provider);
 
-  // 1. OpenAI DALL-E 3 (if OpenAI provider key is provided)
+  // 1. OpenAI image model (the player's own key). The image comes back as data and is kept.
   if (provider === 'openai' && apiKey) {
     try {
       const res = await fetch('https://api.openai.com/v1/images/generations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey.trim()}`
-        },
-        body: JSON.stringify({
-          model: 'dall-e-3',
-          prompt: imagePrompt,
-          n: 1,
-          size: '1024x1024',
-          response_format: 'url'
-        })
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey.trim()}` },
+        body: JSON.stringify({ model: 'dall-e-3', prompt: imagePrompt, n: 1, size: '1024x1024', response_format: 'b64_json' })
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.data?.[0]?.url) {
-          return { avatarUrl: data.data[0].url, engine: 'OpenAI DALL-E 3' };
-        }
-        reportAINotice('Portrait', 'DALL-E returned no image, so the free Flux engine (pollinations.ai) drew this portrait instead.');
+        const b64 = data.data?.[0]?.b64_json;
+        if (b64) return { avatarUrl: await storePortraitBlob(base64ToBlob(b64)), engine: 'OpenAI DALL-E 3' };
+        reportAINotice('Portrait', 'DALL-E returned no image.');
       } else {
-        reportAINotice('Portrait', `DALL-E refused the request (${res.status}), so the free Flux engine (pollinations.ai) drew this portrait instead.`);
+        reportAINotice('Portrait', `DALL-E refused the request (${res.status}).`);
       }
     } catch (e) {
-      reportAINotice('Portrait', `DALL-E could not be reached (${e instanceof Error ? e.message : String(e)}), so the free Flux engine (pollinations.ai) drew this portrait instead.`);
+      reportAINotice('Portrait', `DALL-E could not be reached (${e instanceof Error ? e.message : String(e)}).`);
     }
   }
 
-  // 2. High-speed Flux Engine for dramatic cartoonized character portraits
+  // 2. The free Flux engine at pollinations.ai, only when the player allowed it.
+  if (!freePortraitsAllowed()) throw new PortraitsOffError();
+  const seed = Math.floor(Math.random() * 999999);
   const fluxUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=768&height=768&nologo=true&seed=${seed}&model=flux`;
-
-  return { avatarUrl: fluxUrl, engine: 'Flux (pollinations.ai)' };
+  return { avatarUrl: await storePortraitFromUrl(fluxUrl), engine: 'Flux (pollinations.ai)' };
 }
 
 /* -------------------------------------------------------------------------- */

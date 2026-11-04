@@ -1,3 +1,4 @@
+import { useDialog } from './ui/useDialog';
 import React, { useState } from 'react';
 import { 
   Bot, 
@@ -14,6 +15,7 @@ import { getActiveProvider, getProviderModel } from '../lib/geminiService';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { BackupPanel } from './BackupPanel';
 import { SaveRecoveryPanel } from './SaveRecoveryPanel';
+import { PortraitSettingsPanel } from './PortraitSettingsPanel';
 import { KeySyncPanel } from './KeySyncPanel';
 import { isTauri } from '../lib/platform';
 
@@ -57,9 +59,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }, 500);
   };
 
+  const dialog = useDialog(onClose, { labelledBy: 'settings-title', active: true });
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative overflow-y-auto max-h-[92dvh] sm:max-h-[90vh] text-slate-200">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...dialog.overlayProps}>
+      <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative overflow-y-auto max-h-[92dvh] sm:max-h-[90vh] text-slate-200" {...dialog.dialogProps}>
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -68,7 +71,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Sliders className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-amber-50 font-serif">Game Master & Account Settings</h2>
+              <h2 id="settings-title" className="text-sm font-bold text-amber-50 font-serif">Game Master & Account Settings</h2>
               <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">Configure Gemini Engine, AI Directives & Cloud Profile</p>
             </div>
           </div>
@@ -177,6 +180,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Section 3: Opt-in encrypted key sync */}
         <KeySyncPanel user={user} />
+        <PortraitSettingsPanel />
 
         {/* Section 4: Backup */}
         <BackupPanel />

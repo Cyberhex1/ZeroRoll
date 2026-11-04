@@ -1,3 +1,7 @@
+import { Portrait } from './ui/Portrait';
+import { PortraitsOffError, setFreePortraitsAllowed } from '../lib/portraits';
+import { clickable } from './ui/a11y';
+import { useDialog } from './ui/useDialog';
 import React, { useState, useRef, lazy, Suspense } from 'react';
 import { uid } from '../lib/ids';
 import {
@@ -188,6 +192,12 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     genRef.current++;
     setSelectedCategoryModal(null);
   };
+  // Cancel, Escape and the backdrop ask before throwing away typed fields (PS14).
+  const requestCloseModal = () => {
+    if (editedFields.size > 0 && !window.confirm('Discard this campaign setup? What you typed will be lost.')) return;
+    closeModal();
+  };
+  const setupDialog = useDialog(requestCloseModal, { labelledBy: 'setup-title', active: !!selectedCategoryModal });
 
   const confirmReplaceEdits = (fields: string[]) => {
     const touched = fields.filter((f) => editedFields.has(f));
@@ -334,6 +344,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
   const handleRandomizeHook = (cat: CategoryInfo) => handleGenerateScenario(cat, 'hook');
 
+  const [portraitsOff, setPortraitsOff] = useState(false);
   const handleRenderPortrait = async (cat: CategoryInfo) => {
     const gen = genRef.current;
     setBusy('portrait', true);
@@ -351,6 +362,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       if (isCurrent(gen) && data?.avatarUrl) setCharAvatarUrl(data.avatarUrl);
     } catch (err: any) {
       if (isCurrent(gen)) setAvatarError(err.message || 'Failed to generate character avatar.');
+      if (err instanceof PortraitsOffError && isCurrent(gen)) setPortraitsOff(true);
     } finally {
       setBusy('portrait', false);
     }
@@ -573,7 +585,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           <div className="relative z-10 max-w-3xl space-y-2">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-amber-400 text-[10px] uppercase tracking-widest font-mono font-bold">
               <Dice5 className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-              ROLL ZERO0 ENGINE • D&D 5E ADJUDICATOR
+              ZEROROLL • D&D 5E ADJUDICATOR
             </div>
             <h1 className="text-2xl sm:text-4xl font-serif tracking-tight text-amber-50">
               Select An Experience
@@ -627,7 +639,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         {/* Categories Tab Content */}
         {activeTab === 'categories' && (
           <div>
-            <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-3">
+            <h2 className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold mb-3">
               Available Campaign Archetypes
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
@@ -635,8 +647,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                 return (
                   <div
                     key={cat.id}
-                    className="group relative rounded-lg bg-[#111118] border border-white/5 hover:border-amber-600/50 transition-all duration-200 p-4 flex flex-col justify-between hover:bg-white/5 cursor-pointer space-y-3"
-                    onClick={() => handleOpenCategoryModal(cat)}
+                    className="group relative rounded-lg bg-[#111118] border border-white/5 hover:border-amber-600/50 transition-all duration-200 p-4 flex flex-col justify-between hover:bg-white/5 cursor-pointer space-y-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    {...clickable(() => handleOpenCategoryModal(cat))}
                   >
                     <div className="relative z-10 space-y-2">
                       <div className="flex items-center justify-between">
@@ -646,7 +658,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         >
                           {getCategoryIcon(cat.iconName)}
                         </div>
-                        <span className="text-[9px] font-mono tracking-widest font-bold uppercase px-1.5 py-0.5 rounded bg-black/40 text-slate-500 border border-white/5">
+                        <span className="text-[9px] font-mono tracking-widest font-bold uppercase px-1.5 py-0.5 rounded bg-black/40 text-slate-400 border border-white/5">
                           {cat.id}
                         </span>
                       </div>
@@ -742,17 +754,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         {/* Character Snippet */}
                         <div className="p-2.5 rounded bg-[#0A0A0F] border border-white/5 text-xs flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            {exp.character?.avatarUrl ? (
-                              <img 
-                                src={exp.character.avatarUrl} 
-                                alt={exp.character.name || 'Hero'} 
-                                className="w-7 h-7 rounded object-cover border border-amber-600/40"
-                              />
-                            ) : (
-                              <div className="w-6 h-6 rounded bg-amber-600/20 border border-amber-600/40 text-amber-300 flex items-center justify-center font-bold text-xs font-serif">
-                                {exp.character?.name?.[0] || 'H'}
-                              </div>
-                            )}
+                            <Portrait value={exp.character?.avatarUrl} name={exp.character?.name || 'Hero'} className="w-7 h-7 rounded border border-amber-600/40 text-xs" />
                             <div>
                               <div className="font-semibold text-slate-200 text-xs">{exp.character?.name || 'Hero'}</div>
                               <div className="text-[10px] text-slate-500 font-mono">
@@ -793,8 +795,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
         {/* Modal: Create Experience Setup */}
         {selectedCategoryModal && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...setupDialog.overlayProps}>
+            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200" {...setupDialog.dialogProps}>
               
               {/* Header */}
               <div className="flex items-start justify-between border-b border-white/10 pb-3">
@@ -806,14 +808,14 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     {getCategoryIcon(selectedCategoryModal.iconName)}
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold text-amber-50 font-serif leading-tight">
+                    <h2 id="setup-title" className="text-base sm:text-lg font-bold text-amber-50 font-serif leading-tight">
                       Initialize {selectedCategoryModal.name} Campaign
                     </h2>
                     <p className="text-xs text-slate-400 font-sans mt-0.5">{selectedCategoryModal.tagline}</p>
                   </div>
                 </div>
                 <button
-                  onClick={closeModal}
+                  onClick={requestCloseModal}
                   className="text-slate-400 hover:text-slate-100 p-1 rounded bg-white/5 text-xs font-mono"
                   title="Close"
                 >
@@ -1028,24 +1030,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                     </div>
 
                     <div className="flex items-start gap-3">
-                      {charAvatarUrl ? (
-                        <div className="relative group shrink-0">
-                          <img 
-                            src={charAvatarUrl} 
-                            alt="Hero Portrait" 
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-amber-500 shadow-lg"
-                          />
-                          {(isBusy('portrait') || isBusy('scenario')) && (
-                            <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center">
-                              <RefreshCw className="w-4 h-4 text-amber-400 animate-spin" />
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-amber-600/20 border-2 border-amber-500/40 text-amber-300 font-bold font-serif text-2xl flex items-center justify-center shadow-lg shrink-0">
-                          {charName?.[0] || 'H'}
-                        </div>
-                      )}
+                      <Portrait value={charAvatarUrl} name={charName || 'Hero'} loading={isBusy('portrait')} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 border-amber-500/60 shadow-lg shrink-0 text-2xl" />
 
                       <div className="flex-1 min-w-0">
                         <textarea
@@ -1061,6 +1046,20 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         </p>
                         {avatarError && (
                           <p className="text-[10px] text-red-400 font-mono mt-1">{avatarError}</p>
+                        )}
+                        {portraitsOff && (
+                          <button
+                            type="button"
+                            className="mt-1 text-[10px] underline text-amber-300"
+                            onClick={() => {
+                              setFreePortraitsAllowed(true);
+                              setPortraitsOff(false);
+                              setAvatarError(null);
+                              void handleRenderPortrait(selectedCategoryModal);
+                            }}
+                          >
+                            Allow free portraits from pollinations.ai (sends only the appearance text) and draw one
+                          </button>
                         )}
                       </div>
                     </div>
@@ -1171,8 +1170,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       {(activeSeed?.prompts || []).map((prompt: string, idx: number) => (
                         <div 
                           key={idx} 
-                          className="text-[11px] px-3 py-2 rounded bg-black/40 border border-white/5 text-slate-300 font-mono cursor-pointer hover:border-amber-400/50 hover:text-amber-300 hover:bg-amber-500/10 transition"
-                          onClick={() => handleApplyTrope({ name: `Prompt ${idx + 1}`, premise: prompt })}
+                          className="text-[11px] px-3 py-2 rounded bg-black/40 border border-white/5 text-slate-300 font-mono cursor-pointer hover:border-amber-400/50 hover:text-amber-300 hover:bg-amber-500/10 transition focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          {...clickable(() => handleApplyTrope({ name: `Prompt ${idx + 1}`, premise: prompt }))}
                         >
                           {prompt}
                         </div>
@@ -1208,8 +1207,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                       {currentScenarioSeeds.map(({ opener: seed, padded }, idx) => (
                         <div
                           key={seed.id || idx}
-                          onClick={() => handleApplyPlayableSeed(seed, selectedCategoryModal)}
-                          className="p-3.5 rounded-lg bg-black/40 border border-white/5 hover:border-amber-500/50 hover:bg-white/5 cursor-pointer transition text-xs space-y-2 group"
+                          {...clickable(() => handleApplyPlayableSeed(seed, selectedCategoryModal))}
+                          className="p-3.5 rounded-lg bg-black/40 border border-white/5 hover:border-amber-500/50 hover:bg-white/5 cursor-pointer transition text-xs space-y-2 group focus:outline-none focus:ring-2 focus:ring-amber-500"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
@@ -1283,7 +1282,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                   </div>
                 )}
                 <button
-                  onClick={closeModal}
+                  onClick={requestCloseModal}
                   className="px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:bg-white/5 transition"
                 >
                   Cancel

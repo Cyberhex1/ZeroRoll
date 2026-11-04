@@ -31,9 +31,20 @@ export class ErrorBoundary extends Component<Props, State> {
     window.location.reload();
   };
 
+  /**
+   * Clears settings and caches that can break start-up, after asking (M8). Campaigns, API
+   * keys and Story mode saves are kept: losing those is never the fix.
+   */
   private handleClearStorageAndReset = () => {
+    if (!window.confirm('Reset cached settings and reload? Your campaigns, story saves and API keys are kept.')) return;
     try {
-      localStorage.clear();
+      const keep = (k: string) => k.startsWith('zeroroll_exp_') || k.startsWith('zeroroll_key_') || k === 'zeroroll_ai_provider' || k.startsWith('zr_replaced_exp_');
+      const keys: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && !keep(k)) keys.push(k);
+      }
+      keys.forEach((k) => localStorage.removeItem(k));
       sessionStorage.clear();
     } catch (_) {}
     window.location.reload();
@@ -76,7 +87,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 title="Clears corrupted local cache and restarts fresh"
               >
                 <Trash2 className="w-4 h-4" />
-                Reset Cache
+                Reset settings cache
               </button>
             </div>
           </div>

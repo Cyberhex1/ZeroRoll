@@ -1,3 +1,4 @@
+import { useDialog } from './ui/useDialog';
 import React, { useState } from 'react';
 import {
   User,
@@ -47,6 +48,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isDomainError, setIsDomainError] = useState(false);
 
+  const dialog = useDialog(onClose, { labelledBy: 'auth-title', active: isOpen });
   if (!isOpen) return null;
 
   const resetState = () => {
@@ -144,8 +146,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-[#111118] border border-amber-500/20 rounded-t-2xl sm:rounded-xl max-w-md w-full p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto text-slate-200 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...dialog.overlayProps}>
+      <div className="bg-[#111118] border border-amber-500/20 rounded-t-2xl sm:rounded-xl max-w-md w-full p-5 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl relative max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto text-slate-200 animate-in fade-in zoom-in-95 duration-200" {...dialog.dialogProps}>
 
         {/* Top ambient glow */}
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-32 bg-amber-500/10 blur-3xl pointer-events-none rounded-full" />
@@ -163,7 +165,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-1">
             <ShieldCheck className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold font-serif text-amber-50 tracking-wide">
+          <h2 id="auth-title" className="text-lg font-bold font-serif text-amber-50 tracking-wide">
             ZeroRoll Authentication
           </h2>
           <p className="text-xs text-slate-400 font-sans">

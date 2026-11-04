@@ -26,6 +26,7 @@ import { resolveSkin, skinVars } from '../story/skins';
 import { REFEREE_PREFIX, buildDndContext, experienceMemory, maybeSummarizeExperience, memoryFromTurn } from '../dnd/memory';
 import { mergeMemories } from '../memory/summarizer';
 import MemoryPanel from '../memory/ui/MemoryPanel';
+import { useDialog } from './ui/useDialog';
 
 interface ExperienceViewProps {
   experience: Experience;
@@ -66,6 +67,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
   }, [isGenerating]);
 
   const [continuing, setContinuing] = useState(false);
+  const endDialog = useDialog(() => handleDismissAlert(), { labelledBy: 'ending-title', active: experience.activeAlert?.type === 'story_conclusion' });
   const continueBook = async () => {
     if (!onStartBookTwo || continuing) return;
     setContinuing(true);
@@ -528,14 +530,14 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
 
       {/* Story Conclusion Modal */}
       {experience.activeAlert?.type === 'story_conclusion' && (
-        <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#111118] border border-amber-500/30 rounded-xl p-6 sm:p-8 max-w-lg w-full text-center space-y-6 shadow-2xl relative overflow-hidden">
+        <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center p-4" {...endDialog.overlayProps}>
+          <div className="bg-[#111118] border border-amber-500/30 rounded-xl p-6 sm:p-8 max-w-lg w-full text-center space-y-6 shadow-2xl relative overflow-hidden" {...endDialog.dialogProps}>
             <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 via-transparent to-purple-900/10 pointer-events-none" />
             
             <Sparkles className="w-12 h-12 text-amber-400 mx-auto animate-pulse" />
             
             <div className="space-y-2 relative z-10">
-              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-amber-50">
+              <h2 id="ending-title" className="text-2xl sm:text-3xl font-serif font-bold text-amber-50">
                 {experience.activeAlert.title}
               </h2>
               <p className="text-amber-200/80 font-medium">

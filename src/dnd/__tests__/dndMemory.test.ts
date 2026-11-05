@@ -57,3 +57,19 @@ describe('D&D memory', () => {
     expect(buildDndContext(done).contents).not.toContain('entry 11\n');
   });
 });
+
+describe('playtest round 2 (D&D)', () => {
+  it('reads a Markdown summary from a local model (D10)', async () => {
+    const { parseSummary } = await import('../../memory/summarizer');
+    const r = parseSummary('**Summary:** Zara crossed the marsh with Liana Whisperwind and lost the lantern.\n\n**Key facts:**\n- Liana Whisperwind is an ally\n- The lantern is gone');
+    expect(r?.summary).toContain('Liana Whisperwind');
+    expect(r?.facts).toEqual(['Liana Whisperwind is an ally', 'The lantern is gone']);
+  });
+
+  it('fits the story context to a local model (D2)', async () => {
+    const { dndContextBudget } = await import('../memory');
+    const b = dndContextBudget(8192);
+    expect(b.contextTokens + 1800).toBeLessThan(8192);
+    expect(dndContextBudget().contextTokens).toBe(24_000);
+  });
+});

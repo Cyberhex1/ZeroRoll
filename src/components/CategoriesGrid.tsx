@@ -1,4 +1,6 @@
 import { Portrait } from './ui/Portrait';
+import { campaignTitle } from '../lib/titles';
+import ModeSwitch from './ModeSwitch';
 import { PortraitsOffError, setFreePortraitsAllowed } from '../lib/portraits';
 import { clickable } from './ui/a11y';
 import { useDialog } from './ui/useDialog';
@@ -33,9 +35,11 @@ import {
   Camera
 } from 'lucide-react';
 import { CATEGORIES_DATA, drawOpeners, markOpenersSeen, pickInspiration, gearToInventory, getContent, OpenerDraw, Opener } from '../content';
-import { generateRandomScenarioSetup } from '../content/procedural';
+import { generateRandomScenarioSetup, heroNameFor } from '../content/procedural';
+import { nameFitsPronouns } from '../content/names';
 import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI, OFFLINE_ENGINE_LABEL } from '../lib/geminiService';
 import { RULES_MODES, RulesMode, abilityMod, fmtMod, roleTemplate } from '../dnd/rules';
+import { splitStartingGold } from '../dnd/applyTurn';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory, CampaignInspiration } from '../types';
 
 
@@ -206,7 +210,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   };
 
   const applyRandomSetup = (catId: ExperienceCategory) => {
-    const randomSetup = generateRandomScenarioSetup(catId);
+    // One whole opener, with a name that fits the pronouns already picked (playtest D16, D17).
+    const randomSetup = generateRandomScenarioSetup(catId, { pronouns: resolvedPronouns(), notTitle: customTitle });
     setSetupSource('offline');
     setPremiseSource('procedural');
     setEditedFields(new Set());
@@ -218,15 +223,23 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setPhysicalDesc(randomSetup.physicalDescription);
     setSuggestedActions(randomSetup.suggestedActions);
     setInitialInventory(randomSetup.initialInventory);
-    // The random hook's spells and HP are not tied to its role, so the role decides (PS8).
-    setInitialSpells([]);
+    // The opener's spells and HP belong to its role, so they are kept.
+    setInitialSpells(randomSetup.initialSpells);
     setInitialConditions(randomSetup.initialConditions);
-    setStartingHp(0);
+    setStartingHp(randomSetup.startingHp);
+    setCurrentStoryOutline(randomSetup.storyOutline);
+    if (randomSetup.openerId) setInspiration(pickInspiration(catId, randomSetup.openerId));
 
     // Clear any AI-specific state from previous generations
-    setCurrentStoryOutline(undefined);
     setCharAvatarUrl(undefined);
     setAvatarError(null);
+  };
+
+  /** Switching pronouns on a name the player didn't type swaps it for one that fits. */
+  const choosePronouns = (next: typeof charGender) => {
+    setCharGender(next);
+    if (!selectedCategoryModal || editedFields.has('Name') || next === 'custom') return;
+    if (!nameFitsPronouns(charName, next)) setCharName(heroNameFor(selectedCategoryModal.id as ExperienceCategory, next, charName));
   };
 
   const rollField = async (
@@ -380,7 +393,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     genRef.current++;
     setEditedFields(new Set());
     setCustomTitle(seed.title);
-    setCharName(seed.hero.name);
+    setCharName(heroNameFor(cat.id as ExperienceCategory, resolvedPronouns(), seed.hero.name));
     setCharRole(seed.hero.role);
     setCharRace(seed.hero.origin);
     setOpeningPrompt(seed.premise);
@@ -492,6 +505,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
     const premise = openingPrompt.trim().slice(0, FIELD_LIMITS.premise);
 
+    const kit = splitStartingGold(initialInventory.length > 0 ? initialInventory : (selectedCategoryModal.defaultCharacter.inventory || []));
     const fullChar: CharacterSheet = {
       id: `char_${uid()}`,
       name: charName.trim().slice(0, FIELD_LIMITS.heroName),
@@ -504,9 +518,9 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       armorClass: heroPreview.armorClass,
       initiativeBonus: abilityMod(heroPreview.stats.dex),
       stats: heroPreview.stats,
-      inventory: initialInventory.length > 0 ? initialInventory : (selectedCategoryModal.defaultCharacter.inventory || []),
+      inventory: kit.inventory,
       spells: heroPreview.spells,
-      ...(rulesMode === 'full5e' ? { xp: 0, gold: 10 } : {}),
+      ...(rulesMode === 'full5e' ? { xp: 0, gold: kit.gold || 10 } : kit.gold ? { gold: kit.gold } : {}),
       statusEffects: initialConditions.length > 0 ? initialConditions : ['Well-Rested'],
       // The canonical hero's backstory does not belong to a generated hero (PS16).
       backgroundNotes: '',
@@ -579,7 +593,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   return (
     <div className="min-h-[calc(100vh-56px)] bg-[#0F0F12] text-slate-200 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        
+        <ModeSwitch />
+
         {/* Banner Section */}
         <div className="relative overflow-hidden rounded-lg bg-[#16161D] border border-white/10 p-5 sm:p-8 shadow-2xl">
           <div className="relative z-10 max-w-3xl space-y-2">
@@ -659,7 +674,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                           {getCategoryIcon(cat.iconName)}
                         </div>
                         <span className="text-[9px] font-mono tracking-widest font-bold uppercase px-1.5 py-0.5 rounded bg-black/40 text-slate-400 border border-white/5">
-                          {cat.id}
+                          {getContent(cat.id).openers.length} openers
                         </span>
                       </div>
 
@@ -744,7 +759,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
                         <div>
                           <h3 className="text-base font-serif font-bold text-slate-100 group-hover:text-amber-300 transition">
-                            {exp.title}
+                            {campaignTitle(exp.title)}
                           </h3>
                           <p className="text-xs text-slate-400 line-clamp-2 mt-1">
                             {exp.description || 'Active campaign session.'}
@@ -796,7 +811,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
         {/* Modal: Create Experience Setup */}
         {selectedCategoryModal && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto" {...setupDialog.overlayProps}>
-            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200" {...setupDialog.dialogProps}>
+            <div className="bg-[#111118] border border-white/10 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-4 pb-0 sm:p-6 sm:pb-0 space-y-4 sm:space-y-5 shadow-2xl overflow-y-auto max-h-[92dvh] sm:max-h-[88vh] text-slate-200" {...setupDialog.dialogProps}>
               
               {/* Header */}
               <div className="flex items-start justify-between border-b border-white/10 pb-3">
@@ -912,7 +927,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         <button
                           key={opt.id}
                           type="button"
-                          onClick={() => setCharGender(opt.id as any)}
+                          onClick={() => choosePronouns(opt.id as typeof charGender)}
                           className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition border ${
                             charGender === opt.id
                               ? 'bg-amber-600/30 text-amber-300 border-amber-500 font-bold'
@@ -1249,7 +1264,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
               )}
 
               {/* Actions Footer (Sticky on Mobile) */}
-              <div className="sticky bottom-0 bg-[#111118]/95 backdrop-blur-md pt-3 pb-safe border-t border-white/10 flex flex-wrap items-center justify-end gap-2 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 px-4 sm:px-6 z-10">
+              <div className="sticky bottom-0 bg-[#111118]/95 backdrop-blur-md pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] sm:pb-6 border-t border-white/10 flex flex-wrap items-center justify-end gap-2 -mx-4 sm:-mx-6 px-4 sm:px-6 z-10">
                 {chapterOneFailure && (
                   <div role="alert" className="w-full p-2.5 rounded bg-red-950/70 border border-red-700/50 text-[11px] text-red-100 space-y-2">
                     <p>

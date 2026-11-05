@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { abilityForCheck, checkOutcome, deathSave, gainXp, levelForXp, planCheck, proficiencyBonus, roleTemplate, rollPlan } from '../rules';
 import { parseGmReply, leadAlert, normaliseAlertType } from '../turnParser';
-import { applyDelta, applyInventory, applyWorld, itemCount, nextAlert } from '../applyTurn';
+import { localGmPrompt, stripUnterminatedBlocks } from '../../lib/geminiService';
+import { turnContextBlock } from '../../content/injection';
+import { pickInspiration } from '../../content';
+import { applyDelta, applyInventory, applyWorld, cleanChapters, gateAlerts, itemCount, nextAlert, splitStartingGold } from '../applyTurn';
 import type { CharacterSheet, Experience } from '../../types';
 
 const hero = (over: Partial<CharacterSheet> = {}): CharacterSheet => ({
@@ -86,11 +89,24 @@ EVOLVED: tr`);
     expect(r.options).toEqual(['Run', 'Hide']);
   });
 
-  it('does not invent a check from prose and drops an unterminated block', () => {
-    const r = parseGmReply('Make a DC 15 Stealth check to sneak by.\n---STATE_UPDATE---\nHP_DELTA: -4');
+  it('does not invent a check from prose and still reads a block with no end marker (D19)', () => {
+    const r = parseGmReply('Make a DC 15 Stealth check to sneak by.\n---STATE_UPDATE---\nHP_DELTA: -4\nITEMS_LOST: ["Rope"]\n\nThe rope snaps.\n---OPTIONS---\n[1] Climb');
     expect(r.check).toBeNull();
-    expect(r.delta).toBeNull();
-    expect(r.text).toBe('Make a DC 15 Stealth check to sneak by.');
+    expect(r.delta).toMatchObject({ hpDelta: -4, itemsLost: ['Rope'] });
+    expect(r.text).toBe('Make a DC 15 Stealth check to sneak by.\n\nThe rope snaps.');
+    expect(r.options).toEqual(['Climb']);
+  });
+
+  it('reads lowercase and spaced markers, inline fields, and drops a leading "DM:" (D11, D18)', () => {
+    const r = parseGmReply('DM: The blade bites.\n---state_update--- HP_DELTA: -40 ITEMS_GAINED: ["Torn Map"]\n---end_state_update---\n--- Course Trigger ---\nTITLE: Ambush\nTYPE: ambush\n--- end trigger ---\n---options---\n1. Run');
+    expect(r.text).toBe('The blade bites.');
+    expect(r.delta).toMatchObject({ hpDelta: -40, itemsGained: ['Torn Map'] });
+    expect(r.alerts[0]).toMatchObject({ title: 'Ambush', type: 'ambush' });
+    expect(r.options).toEqual(['Run']);
+  });
+
+  it('a cut-off reply still drops its unfinished block', () => {
+    expect(stripUnterminatedBlocks('Text.\n---state_update---\nHP_DEL')).toBe('Text.');
   });
 
   it('normalises trigger types and ranks alerts', () => {
@@ -112,7 +128,13 @@ describe('applying a turn', () => {
     const r = applyInventory(inv, ['Healing Potion x2', '15 gold', 'Lantern'], ['Healing Potions', 'Potion', 'Coin']);
     expect(r.inventory.map((i) => `${i.name}:${i.quantity}`)).toEqual(['Healing Potion:4', 'Potion of Fire Breath:1', 'Coin Purse:1', 'Lantern:1']);
     expect(r.goldDelta).toBe(14);
-    expect(itemCount('3 Arrows')).toEqual({ name: 'Arrows', qty: 3 });
+    expect(itemCount('3 Arrows')).toEqual({ name: 'Arrows', qty: 3, explicit: true });
+  });
+
+  it('ignores an item the GM restates without a count', () => {
+    const inv = [{ id: '1', name: 'Brass Key', type: 'misc' as const, quantity: 1 }];
+    expect(applyInventory(inv, ['Brass Key'], []).inventory[0].quantity).toBe(1);
+    expect(applyInventory(inv, ['Brass Key x2'], []).inventory[0].quantity).toBe(3);
   });
 
   it('downs the hero in Full 5e and applies XP, gold, conditions and spells', () => {
@@ -130,5 +152,50 @@ describe('applying a turn', () => {
     expect(applyWorld(exp, { locationUpdate: 'Gate' }, [t]).gameWorldState).toMatchObject({ currentChapter: 2, currentLocation: 'Gate' });
     expect(applyWorld(exp, null, [{ type: 'story_conclusion' } as never]).concluded?.reason).toBe('story');
     expect(nextAlert(t, { id: 'x', type: 'ambush' } as never)).toBe(t);
+  });
+});
+
+describe('playtest round 2: chapters, gold', () => {
+  const t = (type: string) => ({ id: type, type, title: type }) as never;
+  it('never counts past the last chapter, roadmap or not (D15)', () => {
+    const noOutline = { gameWorldState: { currentChapter: 3 } } as unknown as Experience;
+    expect(applyWorld(noOutline, null, [t('chapter_transition')], 20).gameWorldState.currentChapter).toBe(3);
+    const four = { gameWorldState: { currentChapter: 4 }, storyOutline: { chapters: ['a', 'b', 'c'] } } as unknown as Experience;
+    expect(applyWorld(four, null, []).gameWorldState.currentChapter).toBe(3);
+  });
+
+  it('holds back an early chapter change and turns an early ending into one (D8)', () => {
+    const exp = { gameWorldState: { currentChapter: 1, chapterStartedTurn: 0 }, storyOutline: { chapters: ['a', 'b', 'c', 'd'] } } as unknown as Experience;
+    expect(gateAlerts(exp, [t('chapter_transition')], 1)).toEqual([]);
+    expect(gateAlerts(exp, [t('ambush'), t('chapter_transition')], 5).map((a: any) => a.type)).toEqual(['ambush', 'chapter_transition']);
+    expect(gateAlerts(exp, [t('story_conclusion')], 7).map((a: any) => a.type)).toEqual(['chapter_transition']);
+    const last = { ...exp, gameWorldState: { currentChapter: 4, chapterStartedTurn: 20 } } as unknown as Experience;
+    expect(gateAlerts(last, [t('story_conclusion')], 21).map((a: any) => a.type)).toEqual(['story_conclusion']);
+    const world = applyWorld(exp, null, gateAlerts(exp, [t('chapter_transition')], 5), 5).gameWorldState;
+    expect(world).toMatchObject({ currentChapter: 2, chapterStartedTurn: 5 });
+  });
+
+  it('drops schema placeholder chapters', () => {
+    expect(cleanChapters(['Chapter 1: The opening crisis, investigation & initial choices', 'Chapter 1: <this story>', 'The Salt Road'])).toEqual(['The Salt Road']);
+  });
+
+  it('moves starting coins out of the inventory (D23)', () => {
+    const r = splitStartingGold([
+      { id: '1', name: 'Pouch of 15 Gold Coins', type: 'misc', quantity: 1 },
+      { id: '2', name: "Explorer's Pack & 15 Gold", type: 'misc', quantity: 1 },
+      { id: '3', name: 'Runic Longsword', type: 'weapon', quantity: 1 }
+    ]);
+    expect(r.gold).toBe(30);
+    expect(r.inventory.map((i) => i.name)).toEqual(["Explorer's Pack", 'Runic Longsword']);
+  });
+});
+
+describe('local game master prompt (D2)', () => {
+  it('fits the space the local budget leaves for it', () => {
+    const outline = { startingCircumstances: 'x'.repeat(300), immediateGoal: 'y'.repeat(120), keyNpcs: [{ name: 'Odda', role: 'Ferry keeper' }], chapters: ['a'.repeat(80), 'b'.repeat(80), 'c'.repeat(80), 'd'.repeat(80)] } as never;
+    const p = localGmPrompt('fantasy', turnContextBlock('fantasy', pickInspiration('fantasy')), outline, 'full5e');
+    expect(Math.ceil(p.length / 3.6)).toBeLessThan(1800);
+    expect(p).toContain('---OPTIONS---');
+    expect(p).toContain('XP_GAINED');
   });
 });

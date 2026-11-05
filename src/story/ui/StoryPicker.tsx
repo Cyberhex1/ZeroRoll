@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import ModeSwitch from '../../components/ModeSwitch';
 import { Link, useNavigate } from 'react-router';
 import { BookOpen, FolderOpen, PackagePlus, Share2, Trash2, Upload } from 'lucide-react';
 import { CATEGORIES_DATA } from '../../content';
@@ -136,6 +137,7 @@ export default function StoryPicker() {
     <Particles kind={ANIME_SKIN.particles} />
     {review && <ImportReview prepared={review} onCancel={() => setReview(null)} onConfirm={(c) => void confirmStories(c)} />}
     <div className="relative max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <ModeSwitch />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2" style={{ fontFamily: 'var(--sk-font-heading)', color: 'var(--sk-accent)', textShadow: '0 0 18px color-mix(in srgb, var(--sk-accent) 45%, transparent)' }}><BookOpen className="w-5 h-5" /> Story mode</h1>

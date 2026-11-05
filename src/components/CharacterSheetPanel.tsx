@@ -185,7 +185,7 @@ export const CharacterSheetPanel: React.FC<CharacterSheetPanelProps> = ({
           </div>
 
           <p className="text-[11px] text-slate-400">
-            Customize physical details (posture, attire, eyes, heirloom items, scars). Gemini will render a dramatic cartoonized profile picture matched to where you are in the story.
+            Customize physical details (posture, attire, eyes, heirloom items, scars). A portrait is drawn (DALL-E with an OpenAI key, otherwise the free pollinations.ai engine if you allowed it) as a dramatic cartoonized profile picture matched to where you are in the story.
           </p>
 
           <textarea

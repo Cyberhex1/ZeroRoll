@@ -116,3 +116,34 @@ export function pickForTag(tag: string): ModelPick | undefined {
   for (const b of BANDS) for (const p of [b.regular, b.uncensored]) if (p.ollama.toLowerCase() === tag.toLowerCase()) return p;
   return undefined;
 }
+
+/* --------------------------- the Custom / Local provider -------------------------- */
+
+const OLLAMA_URL = /^https?:\/\/(localhost|127\.0\.0\.1)(:11434)?(\/v1)?\/?$/i;
+
+/**
+ * In the PC app, the "Custom / Local LLM" provider pointed at Ollama (the default URL) goes
+ * through the Rust side like the local model does: no CORS trouble, and hf.co models get
+ * their prompt format. Returns null for any other provider or endpoint.
+ */
+export function localCallFor(provider: string, model: string, baseUrl?: string): { context: number; promptFormat?: ModelPick['promptFormat'] } | null {
+  if (provider !== 'custom' || !isTauri() || !model) return null;
+  if (baseUrl && !OLLAMA_URL.test(baseUrl.trim())) return null;
+  const pick = pickForTag(model);
+  const s = getLocalModelSettings();
+  const context = pick?.context ?? (s.model?.toLowerCase() === model.toLowerCase() ? s.context : undefined) ?? 8192;
+  return { context, promptFormat: pick?.promptFormat };
+}
+
+/** Display name for an Ollama tag: the recommendation's name, or the tag without the hf.co/ prefix. */
+export function localModelLabel(tag: string): string {
+  return pickForTag(tag)?.name ?? tag.replace(/^hf\.co\//i, '');
+}
+
+/** The models already pulled into Ollama, starting Ollama if it is installed but not running. */
+export async function listOllamaModels(): Promise<string[]> {
+  const { invoke } = await import('@tauri-apps/api/core');
+  let s = await invoke<OllamaStatus>('ollama_status');
+  if (!s.running) s = await invoke<OllamaStatus>('ollama_start').catch(() => s);
+  return s.running ? s.models : [];
+}

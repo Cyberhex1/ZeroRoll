@@ -10,7 +10,7 @@ import { RulesMode, gainXp } from './rules';
 export const rulesModeOf = (exp: Pick<Experience, 'rulesMode'>): RulesMode => exp.rulesMode ?? 'narrative';
 
 /** "Healing Potion x2", "2 Healing Potions", "Healing Potion (3)" → name and count. */
-export function itemCount(raw: string): { name: string; qty: number } {
+export function itemCount(raw: string): { name: string; qty: number; explicit: boolean } {
   let s = raw.trim();
   let qty = 1;
   const tail = s.match(/^(.*?)\s*(?:x\s*(\d+)|\((\d+)\))$/i);
@@ -22,7 +22,7 @@ export function itemCount(raw: string): { name: string; qty: number } {
     qty = parseInt(head[1], 10);
     s = head[2];
   }
-  return { name: s.trim(), qty: Math.max(1, qty || 1) };
+  return { name: s.trim(), qty: Math.max(1, qty || 1), explicit: !!(tail || head) };
 }
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
@@ -43,14 +43,17 @@ export function applyInventory(inv: InventoryItem[], gained: string[], lost: str
   let next = inv.map((i) => ({ ...i }));
   let goldDelta = 0;
   for (const raw of gained) {
-    const { name, qty } = itemCount(raw);
+    const { name, qty, explicit } = itemCount(raw);
     if (!name) continue;
     if (GOLD_RE.test(name)) {
       goldDelta += qty;
       continue;
     }
     const at = findItem(next, name);
-    if (at !== -1) next[at].quantity += qty;
+    // The GM often restates items the hero already has; only an explicit count adds more.
+    if (at !== -1) {
+      if (explicit) next[at].quantity += qty;
+    }
     else next.push({ id: `item_${uid()}`, name, type: guessType(name), quantity: qty, isEquipped: false });
   }
   for (const raw of lost) {
@@ -65,6 +68,29 @@ export function applyInventory(inv: InventoryItem[], gained: string[], lost: str
     if (next[at].quantity <= 0) next = next.filter((_, i) => i !== at);
   }
   return { inventory: next, goldDelta };
+}
+
+const COIN_RE = /(\d+)\s*(?:gold|gp)(?:\s*(?:coins?|pieces?))?\b/i;
+
+/**
+ * Coins in the starting kit ("Pouch of 15 Gold Coins", "Explorer's Pack & 15 Gold") become
+ * the gold count, so they aren't counted twice (playtest D23). A pure purse is removed and
+ * a bundle keeps its other part.
+ */
+export function splitStartingGold(inv: InventoryItem[]): { inventory: InventoryItem[]; gold: number } {
+  let gold = 0;
+  const inventory: InventoryItem[] = [];
+  for (const item of inv) {
+    const m = item.name.match(COIN_RE);
+    if (!m) {
+      inventory.push(item);
+      continue;
+    }
+    gold += parseInt(m[1], 10) * Math.max(1, item.quantity || 1);
+    const rest = item.name.replace(COIN_RE, '').replace(/\b(pouch|purse|bag)\s+of\s*$/i, '').replace(/\s*(&|and|,|with)\s*$/i, '').replace(/^\s*(&|and|,)\s*/i, '').trim();
+    if (rest && !/^(pouch|purse|bag)( of)?$/i.test(rest)) inventory.push({ ...item, name: rest });
+  }
+  return { inventory, gold };
 }
 
 function guessType(name: string): InventoryItem['type'] {
@@ -119,16 +145,59 @@ export function nextAlert(current: CourseChangeAlert | null | undefined, incomin
   return current && rank(current) > rank(incoming) ? current : incoming;
 }
 
+const PLACEHOLDER_CHAPTER = /<[^>]*>|opening crisis, investigation|rising complications, early confrontations|deepening mystery and shocking|the climax, major revelation/i;
+
+/** The outline's chapters without schema placeholder text the model copied (playtest D8). */
+export function cleanChapters(chapters: unknown): string[] {
+  if (!Array.isArray(chapters)) return [];
+  return chapters.filter((c): c is string => typeof c === 'string' && !!c.trim() && !PLACEHOLDER_CHAPTER.test(c)).slice(0, 6);
+}
+
+/** Campaigns without a written roadmap (offline drafts) still run in three chapters. */
+export const DEFAULT_CHAPTERS = 3;
+/** Player turns a chapter lasts at least before the game master may move on. */
+export const MIN_CHAPTER_TURNS = 3;
+
+export const chapterCount = (exp: Pick<Experience, 'storyOutline'>): number => exp.storyOutline?.chapters?.length || DEFAULT_CHAPTERS;
+
+/**
+ * The alerts a reply may act on. A chapter change on the chapter's first turns is dropped,
+ * and an ending before the last chapter becomes a chapter change, so stories aren't
+ * skipped or rushed (playtest D8, D15).
+ */
+export function gateAlerts(exp: Pick<Experience, 'storyOutline' | 'gameWorldState'>, alerts: CourseChangeAlert[], turn: number): CourseChangeAlert[] {
+  const total = chapterCount(exp);
+  const chapter = exp.gameWorldState.currentChapter ?? 1;
+  const started = exp.gameWorldState.chapterStartedTurn ?? 0;
+  const early = turn - started < MIN_CHAPTER_TURNS;
+  const out: CourseChangeAlert[] = [];
+  let moved = false;
+  for (const a of alerts) {
+    if (a.type === 'story_conclusion' && chapter < total) {
+      if (early || moved) continue;
+      out.push({ ...a, type: 'chapter_transition' });
+      moved = true;
+    } else if (a.type === 'chapter_transition') {
+      if (early || moved || chapter >= total) continue;
+      out.push(a);
+      moved = true;
+    } else out.push(a);
+  }
+  return out;
+}
+
 /** World and progress changes from one reply: location, chapter on receipt, conclusion. */
-export function applyWorld(exp: Experience, delta: StateDelta | null | undefined, alerts: CourseChangeAlert[]): Pick<Experience, 'gameWorldState' | 'concluded'> {
-  const chapters = exp.storyOutline?.chapters?.length ?? 0;
-  let chapter = exp.gameWorldState.currentChapter ?? 1;
-  for (const a of alerts) if (a.type === 'chapter_transition') chapter = chapters ? Math.min(chapters, chapter + 1) : chapter + 1;
+export function applyWorld(exp: Experience, delta: StateDelta | null | undefined, alerts: CourseChangeAlert[], turn?: number): Pick<Experience, 'gameWorldState' | 'concluded'> {
+  const total = chapterCount(exp);
+  const before = exp.gameWorldState.currentChapter ?? 1;
+  let chapter = before;
+  for (const a of alerts) if (a.type === 'chapter_transition') chapter = Math.min(total, chapter + 1);
   const concluded = alerts.some((a) => a.type === 'story_conclusion') ? { reason: 'story' as const, at: new Date().toISOString() } : exp.concluded ?? null;
   return {
     gameWorldState: {
       ...exp.gameWorldState,
-      currentChapter: chapter,
+      currentChapter: Math.min(total, chapter),
+      ...(chapter !== before && turn !== undefined ? { chapterStartedTurn: turn } : {}),
       ...(delta?.locationUpdate ? { currentLocation: delta.locationUpdate } : {})
     },
     concluded

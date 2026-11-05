@@ -49,7 +49,8 @@ export function turnsOf(save: StorySave): Turn[] {
 }
 
 function replyTokens(story: Story, save: StorySave): number {
-  return Math.round(targetWords(story, save.length) * 2.2) + 220;
+  // Narration plus the JSON block, with room to spare: a reply cut off before its JSON loses the turn's state.
+  return Math.round(targetWords(story, save.length) * 2.2) + 500;
 }
 
 /** Local 12B models (the basic tier) get the compact prompt. */
@@ -75,9 +76,11 @@ export function buildPrompt(story: Story, save: PlaySave, tier: Tier, recallScor
     recallScores
   });
   const convo = [...built.messages];
-  // Providers need the conversation to start with the player.
-  while (convo.length && convo[0].role === 'assistant') convo.shift();
+  // Providers need the conversation to start with the player. The opening scene has no player
+  // turn before it, so give it one rather than dropping the scene from the model's view.
+  if (convo.length && convo[0].role === 'assistant') convo.unshift({ role: 'user', content: 'Begin the story.' });
   if (!convo.length) convo.push({ role: 'user', content: save.messages.length ? 'Continue the story.' : 'Begin the story.' });
+  else if (convo[convo.length - 1].role === 'assistant') convo.push({ role: 'user', content: 'Continue the story.' });
   return { system: built.system, messages: convo, meter: built.meter };
 }
 
@@ -92,8 +95,9 @@ function pinBeats(story: Story, memory: MemoryState, events: EngineEvent[], turn
   return m;
 }
 
-function artMessages(events: EngineEvent[], beat: string): StoryMessage[] {
-  const seen = new Set<string>();
+/** Art for these events, skipping any picture the chat already shows (the narrator may cue the same art turn after turn). */
+function artMessages(events: EngineEvent[], beat: string, shown: StoryMessage[] = []): StoryMessage[] {
+  const seen = new Set<string>(shown.filter((m) => m.kind === 'art').map((m) => (m as { art: string }).art));
   return events
     .filter((e): e is Extract<EngineEvent, { kind: 'art' }> => e.kind === 'art')
     .filter((e) => (seen.has(e.art) ? false : (seen.add(e.art), true)))
@@ -113,7 +117,7 @@ export function addPlayerInput(story: Story, save: PlaySave, input: { text?: str
   }
   const messages = [...save.messages];
   if (text) messages.push({ id: mid(), kind: 'player', text, beat: save.state.beat, at: Date.now() });
-  messages.push(...artMessages(events, state.beat));
+  messages.push(...artMessages(events, state.beat, messages));
   return { save: { ...save, state, messages, memory: pinBeats(story, memoryOf(save), events, state.turns) }, events };
 }
 
@@ -128,10 +132,12 @@ export async function narrate(
   const memory = memoryOf(save);
   const scores = opts.recall ? await opts.recall(memory, turnsOf(save).slice(memory.summarizedThrough), opts.signal) : null;
   const { system, messages } = buildPrompt(story, save, save.tier, scores);
+  const startedAt = Date.now();
   const reply = await complete(messages, save.tier, {
     system,
     temperature: 0.85,
-    maxTokens: replyTokens(story, save),
+    // Gemini counts its thinking against this cap, so leave room for it on top of the story.
+    maxTokens: replyTokens(story, save) + 1024,
     signal: opts.signal,
     feature: 'Story mode'
   });
@@ -139,6 +145,11 @@ export async function narrate(
   const { state, events } = applyNarratorTail(story, save.state, tail);
   const providerName = AI_PROVIDERS[reply.provider]?.name || reply.provider;
   if (!narration) throw new AIError('bad_output', `${reply.model} sent only the story data and no story text. Try Reroll.`);
+  const lastNarration = [...save.messages].reverse().find((m) => m.kind === 'narrator');
+  const norm = (t: string) => t.toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 200);
+  if (lastNarration && 'text' in lastNarration && norm(lastNarration.text ?? '') === norm(narration)) {
+    throw new AIError('bad_output', `${reply.model} repeated its last reply word for word. Press Try again.`);
+  }
   // The opening beat's "on enter" art shows before the first narration.
   const opening = save.messages.some((m) => m.kind === 'narrator')
     ? []
@@ -151,11 +162,11 @@ export async function narrate(
       kind: 'narrator',
       text: narration,
       beat: save.state.beat,
-      answeredBy: `${providerName} (${reply.model}), ${reply.tier} tier`,
+      answeredBy: `${providerName} (${reply.model}), ${reply.tier} tier, ${Math.max(1, Math.round((Date.now() - startedAt) / 1000))} s`,
       chips: chipsFor(story, state, tail.choices),
       at: Date.now()
     },
-    ...artMessages(events, state.beat)
+    ...artMessages(events, state.beat, [...save.messages, ...opening])
   ];
   if (state.ending && !save.state.ending) {
     const end = beatOf(story, state.ending);

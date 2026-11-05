@@ -53,14 +53,23 @@ export function getAmbientEvent(category: ExperienceCategory): string {
 }
 
 /** Chips shown when a turn came back without suggested actions: the category's own sample prompts. */
-export function getCategoryFallbackActions(category: ExperienceCategory, count = 3): string[] {
-  const generic = [
-    'Cautiously observe the immediate surroundings.',
-    'Approach the nearest focal point or person.',
-    'Steady yourself and assess your available resources.'
-  ];
-  const own = shuffle(getContent(category).card.samplePrompts || []);
-  return [...new Set([...own, ...generic])].slice(0, count);
+/**
+ * Chips for a reply that suggested no actions. They name nothing specific: the category's
+ * sample prompts named taverns and people that weren't in the story, and the model then
+ * followed them (playtest D4).
+ */
+const NEUTRAL_ACTIONS = [
+  'Take a careful look around.',
+  'Talk to whoever is closest.',
+  'Check what you are carrying.',
+  'Press on toward your goal.',
+  'Ask about what just happened.',
+  'Wait and watch for a moment.',
+  'Look for another way forward.'
+];
+
+export function getCategoryFallbackActions(_category: ExperienceCategory, count = 3): string[] {
+  return shuffle(NEUTRAL_ACTIONS).slice(0, count);
 }
 
 /* --------------------------------- openers --------------------------------- */

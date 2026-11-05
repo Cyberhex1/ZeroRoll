@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { campaignTitle } from './lib/titles';
 import { uid } from './lib/ids';
 import { continueToNextBook } from './dnd/nextBook';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
@@ -25,7 +26,9 @@ import {
   importAllProviderSettings,
   purgeUnusableStoredKeys,
   getActiveProvider,
-  setProviderModel
+  setProviderModel,
+  setActiveProvider,
+  getProviderKey
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
 import { watchKeyChanges } from './lib/keySync';
@@ -89,6 +92,8 @@ const GUEST_PROFILE: UserProfile = {
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  // Bumped when Firebase reports "signed out", so the guest list loads again after that callback cleared it.
+  const [signedOutEpoch, setSignedOutEpoch] = useState(0);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [activeExperience, setActiveExperience] = useState<Experience | null>(null);
 
@@ -279,6 +284,7 @@ export default function App() {
         // Signed out — synchronously clear ALL user-specific state first to prevent data leak
         setUser(null);
         setExperiences([]);
+        setSignedOutEpoch((n) => n + 1);
         setActiveExperience(null);
         pendingActiveExpId.current = null;
         setUserProfile(GUEST_PROFILE);
@@ -334,7 +340,7 @@ export default function App() {
     );
 
     return () => unsubscribe();
-  }, [user]); // Only re-subscribe when the user identity changes
+  }, [user, signedOutEpoch]); // Re-subscribe when the user identity changes (or after a sign-out cleared the list)
 
   // ---------------------------------------------------------------------------
   // Settings Persistence
@@ -343,6 +349,8 @@ export default function App() {
     setSelectedModel(modelId);
     safeSetStorage('dnd_selected_model', modelId);
     // The navbar picker lists Gemini models; make the choice the one AI calls actually use.
+    // Picking a Gemini model while a local model is active switches back to Gemini.
+    if (getActiveProvider() !== 'gemini' && getProviderKey('gemini').trim()) setActiveProvider('gemini');
     if (getActiveProvider() === 'gemini') {
       setProviderModel('gemini', modelId);
       resetAIStatus();
@@ -587,7 +595,7 @@ export default function App() {
         onSignOut={logoutUser}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
-        activeExperienceTitle={activeExperience?.title}
+        activeExperienceTitle={activeExperience ? campaignTitle(activeExperience.title) : undefined}
         onBackToExperiences={activeExperience ? () => handleSelectExperience(null) : undefined}
         userProfile={userProfile}
         isSaving={isSaving}

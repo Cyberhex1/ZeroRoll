@@ -176,6 +176,8 @@ export interface GameWorldState {
   dangerLevel: 'Safe' | 'Moderate' | 'Dangerous' | 'Deadly';
   customNotes: string;
   currentChapter?: number;
+  /** The player turn the current chapter began on, so a chapter can't end on its first turn. */
+  chapterStartedTurn?: number;
 }
 
 export interface PendingCheck {

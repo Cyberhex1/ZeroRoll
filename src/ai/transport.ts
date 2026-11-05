@@ -6,6 +6,7 @@
  */
 import { AIProviderId, AI_PROVIDERS } from '../lib/providersConfig';
 import { AIError, classifyAIError, isTransient, shouldTryNextModel } from '../lib/aiErrors';
+import { localCallFor } from '../desktop/localModel';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -682,8 +683,9 @@ export async function callProvider(cfg: ProviderCallConfig, req: ProviderRequest
     }
     const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
     let reply: TransportReply;
-    if (cfg.local) {
-      reply = await callLocalOllama(model, cfg.local, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider));
+    const local = cfg.local ?? localCallFor(provider, model, cfg.baseUrl);
+    if (local) {
+      reply = await callLocalOllama(model, local, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider));
     } else if (provider === 'anthropic') {
       const baseUrl = cfg.baseUrl || AI_PROVIDERS.anthropic?.defaultBaseUrl || 'https://api.anthropic.com/v1';
       reply = await callAnthropicApi(apiKey, baseUrl, model, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider), signal);

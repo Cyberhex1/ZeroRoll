@@ -35,9 +35,11 @@ import {
   Camera
 } from 'lucide-react';
 import { CATEGORIES_DATA, drawOpeners, markOpenersSeen, pickInspiration, gearToInventory, getContent, OpenerDraw, Opener } from '../content';
-import { generateRandomScenarioSetup } from '../content/procedural';
+import { generateRandomScenarioSetup, heroNameFor } from '../content/procedural';
+import { nameFitsPronouns } from '../content/names';
 import { generateScenarioAI, generateSeedlistAI, rollSingleFieldAI, generateAvatarAI, hasActiveGeminiKey, generateChapterOneAI, OFFLINE_ENGINE_LABEL } from '../lib/geminiService';
 import { RULES_MODES, RulesMode, abilityMod, fmtMod, roleTemplate } from '../dnd/rules';
+import { splitStartingGold } from '../dnd/applyTurn';
 import { CategoryInfo, Experience, ExperienceCategory, CharacterSheet, InventoryItem, DMStoryOutline, TropeCategory, CampaignInspiration } from '../types';
 
 
@@ -208,7 +210,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   };
 
   const applyRandomSetup = (catId: ExperienceCategory) => {
-    const randomSetup = generateRandomScenarioSetup(catId);
+    // One whole opener, with a name that fits the pronouns already picked (playtest D16, D17).
+    const randomSetup = generateRandomScenarioSetup(catId, { pronouns: resolvedPronouns(), notTitle: customTitle });
     setSetupSource('offline');
     setPremiseSource('procedural');
     setEditedFields(new Set());
@@ -220,15 +223,23 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     setPhysicalDesc(randomSetup.physicalDescription);
     setSuggestedActions(randomSetup.suggestedActions);
     setInitialInventory(randomSetup.initialInventory);
-    // The random hook's spells and HP are not tied to its role, so the role decides (PS8).
-    setInitialSpells([]);
+    // The opener's spells and HP belong to its role, so they are kept.
+    setInitialSpells(randomSetup.initialSpells);
     setInitialConditions(randomSetup.initialConditions);
-    setStartingHp(0);
+    setStartingHp(randomSetup.startingHp);
+    setCurrentStoryOutline(randomSetup.storyOutline);
+    if (randomSetup.openerId) setInspiration(pickInspiration(catId, randomSetup.openerId));
 
     // Clear any AI-specific state from previous generations
-    setCurrentStoryOutline(undefined);
     setCharAvatarUrl(undefined);
     setAvatarError(null);
+  };
+
+  /** Switching pronouns on a name the player didn't type swaps it for one that fits. */
+  const choosePronouns = (next: typeof charGender) => {
+    setCharGender(next);
+    if (!selectedCategoryModal || editedFields.has('Name') || next === 'custom') return;
+    if (!nameFitsPronouns(charName, next)) setCharName(heroNameFor(selectedCategoryModal.id as ExperienceCategory, next, charName));
   };
 
   const rollField = async (
@@ -382,7 +393,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
     genRef.current++;
     setEditedFields(new Set());
     setCustomTitle(seed.title);
-    setCharName(seed.hero.name);
+    setCharName(heroNameFor(cat.id as ExperienceCategory, resolvedPronouns(), seed.hero.name));
     setCharRole(seed.hero.role);
     setCharRace(seed.hero.origin);
     setOpeningPrompt(seed.premise);
@@ -494,6 +505,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
     const premise = openingPrompt.trim().slice(0, FIELD_LIMITS.premise);
 
+    const kit = splitStartingGold(initialInventory.length > 0 ? initialInventory : (selectedCategoryModal.defaultCharacter.inventory || []));
     const fullChar: CharacterSheet = {
       id: `char_${uid()}`,
       name: charName.trim().slice(0, FIELD_LIMITS.heroName),
@@ -506,9 +518,9 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
       armorClass: heroPreview.armorClass,
       initiativeBonus: abilityMod(heroPreview.stats.dex),
       stats: heroPreview.stats,
-      inventory: initialInventory.length > 0 ? initialInventory : (selectedCategoryModal.defaultCharacter.inventory || []),
+      inventory: kit.inventory,
       spells: heroPreview.spells,
-      ...(rulesMode === 'full5e' ? { xp: 0, gold: 10 } : {}),
+      ...(rulesMode === 'full5e' ? { xp: 0, gold: kit.gold || 10 } : kit.gold ? { gold: kit.gold } : {}),
       statusEffects: initialConditions.length > 0 ? initialConditions : ['Well-Rested'],
       // The canonical hero's backstory does not belong to a generated hero (PS16).
       backgroundNotes: '',
@@ -915,7 +927,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
                         <button
                           key={opt.id}
                           type="button"
-                          onClick={() => setCharGender(opt.id as any)}
+                          onClick={() => choosePronouns(opt.id as typeof charGender)}
                           className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition border ${
                             charGender === opt.id
                               ? 'bg-amber-600/30 text-amber-300 border-amber-500 font-bold'

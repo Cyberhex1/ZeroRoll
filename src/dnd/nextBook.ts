@@ -18,7 +18,9 @@ export function bookRecap(exp: Experience): string {
   const outline = exp.storyOutline;
   const parts = [
     memory.summary ? `Story so far: ${clip(memory.summary, 1800)}` : '',
-    outline?.chapters?.length ? `Chapters played: ${outline.chapters.join(' | ')}` : '',
+    // Only the chapters actually reached; a story can end early (playtest D9).
+    outline?.chapters?.length ? `Chapters played: ${outline.chapters.slice(0, Math.max(1, exp.gameWorldState?.currentChapter ?? 1)).join(' | ')}` : '',
+    outline?.keyNpcs?.length ? `People (keep these names exactly): ${outline.keyNpcs.filter((n) => n?.name).map((n) => `${n.name}${n.role ? ` (${n.role})` : ''}`).join('; ')}` : '',
     memory.entries.length ? `Facts: ${memory.entries.slice(-15).map((e) => e.text).join('; ')}` : '',
     lastDm ? `How it ended: ${clip(lastDm, 900)}` : ''
   ];
@@ -55,7 +57,8 @@ export async function continueToNextBook(exp: Experience, model: string): Promis
     allowFallback: false
   });
   // Between books the hero recovers (S12: HP 0 never carries into a new book).
-  const character = { ...exp.character, hp: exp.character.maxHp, deathSaves: undefined };
+  // Conditions end with the rest too (playtest D22).
+  const character = { ...exp.character, hp: exp.character.maxHp, deathSaves: undefined, statusEffects: [] };
   const opening = await generateChapterOneAI({
     category: exp.category,
     storyBlurb: scenario.storyBlurb || '',
@@ -84,6 +87,7 @@ export async function continueToNextBook(exp: Experience, model: string): Promis
     gameWorldState: {
       ...exp.gameWorldState,
       currentChapter: 1,
+      chapterStartedTurn: exp.logs.filter((l) => l.sender === 'player').length,
       activeQuest: scenario.storyOutline?.immediateGoal || exp.gameWorldState.activeQuest,
       customNotes: scenario.storyOutline?.backstory || exp.gameWorldState.customNotes
     },

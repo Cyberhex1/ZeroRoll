@@ -2,8 +2,11 @@ import firebaseConfig from '../../firebase-applet-config.json';
 import { uid } from './ids';
 import { PortraitsOffError, base64ToBlob, freePortraitsAllowed, storePortraitBlob, storePortraitFromUrl } from './portraits';
 import { currentStateBlock } from '../dnd/memory';
-import { leadAlert, parseGmReply } from '../dnd/turnParser';
+import { leadAlert, normaliseMarkers, parseGmReply } from '../dnd/turnParser';
 import { RulesMode, rulesLine } from '../dnd/rules';
+import { cleanChapters } from '../dnd/applyTurn';
+import { localCallFor } from '../desktop/localModel';
+import { LOCAL_DND_REPLY_TOKENS } from '../dnd/memory';
 import {
   ExperienceCategory,
   DiceRollResult,
@@ -317,6 +320,15 @@ export function getCustomApiKey(): string {
   return getStoredApiKey();
 }
 
+/**
+ * The local model's context when the active provider is the PC app's Ollama (picked from
+ * the header), so D&D prompts can be fitted to it. Undefined on the web and for hosted models.
+ */
+export function activeLocalContext(): number | undefined {
+  const provider = getActiveProvider();
+  return localCallFor(provider, getProviderModel(provider), getProviderBaseUrl(provider))?.context;
+}
+
 /** True when AI calls should be attempted: not in Offline mode and a key is configured. */
 export function hasActiveGeminiKey(): boolean {
   if (isOfflineMode()) return false;
@@ -625,7 +637,7 @@ const BLOCK_MARKERS = ['STATE_UPDATE', 'AVATAR_EVOLUTION', 'COURSE_TRIGGER', 'CH
 
 /** Removes a trailing block that was opened but never closed (reply cut off mid-block). */
 export function stripUnterminatedBlocks(text: string): string {
-  let out = text;
+  let out = normaliseMarkers(text);
   for (const name of BLOCK_MARKERS) {
     const open = out.lastIndexOf(`---${name}---`);
     if (open === -1) continue;
@@ -634,6 +646,59 @@ export function stripUnterminatedBlocks(text: string): string {
   }
   return out.trimEnd();
 }
+
+/**
+ * The game master prompt for a local model: the same rules in about a third of the length,
+ * with the block formats written out as filled-in examples, which small models copy far
+ * more reliably than placeholders.
+ */
+export function localGmPrompt(category: string, styleBlock: string, outline: DMStoryOutline | undefined, mode: RulesMode): string {
+  const roadmap = formatOutlineForPrompt(outline, 'brief');
+  return `You are the game master of an interactive "${category}" story that uses D&D 5e rules. Write in second person ("you"), present tense, 120 to 250 words per reply.
+
+RULES
+- The player controls the hero. Never decide, act or speak for the hero. Describe the world and the other characters, then stop and let the player choose.
+- CURRENT STATE is true. The hero only uses items they carry. HP, items, conditions and location change only through a STATE_UPDATE block.
+- Ask for a roll only with a CHECK_REQUIRED block, never in the story text. After a roll result, narrate what it caused; don't ask for the same check again.
+- Fights hurt: when the hero is hit, put the damage in HP_DELTA.
+- Move to the next chapter only when this chapter's goal is resolved. End the story only in the final chapter.
+- Give new characters names that fit the setting, never: ${OVERUSED_NAMES.slice(0, 20).join(', ')}.
+- Never repeat an earlier reply. Never start with "DM:".
+
+${styleBlock}
+${roadmap ? `\nROADMAP (a guide, not a script)\n${roadmap}\n` : ''}
+BLOCKS. After the story text, add a block only when it applies, with the markers exactly as shown:
+---STATE_UPDATE---
+HP_DELTA: -4
+ITEMS_GAINED: ["Rusty Key"]
+ITEMS_LOST: ["Healing Potion"]
+CONDITIONS_ADDED: ["Poisoned"]
+CONDITIONS_REMOVED: []
+GOLD_DELTA: 0${mode === 'full5e' ? '\nXP_GAINED: 50' : ''}
+LOCATION: The Old Mill
+---END_STATE_UPDATE---
+---CHECK_REQUIRED---
+SKILL: Stealth
+STAT: dex
+DC: 13
+REASON: Slip past the guard unseen
+---END_CHECK---
+---COURSE_TRIGGER---
+TITLE: The Bridge Falls
+TYPE: twist
+SUBTITLE: One sentence on what changed
+---END_TRIGGER---
+(TYPE is one of: twist, ambush, crisis, opportunity, chapter_transition, story_conclusion.)
+
+Always end the reply with three short actions the player could take next:
+---OPTIONS---
+[1] First action
+[2] Second action
+[3] Third action`;
+}
+
+/** Repeated at the end of a local model's prompt, where small models pay the most attention. */
+export const LOCAL_TURN_REMINDER = 'Now write the next part of the story (120 to 250 words) in reply to the player. Then add any block that applies: a used or given-away item goes in ITEMS_LOST, damage in HP_DELTA, a needed roll in CHECK_REQUIRED. Finish with ---OPTIONS--- and three actions.';
 
 /**
  * Executes a player's narrative turn with the configured AI provider or procedural fallback.
@@ -668,7 +733,8 @@ export async function executeActionTurn(params: {
       // a stylistic flavor on top, so the AI always has the campaign
       // context regardless of whether the user wrote a custom system
       // prompt or not.
-      const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
+      const localCtx = activeLocalContext();
+      const fullPrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
 When you introduce a new character, give them a name that fits the setting and is not one of these overused names: ${OVERUSED_NAMES.join(', ')}.
 
 ${narrativeCorpus}
@@ -734,6 +800,8 @@ At the end, provide 3 suggested actions formatted as:
 [1] Action 1
 [2] Action 2
 [3] Action 3`;
+      // A local model gets a short prompt that fits its context (playtest D2, D3).
+      const basePrompt = localCtx ? localGmPrompt(category, narrativeCorpus, storyOutline, params.rulesMode ?? 'narrative') : fullPrompt;
 
       const promptInstruction = systemInstruction
         ? `${basePrompt}\n\nGM STYLE / VOICE OVERLAY (from user settings):\n${systemInstruction}`
@@ -742,12 +810,13 @@ At the end, provide 3 suggested actions formatted as:
       const stateSheet = isReferee ? '' : [currentStateBlock(characterState, params.world, storyOutline), rulesLine(params.rulesMode ?? 'narrative')].filter(Boolean).join('\n');
       const userMessage = `${stateSheet ? `${stateSheet}\n\n` : ''}${/Recent Story Log:/.test(contents) || isReferee ? contents : `Recent Story Log:\n${contents}`}
 
-${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}`;
+${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}${localCtx && !isReferee ? `\n\n${LOCAL_TURN_REMINDER}` : ''}`;
 
       let text = await executeUniversalPrompt({
         systemPrompt: promptInstruction,
         userPrompt: userMessage,
-        temperature: 0.9,
+        temperature: localCtx ? 0.8 : 0.9,
+        ...(localCtx ? { maxTokens: LOCAL_DND_REPLY_TOKENS } : {}),
         feature: 'Story turn'
       });
       const truncated = !!getLastCallMeta()?.truncated;
@@ -887,10 +956,9 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
     "majorConflicts": ["Primary external conflict", "Secondary interpersonal conflict"],
     "secretsAndReveals": ["Hidden truth 1", "Major twist 2 to be discovered later"],
     "chapters": [
-      "Chapter 1: The opening crisis, investigation & initial choices",
-      "Chapter 2: Rising complications, early confrontations",
-      "Chapter 3: Deepening mystery and shocking discoveries",
-      "Chapter 4: The climax, major revelation, and resolution"
+      "Chapter 1: <this story's opening chapter, naming its people and places>",
+      "Chapter 2: <what this story's second chapter is about>",
+      "Chapter 3: <and so on, 3 to 5 chapters; the last one resolves the story>"
     ],
     "potentialEndings": ["Triumphant vindication", "Bittersweet compromise", "Tragic sacrifice"]
   },
@@ -913,6 +981,7 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
         { userPrompt: prompt, temperature: 0.9 },
         (v) => !!(v && v.title && v.storyBlurb)
       );
+      if (scenario.storyOutline) scenario.storyOutline.chapters = cleanChapters(scenario.storyOutline.chapters);
       rememberRoll(category, 'title', scenario.title);
       rememberRoll(category, 'premise', scenario.storyBlurb);
       if (!characterName) rememberRoll(category, 'heroName', scenario.heroName);

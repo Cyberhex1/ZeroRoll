@@ -282,7 +282,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                         </span>
                       </div>
                       <div className="text-[10px] text-slate-500">
-                        Formula: {log.diceRoll.formula} • Rolls: [{log.diceRoll.rolls.join(', ')}] {log.diceRoll.modifier ? `+ ${log.diceRoll.modifier}` : ''}
+                        Formula: {log.diceRoll.formula} • Rolls: [{log.diceRoll.rolls.join(', ')}] {log.diceRoll.modifier ? `${log.diceRoll.modifier > 0 ? '+' : '-'} ${Math.abs(log.diceRoll.modifier)}` : ''}
                       </div>
                     </div>
                   )}
@@ -433,6 +433,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
 export function playerText(text: string): string {
   if (!text.startsWith('🎲')) return text;
   return text
+    .replace(/ It is for what I was just doing: ".*?"\.(?= Narrate)/s, '')
     .replace(/\n*\s*(Narrate (?:the outcome|what this roll means|what happens)[^\n]*)$/i, '')
     .replace(/\*\*(.+?)\*\*/g, '$1')
     .replace(/^🎲 \[CHECK RESULT: ([^\]]+)\]/, '🎲 $1 check:')

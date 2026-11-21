@@ -52,7 +52,7 @@ const SHEET_SCHEMA = {
         required: ['name', 'type']
       }
     },
-    spells: LIST('0 to 4 spells or signature abilities')
+    spells: LIST('0 to 4 spells; empty unless the class really casts spells')
   },
   required: ['abilityScores', 'skills', 'gear', 'spells']
 };
@@ -101,7 +101,7 @@ const SHEET_RULES = `HERO SHEET (D&D 5e, level 1). It must make sense for this h
 - abilityScores: 5e point buy. Every score from 8 to 15, total cost at most ${POINT_BUY_BUDGET} (8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9). Put the high scores where this hero's life and this story need them.
 - skills: exactly 4, chosen from: ${SKILL_LIST}. Pick the ones this hero would really have learned.
 - gear: 4 to 7 things this hero carries when the story starts, named for this story (type is weapon, armor, potion, scroll, relic or misc). No generic filler like "Adventurer Tool".
-- spells: 0 to 4 spells or signature abilities, only if this hero's class would have them, in the genre's own flavour (a hacker's exploit, a priestess's blessing). An empty list is fine.`;
+- spells: only for a hero whose class really casts spells or wields supernatural power in this setting (a wizard, a priestess, a witch): 1 to 4, in the genre's own flavour. Everyone else (fighters, thieves, scouts, soldiers, nurses, detectives, nobles, ordinary people) gets an empty list. Don't invent powers or "abilities" to fill it.`;
 
 const SHEET_EXAMPLE = `"sheet": {
     "abilityScores": { "str": 8, "dex": 15, "con": 13, "int": 12, "wis": 14, "cha": 10 },

@@ -167,6 +167,22 @@ export function rulesLine(mode: RulesMode): string {
     : 'RULES: Narrative dice. Checks are a d20 plus the ability modifier against a DC. Track only HP and conditions; do not mention XP, levels, proficiency or armour class.';
 }
 
+/** Roles that cast spells or wield real supernatural power. Checked before NON_CASTER. */
+const CASTER = /wizard|mage|magus|sorcer|cleric|priest|druid|shaman|warlock|witch|bard|skald|paladin|oracle|necromanc|psychic|psion|mystic|eldritch|bladesing|spellsword|enchant|conjur|summoner|medium|exorcist|occult|seer/;
+/**
+ * Roles that would not normally have spells: fighters, thieves, scouts and ordinary jobs
+ * (ohnna, 2026-11-21). They start with none, and the setup menu doesn't offer to add any.
+ */
+const NON_CASTER = /fighter|warrior|knight|soldier|swords|guard|sentinel|barbarian|berserk|rogue|thief|assassin|infiltrat|spy|smuggler|mercenar|gladiator|hoplite|veteran|scout|ranger|hunter|swashbuck|pirate|sailor|captain|marine|sniper|duelist|samurai|ninja|boxer|brawler|nurse|surgeon|doctor|medic|technician|engineer|mechanic|driver|courier|porter|hacker|detective|investigat|reporter|journalist|auditor|appraiser|curator|accountant|lawyer|barrister|founder|ceo|chairman|heir|noble|benefactor|matriarch|patriarch|bride|architect|strategist|envoy|diplomat|organizer|coordinator|applicant|commuter|attendant|merchant|trader|broker|quartermaster|carpenter|smith|survivor|scavenger|salvager|tinker/;
+
+/** true: casts spells; false: would not normally have any; undefined: depends on the setting. */
+export function castsSpells(roleClass: string): boolean | undefined {
+  const r = roleClass.toLowerCase();
+  if (CASTER.test(r)) return true;
+  if (NON_CASTER.test(r)) return false;
+  return undefined;
+}
+
 /** Stats, HP and spells that suit a role, for heroes made at setup (PS8, PS9). */
 export function roleTemplate(roleClass: string, conScore?: number): { stats: StatBlock; maxHp: number; spells: string[]; armorClass: number } {
   const r = roleClass.toLowerCase();

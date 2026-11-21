@@ -4,7 +4,7 @@
  * Fixed parts (the player's own story, a hand-written opener) always win over the reply.
  */
 import type { DMStoryOutline, ExperienceCategory, InventoryItem, StoryOutlineNPC } from '../types';
-import { SKILLS, abilityPriorities, defaultProficiencies, roleTemplate } from '../dnd/rules';
+import { SKILLS, abilityPriorities, castsSpells, defaultProficiencies, roleTemplate } from '../dnd/rules';
 import { cleanChapters, guessType } from '../dnd/applyTurn';
 import { campaignTitle } from '../lib/titles';
 import { uid } from '../lib/ids';
@@ -94,8 +94,12 @@ export function normalizeGear(v: unknown): InventoryItem[] {
   return out;
 }
 
-/** Up to MAX_SPELLS spells; a spellcasting role with none gets its usual ones. */
+/**
+ * Up to MAX_SPELLS spells; a spellcasting role with none gets its usual ones. A role that would
+ * not normally cast spells (a fighter, a thief, a nurse) gets none, whatever the reply says.
+ */
 export function normalizeSpells(v: unknown, roleClass: string): string[] {
+  if (castsSpells(roleClass) === false) return [];
   const spells = strList(v, FIELD_LIMITS.spell, MAX_SPELLS);
   return spells.length ? spells : roleTemplate(roleClass).spells.slice(0, MAX_SPELLS);
 }

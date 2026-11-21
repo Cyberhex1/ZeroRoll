@@ -8,7 +8,7 @@ import type { Opener } from '../content/types';
 import { gearToInventory, getContent, pickInspiration } from '../content';
 import { heroNameFor } from '../content/procedural';
 import { nameFitsPronouns } from '../content/names';
-import { RulesMode, abilityMod, combatStats, defaultProficiencies, roleTemplate } from '../dnd/rules';
+import { RulesMode, abilityMod, castsSpells, combatStats, defaultProficiencies, roleTemplate } from '../dnd/rules';
 import { splitStartingGold } from '../dnd/applyTurn';
 import { uid } from '../lib/ids';
 import { FIELD_LIMITS, normalizeSkills } from './normalize';
@@ -67,7 +67,7 @@ export function draftFromOpener(
 ): SetupDraft {
   const sheet: HeroSheetDraft = {
     ...sheetForRole(opener.hero.role, gearToInventory(opener.gear)),
-    ...(opener.spells.length ? { spells: opener.spells.slice(0, 4) } : {})
+    ...(opener.spells.length && castsSpells(opener.hero.role) !== false ? { spells: opener.spells.slice(0, 4) } : {})
   };
   return {
     category,
@@ -262,7 +262,8 @@ export function toCharacterSheet(draft: SetupDraft, opts: { pronouns: string; ru
     initiativeBonus: abilityMod(stats.dex),
     stats,
     inventory: kit.inventory,
-    spells: draft.sheet.spells,
+    // A class the player typed that doesn't cast spells starts without them.
+    spells: castsSpells(roleClass) === false ? [] : draft.sheet.spells,
     proficiencies: draft.sheet.skills,
     ...(opts.rulesMode === 'full5e' ? { xp: 0, gold: kit.gold || 10 } : kit.gold ? { gold: kit.gold } : {}),
     statusEffects: ['Well-Rested'],

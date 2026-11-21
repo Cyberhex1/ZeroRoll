@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { StatBlock } from '../../types';
 import { getContent } from '../../content';
 import { nameFitsPronouns } from '../../content/names';
-import { SKILLS } from '../../dnd/rules';
+import { SKILLS, castsSpells } from '../../dnd/rules';
 import {
   POINT_BUY_BUDGET, STANDARD_ARRAY, canRaise, fitPointBuy, isLegalPointBuy, lower, pointsLeft, pointsSpent, raise, roleSpread
 } from '../pointBuy';
@@ -107,7 +107,19 @@ describe('normalizing the story reply', () => {
     expect(normalizeSkills('nope', 'Wizard')).toHaveLength(SKILL_PICKS);
     expect(normalizeGear(Array.from({ length: 20 }, (_, i) => `Thing ${i}`))).toHaveLength(MAX_GEAR);
     expect(normalizeGear([{ name: 'Healing Potion', type: 'bogus' }])[0].type).toBe('potion');
-    expect(normalizeSpells(['A', 'B', 'C', 'D', 'E'], 'Fighter')).toHaveLength(4);
+    expect(normalizeSpells(['A', 'B', 'C', 'D', 'E'], 'Wizard')).toHaveLength(4);
+  });
+
+  it('classes that would not normally cast spells get none', () => {
+    expect(normalizeSpells(['Magic Missile'], 'Swashbuckler Rogue')).toEqual([]);
+    expect(normalizeSpells(['Detect Evil'], 'Night Shift Nurse')).toEqual([]);
+    expect(normalizeSpells([], 'Fighter')).toEqual([]);
+    expect(normalizeSpells([], 'Wizard')).toContain('Magic Missile');
+    expect(normalizeSpells(['Wind Song'], 'Cloud Shepherd')).toEqual(['Wind Song']);
+    expect(castsSpells('Eldritch Bladesinger')).toBe(true);
+    expect(castsSpells('Dragon Knight')).toBe(false);
+    const rogue = fantasy.openers.find((o) => castsSpells(o.hero.role) === false && o.spells.length);
+    if (rogue) expect(draftFromOpener('fantasy', rogue, 'she/her', insp).sheet.spells).toEqual([]);
   });
 });
 
@@ -181,6 +193,7 @@ describe('setup draft rules', () => {
     const hero = toCharacterSheet(d, { pronouns: 'she/her', rulesMode: 'full5e', category });
     expect(hero.inventory.map((g) => g.name)).toEqual(['Rusted Shiv', 'Lockpicks']);
     expect(hero.proficiencies).toEqual(d.sheet.skills);
+    expect(toCharacterSheet({ ...d, sheet: { ...d.sheet, spells: ['Shield'] } }, { pronouns: 'she/her', rulesMode: 'full5e', category }).spells).toEqual([]);
     expect(hero.avatarUrl).toBeUndefined();
     expect(hero.maxHp).toBeGreaterThanOrEqual(6);
     const bare = toCharacterSheet({ ...d, sheet: { ...d.sheet, gear: [{ ...d.sheet.gear[0], name: '  ' }] } }, { pronouns: 'she/her', rulesMode: 'narrative', category });

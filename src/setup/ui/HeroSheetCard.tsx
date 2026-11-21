@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Minus, Plus, ScrollText, X } from 'lucide-react';
-import { ABILITIES, RULES_MODES, RulesMode, SKILLS, abilityMod, combatStats, fmtMod } from '../../dnd/rules';
+import { ABILITIES, RULES_MODES, RulesMode, SKILLS, abilityMod, castsSpells, combatStats, fmtMod } from '../../dnd/rules';
 import { guessType } from '../../dnd/applyTurn';
 import { uid } from '../../lib/ids';
 import { POINT_BUY_BUDGET, canLower, canRaise, lower, pointsLeft, raise } from '../pointBuy';
@@ -30,6 +30,8 @@ export function HeroSheetCard({ draft, rulesMode, onRulesMode, onChange, onReset
   const full5e = rulesMode === 'full5e';
   const left = pointsLeft(sheet.stats);
   const edit = editing && !locked;
+  // A class that would not normally cast spells starts without them (the campaign drops any).
+  const noSpells = castsSpells(draft.hero.roleClass) === false;
 
   const toggleSkill = (skill: string) => {
     const has = sheet.skills.includes(skill);
@@ -190,8 +192,10 @@ export function HeroSheetCard({ draft, rulesMode, onRulesMode, onChange, onReset
       </div>
 
       <div className="space-y-1">
-        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold">Spells and abilities {edit && <span className="normal-case tracking-normal font-normal">(up to {MAX_SPELLS})</span>}</div>
-        {edit ? (
+        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold">Spells {edit && !noSpells && <span className="normal-case tracking-normal font-normal">(up to {MAX_SPELLS})</span>}</div>
+        {noSpells ? (
+          <p className="text-[10px] text-slate-500">None. A {draft.hero.roleClass.trim()} doesn't cast spells.</p>
+        ) : edit ? (
           <div className="flex flex-wrap items-center gap-1.5">
             {sheet.spells.map((sp) => (
               <span key={sp} className="pl-2 pr-1 py-0.5 rounded bg-blue-950/60 border border-blue-800/40 text-[10px] font-mono text-blue-300 flex items-center gap-1">

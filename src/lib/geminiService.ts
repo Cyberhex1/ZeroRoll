@@ -1,4 +1,5 @@
 import firebaseConfig from '../../firebase-applet-config.json';
+import { shapeById } from '../setup/storyShape';
 import { uid } from './ids';
 import { PortraitsOffError, base64ToBlob, freePortraitsAllowed, storePortraitBlob, storePortraitFromUrl } from './portraits';
 import { currentStateBlock } from '../dnd/memory';
@@ -635,6 +636,10 @@ export function formatOutlineForPrompt(outline: Partial<DMStoryOutline> | undefi
     add('Hidden Secrets / Reveals', list(outline.secretsAndReveals).join('; '));
   }
   add('Chapter Progression', list(outline.chapters).join(' | '));
+  // Where the player joined the arc, so every turn builds to the turning point instead of skipping it.
+  const shape = shapeById(outline.storyShape);
+  add('Story Shape', shape ? `${shape.label}. ${shape.pacing}` : '');
+  add('Turning Point', text(outline.turningPoint));
   return lines.join('\n');
 }
 

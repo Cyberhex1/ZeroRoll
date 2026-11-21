@@ -13,6 +13,7 @@ import { isFreshName, nameFitsPronouns } from '../content/names';
 import { getCategoryFallbackActions } from '../content';
 import { fitPointBuy } from './pointBuy';
 import type { HeroSheetDraft, StoryPackage } from './types';
+import { StoryShapeId, shapeById } from './storyShape';
 
 /** Input limits on the setup screen (PS10). The premise is re-sent with every turn, so it is capped. */
 export const FIELD_LIMITS = {
@@ -114,7 +115,7 @@ export function normalizeSheet(v: unknown, roleClass: string): HeroSheetDraft {
   };
 }
 
-export function normalizeOutline(v: unknown, premise: string): DMStoryOutline {
+export function normalizeOutline(v: unknown, premise: string, shape?: StoryShapeId): DMStoryOutline {
   const o = (v && typeof v === 'object' ? v : {}) as Record<string, unknown>;
   const npcs: StoryOutlineNPC[] = Array.isArray(o.keyNpcs)
     ? o.keyNpcs
@@ -137,7 +138,9 @@ export function normalizeOutline(v: unknown, premise: string): DMStoryOutline {
     majorConflicts: strList(o.majorConflicts, 300, 4),
     secretsAndReveals: strList(o.secretsAndReveals, 300, 4),
     chapters: cleanChapters(Array.isArray(o.chapters) ? o.chapters.map((c) => str(c, 300)) : []),
-    potentialEndings: strList(o.potentialEndings, 300, 4)
+    potentialEndings: strList(o.potentialEndings, 300, 4),
+    ...((shape ?? shapeById(o.storyShape)?.id) ? { storyShape: shape ?? shapeById(o.storyShape)!.id } : {}),
+    ...(str(o.turningPoint, 300) ? { turningPoint: str(o.turningPoint, 300) } : {})
   };
 }
 
@@ -153,7 +156,7 @@ export interface FixedParts {
 /**
  * The checked story package from a raw JSON reply. Throws when the reply has no usable story.
  */
-export function normalizeStoryReply(raw: unknown, ctx: { category: ExperienceCategory; pronouns: string; fixed?: FixedParts }): StoryPackage {
+export function normalizeStoryReply(raw: unknown, ctx: { category: ExperienceCategory; pronouns: string; fixed?: FixedParts; shape?: StoryShapeId }): StoryPackage {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const fixed = ctx.fixed ?? {};
   const heroRaw = (r.hero && typeof r.hero === 'object' ? r.hero : r) as Record<string, unknown>;
@@ -173,7 +176,7 @@ export function normalizeStoryReply(raw: unknown, ctx: { category: ExperienceCat
   return {
     title,
     premise,
-    outline: normalizeOutline(r.outline ?? r.storyOutline, premise),
+    outline: normalizeOutline(r.outline ?? r.storyOutline, premise, ctx.shape),
     actions: filled,
     hero: { name, roleClass, origin, appearance },
     sheet: normalizeSheet(r.sheet ?? r, roleClass)

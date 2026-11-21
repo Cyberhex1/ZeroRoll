@@ -21,6 +21,7 @@ import { AI_PROVIDERS } from '../lib/providersConfig';
 import { parseRetryDelayMs } from '../ai/transport';
 import { FixedParts, cleanTitle, fixName, normalizeSheet, normalizeStoryReply } from './normalize';
 import { POINT_BUY_BUDGET } from './pointBuy';
+import { RULE_NEVER_CLIMAX, STORY_SHAPES, StoryShape } from './storyShape';
 import type { HeroDraft, HeroSheetDraft, StoryPackage } from './types';
 
 /* --------------------------------- schemas --------------------------------- */
@@ -82,9 +83,11 @@ export const STORY_SCHEMA = {
         majorConflicts: LIST(),
         secretsAndReveals: LIST(),
         chapters: LIST('3 to 5 chapters; the last resolves the story'),
-        potentialEndings: LIST()
+        potentialEndings: LIST(),
+        storyShape: { type: 'STRING', enum: STORY_SHAPES.map((x) => x.id), description: 'Where the player joins the arc' },
+        turningPoint: S('The defining event the story builds to, and the chapter where it lands')
       },
-      required: ['startingCircumstances', 'incitingIncident', 'immediateGoal', 'keyNpcs', 'chapters']
+      required: ['startingCircumstances', 'incitingIncident', 'immediateGoal', 'keyNpcs', 'chapters', 'storyShape', 'turningPoint']
     },
     openingActions: LIST('Three short first moves'),
     hero: HERO_SCHEMA,
@@ -123,12 +126,14 @@ export interface StoryRollInput {
   mode: 'fresh' | 'adapt' | 'opener';
   /** fresh only: the story seed the player picked. */
   seed?: string;
+  /** fresh only: where the player joins the story (storyShape.pickShape). */
+  shape?: StoryShape;
   fixed?: FixedParts;
   signal?: AbortSignal;
 }
 
 export function buildStoryPrompt(input: StoryRollInput): string {
-  const { category, pronouns, inspiration, mode, seed, fixed = {} } = input;
+  const { category, pronouns, inspiration, mode, seed, shape, fixed = {} } = input;
   const profile = getCategoryProfile(category);
   const heroLines = [
     `- Pronouns: ${pronouns}. ${fixed.name ? '' : `Give the hero a first and last name that suits these pronouns and the setting.`}`,
@@ -160,6 +165,16 @@ Keep the seed's situation and its central conflict, and build an original story 
   : 'No seed was picked: invent a striking premise that shows what this genre profile does best.'}`;
   }
 
+  const shapeBlock =
+    mode === 'fresh' && shape
+      ? `WHERE THE PLAYER JOINS THE STORY (storyShape "${shape.id}")
+${shape.brief}
+${seed ? "If this shape starts before the seed's situation, the seed's situation is the turning point the story builds to.\n" : ''}${RULE_NEVER_CLIMAX}`
+      : `WHERE THE PLAYER JOINS THE STORY
+${mode === 'fresh' ? '' : 'Keep the premise as given, and pick the storyShape that fits where it starts. '}${RULE_NEVER_CLIMAX}
+Shapes:
+${STORY_SHAPES.map((x) => `- ${x.id}: ${x.brief}`).join('\n')}`;
+
   const freshness = mode === 'fresh' ? freshnessLines(category, ['title', 'premise', ...(fixed.name ? [] : (['heroName'] as const))]) : fixed.name ? [] : freshnessLines(category, ['heroName']);
 
   return `You are a master tabletop RPG game master and author, setting up a new campaign.
@@ -169,9 +184,11 @@ ${fullProfileBlock(category, inspiration)}
 ASSIGNMENT
 ${assignment}
 
+${shapeBlock}
+
 STORY RULES
-- premise: a back-of-the-book pitch of 3 or 4 sentences, written to the player as "you" (never "he", "she" or the hero's name). Start at the real beginning: where the hero is, what just went wrong, and the choice in front of them. Resolve nothing.
-- outline: startingCircumstances, incitingIncident and immediateGoal in one or two sentences each; backstory in two or three; 2 to 4 keyNpcs, each with a secret; 2 majorConflicts; 2 secretsAndReveals for later; 3 to 5 chapters naming this story's people and places (the last resolves the story); 3 potentialEndings.
+- premise: a back-of-the-book pitch of 3 or 4 sentences, written to the player as "you" (never "he", "she" or the hero's name). Start where the player joins the story: where the hero is, what they have, and what is pulling at them. If the turning point is still ahead, foreshadow it; never tell it as already done. Resolve nothing.
+- outline: startingCircumstances, incitingIncident and immediateGoal in one or two sentences each, all at the moment the player joins; backstory in two or three (only what is true before the player joins); 2 to 4 keyNpcs, each with a secret; 2 majorConflicts; 2 secretsAndReveals for later; 3 to 5 chapters naming this story's people and places, paced to the story's shape (the last resolves the story); 3 potentialEndings; storyShape; turningPoint (the defining event, and the chapter where it lands, e.g. "Chapter 2: your brother signs the estate over to the Varrows").
 - openingActions: three short first moves for the first scene, each a different approach.
 - title: evocative, no chapter number.
 
@@ -184,7 +201,7 @@ Reply with JSON only, in this shape:
 {
   "title": "…",
   "premise": "…",
-  "outline": { "startingCircumstances": "…", "backstory": "…", "incitingIncident": "…", "immediateGoal": "…", "keyNpcs": [{ "name": "…", "role": "…", "motivation": "…", "secret": "…" }], "majorConflicts": ["…"], "secretsAndReveals": ["…"], "chapters": ["…"], "potentialEndings": ["…"] },
+  "outline": { "startingCircumstances": "…", "backstory": "…", "incitingIncident": "…", "immediateGoal": "…", "keyNpcs": [{ "name": "…", "role": "…", "motivation": "…", "secret": "…" }], "majorConflicts": ["…"], "secretsAndReveals": ["…"], "chapters": ["…"], "potentialEndings": ["…"], "storyShape": "${shape?.id ?? '…'}", "turningPoint": "…" },
   "openingActions": ["…", "…", "…"],
   "hero": { "name": "…", "roleClass": "…", "origin": "…", "appearance": "…" },
   ${SHEET_EXAMPLE}
@@ -227,7 +244,7 @@ export async function rollStory(input: StoryRollInput): Promise<StoryPackage> {
       },
       (v) => !!v && typeof v === 'object' && !!(fixed.premise || (typeof v.premise === 'string' && v.premise.trim())) && !!(fixed.title || (typeof v.title === 'string' && v.title.trim())) && typeof v.hero === 'object'
     );
-    const pkg = normalizeStoryReply(raw, { category: input.category, pronouns: input.pronouns, fixed });
+    const pkg = normalizeStoryReply(raw, { category: input.category, pronouns: input.pronouns, fixed, shape: input.mode === 'fresh' ? input.shape?.id : undefined });
     if (input.mode === 'fresh') {
       rememberRoll(input.category, 'title', pkg.title);
       rememberRoll(input.category, 'premise', pkg.premise);

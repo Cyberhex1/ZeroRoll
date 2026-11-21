@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { BookOpen, Pencil, RefreshCw } from 'lucide-react';
 import { InfoTip } from './InfoTip';
 import { FIELD_LIMITS } from '../normalize';
+import { shapeById } from '../storyShape';
 import type { SetupDraft } from '../types';
 
 const SOURCE_LABEL = (d: SetupDraft): string =>
@@ -51,6 +52,7 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
   const o = draft.outline;
   const start = o?.startingCircumstances && o.startingCircumstances.trim() !== draft.premise.trim() ? o.startingCircumstances : '';
   const goal = o?.immediateGoal || '';
+  const joinAt = shapeById(o?.storyShape)?.label;
   const steering = [
     ...draft.inspiration.tropes.filter((t) => t !== draft.seed).map((t) => ({ kind: 'Seed', text: t })),
     ...draft.inspiration.media.map((m) => ({ kind: 'Tone', text: m }))
@@ -135,8 +137,14 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
             </button>
           </div>
           <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-line">{draft.premise}</p>
-          {(start || goal) && (
+          {(start || goal || joinAt) && (
             <dl className="grid gap-1.5 text-[11px]">
+              {joinAt && (
+                <div>
+                  <dt className="inline text-slate-500 font-semibold">Where you join: </dt>
+                  <dd className="inline text-slate-300">{joinAt}</dd>
+                </div>
+              )}
               {start && (
                 <div>
                   <dt className="inline text-slate-500 font-semibold">Where you start: </dt>

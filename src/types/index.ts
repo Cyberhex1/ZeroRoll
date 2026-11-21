@@ -219,6 +219,10 @@ export interface DMStoryOutline {
   secretsAndReveals: string[];
   chapters: string[];
   potentialEndings: string[];
+  /** Where the player joins the arc (src/setup/storyShape.ts). Older campaigns have none. */
+  storyShape?: string;
+  /** The defining event the story builds to, and the chapter where it lands. */
+  turningPoint?: string;
 }
 
 export interface TropeCategory {

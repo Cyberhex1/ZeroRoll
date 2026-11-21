@@ -12,6 +12,8 @@ import {
   keepAsIs, offlinePart, resetSheet, sheetForRole, toCharacterSheet, typeHeroField, typedAmong, REPLACES, validateDraft
 } from '../draft';
 import { buildStoryPrompt } from '../storyRoll';
+import { STORY_SHAPES, pickShape, shapeById } from '../storyShape';
+import { formatOutlineForPrompt } from '../../lib/geminiService';
 import type { SetupDraft, StoryPackage } from '../types';
 
 const fantasy = getContent('fantasy');
@@ -233,5 +235,40 @@ describe('story prompt', () => {
     const p = buildStoryPrompt({ ...base, mode: 'opener', fixed: { title: opener.title, premise: opener.premise, actions: opener.actions } });
     expect(p).toContain('HAND-WRITTEN OPENER');
     expect(p).toContain(opener.premise);
+  });
+});
+
+describe('where the player joins the story', () => {
+  const base = { category: 'fantasy' as const, pronouns: 'she/her', rulesMode: 'narrative' as const, inspiration: insp };
+
+  it('picks every shape over many rolls, and a reroll never repeats the last one', () => {
+    const seen = new Set<string>();
+    for (let i = 0; i < 200; i++) seen.add(pickShape(undefined, () => i / 200).id);
+    expect(seen.size).toBe(STORY_SHAPES.length);
+    for (const s of STORY_SHAPES) for (let i = 0; i < 20; i++) expect(pickShape(s.id, () => i / 20).id).not.toBe(s.id);
+  });
+
+  it('a fresh roll is told its shape and never to start at the climax', () => {
+    const shape = shapeById('before')!;
+    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape, seed: 'Your family estate burns' });
+    expect(p).toContain(shape.brief);
+    expect(p).toContain('Never drop the player at the climax');
+    expect(p).toContain("the seed's situation is the turning point");
+    expect(p).toContain('"storyShape": "before"');
+  });
+
+  it("the roll's shape wins over the reply's, and the turning point is kept", () => {
+    const pkg = normalizeStoryReply(reply({ outline: { storyShape: 'hidden_return', turningPoint: 'Chapter 2: the fire.' } }), { category: 'fantasy', pronouns: 'she/her', shape: 'before' });
+    expect(pkg.outline).toMatchObject({ storyShape: 'before', turningPoint: 'Chapter 2: the fire.' });
+    const adapted = normalizeStoryReply(reply({ outline: { storyShape: 'brewing' } }), { category: 'fantasy', pronouns: 'she/her' });
+    expect(adapted.outline.storyShape).toBe('brewing');
+    const junk = normalizeStoryReply(reply({ outline: { storyShape: 'climax' } }), { category: 'fantasy', pronouns: 'she/her' });
+    expect(junk.outline.storyShape).toBeUndefined();
+  });
+
+  it('the game master sees the shape and turning point on every turn', () => {
+    const out = formatOutlineForPrompt({ storyShape: 'long_road', turningPoint: 'Chapter 4: you learn it was your sister.' } as never, 'brief');
+    expect(out).toContain(shapeById('long_road')!.pacing);
+    expect(out).toContain('Turning Point: Chapter 4: you learn it was your sister.');
   });
 });

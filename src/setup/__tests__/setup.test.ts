@@ -11,7 +11,7 @@ import {
   applyClass, applyHeroPart, applyPackage, applyStoryEdit, choosePronouns, draftFromOpener, editSheet, inspirationWithSeed,
   keepAsIs, offlinePart, resetSheet, sheetForRole, toCharacterSheet, typeHeroField, typedAmong, REPLACES, validateDraft
 } from '../draft';
-import { buildStoryPrompt } from '../storyRoll';
+import { buildStoryPrompt, exampleOpeners } from '../storyRoll';
 import { STORY_SHAPES, pickShape, shapeById } from '../storyShape';
 import { formatOutlineForPrompt } from '../../lib/geminiService';
 import type { SetupDraft, StoryPackage } from '../types';
@@ -221,6 +221,11 @@ describe('story prompt', () => {
     expect(p).toContain('STORY SEED');
     expect(p).toContain('A cursed bell rings at noon');
     expect(p).toContain('Pronouns: she/her');
+    // The hero must be the person the premise describes (a clerk is not a rogue, a job is not an origin).
+    expect(p).toContain('HERO FIT');
+    expect(p).toContain('a bookkeeper is a bookkeeper, not a rogue');
+    expect(p).toContain('Never a job or rank');
+    expect(p).toContain('not a hidden blade');
   });
 
   it("an adapt roll keeps the player's words and the name", () => {
@@ -255,6 +260,8 @@ describe('where the player joins the story', () => {
     expect(p).toContain('Never drop the player at the climax');
     expect(p).toContain("the seed's situation is the turning point");
     expect(p).toContain('"storyShape": "before"');
+    expect(p).toContain('The premise must not spoil the story');
+    expect(p).toContain('with a question to the player');
   });
 
   it("the roll's shape wins over the reply's, and the turning point is kept", () => {
@@ -270,5 +277,46 @@ describe('where the player joins the story', () => {
     const out = formatOutlineForPrompt({ storyShape: 'long_road', turningPoint: 'Chapter 4: you learn it was your sister.' } as never, 'brief');
     expect(out).toContain(shapeById('long_road')!.pacing);
     expect(out).toContain('Turning Point: Chapter 4: you learn it was your sister.');
+  });
+});
+
+describe('hand-written openers', () => {
+  const base = { category: 'revenge' as const, pronouns: 'she/her', rulesMode: 'narrative' as const, inspiration: insp };
+  const all = (['fantasy', 'romantic', 'revenge', 'zombie', 'tiktok_drama'] as const).flatMap((c) => getContent(c).openers);
+
+  it('the rewritten openers start before the turning point, and say what it is', () => {
+    const shaped = all.filter((o) => o.shape);
+    expect(shaped.length).toBeGreaterThanOrEqual(21);
+    for (const o of shaped) {
+      expect(shapeById(o.shape)).toBeDefined();
+      expect(o.turningPoint).toMatch(/^(Chapter \d|Final chapter)/);
+    }
+    expect(getContent('revenge').openers.every((o) => o.shape)).toBe(true);
+  });
+
+  it('an opener puts its shape and turning point in the outline, and its build-out is told them', () => {
+    const o = getContent('revenge').openers.find((x) => x.id === 'seed_rev_02')!;
+    expect(draftFromOpener('revenge', o, 'she/her', insp).outline).toMatchObject({ storyShape: 'before', turningPoint: o.turningPoint });
+    const p = buildStoryPrompt({ ...base, mode: 'opener', shape: shapeById(o.shape), turningPoint: o.turningPoint, fixed: { title: o.title, premise: o.premise, actions: o.actions } });
+    expect(p).toContain('storyShape "before"');
+    expect(p).toContain(o.turningPoint!);
+    expect(p).not.toContain('EXAMPLE OPENERS');
+  });
+
+  it('a fresh roll is shown openers from its category as examples, never to copy', () => {
+    const shape = shapeById('brewing')!;
+    const ex = exampleOpeners('revenge', shape, 3, () => 0.5);
+    expect(ex).toHaveLength(3);
+    expect(ex.every((o) => o.shape === 'brewing')).toBe(true);
+    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape, examples: ex });
+    expect(p).toContain('EXAMPLE OPENERS');
+    expect(p).toContain('EXAMPLES ONLY. Never reuse their titles, names, places, plots or twists');
+    for (const o of ex) expect(p).toContain(o.premise);
+    expect(p.indexOf('EXAMPLE OPENERS')).toBeLessThan(p.indexOf('ASSIGNMENT'));
+    expect(buildStoryPrompt({ ...base, mode: 'adapt', fixed: { premise: 'You run a tavern on a dragon.' } })).not.toContain('EXAMPLE OPENERS');
+  });
+
+  it('categories without shaped openers still get three examples', () => {
+    expect(exampleOpeners('horror', shapeById('before'))).toHaveLength(3);
   });
 });

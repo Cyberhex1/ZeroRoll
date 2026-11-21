@@ -4,6 +4,7 @@
  */
 import type { CategoryContent } from './types';
 import { OPENERS_PER_CATEGORY } from './types';
+import { shapeById } from '../setup/storyShape';
 
 export interface ContentReport {
   errors: string[];
@@ -23,6 +24,7 @@ const LIMITS = {
   heroName: [2, 40],
   role: [3, 60],
   origin: [3, 60],
+  turningPoint: [20, 300],
   action: [8, 160],
 } as const;
 
@@ -103,8 +105,11 @@ export function validateContent(
       for (const a of o.actions || []) within(errors, where, 'action', a);
       if (!o.gear?.length) errors.push(`${where}: no gear.`);
       if (!Number.isInteger(o.hp) || o.hp < 4 || o.hp > 40) errors.push(`${where}: hp ${o.hp} is outside 4 to 40.`);
+      if (o.shape !== undefined && !shapeById(o.shape)) errors.push(`${where}: unknown shape "${o.shape}".`);
+      if ((o.shape === undefined) !== (o.turningPoint === undefined)) errors.push(`${where}: shape and turningPoint go together.`);
+      if (o.turningPoint !== undefined) within(errors, where, 'turningPoint', o.turningPoint);
 
-      const text = [o.title, o.tagline, o.premise, o.hero?.role, o.hero?.origin, ...(o.actions || []), ...(o.gear || []).map((g) => g.name)].join(' \n ');
+      const text = [o.title, o.tagline, o.premise, o.turningPoint || '', o.hero?.role, o.hero?.origin, ...(o.actions || []), ...(o.gear || []).map((g) => g.name)].join(' \n ');
       if (PARSER_TOKENS.test(text)) errors.push(`${where}: contains text the turn parser treats as structure.`);
       for (const kw of c.profile?.avoidKeywords || []) {
         if (hasKeyword(text, kw)) errors.push(`${where}: off-profile for ${c.card?.name || cat} (mentions "${kw}").`);

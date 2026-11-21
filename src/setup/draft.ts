@@ -73,7 +73,11 @@ export function draftFromOpener(
     category,
     title: opener.title,
     premise: opener.premise,
-    outline: { startingCircumstances: opener.premise, immediateGoal: opener.actions[0] } as DMStoryOutline,
+    outline: {
+      startingCircumstances: opener.premise,
+      immediateGoal: opener.actions[0],
+      ...(opener.shape ? { storyShape: opener.shape, turningPoint: opener.turningPoint } : {})
+    } as DMStoryOutline,
     actions: [...opener.actions],
     inspiration: { ...inspiration, openerId: opener.id },
     storySource: 'opener',

@@ -163,257 +163,333 @@ export const revenge = {
     {
       "id": "seed_rev_01",
       "title": "The Poisoned Cup",
-      "tagline": "Your mentor was poisoned at the council dinner — you have the antidote vial.",
-      "premise": "At the high council banquet, your revered master collapsed clutching his throat from nightshade poison. In the ensuing panic, you spotted the city magistrate slipping an empty glass vial into his velvet sleeve. You slip out into the rainy courtyard to intercept him.",
+      "tagline": "Someone at the council banquet means your master harm, and you are his only guard.",
+      "premise": "You have served Master Corvin since you were a street orphan, and tonight he finally takes his seat on the high council. He laughs off the anonymous warning slipped under his door, but you saw the city magistrate watching him across the market all week. The banquet starts at the eighth bell, and you will be standing behind his chair.",
       "hero": {
         "name": "Cassian Graves",
         "role": "Shadow Avenger",
-        "origin": "Exiled Blade"
+        "origin": "Street-raised human"
       },
       "actions": [
-        "Corner the magistrate near the carriage mews with your dagger drawn.",
-        "Search the banquet pantry for the remaining poison bottle to secure hard evidence.",
-        "Administer your universal charcoal antidote to your mentor before time runs out."
+        "Show the anonymous warning to the banquet's head steward.",
+        "Check the wine casks in the cellar before service.",
+        "Shadow the magistrate as he arrives at the council hall."
       ],
       "gear": [
         {
-          "name": "Daggers",
+          "name": "Paired Daggers",
           "type": "weapon",
           "isEquipped": true
         },
         {
-          "name": "List",
-          "type": "relic"
+          "name": "Anonymous Warning Note",
+          "type": "scroll"
+        },
+        {
+          "name": "Charcoal Antidote Pouch",
+          "type": "potion"
+        },
+        {
+          "name": "Dark Servant's Livery",
+          "type": "armor",
+          "isEquipped": true
         }
       ],
-      "spells": [
-        "Hunter's Mark"
-      ],
+      "spells": [],
+      "shape": "before",
+      "turningPoint": "Chapter 1: Master Corvin collapses from nightshade at the banquet, and you see the magistrate hide an empty vial in his sleeve.",
       "hp": 12
     },
     {
       "id": "seed_rev_02",
       "title": "The Syndicate Ledger",
-      "tagline": "Seven corrupt barons signed the order for your execution. You have the book.",
-      "premise": "Five years in the salt mines gave you time to plan. You have broken into the syndicate's iron vault and retrieved the blood-stained ledger listing the seven city officials who framed you and slaughtered your guild. The first name on the list is dining at the Black Boar Tavern tonight.",
+      "tagline": "One job big enough to retire on, and one ledger nobody will explain.",
+      "premise": "Your thieves' guild runs the docks of Saltmere on one rule: never rob the city council. Tonight the guildmaster takes a job anyway, a quiet burglary of a syndicate vault that pays enough to retire on. You have the blueprints and the crew's trust, and nobody has explained why the client wants only one blood-red ledger from inside.",
       "hero": {
         "name": "Rowan Blackwood",
         "role": "Vengeful Rogue",
-        "origin": "Mine Survivor"
+        "origin": "Saltmere dockside human"
       },
       "actions": [
-        "Take a shadowy booth in the Black Boar Tavern to observe the target's bodyguard rotation.",
-        "Bribe the tavern scullery boy to slip truth-serum into the baron's spiced wine.",
-        "Climb to the tavern rafters to prepare a silent assassination strike from above."
+        "Ask the guildmaster who the client really is.",
+        "Scout the syndicate vault's guard rotation from the rooftops.",
+        "Read the job contract for the clause about the ledger."
       ],
       "gear": [
         {
-          "name": "Grapple",
-          "type": "misc",
+          "name": "Short Blade",
+          "type": "weapon",
           "isEquipped": true
         },
         {
-          "name": "Blade",
-          "type": "weapon"
+          "name": "Grappling Line",
+          "type": "misc"
+        },
+        {
+          "name": "Vault Blueprints",
+          "type": "scroll"
+        },
+        {
+          "name": "Set of Lockpicks",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Pass Without Trace"
-      ],
+      "spells": [],
+      "shape": "before",
+      "turningPoint": "Chapter 2: the job is a trap. The seven officials in the ledger frame you, slaughter your guild and send you to the salt mines.",
       "hp": 11
     },
     {
       "id": "seed_rev_03",
       "title": "The Burned Homestead",
-      "tagline": "The mercenary captain who burned your village just rode into the garrison.",
-      "premise": "You survived the raid by hiding inside the stone grain silo. Ten years later, after mastering the broadsword in the northern legion, you recognize the skull-engraved armor of the warlord riding through the border garrison gate with an imperial convoy.",
+      "tagline": "Riders in skull-engraved armor are asking about your family's farm.",
+      "premise": "You are sixteen, and the harvest on your family's hill farm is the best in years. This week, riders in skull-engraved armor have been buying grain in the valley and asking which farms keep their own wells. Your father says they are only mercenaries passing through, but your older sister has started sleeping with the wood axe beside her bed.",
       "hero": {
         "name": "Theron Vane",
-        "role": "Garrison Swordsman",
-        "origin": "Ashen Survivor"
+        "role": "Farm-raised Swordsman",
+        "origin": "Hill-country human"
       },
       "actions": [
-        "Challenge the warlord to an honorable duel in the garrison practice ring.",
-        "Follow the convoy to discover which corrupt commander granted him imperial pardon.",
-        "Sabotage the convoy's saddle girths and weapon racks before nightfall."
+        "Follow the riders back to their camp and count them.",
+        "Ask your father why he sold them grain at half price.",
+        "Show your sister the hiding place inside the stone grain silo."
       ],
       "gear": [
         {
-          "name": "Lockpicks",
-          "type": "misc",
+          "name": "Wood Axe",
+          "type": "weapon",
           "isEquipped": true
+        },
+        {
+          "name": "Father's Old Broadsword",
+          "type": "weapon"
+        },
+        {
+          "name": "Flint and Lantern",
+          "type": "misc"
+        },
+        {
+          "name": "Harvest Ledger",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Thaumaturgy"
-      ],
+      "spells": [],
+      "shape": "before",
+      "turningPoint": "Chapter 1: the warlord's riders burn the homestead. You survive inside the stone grain silo, and the rest of the story is the long road back to him.",
       "hp": 10
     },
     {
       "id": "seed_rev_04",
       "title": "The False Oath",
-      "tagline": "Betrayed at the bridge and left for dead in the river.",
-      "premise": "Your battle-brother swore a sacred blood oath to protect your flank, then severed your horse's reins and pushed you off the stone bridge to claim the royal bounty for himself. You washed ashore downstream with cracked ribs, your bow still intact.",
+      "tagline": "Six years at your side, and a bounty big enough to buy a knighthood.",
+      "premise": "You and Brannoc have scouted the border together for six years, and you once swore a blood oath on a stone bridge to guard each other's flank. Now the crown has posted a bounty on the bandit lord you are both hunting, big enough to buy a knighthood. Brannoc has been quiet since he read the notice, and tomorrow your trail leads over the high bridge at Ashford.",
       "hero": {
         "name": "Kaelen Thorne",
         "role": "Guerilla Scout",
-        "origin": "River Born"
+        "origin": "Borderland human"
       },
       "actions": [
-        "Track his horse tracks along the muddy river road toward the royal outpost.",
-        "Set an archer's deadfall ambush in the narrow willow ravine ahead of him.",
-        "Seek refuge in the river hermit's hut to dress your wounds and fletch poisoned arrows."
+        "Ask Brannoc what he would do with the bounty money.",
+        "Scout another ford in case the bridge is watched.",
+        "Check your horse's tack yourself before you ride."
       ],
       "gear": [
         {
-          "name": "Daggers",
+          "name": "Yew Longbow",
           "type": "weapon",
           "isEquipped": true
         },
         {
-          "name": "List",
-          "type": "relic"
+          "name": "Quiver of Fletched Arrows",
+          "type": "weapon"
+        },
+        {
+          "name": "Scout's Leather Jerkin",
+          "type": "armor",
+          "isEquipped": true
+        },
+        {
+          "name": "Royal Bounty Notice",
+          "type": "scroll"
         }
       ],
-      "spells": [
-        "Hunter's Mark"
-      ],
+      "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: on the Ashford bridge Brannoc cuts your horse's reins and pushes you into the river to claim the bounty alone.",
       "hp": 12
     },
     {
       "id": "seed_rev_05",
-      "title": "The Frame-Up in Cell 4",
-      "tagline": "Framed for high treason by the grand inquisitor.",
-      "premise": "The grand inquisitor fabricated a letter in your handwriting to accuse you of plotting against the throne, taking your family estate as confiscation. As the dungeon guards change shift during a lightning storm, a sympathetic turnkey unlocks your iron shackles.",
+      "title": "The Inquisitor's Borrowed Letters",
+      "tagline": "The grand inquisitor has been studying your handwriting.",
+      "premise": "You are a knight of the royal household, trusted to carry the king's private letters. Lately the grand inquisitor has been borrowing your old correspondence for the archives, and your steward reports strangers measuring the boundaries of your family estate. The king's council meets tomorrow, and you have been asked to attend without your sword.",
       "hero": {
         "name": "Damian Cross",
-        "role": "Escaped Knight",
-        "origin": "Noble Inmate"
+        "role": "Household Knight",
+        "origin": "Highborn human of the capital"
       },
       "actions": [
-        "Knock out the drunken relief guard and seize his keyring and crossbow.",
-        "Infiltrate the inquisitor's scriptorium to recover the forged parchment letter.",
-        "Escape through the castle sewer flume into the fog-covered moat."
+        "Ask the archive clerk which of your letters the inquisitor took.",
+        "Send your steward to warn your family tonight.",
+        "Attend the council with a blade hidden in your boot."
       ],
       "gear": [
         {
-          "name": "Grapple",
-          "type": "misc",
+          "name": "Knight's Longsword",
+          "type": "weapon",
           "isEquipped": true
         },
         {
-          "name": "Blade",
-          "type": "weapon"
+          "name": "Chainmail Hauberk",
+          "type": "armor",
+          "isEquipped": true
+        },
+        {
+          "name": "Household Signet",
+          "type": "relic"
+        },
+        {
+          "name": "Bundle of Your Old Letters",
+          "type": "scroll"
         }
       ],
-      "spells": [
-        "Pass Without Trace"
-      ],
+      "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: the inquisitor produces a treason letter forged in your hand. You lose your estate and wake in Cell 4.",
       "hp": 11
     },
     {
       "id": "seed_rev_06",
-      "title": "The Iron Vault Heist",
-      "tagline": "Reclaiming the ancestral seal stolen by the merchant cartel.",
-      "premise": "The Goldcrest Cartel bankrupted your merchant house through counterfeit promissory notes and locked your family's ancestral signet seal inside their clockwork vault. Tonight, during their annual solstice masquerade, you infiltrate the counting house.",
+      "title": "The Cartel's Generous Offer",
+      "tagline": "The Goldcrest Cartel wants to lend to your family's merchant house.",
+      "premise": "Your merchant house has traded spice on the river for six generations, and its ancestral signet still seals every contract. This season the Goldcrest Cartel has offered to lend against your cargoes at half the usual rate, and your father is ready to sign. Their promissory notes look perfect, which is exactly what bothers you.",
       "hero": {
         "name": "Valerie Vance",
-        "role": "Master Infiltrator",
-        "origin": "Bankrupt Noble"
+        "role": "Merchant House Infiltrator",
+        "origin": "River-merchant family"
       },
       "actions": [
-        "Pick the twin lever locks on the counting house ventilation shaft.",
-        "Disguise yourself as a cartel wine steward to slip into the private vault corridor.",
-        "Place smoke canisters in the ballroom to trigger a controlled evacuation."
+        "Compare the cartel's notes with a genuine one under a lens.",
+        "Ask a rival house why it turned the cartel down.",
+        "Beg your father to delay the signing by one week."
       ],
       "gear": [
         {
-          "name": "Lockpicks",
-          "type": "misc",
+          "name": "Sleeve Dagger",
+          "type": "weapon",
           "isEquipped": true
+        },
+        {
+          "name": "Ancestral Signet Seal",
+          "type": "relic"
+        },
+        {
+          "name": "Jeweler's Lens",
+          "type": "misc"
+        },
+        {
+          "name": "Cartel Promissory Note",
+          "type": "scroll"
         }
       ],
-      "spells": [
-        "Thaumaturgy"
-      ],
+      "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: the cartel's counterfeit notes bankrupt your house, and the ancestral signet disappears into their clockwork vault.",
       "hp": 10
     },
     {
       "id": "seed_rev_07",
       "title": "The Stolen Credit",
-      "tagline": "The court alchemist stole your cure and let the prince name him savior.",
-      "premise": "You spent seven years in isolation distilling the panacea for the king's wasting plague. Your apprentice stole the crystal flask, presented it at court, and received a barony. You have arrived at the capital just as the king awards him the royal seal.",
+      "tagline": "Your cure for the king's plague is one night from finished, and your apprentice is too helpful.",
+      "premise": "Seven years of work in your mountain distillery come down to tonight: the panacea for the king's wasting plague finishes its last distillation at dawn. Your apprentice Fennick has been unusually eager to carry messages to the capital, and a royal courier is already waiting on the road. Only the two of you know the formula.",
       "hero": {
         "name": "Orlaith Mor",
         "role": "Apothecary Master",
         "origin": "Wildwood-born human"
       },
       "actions": [
-        "Step before the royal dais and state the exact missing reagent that will cause the fake panacea to spoil in three days.",
-        "Slip into the apprentice alchemist's laboratory to seize your original research journals.",
-        "Confront your former apprentice in the palace garden under moonlight."
+        "Copy your formula into a hidden second journal.",
+        "Ask Fennick what he has been telling the royal courier.",
+        "Seal the distillery door and keep the final watch yourself."
       ],
       "gear": [
         {
-          "name": "Daggers",
+          "name": "Pruning Knife",
           "type": "weapon",
           "isEquipped": true
         },
         {
-          "name": "List",
+          "name": "Crystal Distillation Flask",
           "type": "relic"
+        },
+        {
+          "name": "Research Journals",
+          "type": "scroll"
+        },
+        {
+          "name": "Herbal Remedy Satchel",
+          "type": "potion"
         }
       ],
-      "spells": [
-        "Hunter's Mark"
-      ],
+      "spells": [],
+      "shape": "before",
+      "turningPoint": "Chapter 1: Fennick steals the crystal flask and presents your cure at court as his own, and the king makes him a baron.",
       "hp": 12
     },
     {
       "id": "seed_rev_08",
       "title": "The Blood-Stained Banner",
-      "tagline": "The commander who gave the order to retreat into the slaughter.",
-      "premise": "At the Battle of Red Ridge, your captain blew the retreat horn prematurely, locking the fortress gates from the inside and trapping your entire vanguard outside the walls. You survived under the pile of fallen banners and have walked three weeks to reach the captain's victory banquet.",
+      "tagline": "Your captain has a new signal plan for tomorrow's battle, and nobody has seen it.",
+      "premise": "Dawn at Red Ridge: your vanguard leads the charge, and the fortress gates behind you are your only retreat. Captain Holt spent last night drinking with the enemy's envoy under a flag of truce, and the horn-bearer swears the captain changed the signal plan. You carry the vanguard's banner, and the drums have started.",
       "hero": {
         "name": "Garrick Stone",
         "role": "Vanguard Veteran",
-        "origin": "Frontier Warrior"
+        "origin": "Frontier-born human"
       },
       "actions": [
-        "Toss the blood-stained vanguard banner onto the center of the captain's feast table.",
-        "Call upon the surviving common soldiers in the garrison to witness his cowardice.",
-        "Draw your sidearm and demand a court-martial by combat."
+        "Ask the horn-bearer to show you the new signal plan.",
+        "Warn your sergeants to keep a second way out.",
+        "Confront Captain Holt about the envoy before the charge."
       ],
       "gear": [
         {
-          "name": "Grapple",
-          "type": "misc",
+          "name": "Iron Shortsword",
+          "type": "weapon",
           "isEquipped": true
         },
         {
-          "name": "Blade",
-          "type": "weapon"
+          "name": "Battered Round Shield",
+          "type": "armor",
+          "isEquipped": true
+        },
+        {
+          "name": "Vanguard Banner",
+          "type": "relic"
+        },
+        {
+          "name": "Signal Whistle",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Pass Without Trace"
-      ],
+      "spells": [],
+      "shape": "before",
+      "turningPoint": "Chapter 1: Holt blows the retreat early and locks the gates, trapping the vanguard. You survive under the fallen banners.",
       "hp": 11
     },
     {
       "id": "seed_rev_09",
-      "title": "The Funeral Seat Reserved",
-      "tagline": "Someone has placed the last witness within your reach.",
-      "premise": "You return by midnight train to the funeral of the broker who sold your family and find your seat reserved beside the only witness your enemies failed to silence.",
+      "title": "The Broker's Bookkeeper",
+      "tagline": "You keep the books for the broker who is quietly buying up your family's debts.",
+      "premise": "You keep the books for Aldo Merrin, the most respected debt broker on the harbor, and he trusts you like a son. Lately his ledgers show your own family's loans being bought through three different names, and the only man who could explain it is a nervous dock clerk who will not meet your eyes. Merrin wants you at his side for the harbor board vote tonight.",
       "hero": {
         "name": "Sevran Locke",
         "role": "Syndicate Infiltrator",
-        "origin": "Harbor exile"
+        "origin": "Harbor-born human"
       },
       "actions": [
-        "Inspect the seating token for the hand that arranged it.",
-        "Approach the witness before the mourners take their places.",
-        "Watch the broker's associates from the station-side entrance."
+        "Trace the three buyer names through the harbor registry.",
+        "Buy the dock clerk a drink and ask what he saw.",
+        "Ask Merrin directly why your family's debts are moving."
       ],
       "gear": [
         {
@@ -422,31 +498,33 @@ export const revenge = {
           "isEquipped": true
         },
         {
-          "name": "Funeral Token",
-          "type": "misc"
+          "name": "Copy of Merrin's Ledger",
+          "type": "scroll"
         },
         {
-          "name": "Witness Sketch",
+          "name": "Bookkeeper's Spectacles",
           "type": "misc"
         }
       ],
       "spells": [],
+      "shape": "long_road",
+      "turningPoint": "Chapter 3: Merrin sells your family to the syndicate. The dock clerk is the last witness, and the reckoning comes at Merrin's funeral.",
       "hp": 12
     },
     {
       "id": "seed_rev_10",
       "title": "The Quarry Payroll",
-      "tagline": "The wages may reveal who paid for your sentence.",
-      "premise": "You enter a rain-soaked workers' diner with proof that the foreman bought your conviction and learn his wage courier will arrive before the witness can escape.",
+      "tagline": "The foreman is skimming the quarry wages, and you are the one who noticed.",
+      "premise": "You run the tally shed at the Greystone quarry, counting every cart of stone and every wage packet that goes out. For three months the numbers have not matched: the payroll courier brings less than the books claim, and men who complain get sent to the deep pit. Foreman Krell has started asking who keeps the duplicate tallies.",
       "hero": {
         "name": "Mirel Dusk",
-        "role": "Claims Investigator",
-        "origin": "Quarry-camp survivor"
+        "role": "Quarry Tally Keeper",
+        "origin": "Quarry-camp human"
       },
       "actions": [
-        "Compare the payroll seal with the proof of your conviction.",
-        "Arrange a quiet back exit for the waiting witness.",
-        "Observe the courier's escort before choosing an approach."
+        "Hide the duplicate tallies where Krell can't reach them.",
+        "Ask the payroll courier who counts the money before you.",
+        "Talk to the men who were sent to the deep pit."
       ],
       "gear": [
         {
@@ -455,15 +533,17 @@ export const revenge = {
           "isEquipped": true
         },
         {
-          "name": "Payroll Copy",
+          "name": "Duplicate Tally Book",
           "type": "relic"
         },
         {
-          "name": "Diner Back-Door Key",
+          "name": "Tally Shed Key",
           "type": "misc"
         }
       ],
       "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: Krell bribes a magistrate to convict you of his theft. The payroll proof and one witness are your way back.",
       "hp": 12
     }
   ],

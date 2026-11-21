@@ -354,6 +354,8 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
           inspiration: base.inspiration,
           mode: 'opener',
           fixed: { title: o.title, premise: o.premise, name: base.hero.name, roleClass: o.hero.role, origin: o.hero.origin, actions: [...o.actions] },
+          shape: shapeById(o.shape),
+          turningPoint: o.turningPoint,
           signal
         }),
       (pkg) => {

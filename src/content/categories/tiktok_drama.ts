@@ -175,32 +175,36 @@ export const tiktokDrama = {
     {
       "id": "seed_sd_01",
       "title": "The Stolen Inheritance",
-      "tagline": "Your brother stole everything — today you arrive at the family gala.",
-      "premise": "Your brother secretly transferred your rightful inheritance into his own name and spent three years treating you as disposable. This morning, you arrive at the Grand Mirage Hotel banquet where he plans to announce himself as chairman — unaware you hold the unrevoked family charter.",
+      "tagline": "Your grandmother's will is read today, and your brother has brought his own lawyer.",
+      "premise": "Your grandmother built the Vance hotel empire from one boarding house, and this morning her will is read in the Grand Mirage boardroom. Your brother Julian arrives with a lawyer you have never met and a fresh smile, and the family attorney keeps glancing at a sealed envelope he has not opened. You are the only one who visited her every Sunday.",
       "hero": {
         "name": "Victoria Vance",
-        "role": "Disowned Heiress",
+        "role": "Hotel Empire Heiress",
         "origin": "Old-money family"
       },
       "actions": [
-        "Present your old staff pass to slip past the VIP security turnstiles.",
-        "Confront your brother in the private banquet prep room before speeches begin.",
-        "Contact your grandmother's loyal attorney to confirm the charter's legal hold."
+        "Ask the family attorney what is in the sealed envelope.",
+        "Find out who Julian's new lawyer has worked for.",
+        "Sit beside your grandmother's assistant and listen."
       ],
       "gear": [
         {
-          "name": "Signet Ring",
+          "name": "Grandmother's Signet Ring",
           "type": "relic",
           "isEquipped": true
         },
         {
-          "name": "ID",
-          "type": "armor"
+          "name": "Grand Mirage Staff Pass",
+          "type": "misc"
+        },
+        {
+          "name": "Sunday Visit Notebook",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Insightful Observation"
-      ],
+      "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 1: Julian quietly moves your inheritance into his own name and turns the family against you. The unrevoked family charter is your way back.",
       "hp": 10
     },
     {
@@ -232,60 +236,72 @@ export const tiktokDrama = {
     },
     {
       "id": "seed_sd_03",
-      "title": "The Ruined Reputation",
-      "tagline": "The rival who destroyed your career is now begging for your help.",
-      "premise": "Two years ago, your corrupt business partner framed you for fraud and watched you get stripped of your credentials. This morning, he stands in the doorway of your modest repair boutique, pale and desperate, begging you to decode an encrypted ledger before the cartel arrives.",
+      "title": "The Partner's Signature",
+      "tagline": "Your business partner keeps asking you to sign without reading.",
+      "premise": "You and your oldest friend Damon built Sterling & Pike from a garage into the city's most trusted consultancy. Lately he has been rushing contracts across your desk at midnight, a client from the port has started paying in cash, and the auditors are due in three weeks. Tonight Damon brings champagne and one more document for your signature.",
       "hero": {
         "name": "Alexander Sterling",
-        "role": "Disgraced Strategist",
-        "origin": "Undercover Billionaire"
+        "role": "Business Strategist",
+        "origin": "Self-made city family"
       },
       "actions": [
-        "Demand he sign a written public confession before you even look at the ledger.",
-        "Inspect the encrypted flash drive to see who is hunting him.",
-        "Call hotel security to have him removed and alert the financial task force."
+        "Read the document line by line in front of him.",
+        "Look up the port client's company registration.",
+        "Make a private copy of every contract you signed this year."
       ],
       "gear": [
         {
-          "name": "Ring",
-          "type": "relic",
+          "name": "Fountain Pen",
+          "type": "misc",
           "isEquipped": true
+        },
+        {
+          "name": "Encrypted Laptop",
+          "type": "misc"
+        },
+        {
+          "name": "Copy of the Partnership Deed",
+          "type": "relic"
         }
       ],
-      "spells": [
-        "Graceful Composure"
-      ],
+      "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: Damon frames you for the fraud and you lose your credentials. Years later he comes back, begging for your help.",
       "hp": 12
     },
     {
       "id": "seed_sd_04",
-      "title": "The 3-Year Contract Divorce",
-      "tagline": "The contract marriage ends at midnight — and his family tries to throw you out penniless.",
-      "premise": "You signed a 3-year contract marriage to shield a reclusive CEO from his scheming board. Today is the final day. His arrogant family gathers in the penthouse to serve you divorce papers and offer a measly $5,000 severance, unaware that you own the offshore trust funding his entire enterprise.",
+      "title": "The Contract Marriage",
+      "tagline": "Three years married to a stranger, on paper only. His family has other plans.",
+      "premise": "Today you sign a three-year contract to marry Adrian Lowe, a reclusive CEO who needs a wife to keep his scheming board at bay. His mother calls you a gold digger before the ink is dry, and his cousin is already counting the days. Nobody in the room knows that the offshore trust funding Adrian's company quietly belongs to you.",
       "hero": {
         "name": "Serena DuPont",
         "role": "Contract Heiress",
-        "origin": "Secret Chairwoman"
+        "origin": "Quiet old-money family"
       },
       "actions": [
-        "Quietly sign the divorce papers while sliding your offshore trust termination notice across the mahogany desk.",
-        "Look directly at your stoic husband and demand he speak for himself.",
-        "Instruct your private bodyguard to wheel in the audited financial binders."
+        "Read the contract's exit clause twice before you sign.",
+        "Ask Adrian why he chose you.",
+        "Smile at his mother and ask about her charity board."
       ],
       "gear": [
         {
-          "name": "Signet Ring",
-          "type": "relic",
+          "name": "Marriage Contract",
+          "type": "relic"
+        },
+        {
+          "name": "Wedding Ring",
+          "type": "misc",
           "isEquipped": true
         },
         {
-          "name": "ID",
-          "type": "armor"
+          "name": "Trust Account Card",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Insightful Observation"
-      ],
+      "spells": [],
+      "shape": "long_road",
+      "turningPoint": "Final chapter: on the contract's last day his family tries to throw you out penniless, and your ownership of the trust comes out.",
       "hp": 10
     },
     {
@@ -318,113 +334,141 @@ export const tiktokDrama = {
     {
       "id": "seed_sd_06",
       "title": "The Secret Patent",
-      "tagline": "They fired you for incompetence — but your patent powers their entire IPO.",
-      "premise": "The board voted to terminate you from your chief research post, claiming your project was a complete failure. As you pack your cardboard box, the emergency fire alarms chime: their flagship product launch just crashed because the proprietary encryption key is registered under your personal biometric signature.",
+      "tagline": "The board is sidelining you weeks before the launch you built.",
+      "premise": "Your encryption engine is the heart of NovaCore's flagship launch, and the patent is registered to you personally because the founders once insisted. Now the new CEO has moved your team to a basement floor, cut you from the launch rehearsals and started calling your work legacy. The board meets Friday to review your contract.",
       "hero": {
         "name": "Marcus Fairfax",
         "role": "Lead Architect",
         "origin": "Silicon Valley new money"
       },
       "actions": [
-        "Continue walking out the glass lobby doors while executive phones start ringing frantically.",
-        "Turn back to the board room and state your new terms: 51% controlling equity.",
-        "Log into your secure laptop terminal to monitor the crashing server logs."
+        "Ask the founders why they stopped answering your messages.",
+        "Check who changed the launch rehearsal schedule.",
+        "Review your patent filing with your own lawyer."
       ],
       "gear": [
         {
-          "name": "Ring",
-          "type": "relic",
+          "name": "Personal Patent Filing",
+          "type": "relic"
+        },
+        {
+          "name": "Biometric Access Badge",
+          "type": "misc",
           "isEquipped": true
+        },
+        {
+          "name": "Packed Desk Box",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Graceful Composure"
-      ],
+      "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: the board fires you for failure, and their launch crashes because the key is tied to your biometric signature.",
       "hp": 12
     },
     {
       "id": "seed_sd_07",
-      "title": "The Morning Shift Reveal",
-      "tagline": "Working the hotel espresso counter when your condescending in-laws walk in.",
-      "premise": "To fulfill your grandfather's final test of humility, you have worked three years as a barista at the Grand Mirage. This morning, your ex-fiancé's family enters, mocking your uniform and demanding table service — moments before a convoy of black mayoral limousines pulls up to salute you.",
+      "title": "The Barista Test",
+      "tagline": "Three years behind an espresso counter, and nobody may know who you are.",
+      "premise": "Your grandfather's will has one condition: work three years at the Grand Mirage espresso counter under a false name before you inherit anything. Today is your first shift. Within an hour, your ex-fiancé's family sits at your counter, mocks your apron and doesn't recognize you.",
       "hero": {
         "name": "Sienna Sterling",
         "role": "Undercover Heiress",
         "origin": "Billionaire family"
       },
       "actions": [
-        "Serve their espressos with cold, flawless professional grace.",
-        "Discreetly tap your encrypted earpiece to authorize the convoy's arrival.",
-        "Hand your ex-fiancé a napkin inscribed with his father's overdue loan balance."
+        "Serve them flawlessly and say nothing.",
+        "Ask your new manager which regulars to watch.",
+        "Write down every name at their table for later."
       ],
       "gear": [
         {
-          "name": "Signet Ring",
-          "type": "relic",
+          "name": "Barista Apron and Name Tag",
+          "type": "misc",
           "isEquipped": true
         },
         {
-          "name": "ID",
-          "type": "armor"
+          "name": "Grandfather's Sealed Letter",
+          "type": "relic"
+        },
+        {
+          "name": "Notebook of Names",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Insightful Observation"
-      ],
+      "spells": [],
+      "shape": "hidden_return",
+      "turningPoint": "Final chapter: three years in, who you really are comes out in front of everyone who mocked you.",
       "hp": 10
     },
     {
       "id": "seed_sd_08",
-      "title": "The Disowned Daughter's Return",
-      "tagline": "Thrown out of the family mansion in the rain — returning five years later.",
-      "premise": "Five years ago, you were framed for stealing the family heirloom brooch and cast out into the winter rain with ten dollars. Today, you step out of a chauffeured Maybach at the estate gates, holding the foreclosed deed to the entire property.",
+      "title": "The Missing Brooch",
+      "tagline": "Your mother's heirloom brooch vanishes the week your stepsister moves in.",
+      "premise": "Your father has just remarried, and your stepmother and stepsister have moved into the Romanov estate with twelve suitcases and a lot of opinions. On the night of the engagement dinner, your late mother's heirloom brooch disappears from the jewelry safe, and only three people know the combination. Your stepsister is already asking where you were all evening.",
       "hero": {
         "name": "Elena Romanov",
-        "role": "Avenging Heiress",
+        "role": "Romanov Estate Daughter",
         "origin": "Landed gentry family"
       },
       "actions": [
-        "Hand the foreclosure eviction notice to the stunned estate butler.",
-        "Walk past the gatekeeper straight into the dining room where the family is having breakfast.",
-        "Inspect the vintage brooch now worn proudly by your scheming stepsister."
+        "Check the jewelry safe for signs of tampering.",
+        "Ask the butler who went upstairs during dinner.",
+        "Tell your father the truth before your stepsister reaches him."
       ],
       "gear": [
         {
-          "name": "Tablet",
-          "type": "misc",
+          "name": "Mother's Photograph Locket",
+          "type": "relic",
           "isEquipped": true
+        },
+        {
+          "name": "Phone with Dinner Photos",
+          "type": "misc"
+        },
+        {
+          "name": "Jewelry Safe Code Card",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Authoritative Presence"
-      ],
+      "spells": [],
+      "shape": "before",
+      "turningPoint": "Chapter 1: you are framed for stealing the brooch and thrown out into the winter rain with ten dollars. The return comes years later.",
       "hp": 11
     },
     {
       "id": "seed_sd_09",
       "title": "The False Paternity Trap",
-      "tagline": "Falsified DNA tests stripped your child of their birthright.",
-      "premise": "Four years ago, your corrupt mother-in-law forged a DNA test to brand your newborn illegitimate and expel you from the dynasty. This morning, the state forensic lab director personally delivers the unsealed original test results directly to the patriarch's hospital bedside in your presence.",
+      "tagline": "Your mother-in-law has ordered a DNA test on your newborn.",
+      "premise": "Your son is two weeks old, and the Zhao shipping dynasty has finally welcomed you to the family table. Then your mother-in-law announces that the patriarch wants a routine DNA test, done by her own private clinic. Your husband shrugs it off, but the nurse who took the sample would not meet your eyes.",
       "hero": {
         "name": "Vivian Zhao",
-        "role": "Dynasty Matriarch",
+        "role": "Dynasty Daughter-in-law",
         "origin": "Shipping-dynasty family"
       },
       "actions": [
-        "Place the unsealed state forensic report onto the patriarch's bedside table.",
-        "Block the mother-in-law from entering the private ICU suite.",
-        "Demand an immediate public press conference to restore your child's legal rights."
+        "Ask the clinic for the sample's chain of custody.",
+        "Request a second test through the state lab.",
+        "Talk to the nurse alone after her shift."
       ],
       "gear": [
         {
-          "name": "Ring",
-          "type": "relic",
+          "name": "Hospital Birth Records",
+          "type": "relic"
+        },
+        {
+          "name": "Wedding Ring",
+          "type": "misc",
           "isEquipped": true
+        },
+        {
+          "name": "Baby Monitor",
+          "type": "misc"
         }
       ],
-      "spells": [
-        "Graceful Composure"
-      ],
+      "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: the forged test brands your son illegitimate and you are expelled from the dynasty. The true results surface only at the end.",
       "hp": 12
     },
     {

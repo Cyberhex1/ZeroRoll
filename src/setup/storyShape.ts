@@ -24,7 +24,7 @@ export interface StoryShape {
 export const STORY_SHAPES: readonly StoryShape[] = [
   {
     id: 'before',
-    label: 'From the beginning, before it all goes wrong',
+    label: 'From the very beginning',
     weight: 3,
     brief:
       "Start in the hero's life BEFORE the turning point, with something worth losing on the page: the people, the place, the standing or the trust it will cost. The turning point happens on screen in chapter 1 or 2, and the player lives through it. The rest of the story answers it.",
@@ -32,15 +32,15 @@ export const STORY_SHAPES: readonly StoryShape[] = [
   },
   {
     id: 'brewing',
-    label: 'While the trouble is still building',
+    label: 'While things are still building',
     weight: 3,
     brief:
-      'Start while the trouble is building: warning signs, small slights, a rival circling, something that does not add up. The breaking point lands around the middle of the story, on screen. The first half builds to it; the second half is the response.',
+      'Start while the trouble is building: warning signs, small slights, a rival circling, something that does not add up. The breaking point lands around the middle of the story, on screen. The first half builds to it; the second half is the response. For example: a trusted, overworked clerk is handed extra work and talked down to for a few chapters, then fired for something she did not do, and only then uses what she knows to bring down her coworkers and her old boss.',
     pacing: 'The player starts while the trouble is building. Plant warning signs and small wrongs; the breaking point lands mid-story, on screen, and the second half is the response.'
   },
   {
     id: 'long_road',
-    label: 'The long road, living through it',
+    label: 'The long road',
     weight: 2,
     brief:
       'Most of the story is living through the slow wrong: the betrayal unfolding, the hardship endured, the hero not yet knowing who is behind it or why. The truth arrives late, and the payoff takes the last chapter.',
@@ -48,7 +48,7 @@ export const STORY_SHAPES: readonly StoryShape[] = [
   },
   {
     id: 'hidden_return',
-    label: 'After the change, with a secret still to come out',
+    label: 'After a big change, keeping a secret',
     weight: 2,
     brief:
       'Start after a great change has already happened, but the hero carries something nobody knows yet: a hidden identity, a transformation, what they saw, what they plan. The big moment is still ahead (the reveal, the reckoning, the confrontation) and the story builds to it. Never start at that moment.',

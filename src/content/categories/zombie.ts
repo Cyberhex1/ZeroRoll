@@ -195,31 +195,41 @@ export const zombie = {
     },
     {
       "id": "seed_zom_02",
-      "title": "The Last Radio Transmission",
-      "tagline": "The broadcast tower is surrounded — and your battery is at 12%.",
-      "premise": "Huddled in the third-floor control booth of downtown WKRN Radio, you have guided surviving civilians across the city for forty-eight hours. The station front doors have just buckled under the horde, and your emergency generator reads 12% battery remaining.",
+      "title": "The Morning Show",
+      "tagline": "Strange calls are coming in to your morning show, and the city hasn't noticed yet.",
+      "premise": "You host the morning show at WKRN downtown, and today's big story is supposed to be the traffic. Since 5 AM the call-in lines have filled with people describing neighbors who won't stop coughing and a hospital that has stopped answering its phones. Your producer wants to stay on the playlist, but the police scanner on your desk has gone very quiet.",
       "hero": {
         "name": "Lucas Miller",
         "role": "Radio DJ",
-        "origin": "Broadcaster"
+        "origin": "Downtown city local"
       },
       "actions": [
-        "Broadcast the final safe evacuation coordinates to all listening survivors.",
-        "Barricade the stairwell access door with metal equipment racks.",
-        "Prepare your fire axe and rooftop zip-line toward the adjacent parking garage."
+        "Put the next caller on air and ask exactly what they are seeing.",
+        "Call the hospital's switchboard yourself.",
+        "Check how much fuel the station's backup generator has."
       ],
       "gear": [
         {
-          "name": "Service Pistol",
-          "type": "weapon",
-          "isEquipped": true
+          "name": "Fire Axe from the Hallway",
+          "type": "weapon"
         },
         {
-          "name": "Radio",
+          "name": "Police Scanner",
           "type": "misc"
+        },
+        {
+          "name": "Station Master Keys",
+          "type": "misc"
+        },
+        {
+          "name": "Studio Headphones",
+          "type": "misc",
+          "isEquipped": true
         }
       ],
       "spells": [],
+      "shape": "before",
+      "turningPoint": "Chapter 1: the outbreak reaches downtown live on air. You become the voice guiding survivors until the horde reaches the station doors.",
       "hp": 11
     },
     {

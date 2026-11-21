@@ -639,7 +639,8 @@ export function formatOutlineForPrompt(outline: Partial<DMStoryOutline> | undefi
   // Where the player joined the arc, so every turn builds to the turning point instead of skipping it.
   const shape = shapeById(outline.storyShape);
   add('Story Shape', shape ? `${shape.label}. ${shape.pacing}` : '');
-  add('Turning Point', text(outline.turningPoint));
+  const turn = text(outline.turningPoint);
+  add('Turning Point', turn && `${turn} (secret: never tell the player it is coming; show only signs the hero could notice, then play it out on screen)`);
   return lines.join('\n');
 }
 

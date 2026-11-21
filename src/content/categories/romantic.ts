@@ -172,33 +172,37 @@ export const romantic = {
   "openers": [
     {
       "id": "seed_rom_01",
-      "title": "The Midnight Masquerade",
-      "tagline": "Dancing with the brooding duke who condemned your family.",
-      "premise": "Beneath a velvet domino mask at the Venetian Doge's gala, you are swept into a waltz by Duke Sterling — the cold commander whose signature seized your family estates. As his gloved hand rests on yours, he whispers that he knows who you are and wants to make a deal.",
+      "title": "The Duke Who Watches",
+      "tagline": "The cold duke watches you more than he talks, and asks too many questions.",
+      "premise": "Your family's estates along the Brenta are the envy of Venice, and the cold, brilliant Duke Sterling has started appearing at every dinner your mother hosts. He watches you more than he talks, and he asks too many questions about your father's debts. Tonight he requests the first dance at the Doge's gala, and your father insists you accept.",
       "hero": {
         "name": "Genevieve Valois",
         "role": "Masked Noblewoman",
         "origin": "Venetian Aristocrat"
       },
       "actions": [
-        "Match his steps in the waltz while demanding to know what deal could possibly undo his treason.",
-        "Steer the dance toward the moonlit balcony to speak away from prying courtiers.",
-        "Slip your concealed stiletto against his waistline to test his composure."
+        "Accept the dance and steer the talk toward your father's debts.",
+        "Ask your father's steward what the duke has been reading in the ledgers.",
+        "Refuse him politely and watch whom he dances with instead."
       ],
       "gear": [
         {
-          "name": "Dagger",
-          "type": "weapon",
+          "name": "Velvet Domino Mask",
+          "type": "misc",
           "isEquipped": true
         },
         {
-          "name": "Mask",
-          "type": "misc"
+          "name": "Concealed Stiletto",
+          "type": "weapon"
+        },
+        {
+          "name": "Mother's Pearl Hairpin",
+          "type": "relic"
         }
       ],
-      "spells": [
-        "Charm Person"
-      ],
+      "spells": [],
+      "shape": "before",
+      "turningPoint": "Chapter 2: Duke Sterling's signature seizes your family's estates, and why he did it stays hidden until much later.",
       "hp": 10
     },
     {
@@ -258,32 +262,36 @@ export const romantic = {
     {
       "id": "seed_rom_04",
       "title": "The Spite Marriage",
-      "tagline": "Proposing to the enemy commander to humiliate your unfaithful fiancé.",
-      "premise": "Minutes after discovering your aristocratic fiancé embracing your cousin behind the ballroom curtains, you turn to find the imposing foreign ambassador Lord Vane watching with amusement. In a flash of defiance, you offer him your hand and family alliance on the spot.",
+      "tagline": "Your fiancé is hiding something, and the foreign ambassador seems to know what.",
+      "premise": "Your wedding to the charming Lord Percival is six weeks away, and the whole court is already toasting it. Lately he vanishes during balls, your cousin Isolde can't meet your eyes, and the imposing ambassador Lord Vane keeps appearing at your shoulder with a dry remark that sounds like a warning. Tonight is your engagement ball.",
       "hero": {
         "name": "Aurelia Sterling",
         "role": "Defiant Heiress",
         "origin": "Imperial Aristocrat"
       },
       "actions": [
-        "Announce the engagement to Lord Vane loudly in front of the entire ballroom.",
-        "Pull Lord Vane onto the terrace to negotiate the private terms of your marriage contract.",
-        "Watch your unfaithful ex-fiancé turn pale as the ambassador accepts with a slow smile."
+        "Ask Lord Vane plainly what he keeps almost saying.",
+        "Follow Percival when he slips away from the dancing.",
+        "Take Isolde aside before the toasts and ask what is wrong."
       ],
       "gear": [
         {
-          "name": "Dagger",
-          "type": "weapon",
+          "name": "Engagement Ring",
+          "type": "relic",
           "isEquipped": true
         },
         {
-          "name": "Mask",
+          "name": "Ivory Dance Card",
           "type": "misc"
+        },
+        {
+          "name": "Hairpin Blade",
+          "type": "weapon"
         }
       ],
-      "spells": [
-        "Charm Person"
-      ],
+      "spells": [],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: you find Percival with Isolde behind the ballroom curtains, and in a flash of defiance you offer Lord Vane your hand.",
       "hp": 10
     },
     {

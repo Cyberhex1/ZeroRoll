@@ -12,7 +12,8 @@
  */
 import type { CampaignInspiration, ExperienceCategory } from '../types';
 import { SKILLS, RulesMode } from '../dnd/rules';
-import { getCategoryProfile } from '../content';
+import { getCategoryProfile, getContent } from '../content';
+import type { Opener } from '../content/types';
 import { fullProfileBlock, styleCard } from '../content/injection';
 import { freshnessLines, rememberRoll } from '../lib/rollFreshness';
 import { executeJsonPrompt, getActiveProvider, reportFeatureFailure } from '../lib/geminiService';
@@ -21,7 +22,7 @@ import { AI_PROVIDERS } from '../lib/providersConfig';
 import { parseRetryDelayMs } from '../ai/transport';
 import { FixedParts, cleanTitle, fixName, normalizeSheet, normalizeStoryReply } from './normalize';
 import { POINT_BUY_BUDGET } from './pointBuy';
-import { RULE_NEVER_CLIMAX, STORY_SHAPES, StoryShape } from './storyShape';
+import { RULE_NEVER_CLIMAX, STORY_SHAPES, StoryShape, shapeById } from './storyShape';
 import type { HeroDraft, HeroSheetDraft, StoryPackage } from './types';
 
 /* --------------------------------- schemas --------------------------------- */
@@ -68,7 +69,7 @@ export const STORY_SCHEMA = {
   type: 'OBJECT',
   properties: {
     title: S(),
-    premise: S('3 or 4 sentences written to the player as "you"'),
+    premise: S('3 or 4 sentences written to the player as "you": only what the hero knows now, ending on a question; never spoils the turning point'),
     outline: {
       type: 'OBJECT',
       properties: {
@@ -126,10 +127,43 @@ export interface StoryRollInput {
   mode: 'fresh' | 'adapt' | 'opener';
   /** fresh only: the story seed the player picked. */
   seed?: string;
-  /** fresh only: where the player joins the story (storyShape.pickShape). */
+  /** fresh: where the player joins (storyShape.pickShape). opener: the opener's own shape, if it has one. */
   shape?: StoryShape;
+  /** opener only: the opener's turning point, kept as written. */
+  turningPoint?: string;
+  /** fresh only: the hand-written openers shown as examples. Default: exampleOpeners(category, shape). */
+  examples?: Opener[];
   fixed?: FixedParts;
   signal?: AbortSignal;
+}
+
+/**
+ * The hand-written openers a fresh roll is shown as examples (ohnna, 2026-11-21: lean on the
+ * openers, but only as examples). Openers with the same shape come first, then ones with any
+ * shape (they show where to join), then the rest; random order within each group.
+ */
+export function exampleOpeners(category: ExperienceCategory, shape?: StoryShape, n = 3, rand: () => number = Math.random): Opener[] {
+  const rank = (o: Opener) => (shape && o.shape === shape.id ? 0 : o.shape ? 1 : 2);
+  return getContent(category)
+    .openers.map((o) => ({ o, r: rank(o), k: rand() }))
+    .sort((a, b) => a.r - b.r || a.k - b.k)
+    .slice(0, n)
+    .map((x) => x.o);
+}
+
+function examplesBlock(examples: Opener[]): string {
+  if (!examples.length) return '';
+  const lines = examples.map((o, i) => {
+    const joins = shapeById(o.shape);
+    return `${i + 1}. "${o.title}" (hero: ${o.hero.role}, ${o.hero.origin})
+   ${o.premise}${joins ? `\n   Where you join: ${joins.label}. Turning point (outline only, not in the premise): ${o.turningPoint}` : ''}
+   First moves: ${o.actions.join(' | ')}`;
+  });
+  return `EXAMPLE OPENERS
+These were hand-written for this category. Aim for their level: a specific hero in a named place, real stakes already pulling at them, the defining event still ahead, and first moves that are concrete choices. They are EXAMPLES ONLY. Never reuse their titles, names, places, plots or twists, and don't write a variation of any of them; write a new story of the same quality.
+${lines.join('\n')}
+
+`;
 }
 
 export function buildStoryPrompt(input: StoryRollInput): string {
@@ -166,10 +200,10 @@ Keep the seed's situation and its central conflict, and build an original story 
   }
 
   const shapeBlock =
-    mode === 'fresh' && shape
+    mode !== 'adapt' && shape
       ? `WHERE THE PLAYER JOINS THE STORY (storyShape "${shape.id}")
 ${shape.brief}
-${seed ? "If this shape starts before the seed's situation, the seed's situation is the turning point the story builds to.\n" : ''}${RULE_NEVER_CLIMAX}`
+${mode === 'opener' && input.turningPoint ? `The opener's turning point, kept as written: "${input.turningPoint}". Build the chapters around it.\n` : ''}${mode === 'fresh' && seed ? "If this shape starts before the seed's situation, the seed's situation is the turning point the story builds to.\n" : ''}${RULE_NEVER_CLIMAX}`
       : `WHERE THE PLAYER JOINS THE STORY
 ${mode === 'fresh' ? '' : 'Keep the premise as given, and pick the storyShape that fits where it starts. '}${RULE_NEVER_CLIMAX}
 Shapes:
@@ -181,13 +215,16 @@ ${STORY_SHAPES.map((x) => `- ${x.id}: ${x.brief}`).join('\n')}`;
 
 ${fullProfileBlock(category, inspiration)}
 
-ASSIGNMENT
+${mode === 'fresh' ? examplesBlock(input.examples ?? exampleOpeners(category, shape)) : ''}ASSIGNMENT
 ${assignment}
 
 ${shapeBlock}
 
 STORY RULES
-- premise: a back-of-the-book pitch of 3 or 4 sentences, written to the player as "you" (never "he", "she" or the hero's name). Start where the player joins the story: where the hero is, what they have, and what is pulling at them. If the turning point is still ahead, foreshadow it; never tell it as already done. Resolve nothing.
+- premise: a back-of-the-book pitch of 3 or 4 sentences, written to the player as "you" (never "he", "she" or the hero's name). It shows only what the hero knows and feels at the moment the player joins: who they are, their everyday life, who trusts or relies on them, and the pressure they can already feel (too much work, a rival or coworker who resents them, a warning they can't place). Then end on that pressure with a question to the player, e.g. "How long can you keep your head down? And what would you do if they turned on you?"
+- The premise must not spoil the story. Never state, name or promise the turning point or the twist (no "the betrayal has not happened yet", "a trap is being set", "you will be the scapegoat"), and no narrator's irony ("unaware that", "not realizing", "little do you know", "the ink is already dry"). The player learns the turning point by living through it.
+- Keep the hero sympathetic and their tone true to where they are now: an ordinary, likeable person with reasons the player shares. No dark or vengeful mood the story hasn't earned yet, and no shady deeds or hidden schemes of their own unless the premise is plainly about that.
+- outline and turningPoint are for the game master only; the player never reads them, so put the full plan there.
 - outline: startingCircumstances, incitingIncident and immediateGoal in one or two sentences each, all at the moment the player joins; backstory in two or three (only what is true before the player joins); 2 to 4 keyNpcs, each with a secret; 2 majorConflicts; 2 secretsAndReveals for later; 3 to 5 chapters naming this story's people and places, paced to the story's shape (the last resolves the story); 3 potentialEndings; storyShape; turningPoint (the defining event, and the chapter where it lands, e.g. "Chapter 2: your brother signs the estate over to the Varrows").
 - openingActions: three short first moves for the first scene, each a different approach.
 - title: evocative, no chapter number.
@@ -244,7 +281,8 @@ export async function rollStory(input: StoryRollInput): Promise<StoryPackage> {
       },
       (v) => !!v && typeof v === 'object' && !!(fixed.premise || (typeof v.premise === 'string' && v.premise.trim())) && !!(fixed.title || (typeof v.title === 'string' && v.title.trim())) && typeof v.hero === 'object'
     );
-    const pkg = normalizeStoryReply(raw, { category: input.category, pronouns: input.pronouns, fixed, shape: input.mode === 'fresh' ? input.shape?.id : undefined });
+    const pkg = normalizeStoryReply(raw, { category: input.category, pronouns: input.pronouns, fixed, shape: input.mode === 'adapt' ? undefined : input.shape?.id });
+    if (input.mode === 'opener' && input.turningPoint) pkg.outline = { ...pkg.outline, turningPoint: input.turningPoint };
     if (input.mode === 'fresh') {
       rememberRoll(input.category, 'title', pkg.title);
       rememberRoll(input.category, 'premise', pkg.premise);

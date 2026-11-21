@@ -267,18 +267,18 @@ export const fantasy = {
     },
     {
       "id": "seed_fan_03",
-      "title": "The Disgraced Paladin's Oath",
-      "tagline": "Stripped of holy rank for refusing to purge an innocent village.",
-      "premise": "The High Inquisitor broke your silver holy symbol and cast you out of the Radiant Order for sparing a village of tiefling refugees. Now, armed only with a notched steel longsword and your unyielding faith, you spot the Inquisitor's elite inquisitorial hounds hunting the very children you saved.",
+      "title": "The Paladin's Last Order",
+      "tagline": "The Order wants a refugee camp purged, and you are the one sent to do it.",
+      "premise": "You ride at the head of a Radiant Order patrol, proud of the silver holy symbol the High Inquisitor pinned on you himself. Tonight he hands you sealed orders for the tiefling refugee camp at Briar Ford, and the hounds in his kennel are already restless. You have until dawn to decide what your oath is really for.",
       "hero": {
         "name": "Sir Gareth Vale",
         "role": "Oath of Devotion Paladin",
-        "origin": "Human Exile"
+        "origin": "Human of the Silver Marches"
       },
       "actions": [
-        "Interpose your steel shield between the hunting hounds and the refugee wagon.",
-        "Cast Divine Favor on your blade and prepare a defensive stand at the stone bridge.",
-        "Lead the refugees through the concealed briar trail into the ancient fey woods."
+        "Break the seal on the orders before you reach the camp.",
+        "Ask your oldest squire what she heard in the Inquisitor's tent.",
+        "Ride ahead alone to see the refugees for yourself."
       ],
       "gear": [
         {
@@ -292,18 +292,20 @@ export const fantasy = {
           "isEquipped": true
         },
         {
-          "name": "Bandage Kit & Dwarven Stout",
-          "type": "potion"
+          "name": "Silver Holy Symbol",
+          "type": "relic"
         },
         {
-          "name": "Climbing Pitons & 50ft Rope",
-          "type": "misc"
+          "name": "Sealed Orders for Briar Ford",
+          "type": "scroll"
         }
       ],
       "spells": [
         "True Strike",
         "Heroism"
       ],
+      "shape": "brewing",
+      "turningPoint": "Chapter 2: you refuse the purge at Briar Ford, and the Inquisitor breaks your holy symbol and casts you out of the Order.",
       "hp": 13
     },
     {

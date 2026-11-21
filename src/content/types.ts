@@ -3,6 +3,7 @@
  * collected in ./index.ts. scripts/validate-content.ts checks it in CI.
  */
 import type { CharacterSheet, InventoryItem } from '../types';
+import type { StoryShapeId } from '../setup/storyShape';
 
 export type GearType = InventoryItem['type'];
 
@@ -63,6 +64,10 @@ export interface Opener {
   actions: [string, string, string];
   gear: GearItem[];
   spells: string[];
+  /** Where the player joins the story (see src/setup/storyShape.ts). Unset: a fresh hook. */
+  shape?: StoryShapeId;
+  /** The defining event still ahead of the player, with the chapter it lands in. */
+  turningPoint?: string;
   hp: number;
 }
 

@@ -185,6 +185,7 @@ export function probeCandidates(listed: string[], curated: string[], max = 12): 
     !/^gemini-(1|2)(\.|-)/.test(m) &&
     !/^gemini-pro(-|$)/.test(m) &&
     !/-(exp|experimental)(-|$)/.test(m) &&
+    !/-customtools$/.test(m) &&
     !/-\d{3}$/.test(m) &&
     !/-\d{2}-\d{2,4}$/.test(m);
   const fromList = listed.filter(current);

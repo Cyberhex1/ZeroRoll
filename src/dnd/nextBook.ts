@@ -1,10 +1,14 @@
 /**
  * Book Two (and later books) continue inside the same campaign save (S11, S12): the
- * finished book becomes a pinned memory entry, the scenario generator writes a new arc
+ * finished book becomes a pinned memory entry, the story roll (src/setup/storyRoll.ts, mode
+ * "sequel", with the same story rules and premise pattern as a new campaign) writes a new arc
  * from that recap and the hero as they stand, and a Chapter One scene opens the new book.
  */
 import { uid } from '../lib/ids';
-import { generateChapterOneAI, generateScenarioAI } from '../lib/geminiService';
+import { generateChapterOneAI } from '../lib/geminiService';
+import { rollStory } from '../setup/storyRoll';
+import { pickShape } from '../setup/storyShape';
+import { pickInspiration } from '../content';
 import { addEntry } from '../memory/memoryStore';
 import type { Experience, LogMessage } from '../types';
 import { experienceMemory } from './memory';
@@ -44,18 +48,18 @@ export function nextBookPrompt(exp: Experience): string {
 /** The continued campaign: same id, new outline and Chapter One, the old book pinned in memory. */
 export async function continueToNextBook(exp: Experience, model: string): Promise<Experience> {
   const book = (exp.book ?? 1) + 1;
-  const { scenario } = await generateScenarioAI({
+  // A new book must continue this story; a failed roll throws, never a random procedural one.
+  const pkg = await rollStory({
     category: exp.category,
-    model,
-    userPrompt: nextBookPrompt(exp),
-    gender: exp.character.gender || 'they/them',
-    characterName: exp.character.name,
-    classRole: exp.character.roleClass,
-    raceOrigin: exp.character.raceOrigin,
-    inspiration: exp.inspiration,
-    // A new book must continue this story; never substitute a random procedural one.
-    allowFallback: false
+    pronouns: exp.character.gender || 'they/them',
+    rulesMode: exp.rulesMode ?? 'narrative',
+    inspiration: exp.inspiration ?? pickInspiration(exp.category),
+    mode: 'sequel',
+    continuation: nextBookPrompt(exp),
+    shape: pickShape(),
+    fixed: { name: exp.character.name, roleClass: exp.character.roleClass, origin: exp.character.raceOrigin }
   });
+  const scenario = { storyBlurb: pkg.premise, storyOutline: pkg.outline, suggestedActions: pkg.actions };
   // Between books the hero recovers (S12: HP 0 never carries into a new book).
   // Conditions end with the rest too (playtest D22).
   const character = { ...exp.character, hp: exp.character.maxHp, deathSaves: undefined, statusEffects: [] };

@@ -62,6 +62,12 @@ export const zombie = {
   },
   "profile": {
     "seedSource": "The Walking Dead, 28 Days Later & Survival Outbreak Tropes",
+    "pattern": {
+      "hero": "An ordinary person at work or at home on the day it starts: a nurse, a radio host, a delivery driver, a student.",
+      "start": "Before the outbreak is obvious: odd calls, a sick coworker, a city that hasn't noticed yet.",
+      "turn": "The outbreak breaks on screen, and the people and places they rely on fall one by one.",
+      "payoff": "Getting their people somewhere safe, at a real cost."
+    },
     "voice": "Urgent, clinical, suspenseful, grounded. Captures the sudden transition from calm routine to catastrophic lockdown protocols.",
     "atmosphere": "Humming fluorescent hospital corridors, sudden Code Silver intercom alerts, magnetic keycards, rubber glove snaps, emergency backup lighting, barricaded triage doors.",
     "sceneStructure": "1. Routine laboratory/clinic shift -> 2. Sudden quarantine broadcast and sealed doors -> 3. Gathering emergency supplies and assessing window -> 4. Immediate survival action.",
@@ -500,7 +506,7 @@ export const zombie = {
       "premise": "You barricade the doors of the rural farmhouse, but the moans outside are growing louder, and the wood is beginning to splinter."
     },
     {
-      "premise": "The military quarantine zone has fallen, and you must sneak past both the infected and the panicked, trigger-happy soldiers."
+      "premise": "The news says it's a bad flu, the school sent your kids home early, and your neighbor hasn't come out for his paper in two days."
     },
     {
       "premise": "A survivor in your group hides a bite mark, but their sudden fever and erratic behavior threaten the safety of the entire camp."
@@ -509,7 +515,7 @@ export const zombie = {
       "premise": "You trigger a car alarm while scavenging a suburban neighborhood, drawing every infected within a mile to your location."
     },
     {
-      "premise": "The rooftop extraction helicopter flies overhead, completely ignoring your flares and leaving you stranded in the infested city."
+      "premise": "You drive deliveries across the city, and at three of today's stops nobody answered the door, though the TV was on loud inside."
     },
     {
       "premise": "You discover a fortified mall, but the survivors inside are a ruthless gang that demands a steep price for entry."
@@ -548,7 +554,7 @@ export const zombie = {
       "premise": "You must silently dispatch a room full of sleeping infected to reach the only exit from the overrun police station."
     },
     {
-      "premise": "A bitten survivor begs you to end their suffering before they turn, handing you their weapon and forcing a terrible choice."
+      "premise": "Your coworker came in with a bandaged hand from \"a weird customer last night,\" and he's been sweating through his shirt since lunch."
     }
   ],
   "procedural": {

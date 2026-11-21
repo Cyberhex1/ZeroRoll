@@ -1,11 +1,9 @@
 import firebaseConfig from '../../firebase-applet-config.json';
-import { shapeById } from '../setup/storyShape';
-import { uid } from './ids';
+import { RULE_NEVER_CLIMAX, shapeById } from '../setup/storyShape';
 import { PortraitsOffError, base64ToBlob, freePortraitsAllowed, storePortraitBlob, storePortraitFromUrl } from './portraits';
 import { currentStateBlock } from '../dnd/memory';
 import { leadAlert, normaliseMarkers, parseGmReply } from '../dnd/turnParser';
 import { RulesMode, rulesLine } from '../dnd/rules';
-import { cleanChapters } from '../dnd/applyTurn';
 import { localCallFor } from '../desktop/localModel';
 import { LOCAL_DND_REPLY_TOKENS } from '../dnd/memory';
 import {
@@ -24,10 +22,9 @@ export interface CategorySeedInfo {
   mediaReferences: string[];
   prompts: string[];
 }
-import { generateRandomScenarioSetup, RandomizedScenarioData } from '../content/procedural';
 import { getCategoryFallbackActions, getCategoryProfile, getContent, getOpenerById } from '../content';
-import { freshnessLines, rememberRoll, OVERUSED_NAMES } from './rollFreshness';
-import { fullProfileBlock, turnContextBlock } from '../content/injection';
+import { OVERUSED_NAMES } from './rollFreshness';
+import { fullProfileBlock, patternBlock, turnContextBlock } from '../content/injection';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError } from './aiErrors';
 import { geminiBasicModel } from '../ai/taskModel';
@@ -784,7 +781,7 @@ GAMEPLAY GM DIRECTIVES:
 - The CURRENT STATE, MEMORY and STORY SO FAR blocks in the player message are true. Never contradict them: the hero only uses items in their inventory, conditions stay until removed, and a hero at 0 HP is down until healed or stabilized.
 - Faithfully reflect the category's narrative profile: voice, atmospheric sensory details, scene architecture, and dramatic pacing.
 - The player's actions, choices, and premise are authoritative. Ground your storytelling craft and encounter emergence in the category profile without overriding the player's choices.
-- PACING: Maintain genre-specific pacing based on the provided narrative profile and seed inspiration. Do not rush to the climax unless the genre demands high-octane speed. Let the plot unfold naturally chapter by chapter, allowing the player to immerse deeply in the environment and conversations.
+- PACING: Follow the story's own outline and its storyShape, chapter by chapter, in the category's voice. Never rush to the climax, whatever the genre: the turning point and the payoff happen in their own chapters, on screen, and the player lives through what leads up to them. Let the player immerse in the place and the conversations.
 - CHAPTER PROGRESSION: When the current chapter concludes and the story organically transitions to the next chapter of the roadmap, you MUST output a COURSE_TRIGGER with type "chapter_transition".
 - STORY CONCLUSION: When the final chapter resolves and the overarching plot is fully complete, you MUST output a COURSE_TRIGGER with type "story_conclusion".
 - React dynamically to player rolls and decisions, maintaining excitement, atmosphere, and authentic stakes without accelerating the timeline prematurely.
@@ -903,159 +900,6 @@ ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll
 }
 
 /**
- * Generates a completely randomized 5-field campaign setup using AI or procedural engine.
- * Considers user prompt/concept deeply to craft genre-authentic character details.
- */
-export async function generateScenarioAI(params: {
-  category: ExperienceCategory;
-  model?: string;
-  userPrompt?: string;
-  gender?: string;
-  characterName?: string;
-  classRole?: string;
-  raceOrigin?: string;
-  /** When false, AI failures throw instead of returning a procedural scenario. */
-  allowFallback?: boolean;
-  /** Inspiration picked for this setup; stored on the campaign if the player keeps it. */
-  inspiration?: CampaignInspiration;
-}): Promise<{ scenario: RandomizedScenarioData; source: 'ai' | 'procedural' }> {
-  const { category, userPrompt, gender, characterName, classRole, raceOrigin, allowFallback = true, inspiration } = params;
-  const hasKey = hasActiveGeminiKey();
-
-  if (!hasKey && !allowFallback) {
-    const provider = getActiveProvider();
-    const { message } = reportFeatureFailure(
-      new AIError('no_key', 'No API key configured.', { provider }),
-      'Scenario generation',
-      false
-    );
-    throw new Error(message);
-  }
-
-  if (hasKey) {
-    try {
-      const narrativeCorpus = fullProfileBlock(category, inspiration);
-      const prompt = `You are a master tabletop RPG Game Master, author, and worldbuilder.
-
-${narrativeCorpus}
-
-CREATIVE ASSIGNMENT:
-Generate a COMPLETELY ORIGINAL "Story Prompt" (a back-of-the-book blurb) and an internal DM Story Outline for a "${category}" tabletop roleplaying experience.
-Every single field MUST be uniquely invented, highly imaginative, and deeply grounded in the category's narrative profile and learned corpus patterns above.
-
-CRITICAL CAUSAL BEGINNING & ANTI-SKIPPING DIRECTIVE:
-1. START AT THE GENUINE NARRATIVE BEGINNING: The blurb should pitch a deeply immersive Choose-Your-Own-Adventure story that begins at the earliest meaningful point:
-   [Starting situation] -> [Inciting incident] -> [Immediate consequences] -> [Player agency].
-2. DO NOT SKIP TO THE LATE-GAME PAYOFF: Do not pitch a story where the hero has already won or achieved their ultimate goal. The payoff must be earned through play!
-3. INTERNAL GM CHECK: Ask yourself: "If I pitched this blurb, does it sound like a compelling, deeply immersive book?" 
-4. FLASHBACK USAGE: If critical backstory is essential, a concise flashback may occupy part of the blurb, but the active pitch must firmly land in the present dilemma.
-
-CRITICAL USER AUTHORITY:
-${userPrompt ? `USER CONCEPT & INSPIRATION: "${userPrompt}"\n-> The user's concept is strictly authoritative. Weave their premise seamlessly into the title, hero identity, background, and opening hook while using the category's narrative rhythm and sensory density!` : 'The player has not provided a custom premise; invent a stunning, genre-defining scenario that exemplifies the category profile.'}
-
-${gender ? `HERO GENDER IDENTITY & PRONOUNS: "${gender}"\n-> IMPORTANT: Strictly use and embody this gender identity ("${gender}") across the hero's name, physical description, and narrative pronouns in the opening hook!` : ''}
-${characterName ? `Hero Name to use: "${characterName}"` : 'Invent a unique, memorable genre-authentic first and last name matching the specified gender.'}
-${classRole ? `Class/Role to use: "${classRole}"` : 'Invent a creative class/archetype deeply rooted in this genre.'}
-${raceOrigin ? `Origin/Heritage to use: "${raceOrigin}"` : 'Invent an evocative race or origin fitting the genre.'}
-
-FRESHNESS:
-${freshnessLines(category, ['title', 'premise', ...(characterName ? [] : (['heroName'] as const))]).join('\n')}
-
-SCENE STRUCTURE REQUIREMENT:
-The storyBlurb MUST read like a compelling back-of-the-book summary, establishing the atmospheric stakes and the impending dilemma without resolving it.
-
-Output MUST be strictly valid JSON matching this schema with no markdown fences:
-{
-  "title": "Evocative Campaign Title (no chapter number)",
-  "heroName": "First and Last Name",
-  "gender": "${gender || 'she/her'}",
-  "roleClass": "Creative Class / Archetype",
-  "raceOrigin": "Evocative Heritage / Origin",
-  "storyBlurb": "Atmospheric 3-4 sentence back-of-the-book story prompt establishing who the hero is, their immediate situation, and the central, slow-burn premise of this Choose-Your-Own-Adventure.",
-  "physicalDescription": "Vivid 1-2 sentence physical description of build, hair, eyes, facial expression, and distinctive gear.",
-  "suggestedActions": [
-    "Opening action option 1",
-    "Opening action option 2",
-    "Opening action option 3"
-  ],
-  "storyOutline": {
-    "startingCircumstances": "The hero's starting physical and social situation at Chapter 1",
-    "backstory": "Relevant history and root cause of the dilemma",
-    "incitingIncident": "The exact event that disrupts the status quo right now",
-    "immediateGoal": "The clear, actionable problem the player must address early on",
-    "keyNpcs": [
-      { "name": "NPC Name", "role": "Rival/Ally/Patron", "motivation": "What they want", "secret": "What they are hiding" }
-    ],
-    "majorConflicts": ["Primary external conflict", "Secondary interpersonal conflict"],
-    "secretsAndReveals": ["Hidden truth 1", "Major twist 2 to be discovered later"],
-    "chapters": [
-      "Chapter 1: <this story's opening chapter, naming its people and places>",
-      "Chapter 2: <what this story's second chapter is about>",
-      "Chapter 3: <and so on, 3 to 5 chapters; the last one resolves the story>"
-    ],
-    "potentialEndings": ["Triumphant vindication", "Bittersweet compromise", "Tragic sacrifice"]
-  },
-  "initialInventory": [
-    { "name": "Primary Weapon / Tool", "type": "weapon", "quantity": 1, "isEquipped": true, "description": "Thematic starter item" },
-    { "name": "Protective Attire / Armor", "type": "armor", "quantity": 1, "isEquipped": true },
-    { "name": "Healing / Consumable Item", "type": "potion", "quantity": 2 },
-    { "name": "Signature Keepsake / Trinket", "type": "relic", "quantity": 1 },
-    { "name": "Travel Supplies / Pouch", "type": "misc", "quantity": 1 }
-  ],
-  "initialSpells": [
-    "Signature Ability / Cantrip 1",
-    "Signature Technique 2"
-  ],
-  "initialConditions": ["Well-Rested"],
-  "startingHp": 12
-}`;
-
-      const scenario = await executeJsonPrompt<any>(
-        { userPrompt: prompt, temperature: 0.9 },
-        (v) => !!(v && v.title && v.storyBlurb)
-      );
-      if (scenario.storyOutline) scenario.storyOutline.chapters = cleanChapters(scenario.storyOutline.chapters);
-      rememberRoll(category, 'title', scenario.title);
-      rememberRoll(category, 'premise', scenario.storyBlurb);
-      if (!characterName) rememberRoll(category, 'heroName', scenario.heroName);
-      // No portrait per roll (PS6): it cost OpenAI players money on every re-roll. The player
-      // draws one from the setup screen or the hero sheet when they want it.
-      const avatarUrl: string | undefined = undefined;
-
-      return {
-        source: 'ai',
-        scenario: {
-          ...scenario,
-          gender: gender || scenario.gender,
-          avatarUrl,
-          initialInventory: (scenario.initialInventory || []).map((item: any, idx: number) => ({
-            id: `item_ai_${uid()}_${idx}`,
-            name: item.name || 'Equipment',
-            type: item.type || 'misc',
-            quantity: item.quantity || 1,
-            isEquipped: !!item.isEquipped,
-            description: item.description
-          }))
-        }
-      };
-    } catch (err: any) {
-      const { message } = reportFeatureFailure(err, 'Scenario generation', allowFallback);
-      if (!allowFallback) throw new Error(message);
-    }
-  } else {
-    reportMissingKey('Scenario generation');
-  }
-
-  // Fallback to high-entropy procedural generator
-  const scenario = generateRandomScenarioSetup(category);
-  if (gender) scenario.gender = gender;
-  if (characterName) scenario.heroName = characterName;
-  if (classRole) scenario.roleClass = classRole;
-  if (raceOrigin) scenario.raceOrigin = raceOrigin;
-  return { scenario, source: 'procedural' };
-}
-
-/**
  * Regenerates fresh, dynamic seedlist ideas and tropes using AI.
  */
 export async function generateSeedlistAI(params: {
@@ -1078,8 +922,17 @@ export async function generateSeedlistAI(params: {
       const prompt = `You are a creative director for tabletop RPGs. Generate a fresh, highly imaginative brainstorm seedlist for the "${category}" genre.
 Invent completely NEW story seeds: each one is a starting situation plus what makes it hard, in one or two sentences, written to the player as "you".
 Genre voice: ${profile.voice}
-Story beats this genre uses: ${profile.storyBeats}
 Avoid: ${profile.avoid}
+
+${patternBlock(category)}
+
+SEED RULES
+- Every seed is a START, where the premise pattern says stories begin: an ordinary person in their everyday life, with the pressure already pulling at them (a coworker who resents them, a warning they can't place, a debt coming due). Never the climax, the reveal, the fight or the payoff.
+- Never spoil a twist or use narrator's irony ("unaware that", "not realizing", "little do you know", "too late").
+- The hero is sympathetic and specific: a job or a place in life, a named place, someone who relies on them.
+- Good: "You keep the books for a guild that has started paying you less and blaming you more, and the new clerk keeps asking for your keys."
+- Bad: "You stand over the first betrayer on your list as the rain washes your blade." (starts at the payoff)
+- Bad: "The CEO signs the divorce papers, unaware that his wife owns the rival company." (spoils the reveal)
 
 Output MUST be strictly valid JSON matching this schema:
 {
@@ -1222,7 +1075,7 @@ export async function generateChapterOneAI(params: {
       const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
 When you introduce a new character, give them a name that fits the setting and is not one of these overused names: ${OVERUSED_NAMES.join(', ')}.
 
-${fullProfileBlock(category, inspiration)}
+${fullProfileBlock(category, inspiration, { seeds: !storyOutline })}
 
 STORY PREMISE:
 ${storyBlurb}
@@ -1232,7 +1085,7 @@ ${formatOutlineForPrompt(storyOutline, 'brief')}
 ` : ''}
 CREATIVE ASSIGNMENT:
 Write the very first scene (Chapter One, Scene 1) of this campaign. 
-Maintain genre-specific pacing based on the provided narrative profile and seed inspiration. Introduce the atmospheric setting, the immediate sensory situation, and the protagonist's starting dilemma as pitched in the premise. Do not jump to the climax unless the genre demands high-octane speed. Establish a deep, genre-appropriate tone.
+Open where the premise opens: the hero's everyday life, the place, the people they rely on, and the pressure they can already feel, exactly as pitched. Introduce the atmospheric setting and the immediate sensory situation. ${RULE_NEVER_CLIMAX} Nothing from the outline's turning point or later chapters happens in this scene, and nothing hints at it in the narrator's voice. Establish a deep, genre-appropriate tone.
 
 GAMEPLAY GM DIRECTIVES:
 - Address the player as "you". Keep the narrative in present tense.

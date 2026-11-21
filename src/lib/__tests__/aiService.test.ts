@@ -142,11 +142,11 @@ describe('Gemini cascade', () => {
 });
 
 describe('Visible fallbacks', () => {
-  it('reports when a scenario falls back to the offline generator', async () => {
+  it('reports when the seed refresh falls back to the built-in seeds', async () => {
     svc.setProviderKey('gemini', GOOD_KEY);
     generateContent.mockRejectedValue(apiError(403, 'API_KEY_SERVICE_BLOCKED'));
-    const res = await svc.generateScenarioAI({ category: 'fantasy' as any });
-    expect(res.source).toBe('procedural');
+    const res = await svc.generateSeedlistAI({ category: 'fantasy' as any });
+    expect(res.seedlist.prompts.length).toBeGreaterThan(0);
     const status = getAIStatus();
     expect(status.state).toBe('error');
     expect(status.kind).toBe('auth');
@@ -154,27 +154,21 @@ describe('Visible fallbacks', () => {
     expect(status.visible).toBe(true);
   });
 
-  it('Book Two mode throws instead of substituting a random story', async () => {
+  it('throws instead of substituting when no fallback is allowed', async () => {
     svc.setProviderKey('gemini', GOOD_KEY);
     generateContent.mockRejectedValue(apiError(403, 'API_KEY_SERVICE_BLOCKED'));
-    await expect(svc.generateScenarioAI({ category: 'fantasy' as any, allowFallback: false })).rejects.toThrow(/rejected your API key/);
+    await expect(svc.generateSeedlistAI({ category: 'fantasy' as any, allowFallback: false })).rejects.toThrow(/rejected your API key/);
   });
 
-  it('accepts a valid AI scenario', async () => {
+  it('accepts a valid AI seedlist, and asks for starting situations', async () => {
     svc.setProviderKey('gemini', GOOD_KEY);
-    generateContent.mockResolvedValue({ text: JSON.stringify({ title: 'T', storyBlurb: 'B', heroName: 'H' }) });
-    const res = await svc.generateScenarioAI({ category: 'fantasy' as any });
-    expect(res.source).toBe('ai');
-    expect(res.scenario.title).toBe('T');
+    generateContent.mockResolvedValue({ text: JSON.stringify({ categoryId: 'revenge', prompts: ['You keep the books.'] }) });
+    const res = await svc.generateSeedlistAI({ category: 'revenge' as any });
+    expect(res.seedlist.prompts).toEqual(['You keep the books.']);
     expect(getAIStatus().state).toBe('ok');
-  });
-
-  it('stays quiet in offline mode', async () => {
-    svc.setOfflineMode(true);
-    const res = await svc.generateScenarioAI({ category: 'fantasy' as any });
-    expect(res.source).toBe('procedural');
-    expect(getAIStatus().state).toBe('unknown');
-    expect(generateContent).not.toHaveBeenCalled();
+    const sent = JSON.stringify(generateContent.mock.calls[0][0]);
+    expect(sent).toMatch(/PREMISE PATTERN \(Revenge\)/);
+    expect(sent).toMatch(/Never the climax/);
   });
 });
 

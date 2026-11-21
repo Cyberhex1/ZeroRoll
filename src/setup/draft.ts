@@ -226,7 +226,7 @@ export function keepAsIs(draft: SetupDraft): SetupDraft {
 /** The story seed the player clicked leads the campaign's seeds, so it reaches every prompt. */
 export function inspirationWithSeed(category: ExperienceCategory, seed: string, base?: CampaignInspiration): CampaignInspiration {
   const insp = base ?? pickInspiration(category);
-  return { ...insp, tropes: [seed, ...insp.tropes.filter((t) => t !== seed)].slice(0, 3), openerId: undefined };
+  return { ...insp, tropes: [seed, ...insp.tropes.filter((t) => t !== seed)].slice(0, 2), openerId: undefined };
 }
 
 /** HP and AC follow from the class and scores. */

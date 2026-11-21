@@ -67,6 +67,12 @@ export const mythology = {
   },
   "profile": {
     "seedSource": "Norse Eddas, Celtic Cycles & Ancient World Myth Sagas",
+    "pattern": {
+      "hero": "Someone bound by family and oath: a farmer's son, a rune-carver's apprentice, a shieldmaiden in training.",
+      "start": "Home, a vow made, and the first signs of doom.",
+      "turn": "The oath is tested, and something is lost to giants, gods or kin.",
+      "payoff": "Facing doom with courage, keeping the oath or breaking it."
+    },
     "voice": "Saga-like, stark, legendary, fate-woven. Features poetic kennings, deep respect for wyrd/destiny, and the elemental weight of frost, fire, and thunder.",
     "atmosphere": "Howling northern blizzards, carved runic megaliths, ravens circling frostbitten fjords, crackling mead hall hearths, auroras dancing across frozen peaks.",
     "sceneStructure": "1. Standing before an ancient stone circle or fjord cliff -> 2. Reading runic megaliths or raven omens -> 3. Testing ancestral heirloom weapon -> 4. Fate-bound challenge choice.",
@@ -515,10 +521,10 @@ export const mythology = {
       "premise": "You chant the final verses of the Picatrix under a blood moon, and the chalk circle begins to glow as a demonic entity materializes from the sulfurous smoke."
     },
     {
-      "premise": "The frost giants breach the gates of Asgard, and you must defend the Bifrost bridge alongside the Valkyries as Ragnarok begins."
+      "premise": "You keep the watch fire at the edge of your village, and this winter has not ended when it should; the ravens have stopped coming, and the old men have started saying the word Fimbulwinter."
     },
     {
-      "premise": "Anubis weighs your heart against the feather of truth, but the scales tip, and the devourer beast steps forward from the shadows."
+      "premise": "You are an apprentice embalmer in Thebes, and the body brought in tonight carries a heart scarab with your own name carved on its underside."
     },
     {
       "premise": "You decipher a hidden passage in the Voynich Manuscript that reveals the exact astrological alignment required to achieve true Hermetic alchemy."

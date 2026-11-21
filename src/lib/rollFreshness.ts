@@ -1,10 +1,10 @@
 /**
  * Keeps AI rolls on the setup screen fresh: remembers what was rolled recently (per
  * category and field) so the prompt can rule it out, bans the names every model reaches
- * for, and adds a random spark so two rolls in a row start from different places.
+ * for. (The random "spark" seed was dropped on 2026-11-21: the pattern, openers and two
+ * seeds already steer the roll.)
  */
 import type { ExperienceCategory } from '../types';
-import { getContent } from '../content';
 import { OVERUSED_NAMES } from '../content/names';
 
 const KEY = 'zeroroll_recent_rolls';
@@ -54,11 +54,6 @@ export function freshnessLines(category: ExperienceCategory, fields: Field[]): s
   if (fields.includes('heroName')) {
     lines.push(`Never use these overused names, as first or last names: ${OVERUSED_NAMES.join(', ')}.`);
     lines.push(`For variety this time, start the hero's first name with the letter ${pick([...LETTERS])}, and draw on a naming tradition that fits the setting rather than a generic fantasy or thriller name.`);
-  }
-  if (fields.includes('premise')) {
-    const c = getContent(category);
-    const spark = pick(c.tropes.map((t) => t.premise));
-    if (spark) lines.push(`Spark for this roll (twist it into something new; do not copy it): ${spark}`);
   }
   return lines;
 }

@@ -63,6 +63,12 @@ export const adventure = {
   },
   "profile": {
     "seedSource": "Classic High-Seas Epics & Treasure Expeditions",
+    "pattern": {
+      "hero": "Someone with a reason to go: a debt, a missing relative, a map they didn't ask for, a ship they can't afford to lose.",
+      "start": "In port or at home before setting out, with both the lure and the cost clear.",
+      "turn": "The expedition turns: a betrayal, a wreck, a rival who gets there first.",
+      "payoff": "The find, and what it costs them."
+    },
     "voice": "Brisk, daring, spirited, full of nautical flavor and the pulse of discovery. Emphasizes momentum, physical agility, and clever problem-solving.",
     "atmosphere": "Sunlit wooden docks, crashing surf, unrolled sea charts weighted by brass coins, creaking ship rigging, squawking gulls, tropical trade winds, obsidian compasses.",
     "sceneStructure": "1. Stepping onto bustling harbor or island docks -> 2. Inspecting a mysterious navigational artifact or map -> 3. Recruiting allies or bargaining for supplies -> 4. Outbound expedition choice.",

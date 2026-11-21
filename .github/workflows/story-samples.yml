@@ -1,0 +1,41 @@
+name: Story roll samples
+
+# Rolls real stories with the GEMINI_API_KEY secret, through the same code the setup menu
+# uses, so prompt and content changes can be read against the category patterns before
+# they merge. Runs on demand only (Actions tab > Story roll samples > Run workflow): the
+# free Gemini tier allows about 20 story calls a day per model, shared with play. The
+# samples appear in the run summary and as a downloadable artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: Stories per category
+        default: '1'
+      categories:
+        description: Category ids separated by spaces (blank for all)
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  samples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx vite-node scripts/story-samples.ts ${{ inputs.count || '1' }} ${{ inputs.categories }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SAMPLES_OUT: story-samples.md
+      - if: always()
+        run: cat story-samples.md >> "$GITHUB_STEP_SUMMARY" || true
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: story-samples
+          path: story-samples.md

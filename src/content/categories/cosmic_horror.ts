@@ -67,6 +67,12 @@ export const cosmicHorror = {
   },
   "profile": {
     "seedSource": "H.P. Lovecraft, Wayne Barlowe, Beksiński & Junji Ito",
+    "pattern": {
+      "hero": "An ordinary professional whose work brushes against something: an archivist, a surveyor, a translator, a night nurse.",
+      "start": "A job that seems normal, with one detail that doesn't fit.",
+      "turn": "Understanding grows and costs them: their sleep, their relationships, their grip on what's real.",
+      "payoff": "A choice between knowing and forgetting, or between stopping it and surviving it."
+    },
     "voice": "Scholarly, obsessive, dread-laden, philosophical. Peels back the thin veneer of human sanity to reveal incomprehensible geometries and ancient cyclopean truths.",
     "atmosphere": "Rain drumming on leaded university archive glass, smell of aged leather and dry parchment, brass astrolabes, cryptic telegrams with unfamiliar postmarks, green banker lamps.",
     "sceneStructure": "1. Late night research in university archives -> 2. Uncovering an astronomical anomaly or forbidden translation -> 3. Telegram or relic from missing colleague -> 4. Dangerous investigation choice.",
@@ -498,7 +504,7 @@ export const cosmicHorror = {
       "premise": "The geometry of the hallway shifts imperceptibly. What was once a straight corridor now curves upward into an endless, spiraling abyss."
     },
     {
-      "premise": "You read the translated passages of the ancient tome, and a sudden, terrifying realization shatters your understanding of human existence."
+      "premise": "You were hired to translate an estate's library before auction, and one of the oldest books is annotated in your late father's handwriting."
     },
     {
       "premise": "The coastal town is plagued by a strange, iridescent fog that mutates the flora and drives the locals into a violent, cult-like frenzy."
@@ -552,7 +558,7 @@ export const cosmicHorror = {
       "premise": "The strange, alien fungus infecting the facility begins to speak in the voices of the scientists it has consumed."
     },
     {
-      "premise": "You realize the horrifying truth: the gods are not benevolent protectors, but indifferent, cosmic anomalies that view humanity as insects."
+      "premise": "You have catalogued the observatory's glass plates for six years, and this month the same faint shape appears on every plate, a little larger each night."
     }
   ],
   "procedural": {

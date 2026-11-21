@@ -16,3 +16,4 @@ model-check-report.md
 # Tauri
 src-tauri/target/
 src-tauri/gen/
+story-samples.md

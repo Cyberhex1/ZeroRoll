@@ -67,6 +67,12 @@ export const psychedelicTrip = {
   },
   "profile": {
     "seedSource": "Surrealist Art, Psychonauts & Mind-Bending Dimension Hopping",
+    "pattern": {
+      "hero": "An ordinary person with something on their mind: grief, a big decision, burnout.",
+      "start": "The trip begins in a real setting, and the world starts to shift.",
+      "turn": "The trip turns hard, and they face what they were avoiding.",
+      "payoff": "They come back with clarity."
+    },
     "voice": "Lyrical, kaleidoscopic, mind-bending, shifting realities. Evokes rich synesthesia where colors have sound and thoughts shape physical terrain.",
     "atmosphere": "Neon fractal dunes, velvet violet skies, floating crystal obelisks, melting clockwork compasses, echoing harmonic chimes, shimmering mirror lakes.",
     "sceneStructure": "1. Crossing the threshold into the surreal dimension -> 2. Experiencing sensory shift and fluid physics -> 3. Encountering an enigmatic dream entity -> 4. Symbolic perception choice.",
@@ -521,13 +527,13 @@ export const psychedelicTrip = {
       "premise": "You step through a doorway and reality unzips itself, revealing the underlying grid of the universe maintained by clockwork elves."
     },
     {
-      "premise": "The concept of time dissolves completely. You experience your past, present, and future simultaneously in a single, crystalline moment of eternity."
+      "premise": "You took it at a summer festival to forget a breakup, and now the stage lights are bending as if they want to tell you something."
     },
     {
       "premise": "A benevolent, plant-like intelligence communicates with you not through words, but by downloading intense, emotional memories directly into your mind."
     },
     {
-      "premise": "You feel your sense of self shatter into a million pieces, ego death washing over you as you merge with the infinite white light of the cosmos."
+      "premise": "You agreed to try it once, at your oldest friend's cabin, because you haven't cried since the funeral and everyone says it might help."
     },
     {
       "premise": "The forest floor begins to flow like a river of vibrant, neon colors, and the trees twist themselves into impossible, non-Euclidean shapes."
@@ -569,7 +575,7 @@ export const psychedelicTrip = {
       "premise": "A sudden wave of profound, unconditional love washes over you, emanating from a massive, fractal entity that calls itself the mother of creation."
     },
     {
-      "premise": "The texture of reality feels like a thin veil, and with a single thought, you pull it back to reveal the blinding, terrifying truth behind the simulation."
+      "premise": "The night before you have to decide whether to move across the country, your roommate hands you a small paper square and says, \"Only if you want to.\""
     }
   ],
   "procedural": {

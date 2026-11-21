@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
+const rollStory = vi.fn(async (_input: any) => ({ title: 'T', premise: 'The sea road calls.', outline: { chapters: ['Tide', 'Wreck'], immediateGoal: 'Find the wreck' }, actions: ['Sail'], hero: {}, sheet: {} }));
+vi.mock('../../setup/storyRoll', () => ({ rollStory: (input: any) => rollStory(input) }));
 vi.mock('../../lib/geminiService', () => ({
-  generateScenarioAI: vi.fn(async () => ({ scenario: { storyBlurb: 'The sea road calls.', storyOutline: { chapters: ['Tide', 'Wreck'], immediateGoal: 'Find the wreck' }, suggestedActions: ['Sail'] }, source: 'ai' })),
   generateChapterOneAI: vi.fn(async () => ({ text: 'Salt wind. Chapter One.', suggestedActions: ['Board the ship'], modelUsed: 'm' }))
 }));
 
@@ -33,6 +34,15 @@ describe('next book', () => {
     expect(next.memory!.entries[0]).toMatchObject({ pinned: true });
     expect(next.memory!.entries[0].text).toMatch(/^Book 1:/);
     expect(next.logs.slice(-1)[0]).toMatchObject({ sender: 'dm', text: 'Salt wind. Chapter One.', suggestedActions: ['Board the ship'] });
+  });
+
+  it('writes the new book with the same story roll as a new campaign, hero kept', async () => {
+    rollStory.mockClear();
+    await continueToNextBook(exp, 'm');
+    const input = rollStory.mock.calls[0][0];
+    expect(input).toMatchObject({ mode: 'sequel', category: 'fantasy', fixed: { name: 'Rook', roleClass: 'Rogue', origin: 'Elf' } });
+    expect(input.shape?.id).toBeTruthy();
+    expect(input.continuation).toMatch(/Start Book 2/);
   });
 });
 

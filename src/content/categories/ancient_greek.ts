@@ -66,6 +66,12 @@ export const ancientGreek = {
   },
   "profile": {
     "seedSource": "Homeric Epics, Spartan History & Mythological Antiquity",
+    "pattern": {
+      "hero": "A mortal with a home and a vow: a shepherd, a hoplite, a temple servant, a potter's daughter.",
+      "start": "Ordinary life, and an omen or prophecy they don't understand yet.",
+      "turn": "A god's attention or a king's decree turns their life over.",
+      "payoff": "The trial faced, and fate accepted or defied."
+    },
     "voice": "Homeric, solemn, mythic, honor-bound. Elevated prose echoing the cadence of epic poetry, divine omens, and heroic virtue.",
     "atmosphere": "Sun-baked marble temple steps, olive groves rustling in Aegean breezes, bronze hoplite round shields, smoking laurel leaves at Delphic altars, wine-dark sea cliffs.",
     "sceneStructure": "1. Arrival at sacred oracle shrine or coastal mountain pass -> 2. Inspecting divine omens and preparing bronze arms -> 3. Receiving prophecy or royal decree -> 4. Heroic path choice.",
@@ -521,7 +527,7 @@ export const ancientGreek = {
       "premise": "A massive bronze automaton awakens outside the city gates, sent by Hephaestus to test the mettle of the mortal heroes."
     },
     {
-      "premise": "You draw your xiphos sword as the Minotaur roars, the sound echoing endlessly through the twisting, bloodstained corridors of the Labyrinth."
+      "premise": "You tend goats on the hills above Knossos, and this spring the king's men have come to count the young people of your village for the tribute ship."
     },
     {
       "premise": "The Spartan king demands you hold the narrow mountain pass against a horde of Persian immortals with only a handful of hoplites."
@@ -530,7 +536,7 @@ export const ancientGreek = {
       "premise": "A tempest summoned by Poseidon shatters your trireme, washing you ashore on an island inhabited by a dangerous, alluring enchantress."
     },
     {
-      "premise": "The gods themselves intervene on the battlefield, the ground trembling as Ares descends in a chariot of fire to turn the tide of the war."
+      "premise": "You are a young hoplite on your first campaign, and the old soldiers swear the god of war has been seen walking in the enemy camp."
     },
     {
       "premise": "You must steal the Golden Fleece from the sacred grove of Ares, heavily guarded by a sleepless dragon with scales of iron."
@@ -566,7 +572,7 @@ export const ancientGreek = {
       "premise": "You are tasked with completing twelve impossible labors to atone for a terrible crime, beginning with slaying an invulnerable lion."
     },
     {
-      "premise": "The Trojan Horse has been breached, and you are fighting desperately through the burning streets of Troy as the city falls."
+      "premise": "You keep the storerooms of a house inside the walls of Troy and have counted every jar through ten years of siege; this morning the Greek ships are gone from the beach and the whole city is celebrating."
     },
     {
       "premise": "A satyr offers you a cup of enchanted wine that reveals hidden truths, but threatens to induce a state of permanent madness."

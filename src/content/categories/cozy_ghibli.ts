@@ -67,6 +67,12 @@ export const cozyGhibli = {
   },
   "profile": {
     "seedSource": "Studio Ghibli & Heartwarming Whimsical Storytelling",
+    "pattern": {
+      "hero": "Someone starting something small: a new shop, a new town, an apprenticeship.",
+      "start": "Arriving, the small worries of fitting in, and a neighbor or spirit who needs help.",
+      "turn": "A gentle setback (an upset spirit, a festival in danger, a friend leaving). No betrayal needed.",
+      "payoff": "Kindness and work set things right, and the place becomes home."
+    },
     "voice": "Gentle, warm, delightfully sensory, whimsical. Celebrates small culinary rituals, nature spirits, gentle companionship, and peaceful community connections.",
     "atmosphere": "Whistling copper tea kettles, star-honey cinnamon steam, flying clockwork tea shops, rolling blossom-filled meadow hills, parasol gliders, glowing spirit companions.",
     "sceneStructure": "1. Waking up in a charming shop or airship -> 2. Engaging in a cozy baking/brewing craft ritual -> 3. Greeting a whimsical spirit or friendly villager -> 4. Peaceful exploration choice.",

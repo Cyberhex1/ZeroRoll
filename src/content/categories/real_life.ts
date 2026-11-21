@@ -12,38 +12,38 @@ export const realLife = {
     "bgTheme": "cyber",
     "defaultCharacter": {
       "name": "Alex Rivera",
-      "roleClass": "Infiltration Specialist",
-      "raceOrigin": "Human",
+      "roleClass": "Office Coordinator",
+      "raceOrigin": "City-born",
       "level": 1,
       "hp": 11,
       "maxHp": 11,
       "armorClass": 13,
       "initiativeBonus": 2,
       "stats": {
-        "str": 11,
-        "dex": 15,
+        "str": 10,
+        "dex": 12,
         "con": 12,
-        "int": 16,
-        "wis": 13,
-        "cha": 14
+        "int": 14,
+        "wis": 14,
+        "cha": 13
       },
       "inventory": [
         {
           "id": "rl1",
-          "name": "Encrypted Security Tablet & Bypass Deck",
+          "name": "Work Laptop",
           "type": "misc",
-          "quantity": 1
-        },
-        {
-          "id": "rl2",
-          "name": "Tactical Pen & Multi-Tool",
-          "type": "weapon",
           "quantity": 1,
           "isEquipped": true
         },
         {
+          "id": "rl2",
+          "name": "Office Lanyard and Keycard",
+          "type": "misc",
+          "quantity": 1
+        },
+        {
           "id": "rl3",
-          "name": "Nexus Corp Visitor Appointment Letter",
+          "name": "Phone with Too Many Group Chats",
           "type": "misc",
           "quantity": 1
         }
@@ -52,29 +52,35 @@ export const realLife = {
       "statusEffects": [
         "Well-Rested"
       ],
-      "backgroundNotes": "A professional security specialist brought in to evaluate corporate network and physical access."
+      "backgroundNotes": "Keeps the office running and gets thanked by nobody; something at work has started to shift."
     },
     "samplePrompts": [
-      "I check in at the ground-floor security reception desk to obtain my visitor badge.",
-      "I grab a coffee at the atrium espresso bar while reviewing the building floor plans.",
-      "I observe the staff security turnstiles and badge readers with an Investigation check."
+      "I get to my desk early and read the email my manager sent at midnight.",
+      "I grab a coffee in the break room and listen to who's talking about the reorg.",
+      "I call my sister on my lunch break."
     ]
   },
   "profile": {
     "seedSource": "Contemporary Urban & Professional Life Simulations",
+    "pattern": {
+      "hero": "A regular person with a job, rent and people they care about.",
+      "start": "A normal week with one pressure growing: a hostile manager, a big interview, an HOA dispute, a family secret.",
+      "turn": "It comes to a head, and they lose something real.",
+      "payoff": "They handle it believably, and the win feels earned."
+    },
     "voice": "Grounded, sharp, relatable, keenly observant. Emphasizes realistic human stakes, contemporary workplace dynamics, and vibrant city atmosphere.",
-    "atmosphere": "Bustling Shibuya crosswalks, barista coffee grinders, tailored business suits, encrypted laptop organizers, glass skyscraper lobbies, autumn city mornings.",
-    "sceneStructure": "1. Morning arrival at modern workplace/venue -> 2. Setting up gear/organizer and reviewing the day's agenda -> 3. Key conversation with client, colleague, or rival -> 4. Decisive professional/personal choice.",
-    "storyBeats": "Realistic triumph and human drama: navigating high-stakes corporate audits, solving intricate architectural or logistical puzzles, building relationships, career turning points.",
-    "characterDynamics": "Security consultants, investigative journalists, corporate strategists, creative designers, seasoned mentors.",
-    "encounterPatterns": "Checking in at skyscraper security desks, reviewing building floor plans over espresso, observing security turnstiles, presenting strategic proposals.",
+    "atmosphere": "Fluorescent offices, break rooms with burnt coffee, crowded commutes, small apartments, family kitchens, autumn city mornings.",
+    "sceneStructure": "1. An ordinary morning at work or at home -> 2. The pressure shows up (an email, a schedule change, a family call) -> 3. A conversation with a coworker, friend or family member -> 4. A choice about how to handle it.",
+    "storyBeats": "Grounded human drama: a normal week with one pressure growing, small choices that add up, the pressure coming to a head and costing something real, then a believable, earned way through.",
+    "characterDynamics": "Regular people with jobs, rent and families: shift workers, nurses, office staff, teachers, tenants; difficult managers, resentful coworkers, relatives with old grudges, and a friend who shows up.",
+    "encounterPatterns": "Team meetings, shift handovers, awkward break-room conversations, landlord letters, family group chats, emails from HR, lunch with a friend.",
     "sensoryMotifs": [
-      "Morning commuters streaming across the Shibuya crosswalk beneath towering digital billboards",
-      "The rich, sharp aroma of freshly ground espresso at a busy atrium coffee bar",
-      "The tactile click of a stainless steel pen on a leather-bound planner",
-      "The cool polished glass and marble acoustics of a corporate headquarters lobby"
+      "The hum of the office printer during a tense meeting",
+      "Burnt break-room coffee and a phone buzzing face-down on the table",
+      "Rain on the bus window on the ride home",
+      "The quiet of your apartment after a long shift"
     ],
-    "avoid": "Supernatural magic spells, mythical monsters, apocalyptic explosions, immersion-breaking fantasy tropes.",
+    "avoid": "Supernatural magic spells, mythical monsters, apocalyptic explosions, immersion-breaking fantasy tropes, internet in-jokes and memes, heists and infiltration jobs, heroes who are secretly experts at everything.",
     "avoidKeywords": [
       "spell",
       "dragon",
@@ -188,12 +194,16 @@ export const realLife = {
       ],
       "gear": [
         {
-          "name": "Multi-Tool",
-          "type": "weapon",
+          "name": "Audit Laptop",
+          "type": "misc",
           "isEquipped": true
         },
         {
-          "name": "Letter",
+          "name": "Reconciliation Printouts",
+          "type": "scroll"
+        },
+        {
+          "name": "Office Keycard",
           "type": "misc"
         }
       ],
@@ -204,7 +214,7 @@ export const realLife = {
       "id": "seed_rl_02",
       "title": "The Hostile Takeover Defense",
       "tagline": "The rival private equity firm bought 49% of your family's architectural studio.",
-      "premise": "At 8:00 AM on Monday, a convoy of black sedans arrives at your family's third-generation architectural firm. A ruthless corporate raider walks into the atrium with proof he bought out your uncle's shares and plans to liquidate the studio by 5:00 PM.",
+      "premise": "You run your grandfather's architecture studio, the one with the creaky stairs and the drafting tables older than you. Your uncle has been quiet about the books since spring, and this morning a man in a very good suit arrived asking to see the building's floor plans for \"a new owner.\" Your team is waiting for you to tell them it's nothing. Is it?",
       "hero": {
         "name": "Marcus Bennett",
         "role": "Principal Architect",
@@ -217,9 +227,17 @@ export const realLife = {
       ],
       "gear": [
         {
-          "name": "Tablet",
+          "name": "Drafting Tablet",
           "type": "misc",
           "isEquipped": true
+        },
+        {
+          "name": "Studio Keys",
+          "type": "misc"
+        },
+        {
+          "name": "Grandfather's First Blueprint",
+          "type": "relic"
         }
       ],
       "spells": [],
@@ -242,9 +260,17 @@ export const realLife = {
       ],
       "gear": [
         {
-          "name": "Pen",
-          "type": "weapon",
+          "name": "Reporter's Notebook",
+          "type": "misc",
           "isEquipped": true
+        },
+        {
+          "name": "Encrypted Phone",
+          "type": "misc"
+        },
+        {
+          "name": "Press Badge",
+          "type": "misc"
         }
       ],
       "spells": [],
@@ -267,12 +293,16 @@ export const realLife = {
       ],
       "gear": [
         {
-          "name": "Multi-Tool",
-          "type": "weapon",
+          "name": "Demo Laptop",
+          "type": "misc",
           "isEquipped": true
         },
         {
-          "name": "Letter",
+          "name": "Pitch Deck Clicker",
+          "type": "misc"
+        },
+        {
+          "name": "Backup Drive",
           "type": "misc"
         }
       ],
@@ -296,9 +326,17 @@ export const realLife = {
       ],
       "gear": [
         {
-          "name": "Tablet",
+          "name": "UV Inspection Lamp",
           "type": "misc",
           "isEquipped": true
+        },
+        {
+          "name": "Gallery Keycard",
+          "type": "misc"
+        },
+        {
+          "name": "Condition Report Folder",
+          "type": "scroll"
         }
       ],
       "spells": [],
@@ -472,7 +510,7 @@ export const realLife = {
   ],
   "tropes": [
     {
-      "premise": "The HR manager stares at you blankly after you explain the 'poop knife' incident, and your FAANG interview hinges entirely on your next sentence."
+      "premise": "Your manager has started copying HR on every email to you, and the coworker who wanted your job has been very friendly lately."
     },
     {
       "premise": "The chaotic customer at the 2 AM bodega demands to buy a single cigarette with a handful of sticky pennies, holding up a massive line."
@@ -484,10 +522,10 @@ export const realLife = {
       "premise": "The Homeowners Association president issues a citation for your mailbox being the wrong shade of beige, threatening to place a lien on your house."
     },
     {
-      "premise": "You must navigate the horrific, unsanitary disaster of the \"Swamps of Dagobah\" operating room without breaking down in front of the surgical team."
+      "premise": "You are two weeks into a new hospital as a surgical tech, and the scrub nurse who trained you keeps leaving you off the cases that count toward your certification."
     },
     {
-      "premise": "A coworker named Kevin attempts a task so fundamentally stupid that it endangers the entire office, and you are the only one who can stop him."
+      "premise": "The coworker who sits next to you keeps taking credit for your work in standups, and your annual review is in three weeks."
     },
     {
       "premise": "Your car breaks down in a torrential downpour, and a stranded immigrant family stops to help you, living by the motto \"Today You, Tomorrow Me.\""
@@ -496,7 +534,7 @@ export const realLife = {
       "premise": "The IT department is in shambles as a catastrophic server failure occurs on Black Friday, and the lead engineer is nowhere to be found."
     },
     {
-      "premise": "You attempt to explain a complex, sensitive family dynamic in a Reddit post, only to have the entire internet brutally judge your life choices."
+      "premise": "Your landlord has sold the building, and the new owners keep sending letters to every tenant that say \"renovation\" and never say \"eviction.\""
     },
     {
       "premise": "The Michelin-star kitchen is in the weeds, tickets are printing non-stop, and the head chef is screaming at you for a missing garnish."
@@ -505,10 +543,10 @@ export const realLife = {
       "premise": "You must confront the unbearable awkwardness of sharing an elevator with the CEO after accidentally sending a highly inappropriate meme to the company Slack."
     },
     {
-      "premise": "The legend of Streetlamp Le Moose inspires you to navigate a complex social situation with unparalleled, effortless suave."
+      "premise": "Your younger brother wants you to co-sign his first apartment lease, and your parents say you owe him after everything they did for you."
     },
     {
-      "premise": "A modern military unit is inexplicably transported back to ancient Rome, forcing a terrifying clash between modern firepower and Roman legions."
+      "premise": "You've been offered a promotion that means managing your closest friend at work, and she found out before you could tell her."
     },
     {
       "premise": "You endure the grueling, six-round whiteboard interview at a tech giant, desperately trying to remember how to reverse a binary tree."
@@ -517,7 +555,7 @@ export const realLife = {
       "premise": "The chaotic energy of a busy call center reaches a boiling point when a customer threatens legal action over a five-dollar late fee."
     },
     {
-      "premise": "You complete an emotional challenge from the Ulysses Bucket List, honoring a stranger's memory and profoundly changing your perspective on life."
+      "premise": "You have looked after your grandmother every weekend for a year, and your aunt has started asking, carefully, whether Grandma has \"updated anything\" lately."
     },
     {
       "premise": "The dreaded family Thanksgiving dinner erupts into chaos when a long-held secret is casually dropped during the main course."
@@ -534,7 +572,7 @@ export const realLife = {
   ],
   "procedural": {
     "titles": [
-      "The Shibuya Nexus Assignment: Chapter I",
+      "The Monday Reorg: Chapter I",
       "The 42nd Floor Panel Interview: Chapter I",
       "Night Shift at the 24/7 Terminal: Chapter I",
       "The Emergency HOA Board Meeting: Chapter I",
@@ -561,36 +599,36 @@ export const realLife = {
       "Morrison"
     ],
     "roles": [
-      "Infiltration Security Consultant",
-      "Senior Systems Architect",
-      "Crisis Resolution Specialist",
-      "Logistics Coordinator",
-      "Investigative Journalist"
+      "Office Coordinator",
+      "Night Shift Nurse",
+      "Line Cook",
+      "Call Center Agent",
+      "IT Support Technician"
     ],
     "origins": [
-      "Human",
-      "Corporate Strategist",
-      "Field Specialist"
+      "City-born",
+      "Small-town transplant",
+      "Suburban-raised"
     ],
     "physicalTraits": [
       "Clean tailored dark navy suit, polished Oxford shoes, dark rimmed glasses, carrying an encrypted leather briefcase."
     ],
     "hooks": [
       {
-        "hook": "Shibuya crosswalk. You have your briefcase for the Nexus Corporation job.",
+        "hook": "Monday morning at the office. Your manager has moved your one-on-one to Friday and copied HR on the invite, and the coworker who wanted your job is suddenly very friendly.",
         "actions": [
-          "Check in",
-          "Grab coffee",
-          "Observe gates"
+          "Ask your manager what the meeting is about",
+          "Have coffee with the friendly coworker",
+          "Quietly save copies of your work"
         ],
         "gear": [
           {
-            "name": "Multi-Tool",
-            "type": "weapon",
+            "name": "Work Laptop",
+            "type": "misc",
             "isEquipped": true
           },
           {
-            "name": "Letter",
+            "name": "Office Lanyard",
             "type": "misc"
           }
         ],
@@ -598,17 +636,21 @@ export const realLife = {
         "hp": 11
       },
       {
-        "hook": "42nd-floor panel interview. You are overqualified, but they don’t know that.",
+        "hook": "Final interview day. The panel is running late, and the other candidate in the lobby used to be your coworker; he's telling the receptionist a story about you.",
         "actions": [
-          "Fix tie",
-          "Review resume",
-          "Check notes"
+          "Say hello to him",
+          "Go over your notes",
+          "Ask the receptionist how long the wait is"
         ],
         "gear": [
           {
-            "name": "Tablet",
+            "name": "Interview Folder",
             "type": "misc",
             "isEquipped": true
+          },
+          {
+            "name": "Phone",
+            "type": "misc"
           }
         ],
         "spells": [],
@@ -623,9 +665,13 @@ export const realLife = {
         ],
         "gear": [
           {
-            "name": "Pen",
-            "type": "weapon",
+            "name": "Work Phone",
+            "type": "misc",
             "isEquipped": true
+          },
+          {
+            "name": "Server Room Badge",
+            "type": "misc"
           }
         ],
         "spells": [],
@@ -635,21 +681,17 @@ export const realLife = {
   },
   "starterInventory": [
     {
-      "name": "Encrypted Leather Briefcase",
-      "type": "misc",
-      "quantity": 1,
-      "isEquipped": false
+      "name": "Work Bag",
+      "type": "misc"
     },
     {
-      "name": "Tailored Business Suit",
+      "name": "Everyday Clothes",
       "type": "armor",
-      "quantity": 1,
       "isEquipped": true
     },
     {
       "name": "Smartphone & Charger",
-      "type": "misc",
-      "quantity": 1
+      "type": "misc"
     }
   ],
   "ambient": [

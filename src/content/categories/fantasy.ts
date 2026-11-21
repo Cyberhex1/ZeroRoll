@@ -74,6 +74,12 @@ export const fantasy = {
   },
   "profile": {
     "seedSource": "Classic D&D 5e Campaigns & Iconic Tabletop Fantasy Literature",
+    "pattern": {
+      "hero": "Someone with a real place in their world: a village healer's apprentice, a caravan guard, a squire.",
+      "start": "Home life and a first sign: strange tracks, a stranger at the inn, an order from above.",
+      "turn": "The threat arrives and takes something, and they leave home because they have to.",
+      "payoff": "They face the source, changed by the road."
+    },
     "voice": "Evocative, adventurous, steeped in rich world lore. Balances the epic scale of dragon seals and ancient crypts with the warmth of frontier taverns and companions.",
     "atmosphere": "Misty cobblestone crossroads, crackling oak hearths, weathered traveling cloaks, glowing runic boundary stones, pine-scented frontier breezes, ancient catacomb echoes.",
     "sceneStructure": "1. Arrival at frontier village or ancient ruins -> 2. Environmental grounding & local lore -> 3. Summons from elder, patron, or warning sign -> 4. Immediate arcane/tactical choice fork.",

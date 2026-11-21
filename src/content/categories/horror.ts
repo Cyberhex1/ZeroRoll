@@ -73,6 +73,12 @@ export const horror = {
   },
   "profile": {
     "seedSource": "r/nosleep, Classic Creepypastas & Psychological Survival Horror",
+    "pattern": {
+      "hero": "Someone with a mundane reason to be there: a new job, a night shift, house-sitting, moving back home.",
+      "start": "A routine, a set of rules they've been told to follow, and one small thing that's off.",
+      "turn": "The wrong details grow until they can't be denied, and the hero is alone with it.",
+      "payoff": "They escape it or understand it, usually at a price."
+    },
     "voice": "Tense, claustrophobic, sensory, creeping dread. Focuses on unsettling absences, rules that must not be broken, and the uncanny silence of isolated places.",
     "atmosphere": "Dense pine forests at dusk, brass oil lanterns casting long amber shadows, handwritten caretaker rulebooks pinned to cabin doors, complete absence of birdsong, cold mountain fog.",
     "sceneStructure": "1. Arrival at secluded lodge/outpost at twilight -> 2. Finding an ominous caretaker note or missing person trace -> 3. Securing baseline shelter & light -> 4. First eerie anomaly choice.",

@@ -72,8 +72,14 @@ export function validateContent(
     if (!c.profile?.voice || !c.profile?.avoid) errors.push(`${cat}: profile needs a voice and an avoid line.`);
     if (!Array.isArray(c.profile?.sensoryMotifs) || c.profile.sensoryMotifs.length < 3) errors.push(`${cat}: profile needs at least 3 sensory motifs.`);
     if (!c.media?.length) errors.push(`${cat}: no media references.`);
+    const pat = c.profile?.pattern;
+    if (!pat || !(['hero', 'start', 'turn', 'payoff'] as const).every((k) => typeof pat[k] === 'string' && pat[k].trim())) errors.push(`${cat}: profile needs a premise pattern (hero, start, turn, payoff).`);
     if (!c.tropes?.length) errors.push(`${cat}: no tropes.`);
     if (!c.procedural?.hooks?.length) errors.push(`${cat}: no procedural hooks.`);
+    // Seeds and hooks are starting situations: no narrator's irony that gives the twist away.
+    const ironic = /\b(unaware|oblivious|little do|realizes? too late|realizing too late|not realizing)\b/i;
+    (c.tropes || []).forEach((t, i) => { if (ironic.test(t.premise)) errors.push(`${cat} trope ${i + 1}: narrator's irony gives the twist away ("${t.premise.match(ironic)?.[0]}").`); });
+    (c.procedural?.hooks || []).forEach((h, i) => { if (ironic.test(h.hook)) errors.push(`${cat} hook ${i + 1}: narrator's irony gives the twist away.`); });
     if (!c.starterInventory?.length) errors.push(`${cat}: no starter inventory.`);
     if (!c.ambient?.length) errors.push(`${cat}: no ambient lines.`);
 

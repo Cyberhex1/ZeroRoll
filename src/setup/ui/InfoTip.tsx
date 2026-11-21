@@ -22,11 +22,12 @@ export function InfoTip({ text, label = 'What does this do?' }: { text: string; 
     };
     document.addEventListener('mousedown', onDown);
     document.addEventListener('touchstart', onDown);
-    document.addEventListener('keydown', onKey, true);
+    // On window, capture phase: runs before the dialog's own Escape handler on document.
+    window.addEventListener('keydown', onKey, true);
     return () => {
       document.removeEventListener('mousedown', onDown);
       document.removeEventListener('touchstart', onDown);
-      document.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('keydown', onKey, true);
     };
   }, [open]);
 

@@ -490,14 +490,14 @@ export async function executeJsonPrompt<T>(
  * Records a failed AI feature so the player sees it (banner + navbar badge),
  * and returns the classified error.
  */
-export function reportFeatureFailure(err: unknown, feature: string, usedFallback: boolean): { error: AIError; message: string } {
+export function reportFeatureFailure(err: unknown, feature: string, usedFallback: boolean, opts: { banner?: boolean } = {}): { error: AIError; message: string } {
   const provider = getActiveProvider();
   const aiErr = classifyAIError(err, provider);
   const message = describeAIError(aiErr, AI_PROVIDERS[provider]?.name || 'The AI provider');
   // A call the player cancelled (closed the screen, rolled again) is not a provider problem.
   if (aiErr.kind === 'cancelled') return { error: aiErr, message };
   console.warn(`[AI] ${feature} failed${usedFallback ? ' — using offline generator' : ''}:`, aiErr);
-  reportAIFailure(aiErr, message, { feature, usedFallback });
+  reportAIFailure(aiErr, message, { feature, usedFallback, banner: opts.banner });
   return { error: aiErr, message };
 }
 
@@ -1081,7 +1081,8 @@ Output MUST be strictly valid JSON matching this schema:
       seedlist.prompts = seedlist.prompts.filter((x): x is string => typeof x === 'string' && x.trim().length > 0).map((x) => x.trim().slice(0, 400));
       return { seedlist };
     } catch (err: any) {
-      const { message } = reportFeatureFailure(err, 'Seedlist refresh', allowFallback);
+      // Without a fallback the caller shows the error on its own screen.
+      const { message } = reportFeatureFailure(err, 'Seedlist refresh', allowFallback, allowFallback ? {} : { banner: false });
       if (!allowFallback) throw new Error(message);
     }
   } else {

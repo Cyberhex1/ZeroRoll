@@ -38,7 +38,10 @@ const strList = (v: unknown, max: number, count: number): string[] =>
 
 /** A title without "Chapter I" and without wrapping quotes. */
 export function cleanTitle(v: unknown): string {
-  return campaignTitle(str(v, FIELD_LIMITS.title + 20).replace(/^["'“”]+|["'“”]+$/g, '')).slice(0, FIELD_LIMITS.title);
+  const bare = str(v, FIELD_LIMITS.title + 20)
+    .replace(/^["'“”]+|["'“”]+$/g, '')
+    .replace(/^Chapter\s+(?:[IVXLC]+|\d+|One)\s*[:\-\u2013\u2014|]\s*/i, '');
+  return campaignTitle(bare).slice(0, FIELD_LIMITS.title);
 }
 
 /**

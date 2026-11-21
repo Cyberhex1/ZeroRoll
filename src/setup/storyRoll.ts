@@ -194,7 +194,9 @@ Reply with JSON only, in this shape:
 /** A player-facing message for a failed setup call; a quota error says how long to wait. */
 export function setupFailure(err: unknown, feature: string): Error & { retryAfterMs?: number; cancelled?: boolean } {
   const aiErr = err instanceof AIError ? err : classifyAIError(err, getActiveProvider());
-  const { message } = reportFeatureFailure(aiErr, feature, false);
+  // The setup form shows the error with its own Try again; only key problems also get the
+  // banner, which links to AI settings.
+  const { message } = reportFeatureFailure(aiErr, feature, false, { banner: aiErr.kind === 'auth' || aiErr.kind === 'no_key' });
   const out = new Error(message) as Error & { retryAfterMs?: number; cancelled?: boolean };
   if (aiErr.kind === 'cancelled') out.cancelled = true;
   if (aiErr.kind === 'quota') {

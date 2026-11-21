@@ -58,7 +58,7 @@ import {
 } from './types';
 import { DEFAULT_GEMINI_MODEL, usableGeminiModelOptions } from './lib/modelsConfig';
 import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
-import { mergeInventoryAdditive, createVariedInitialMap } from './lib/experienceHelpers';
+import { createVariedInitialMap } from './lib/experienceHelpers';
 import { audioManager } from './audio/manager';
 
 function safeGetStorage(key: string): string | null {
@@ -385,20 +385,9 @@ export default function App() {
   // ---------------------------------------------------------------------------
   // Experience CRUD
   //
-  // handleCreateExperience() picks the freshest possible scenario for the
-  // chosen category.  Resolution order:
-  //   1. If the user supplied a custom opening prompt AND an AI key is
-  //      configured, call generateScenarioAI() so the AI weaves the user's
-  //      premise into a fully custom Act I scene.
-  //   2. Otherwise (or if AI fails) AND an AI key is configured, call
-  //      generateScenarioAI() with no user prompt so the AI still produces
-  //      a fresh, varied scenario for the category instead of repeating
-  //      a baked-in template.
-  //   3. Fall back to generateRandomScenarioSetup() — 3 distinct hooks
-  //      per category with shuffled names/roles/items (vs the 1 static
-  //      hook per category).
-  //   4. Last-resort fallback to the original generateScenarioHook()
-  //      static dispatcher.
+  // handleCreateExperience() saves a campaign the launch setup menu (src/setup) prepared:
+  // the story, the outline, the hero and their sheet, and Chapter One when the AI wrote it.
+  // It writes nothing itself and calls no AI.
   // ---------------------------------------------------------------------------
   const handleCreateExperience = async (
     category: ExperienceCategory,
@@ -414,13 +403,9 @@ export default function App() {
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
-    // CategoriesGrid has already prepared the character, including stats and inventory.
-    // We just need to merge in the category default items so the hero isn't naked.
-    const categoryDefaultInventory = getCategoryDefaultInventory(category);
-    const combinedInventory = mergeInventoryAdditive(
-      character.inventory,
-      categoryDefaultInventory
-    );
+    // The setup menu already gave the hero the gear from their story (or the category's
+    // starter kit when the story had none), so nothing is added that the story didn't name.
+    const combinedInventory = character.inventory.length ? character.inventory : getCategoryDefaultInventory(category);
 
     const initialMap: MapData = createVariedInitialMap(
       category,
@@ -573,6 +558,7 @@ export default function App() {
                     onCreateExperience={handleCreateExperience}
                     onDeleteExperience={handleDeleteExperience}
                     selectedModel={selectedModel}
+                    onOpenAISettings={() => setIsApiKeyModalOpen(true)}
                   />
                 </Suspense>
               )}

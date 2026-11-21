@@ -24,7 +24,7 @@ export interface CategorySeedInfo {
   prompts: string[];
 }
 import { generateRandomScenarioSetup, RandomizedScenarioData } from '../content/procedural';
-import { getCategoryFallbackActions, getCategoryProfile, getContent } from '../content';
+import { getCategoryFallbackActions, getCategoryProfile, getContent, getOpenerById } from '../content';
 import { freshnessLines, rememberRoll, OVERUSED_NAMES } from './rollFreshness';
 import { fullProfileBlock, turnContextBlock } from '../content/injection';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
@@ -361,6 +361,10 @@ export interface UniversalPromptOptions {
   maxTokens?: number;
   /** Feature name used in status-line notices, e.g. "Story turn". */
   feature?: string;
+  /** Cancels the call (the player closed the screen or started another roll). */
+  signal?: AbortSignal;
+  /** Gemini structured output: the JSON shape the reply must have (with responseJson). */
+  schema?: Record<string, unknown>;
 }
 
 /** Details of the last successful call, for status lines and Continue offers. */
@@ -416,14 +420,16 @@ export async function executeUniversalPrompt(options: UniversalPromptOptions): P
 }
 
 async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalPromptOptions): Promise<string> {
-  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false, thinking = 'low', maxTokens } = options;
+  const { systemPrompt, userPrompt, temperature = 0.8, responseJson = false, thinking = 'low', maxTokens, signal, schema } = options;
   const reply = await callProvider(cfg, {
     system: systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
     temperature,
     json: responseJson,
     thinking,
-    maxTokens
+    maxTokens,
+    signal,
+    schema
   });
   lastModelUsed = reply.model;
   lastCallMeta = {
@@ -459,7 +465,7 @@ export function parseJsonReply<T = any>(raw: string): T {
 /**
  * Runs a JSON prompt and validates it, re-asking once if the reply is unusable.
  */
-async function executeJsonPrompt<T>(
+export async function executeJsonPrompt<T>(
   options: UniversalPromptOptions,
   isValid: (value: any) => boolean
 ): Promise<T> {
@@ -484,12 +490,14 @@ async function executeJsonPrompt<T>(
  * Records a failed AI feature so the player sees it (banner + navbar badge),
  * and returns the classified error.
  */
-function reportFeatureFailure(err: unknown, feature: string, usedFallback: boolean): { error: AIError; message: string } {
+export function reportFeatureFailure(err: unknown, feature: string, usedFallback: boolean, opts: { banner?: boolean } = {}): { error: AIError; message: string } {
   const provider = getActiveProvider();
   const aiErr = classifyAIError(err, provider);
   const message = describeAIError(aiErr, AI_PROVIDERS[provider]?.name || 'The AI provider');
+  // A call the player cancelled (closed the screen, rolled again) is not a provider problem.
+  if (aiErr.kind === 'cancelled') return { error: aiErr, message };
   console.warn(`[AI] ${feature} failed${usedFallback ? ' — using offline generator' : ''}:`, aiErr);
-  reportAIFailure(aiErr, message, { feature, usedFallback });
+  reportAIFailure(aiErr, message, { feature, usedFallback, banner: opts.banner });
   return { error: aiErr, message };
 }
 
@@ -1028,14 +1036,25 @@ Output MUST be strictly valid JSON matching this schema with no markdown fences:
 export async function generateSeedlistAI(params: {
   category: ExperienceCategory;
   model?: string;
+  /** When false, failures throw instead of returning the built-in tropes (the setup screen shows them). */
+  allowFallback?: boolean;
+  signal?: AbortSignal;
 }): Promise<{ seedlist: CategorySeedInfo }> {
-  const { category } = params;
+  const { category, allowFallback = true, signal } = params;
   const hasKey = hasActiveGeminiKey();
+
+  if (!hasKey && !allowFallback) {
+    throw new Error(reportFeatureFailure(new AIError('no_key', 'No API key configured.', { provider: getActiveProvider() }), 'Seedlist refresh', false).message);
+  }
 
   if (hasKey) {
     try {
+      const profile = getCategoryProfile(category);
       const prompt = `You are a creative director for tabletop RPGs. Generate a fresh, highly imaginative brainstorm seedlist for the "${category}" genre.
-Invent completely NEW tropes, themes, hooks, and 3 full starting presets.
+Invent completely NEW story seeds: each one is a starting situation plus what makes it hard, in one or two sentences, written to the player as "you".
+Genre voice: ${profile.voice}
+Story beats this genre uses: ${profile.storyBeats}
+Avoid: ${profile.avoid}
 
 Output MUST be strictly valid JSON matching this schema:
 {
@@ -1056,12 +1075,15 @@ Output MUST be strictly valid JSON matching this schema:
 }`;
 
       const seedlist = await executeJsonPrompt<CategorySeedInfo>(
-        { userPrompt: prompt, temperature: 0.95 },
+        { userPrompt: prompt, temperature: 0.95, signal },
         (v) => Array.isArray(v?.prompts) && v.prompts.length > 0
       );
+      seedlist.prompts = seedlist.prompts.filter((x): x is string => typeof x === 'string' && x.trim().length > 0).map((x) => x.trim().slice(0, 400));
       return { seedlist };
     } catch (err: any) {
-      reportFeatureFailure(err, 'Seedlist refresh', true);
+      // Without a fallback the caller shows the error on its own screen.
+      const { message } = reportFeatureFailure(err, 'Seedlist refresh', allowFallback, allowFallback ? {} : { banner: false });
+      if (!allowFallback) throw new Error(message);
     }
   } else {
     reportMissingKey('Seedlist refresh');
@@ -1078,58 +1100,6 @@ Output MUST be strictly valid JSON matching this schema:
   };
 }
 
-/**
- * Rolls a single character/scenario field using AI with fallback.
- */
-export async function rollSingleFieldAI(
-  category: ExperienceCategory,
-  fieldType: 'title' | 'heroName' | 'roleClass' | 'raceOrigin' | 'hookText',
-  model?: string,
-  contextPrompt?: string,
-  /** When false, AI failures throw instead of returning a procedural value. */
-  allowFallback = true
-): Promise<string> {
-  const hasKey = hasActiveGeminiKey();
-
-  if (hasKey) {
-    try {
-      const profile = getCategoryProfile(category);
-      const prompt = `You are a creative tabletop RPG generator. Generate a SINGLE unique, imaginative "${fieldType}" for a "${profile.name}" campaign.
-${contextPrompt ? `Context / Story Theme: "${contextPrompt}"` : ''}
-Genre Profile: ${profile.name} (${profile.voice}).
-Sensory Motifs: ${profile.sensoryMotifs.slice(0, 2).join(', ')}.
-${freshnessLines(category, [fieldType === 'hookText' ? 'premise' : fieldType]).join('\n')}
-Output ONLY the generated text with no extra commentary, quotes, or formatting.`;
-
-      const text = await executeUniversalPrompt({
-        userPrompt: prompt,
-        temperature: 1.0,
-        thinking: 'minimal',
-        feature: 'Field roll'
-      });
-
-      const clean = text.trim().replace(/^["']|["']$/g, '');
-      if (clean && clean.length > 1) {
-        rememberRoll(category, fieldType === 'hookText' ? 'premise' : fieldType, clean);
-        return clean;
-      }
-      throw new AIError('bad_output', 'Reply was empty.');
-    } catch (err) {
-      const { message } = reportFeatureFailure(err, 'Field roll', allowFallback);
-      if (!allowFallback) throw new Error(message);
-    }
-  } else {
-    reportMissingKey('Field roll');
-  }
-
-  // Fallback to procedural generator
-  const setup = generateRandomScenarioSetup(category);
-  if (fieldType === 'title') return setup.title;
-  if (fieldType === 'heroName') return setup.heroName;
-  if (fieldType === 'roleClass') return setup.roleClass;
-  if (fieldType === 'raceOrigin') return setup.raceOrigin;
-  return setup.storyBlurb;
-}
 
 /**
  * Pronouns are not a visual description: "portrait of she/her High Elf" confused image
@@ -1200,6 +1170,16 @@ export async function generateAvatarAI(params: {
 /*                         CHAPTER ONE GENERATOR                              */
 /* -------------------------------------------------------------------------- */
 
+/** The hand-written opener a campaign started from: its first scene is the opening beat. */
+function openerBeat(inspiration?: CampaignInspiration): string {
+  const o = inspiration?.openerId ? getOpenerById(inspiration.openerId) : undefined;
+  if (!o) return '';
+  return `
+OPENING BEAT (from the hand-written opener this campaign starts from; open on this scene):
+"${o.tagline}" The player's first moves could be: ${o.actions.filter(Boolean).join(' | ')}
+`;
+}
+
 export async function generateChapterOneAI(params: {
   category: ExperienceCategory;
   storyBlurb: string;
@@ -1221,7 +1201,7 @@ ${fullProfileBlock(category, inspiration)}
 
 STORY PREMISE:
 ${storyBlurb}
-${formatOutlineForPrompt(storyOutline, 'brief') ? `
+${openerBeat(inspiration)}${formatOutlineForPrompt(storyOutline, 'brief') ? `
 DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference):
 ${formatOutlineForPrompt(storyOutline, 'brief')}
 ` : ''}

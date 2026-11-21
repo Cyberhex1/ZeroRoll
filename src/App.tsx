@@ -33,6 +33,7 @@ import {
 import { resetAIStatus } from './lib/aiStatus';
 import { watchKeyChanges } from './lib/keySync';
 import { runWeeklyModelCheck } from './ai/weeklyModelCheck';
+import { migrateGeminiDefaultModel } from './ai/defaultMigration';
 import { Navbar } from './components/Navbar';
 import { AIStatusBanner } from './components/AIStatusBanner';
 // Loaded on first use so the home screen downloads and starts faster.
@@ -153,6 +154,7 @@ export default function App() {
   // Older builds stored the Firebase web key as the Gemini key; it can never work.
   useEffect(() => {
     purgeUnusableStoredKeys();
+    migrateGeminiDefaultModel();
   }, []);
 
   // Cleanup timer on unmount

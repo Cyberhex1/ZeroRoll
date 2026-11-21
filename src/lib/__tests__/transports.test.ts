@@ -389,22 +389,111 @@ describe('only usable Gemini models are offered (ohnna, 2026-11-04)', () => {
     };
     const r = await run(svc.testProviderConnection({ provider: 'gemini', apiKey: 'AIzaTest', model: 'gemini-flash-latest' }));
     expect(r.success).toBe(true);
-    expect(r.usableModels).toEqual(['gemini-3.8-flash', 'gemini-3.5-flash-lite']);
-    expect(r.modelUsed).toBe('gemini-3.8-flash');
+    // Curated order: Flash-Lite (the default) first.
+    expect(r.usableModels).toEqual(['gemini-3.5-flash-lite', 'gemini-3.8-flash']);
+    expect(r.modelUsed).toBe('gemini-3.5-flash-lite');
     expect(r.message).toMatch(/gemini-flash-latest didn't answer/);
     // Old generations, dated snapshots and experiments are never probed.
     const probed = calls.filter((c) => c.url.includes(':generateContent')).map((c) => c.url.match(/models\/([^:]+):/)![1]);
     expect(probed).not.toContain('gemini-2.0-flash');
     expect(probed).not.toContain('gemini-3.8-flash-001');
     expect(probed).not.toContain('gemini-exp-1206');
-    expect(svc.getGeminiCandidateModels('gemini-flash-latest')).toEqual(['gemini-3.8-flash', 'gemini-3.5-flash-lite']);
+    expect(svc.getGeminiCandidateModels('gemini-flash-latest')).toEqual(['gemini-3.5-flash-lite', 'gemini-3.8-flash']);
     const { usableGeminiModelOptions } = await import('../modelsConfig');
-    expect(usableGeminiModelOptions().map((m) => m.id)).toEqual(['gemini-3.8-flash', 'gemini-3.5-flash-lite']);
+    expect(usableGeminiModelOptions().map((m) => m.id)).toEqual(['gemini-3.5-flash-lite', 'gemini-3.8-flash']);
+    // Listed models outside the curated list are not probed: each probe spends the key's daily limit.
+    expect(probed).not.toContain('gemini-argon');
   });
 
   it('a model outside the curated list that answers is offered by name', async () => {
     const { usableGeminiModelOptions, prettyGeminiName } = await import('../modelsConfig');
     expect(prettyGeminiName('gemini-argon')).toBe('Gemini Argon');
     expect(usableGeminiModelOptions(['gemini-3.8-flash', 'gemini-argon']).map((m) => m.name)).toEqual(['Gemini 3.8 Flash', 'Gemini Argon']);
+  });
+});
+
+describe('Gemini limits (2026-11-21)', () => {
+  const dailyBody = (model: string) => ({
+    error: {
+      code: 429,
+      status: 'RESOURCE_EXHAUSTED',
+      message: `Quota exceeded for metric: generate_content_free_tier_requests, limit: 20, model: ${model}`,
+      details: [
+        { '@type': 'type.googleapis.com/google.rpc.QuotaFailure', violations: [{ quotaId: 'GenerateRequestsPerDayPerProjectPerModel-FreeTier' }] },
+        { '@type': 'type.googleapis.com/google.rpc.RetryInfo', retryDelay: '1s' }
+      ]
+    }
+  });
+  const modelOf = (url: string) => url.match(/models\/([^:]+):/)?.[1];
+
+  it('reads the quota type from the 429 body', async () => {
+    const { quotaScopeFromError } = await import('../../ai/quota');
+    expect(quotaScopeFromError(dailyBody('gemini-3.8-flash'))).toBe('day');
+    expect(quotaScopeFromError({ error: { message: 'x', details: [{ violations: [{ quotaId: 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier' }] }] } })).toBe('minute');
+    expect(quotaScopeFromError({ error: { message: 'Quota exceeded ... limit: 0, model: gemini-4-argon' } })).toBe('zero');
+  });
+
+  it('daily limits reset at midnight Pacific', async () => {
+    const { nextPacificMidnight } = await import('../../ai/quota');
+    // 2026-11-21 15:00 UTC is 07:00 PST, so the reset is 2026-11-22 08:00 UTC.
+    expect(new Date(nextPacificMidnight(Date.UTC(2026, 10, 21, 15, 0))).toISOString()).toBe('2026-11-22T08:00:00.000Z');
+    // Summer (PDT, UTC-7): 2026-07-01 12:00 UTC resets at 2026-07-02 07:00 UTC.
+    expect(new Date(nextPacificMidnight(Date.UTC(2026, 6, 1, 12, 0))).toISOString()).toBe('2026-07-02T07:00:00.000Z');
+  });
+
+  it('a daily limit is not waited on: the next model answers, and the spent model is skipped afterwards', async () => {
+    useProvider('gemini');
+    localStorage.setItem('zeroroll_gemini_usable_models', JSON.stringify({ models: ['gemini-3.8-flash', 'gemini-3.5-flash-lite'], checkedAt: Date.now() }));
+    svc.setProviderModel('gemini', 'gemini-3.8-flash');
+    route = (url) => (modelOf(url) === 'gemini-3.8-flash' ? { status: 429, body: dailyBody('gemini-3.8-flash') } : gemini('Hello'));
+    expect(await run(svc.executeUniversalPrompt({ userPrompt: 'hi', feature: 'Story turn' }))).toBe('Hello');
+    expect(calls.map((c) => modelOf(c.url))).toEqual(['gemini-3.8-flash', 'gemini-3.5-flash-lite']);
+    expect(getAIStatus().notice?.message).toMatch(/gemini-3\.8-flash was unavailable \(daily limit used up until .+\), so gemini-3\.5-flash-lite answered/);
+    calls.length = 0;
+    resetAIStatus();
+    await run(svc.executeUniversalPrompt({ userPrompt: 'again' }));
+    expect(calls.map((c) => modelOf(c.url))).toEqual(['gemini-3.5-flash-lite']);
+    // Skipped without a call, but the player is still told.
+    expect(getAIStatus().notice?.message).toMatch(/gemini-3\.8-flash was unavailable \(daily limit/);
+  });
+
+  it('when every model is out for the day, it says until when without calling Google', async () => {
+    useProvider('gemini');
+    localStorage.setItem('zeroroll_gemini_usable_models', JSON.stringify({ models: ['gemini-3.5-flash-lite'], checkedAt: Date.now() }));
+    svc.setProviderModel('gemini', 'gemini-3.5-flash-lite');
+    route = () => ({ status: 429, body: dailyBody('gemini-3.5-flash-lite') });
+    await expect(run(svc.executeUniversalPrompt({ userPrompt: 'hi' }))).rejects.toMatchObject({ kind: 'quota', quotaScope: 'day' });
+    calls.length = 0;
+    const err: any = await run(svc.executeUniversalPrompt({ userPrompt: 'hi' })).catch((e) => e);
+    expect(err.kind).toBe('quota');
+    expect(calls).toHaveLength(0);
+    const { describeAIError } = await import('../aiErrors');
+    expect(describeAIError(err, 'Google Gemini')).toMatch(/daily limit .* is used up until/);
+  });
+
+  it('Flash gets "low" thinking when it rejects "minimal", and 3.6+ models get no temperature', async () => {
+    useProvider('gemini');
+    localStorage.setItem('zeroroll_gemini_usable_models', JSON.stringify({ models: ['gemini-3.8-flash'], checkedAt: Date.now() }));
+    svc.setProviderModel('gemini', 'gemini-3.8-flash');
+    route = (_url, init) => {
+      const level = JSON.parse(init.body).generationConfig.thinkingConfig?.thinkingLevel;
+      return level === 'MINIMAL'
+        ? { status: 400, body: errorBody('Thinking level MINIMAL is not supported for this model. Please retry with other thinking level.') }
+        : gemini('ok');
+    };
+    await run(svc.executeUniversalPrompt({ userPrompt: 'hi', thinking: 'minimal', temperature: 1 }));
+    const sent = calls.map((c) => JSON.parse(c.init.body).generationConfig);
+    expect(sent.map((g) => g.thinkingConfig?.thinkingLevel)).toEqual(['MINIMAL', 'LOW']);
+    expect(sent[1].temperature).toBeUndefined();
+  });
+
+  it('short tasks go to Flash-Lite when the player picked Flash, and usage is counted', async () => {
+    useProvider('gemini');
+    svc.setProviderModel('gemini', 'gemini-3.8-flash');
+    route = () => ({ status: 200, body: { candidates: [{ content: { parts: [{ text: 'Possible: yes' }] }, finishReason: 'STOP' }], usageMetadata: { promptTokenCount: 262, candidatesTokenCount: 40 } } });
+    await run(svc.executeUniversalPrompt({ userPrompt: 'can I?', tier: 'basic' }));
+    expect(modelOf(calls[0].url)).toBe('gemini-3.5-flash-lite');
+    const { getGeminiUsageToday } = await import('../../ai/quota');
+    expect(getGeminiUsageToday()['gemini-3.5-flash-lite']).toEqual({ requests: 1, inputTokens: 262, outputTokens: 40 });
   });
 });

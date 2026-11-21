@@ -43,6 +43,7 @@ import {
 } from '../lib/geminiService';
 import { resetAIStatus } from '../lib/aiStatus';
 import { usableGeminiModelOptions } from '../lib/modelsConfig';
+import GeminiUsageMeter from './GeminiUsageMeter';
 import { auth, saveUserSettingsToCloud } from '../lib/firebase';
 import { isTauri } from '../lib/platform';
 import { listOllamaModels, localModelLabel } from '../desktop/localModel';
@@ -501,6 +502,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 </select>
               ) : null}
               {pcLocal && ollamaNote && <p className="mt-1 text-[10px] text-amber-300">{ollamaNote}</p>}
+              {selectedProvider === 'gemini' && !pcLocal && <GeminiUsageMeter />}
               {!isCustomModel ? null : (
                 <div className="flex items-center gap-1.5">
                   <input

@@ -7,7 +7,8 @@
  * Providers without a key are skipped and say so in the report.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { suggestModelUpdates, formatSuggestions, ModelSuggestion } from '../src/ai/modelCheck';
+import { suggestModelUpdates, formatSuggestions, ModelSuggestion, newGeminiModels } from '../src/ai/modelCheck';
+import { AI_PROVIDERS } from '../src/lib/providersConfig';
 
 const MODELS_PATH = new URL('../src/ai/models.json', import.meta.url);
 const models = JSON.parse(readFileSync(MODELS_PATH, 'utf8'));
@@ -74,6 +75,12 @@ for (const s of sources) {
     const found = suggestModelUpdates(s.provider, models.providers[s.provider] || {}, available);
     all.push(...found);
     lines.push(`## ${s.provider}`, formatSuggestions(found), '');
+    if (s.provider === 'gemini') {
+      // Named releases (Gemini 4 Hydrogen, Argon...) have no version number to compare, so list
+      // every current text model the picker doesn't offer yet for a person to add.
+      const fresh = newGeminiModels(available, AI_PROVIDERS.gemini.models.map((m) => m.id));
+      lines.push(fresh.length ? `New Gemini models not in the picker (add them to src/lib/providersConfig.ts if they suit the game):\n${fresh.map((m) => `- \`${m}\``).join('\n')}` : 'The Gemini picker lists every current text model.', '');
+    }
   } catch (err) {
     lines.push(`## ${s.provider}`, `Could not list models: ${err instanceof Error ? err.message : String(err)}`, '');
   }

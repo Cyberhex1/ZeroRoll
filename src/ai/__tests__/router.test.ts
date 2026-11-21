@@ -58,7 +58,7 @@ beforeEach(() => {
 describe('planRoute', () => {
   it('best steps down through good and basic', () => {
     const plan = router.planRoute('best').map((s) => `${s.tier}:${s.model}`);
-    expect(plan).toEqual(['best:gemini-3.1-pro-preview', 'good:gemini-flash-latest', 'basic:gemini-3.5-flash-lite']);
+    expect(plan).toEqual(['best:gemini-3.8-flash', 'good:gemini-flash-latest', 'basic:gemini-3.5-flash-lite']);
   });
 
   it('basic never steps up', () => {
@@ -74,7 +74,7 @@ describe('planRoute', () => {
     router.setTierOverride('best', { provider: 'gemini', model: 'gemini-9-ultra' });
     const plan = router.planRoute('best');
     expect(plan[0]).toMatchObject({ model: 'gemini-9-ultra', source: 'override' });
-    expect(plan[1].model).toBe('gemini-3.1-pro-preview');
+    expect(plan[1].model).toBe('gemini-3.8-flash');
   });
 
   it('cross-provider backup is opt-in and only uses providers with keys', () => {
@@ -130,21 +130,21 @@ describe('complete', () => {
   });
 
   it('steps down when a model is unavailable and says so', async () => {
-    statusFor['gemini-3.1-pro-preview'] = 404;
+    statusFor['gemini-3.8-flash'] = 404;
     const r = await router.complete(msgs, 'best', { feature: 'Story chat' });
     expect(r.tier).toBe('good');
     expect(r.attempts.map((a) => a.error)).toEqual(['model_not_found']);
-    expect(getAIStatus().notice?.message).toMatch(/gemini-3.1-pro-preview was unavailable/);
+    expect(getAIStatus().notice?.message).toMatch(/gemini-3.8-flash was unavailable/);
   });
 
   it('calls one model per step (no hidden Gemini cascade)', async () => {
-    statusFor['gemini-3.1-pro-preview'] = 404;
+    statusFor['gemini-3.8-flash'] = 404;
     await router.complete(msgs, 'best');
-    expect(calls).toEqual(['gemini-3.1-pro-preview', 'gemini-flash-latest']);
+    expect(calls).toEqual(['gemini-3.8-flash', 'gemini-flash-latest']);
   });
 
   it('a bad key stops the route instead of burning through the ladder', async () => {
-    statusFor['gemini-3.1-pro-preview'] = 401;
+    statusFor['gemini-3.8-flash'] = 401;
     await expect(router.complete(msgs, 'best')).rejects.toMatchObject({ kind: 'auth' });
     expect(calls).toHaveLength(1);
   });

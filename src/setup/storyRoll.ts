@@ -29,14 +29,16 @@ import type { HeroDraft, HeroSheetDraft, StoryPackage } from './types';
 
 const S = (description?: string) => ({ type: 'STRING', ...(description ? { description } : {}) });
 const LIST = (description?: string) => ({ type: 'ARRAY', items: { type: 'STRING' }, ...(description ? { description } : {}) });
-const INT = { type: 'INTEGER' };
+// Bounded so a model can't run away writing one huge number (seen on Flash-Lite, 2026-11-21:
+// a quantity of 0000…0001 that used up the output limit and broke the JSON).
+const INT = (minimum: number, maximum: number) => ({ type: 'INTEGER', minimum, maximum });
 
 const SHEET_SCHEMA = {
   type: 'OBJECT',
   properties: {
     abilityScores: {
       type: 'OBJECT',
-      properties: { str: INT, dex: INT, con: INT, int: INT, wis: INT, cha: INT },
+      properties: { str: INT(3, 20), dex: INT(3, 20), con: INT(3, 20), int: INT(3, 20), wis: INT(3, 20), cha: INT(3, 20) },
       required: ['str', 'dex', 'con', 'int', 'wis', 'cha']
     },
     skills: LIST('Exactly 4 skill names from the list given'),
@@ -47,7 +49,7 @@ const SHEET_SCHEMA = {
         properties: {
           name: S(),
           type: { type: 'STRING', enum: ['weapon', 'armor', 'potion', 'scroll', 'relic', 'misc'] },
-          quantity: INT,
+          quantity: INT(1, 99),
           equipped: { type: 'BOOLEAN' },
           description: S()
         },
@@ -296,6 +298,8 @@ export async function rollStory(input: StoryRollInput): Promise<StoryPackage> {
         userPrompt: buildStoryPrompt(input),
         temperature: input.mode === 'fresh' ? 0.95 : 0.8,
         thinking: 'low',
+        // A full story package is about 1,200 tokens; the cap stops a runaway reply early.
+        maxTokens: 4096,
         schema: STORY_SCHEMA,
         signal: input.signal,
         feature: 'Story roll'
@@ -381,6 +385,7 @@ export async function rollHeroPart(part: HeroPart, ctx: HeroPartContext): Promis
         temperature: 1,
         thinking: 'minimal',
         maxTokens: part === 'roleClass' ? 2048 : 512,
+        tier: 'basic',
         schema: PART_SCHEMAS[part],
         signal: ctx.signal,
         feature

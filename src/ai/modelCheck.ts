@@ -83,6 +83,25 @@ export function suggestModelUpdates(
   return out;
 }
 
+/**
+ * Current Gemini text models the key lists that the picker does not offer yet, e.g. a new
+ * Gemini 4 model (gemini-4-hydrogen) that the version-based check above cannot compare.
+ * Skips old generations, dated snapshots, experiments, previews of special tools, and
+ * image, audio, video and embedding models.
+ */
+export function newGeminiModels(available: string[], offered: string[]): string[] {
+  return available.filter(
+    (m) =>
+      /^gemini-/.test(m) &&
+      !offered.includes(m) &&
+      !/^gemini-(1|2)(\.|-)/.test(m) &&
+      !/(image|tts|live|audio|embedding|transcribe|robotics|computer-use|customtools|omni|nano-banana)/.test(m) &&
+      !/-(exp|experimental)(-|$)/.test(m) &&
+      !/-\d{3}$/.test(m) &&
+      !/-\d{2}-\d{2,4}$/.test(m)
+  );
+}
+
 export function formatSuggestions(s: ModelSuggestion[]): string {
   if (!s.length) return 'Every model in src/ai/models.json is current.';
   return s

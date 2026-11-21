@@ -1,11 +1,11 @@
 {
   "$comment": "Model ladder per provider. basic = cheapest/fastest, good = default story model, best = strongest. The weekly model check (scripts/check-models.ts, .github/workflows/model-check.yml) proposes updates to this file.",
-  "checkedAt": "2026-11-04",
+  "checkedAt": "2026-11-21",
   "providers": {
     "gemini": {
       "basic": "gemini-3.5-flash-lite",
-      "good": "gemini-flash-latest",
-      "best": "gemini-3.1-pro-preview"
+      "good": "gemini-3.5-flash-lite",
+      "best": "gemini-3.8-flash"
     },
     "anthropic": {
       "basic": "claude-haiku-5-5",

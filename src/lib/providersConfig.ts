@@ -59,42 +59,72 @@ export const AI_PROVIDERS: Record<AIProviderId, AIProviderConfig> = {
     keyPortalUrl: 'https://aistudio.google.com/app/apikey',
     keyPlaceholder: 'AIzaSy...',
     keyPrefixHint: 'AIzaSy',
-    defaultModel: 'gemini-flash-latest',
+    defaultModel: 'gemini-3.5-flash-lite',
     models: [
+      {
+        id: 'gemini-3.5-flash-lite',
+        name: 'Gemini 3.5 Flash-Lite',
+        badge: 'Recommended',
+        description: 'Fast, with the biggest free allowance (hundreds of requests a day), so it suits long sessions. The default.',
+        isDefault: true
+      },
       {
         id: 'gemini-flash-latest',
         name: 'Gemini Flash (Latest)',
-        badge: 'Recommended',
-        description: 'Alias Google keeps pointed at the newest Flash release. Fast, creative, and covered by the free tier.',
-        isDefault: true
+        badge: 'Best writing',
+        description: 'Alias Google keeps pointed at the newest Flash release (now 3.8 Flash). Richer storytelling, but free keys get only about 20 requests a day. Name rolls and the Rules Referee still use Flash-Lite.'
       },
       {
         id: 'gemini-3.8-flash',
         name: 'Gemini 3.8 Flash',
         badge: 'Stable',
-        description: 'Pinned stable Flash release for consistent narration.'
+        description: 'Newest stable Flash, pinned. Best free-tier storytelling, but free keys get only about 20 requests a day.'
       },
       {
         id: 'gemini-3.6-flash',
         name: 'Gemini 3.6 Flash',
         badge: 'Stable',
-        description: 'Previous-generation stable Flash model.'
+        description: 'Previous stable Flash. Similar quality and similar free-tier limits.'
       },
       {
-        id: 'gemini-3.5-flash-lite',
-        name: 'Gemini 3.5 Flash Lite',
-        badge: 'Low Latency',
-        description: 'Fastest, cheapest stable model. Good for quick combat exchanges.'
+        id: 'gemini-flash-lite-latest',
+        name: 'Gemini Flash-Lite (Latest)',
+        badge: 'Fast',
+        description: 'Alias Google keeps pointed at the newest Flash-Lite release.'
+      },
+      {
+        id: 'gemini-3.1-flash-lite',
+        name: 'Gemini 3.1 Flash-Lite',
+        badge: 'Stable',
+        description: 'Older Flash-Lite. A spare when 3.5 Flash-Lite is busy.'
+      },
+      {
+        id: 'gemini-4-hydrogen',
+        name: 'Gemini 4 Hydrogen',
+        badge: 'New',
+        description: 'Gemini 4 everyday model (November 2026). Shown only if your key can use it.'
+      },
+      {
+        id: 'gemini-4-argon',
+        name: 'Gemini 4 Argon',
+        badge: 'Paid key',
+        description: 'Gemini 4 flagship reasoning model. Needs a paid (billing-enabled) key.'
+      },
+      {
+        id: 'gemini-4-carbon',
+        name: 'Gemini 4 Carbon',
+        badge: 'Paid key',
+        description: 'Most powerful Gemini 4 model, for very long or complex campaigns. Needs a paid key.'
       },
       {
         id: 'gemini-3.1-pro-preview',
         name: 'Gemini 3.1 Pro (Preview)',
-        badge: 'Deep Reasoning',
-        description: 'Pro-tier reasoning for complex lore and rules. Preview model with tighter free-tier limits.'
+        badge: 'Paid key',
+        description: 'Pro-tier reasoning for complex lore and rules. Needs a paid key.'
       }
     ],
     guide: {
-      overview: 'Get a Google AI Studio API key directly from Google. Free tier available with generous rate limits.',
+      overview: 'Get a Google AI Studio API key directly from Google. The free tier is enough to play on Flash-Lite (hundreds of requests a day); Flash allows only about 20 a day unless your Google project has billing turned on.',
       steps: [
         {
           stepNumber: 1,
@@ -111,10 +141,10 @@ export const AI_PROVIDERS: Record<AIProviderId, AIProviderConfig> = {
           stepNumber: 3,
           title: 'Copy & Paste Key',
           description: 'Copy your generated key (starts with "AIzaSy...") and paste it into the field below.',
-          tip: 'Google AI Studio keys are 100% free with no credit card required to get started.'
+          tip: 'No credit card is needed to start. Limits apply per Google Cloud project, so a second key in the same project does not add requests. Daily limits reset at midnight Pacific time.'
         }
       ],
-      pricingNote: 'Free tier includes daily quota per model. If your model is unavailable or rate-limited, ZeroRoll tries other Flash models your key can use and tells you which one answered.'
+      pricingNote: 'Each model has its own daily limit. When your model is busy or out of requests for the day, ZeroRoll tries another model your key can use and tells you which one answered. AI settings shows how many requests you have used today.'
     }
   },
 

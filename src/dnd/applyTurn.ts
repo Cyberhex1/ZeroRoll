@@ -93,7 +93,7 @@ export function splitStartingGold(inv: InventoryItem[]): { inventory: InventoryI
   return { inventory, gold };
 }
 
-function guessType(name: string): InventoryItem['type'] {
+export function guessType(name: string): InventoryItem['type'] {
   const n = name.toLowerCase();
   if (/sword|axe|bow|dagger|blade|spear|mace|staff|hammer|pistol|rifle|knife|club/.test(n)) return 'weapon';
   if (/armou?r|shield|helm|mail|plate|cloak|vest/.test(n)) return 'armor';

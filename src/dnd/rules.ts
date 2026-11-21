@@ -172,20 +172,9 @@ export function roleTemplate(roleClass: string, conScore?: number): { stats: Sta
   const r = roleClass.toLowerCase();
   // Standard array, placed by the role's priorities.
   const arr = [15, 14, 13, 12, 10, 8];
-  const order: Ability[] = /rogue|thief|assassin|scout|ranger|hunter|monk|acrobat|spy/.test(r)
-    ? ['dex', 'wis', 'con', 'int', 'cha', 'str']
-    : /wizard|mage|scholar|alchem|hacker|scientist|detective|investigator|inspector/.test(r)
-      ? ['int', 'dex', 'con', 'wis', 'cha', 'str']
-      : /cleric|priest|druid|healer|oracle|shaman|doctor|nurse|medic/.test(r)
-        ? ['wis', 'con', 'str', 'int', 'cha', 'dex']
-        : /bard|sorcer|warlock|witch|noble|diplomat|heir|performer|influencer|courtier|merchant/.test(r)
-          ? ['cha', 'dex', 'con', 'wis', 'int', 'str']
-          : /paladin|knight/.test(r)
-            ? ['str', 'cha', 'con', 'wis', 'dex', 'int']
-            : ['str', 'con', 'dex', 'wis', 'cha', 'int'];
+  const order = abilityPriorities(roleClass);
   const stats = Object.fromEntries(order.map((a, i) => [a, arr[i]])) as unknown as StatBlock;
-  const con = conScore ?? stats.con;
-  const maxHp = Math.max(6, hitDie(roleClass) + abilityMod(con));
+  const { maxHp, armorClass } = combatStats(roleClass, conScore === undefined ? stats : { ...stats, con: conScore });
   const spells = /wizard|mage|sorcer/.test(r)
     ? ['Magic Missile', 'Shield', 'Mage Hand']
     : /cleric|priest|healer|oracle/.test(r)
@@ -199,8 +188,31 @@ export function roleTemplate(roleClass: string, conScore?: number): { stats: Sta
             : /paladin/.test(r)
               ? ['Bless', 'Divine Smite']
               : [];
-  const armorClass = 10 + abilityMod(stats.dex) + (/fighter|warrior|knight|paladin|soldier|hoplite|guard/.test(r) ? 6 : /cleric|ranger|barbarian|mercenary/.test(r) ? 3 : 1);
   return { stats, maxHp, spells, armorClass };
+}
+
+/** The order a role raises its abilities in, highest first (the standard array follows it). */
+export function abilityPriorities(roleClass: string): Ability[] {
+  const r = roleClass.toLowerCase();
+  return /rogue|thief|assassin|scout|ranger|hunter|monk|acrobat|spy/.test(r)
+    ? ['dex', 'wis', 'con', 'int', 'cha', 'str']
+    : /wizard|mage|scholar|alchem|hacker|scientist|detective|investigator|inspector/.test(r)
+      ? ['int', 'dex', 'con', 'wis', 'cha', 'str']
+      : /cleric|priest|druid|healer|oracle|shaman|doctor|nurse|medic/.test(r)
+        ? ['wis', 'con', 'str', 'int', 'cha', 'dex']
+        : /bard|sorcer|warlock|witch|noble|diplomat|heir|performer|influencer|courtier|merchant/.test(r)
+          ? ['cha', 'dex', 'con', 'wis', 'int', 'str']
+          : /paladin|knight/.test(r)
+            ? ['str', 'cha', 'con', 'wis', 'dex', 'int']
+            : ['str', 'con', 'dex', 'wis', 'cha', 'int'];
+}
+
+/** Level 1 max HP and armour class for a role with these ability scores. Never typed by hand. */
+export function combatStats(roleClass: string, stats: StatBlock): { maxHp: number; armorClass: number } {
+  const r = roleClass.toLowerCase();
+  const maxHp = Math.max(6, hitDie(roleClass) + abilityMod(stats.con));
+  const armorClass = 10 + abilityMod(stats.dex) + (/fighter|warrior|knight|paladin|soldier|hoplite|guard/.test(r) ? 6 : /cleric|ranger|barbarian|mercenary/.test(r) ? 3 : 1);
+  return { maxHp, armorClass };
 }
 
 /** Rolls a planned check; with advantage or disadvantage (Full 5e) the better or worse d20 counts. */

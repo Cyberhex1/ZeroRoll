@@ -35,6 +35,11 @@ export interface ProviderRequest {
   signal?: AbortSignal;
   /** Gemini only: call exactly this model, without the fallback cascade (the router runs its own ladder). */
   noCascade?: boolean;
+  /**
+   * Gemini only, with `json`: the shape the reply must have (an OpenAPI-style responseSchema).
+   * Structured output removes most unparseable replies. Other providers ignore it.
+   */
+  schema?: Record<string, unknown>;
 }
 
 export interface ProviderReply {
@@ -296,6 +301,8 @@ export function parseRetryDelayMs(message: string): number | undefined {
 
 // Models that rejected a thinking level (older or non-thinking models); sent without it from then on.
 const modelsWithoutThinkingLevel = new Set<string>();
+// Models that rejected a response schema; asked for plain JSON from then on.
+const modelsWithoutSchema = new Set<string>();
 
 /**
  * One generateContent call over plain REST. The @google/genai SDK added ~500 KB to the
@@ -312,10 +319,13 @@ async function callGeminiModel(
   thinking: 'minimal' | 'low',
   maxTokens: number,
   timeoutMs: number,
-  outer?: AbortSignal
+  outer?: AbortSignal,
+  schema?: Record<string, unknown>
 ): Promise<TransportReply> {
   const generationConfig: Record<string, any> = { temperature, maxOutputTokens: maxTokens };
   if (responseJson) generationConfig.responseMimeType = 'application/json';
+  const useSchema = !!(responseJson && schema && !modelsWithoutSchema.has(modelName));
+  if (useSchema) generationConfig.responseSchema = schema;
   const useThinkingLevel = !modelsWithoutThinkingLevel.has(modelName);
   if (useThinkingLevel) generationConfig.thinkingConfig = { thinkingLevel: thinking.toUpperCase() };
 
@@ -350,7 +360,12 @@ async function callGeminiModel(
       // Models without thinking levels reject the field; retry once without it.
       if (res.status === 400 && useThinkingLevel && /thinking/i.test(parsedMsg)) {
         modelsWithoutThinkingLevel.add(modelName);
-        return callGeminiModel(apiKey, modelName, systemPrompt, messages, temperature, responseJson, thinking, maxTokens, timeoutMs, outer);
+        return callGeminiModel(apiKey, modelName, systemPrompt, messages, temperature, responseJson, thinking, maxTokens, timeoutMs, outer, schema);
+      }
+      // A model that can't take this schema still answers plain JSON; retry once without it.
+      if (res.status === 400 && useSchema && /schema|response_?schema|generation_?config/i.test(parsedMsg)) {
+        modelsWithoutSchema.add(modelName);
+        return callGeminiModel(apiKey, modelName, systemPrompt, messages, temperature, responseJson, thinking, maxTokens, timeoutMs, outer, schema);
       }
       throw classifyAIError({ status: res.status, message: `[Google Gemini] API Error (${res.status}): ${parsedMsg}` }, 'gemini');
     }
@@ -383,7 +398,8 @@ async function callGeminiWithCascade(
   maxTokens: number = DEFAULT_MAX_OUTPUT_TOKENS.gemini,
   deadlineAt: number = Date.now() + AI_TURN_DEADLINE_MS,
   outer?: AbortSignal,
-  noCascade = false
+  noCascade = false,
+  schema?: Record<string, unknown>
 ): Promise<ProviderReply> {
   const candidates = noCascade ? [normalizeGeminiModelName(model)] : getGeminiCandidateModels(model);
   let lastError: AIError | undefined;
@@ -395,7 +411,7 @@ async function callGeminiWithCascade(
       try {
         const reply = await callGeminiModel(
           apiKey, modelName, systemPrompt, messages, temperature, responseJson, thinking, maxTokens,
-          requestBudget(deadlineAt, 'gemini'), outer
+          requestBudget(deadlineAt, 'gemini'), outer, schema
         );
         return {
           ...reply,
@@ -679,7 +695,7 @@ export async function callProvider(cfg: ProviderCallConfig, req: ProviderRequest
   try {
     if (provider === 'gemini') {
       const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.gemini;
-      return await callGeminiWithCascade(apiKey, model, system, messages, temperature, json, thinking, maxTokens, deadlineAt, signal, req.noCascade);
+      return await callGeminiWithCascade(apiKey, model, system, messages, temperature, json, thinking, maxTokens, deadlineAt, signal, req.noCascade, req.schema);
     }
     const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
     let reply: TransportReply;

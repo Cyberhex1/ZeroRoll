@@ -30,10 +30,13 @@ import { freshnessLines, rememberRoll, OVERUSED_NAMES } from './rollFreshness';
 import { fullProfileBlock, turnContextBlock } from '../content/injection';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError } from './aiErrors';
+import { geminiBasicModel } from '../ai/taskModel';
+import { clearModelsOut } from '../ai/quota';
 import { reportAIFailure, reportAINotice, reportAISuccess, resetAIStatus } from './aiStatus';
 
 import {
   AI_REQUEST_TIMEOUT_MS,
+  AI_SHORT_TIMEOUT_MS,
   AI_TURN_DEADLINE_MS,
   DEFAULT_MAX_OUTPUT_TOKENS,
   FALLBACK_MODELS,
@@ -55,6 +58,7 @@ import {
 
 export {
   AI_REQUEST_TIMEOUT_MS,
+  AI_SHORT_TIMEOUT_MS,
   AI_TURN_DEADLINE_MS,
   DEFAULT_MAX_OUTPUT_TOKENS,
   FALLBACK_MODELS,
@@ -140,6 +144,8 @@ export function subscribeProviderKeyChanges(listener: () => void): () => void {
 export function setProviderKey(provider: AIProviderId, key: string): void {
   queueMicrotask(() => keyListeners.forEach((l) => l()));
   try {
+    // A different key may belong to another Google project with its own limits.
+    if (provider === 'gemini' && key.trim() !== (localStorage.getItem('zeroroll_key_gemini') || '').trim()) clearModelsOut();
     if (key && key.trim()) {
       localStorage.setItem(`zeroroll_key_${provider}`, key.trim());
       if (provider === 'gemini') {
@@ -187,6 +193,12 @@ export function getProviderModel(provider: AIProviderId): string {
     if (saved && saved.trim()) return saved.trim();
   } catch (_) {}
   return AI_PROVIDERS[provider]?.defaultModel || GEMINI_DEFAULT_MODEL;
+}
+
+/** The model for one call: Gemini's basic-tier model for short tasks, otherwise the player's model. */
+function modelForTask(provider: AIProviderId, tier?: 'basic'): string {
+  if (tier === 'basic' && provider === 'gemini' && !activeLocalContext()) return geminiBasicModel(getProviderModel('gemini'));
+  return getProviderModel(provider);
 }
 
 export function setProviderModel(provider: AIProviderId, model: string): void {
@@ -366,6 +378,12 @@ export interface UniversalPromptOptions {
   signal?: AbortSignal;
   /** Gemini structured output: the JSON shape the reply must have (with responseJson). */
   schema?: Record<string, unknown>;
+  /**
+   * 'basic' sends a short task (a name roll, the Rules Referee) to Gemini's basic-tier model
+   * (Flash-Lite) even when the player picked Flash for the story, so small tasks don't spend
+   * Flash's small daily allowance. Other providers use the player's model.
+   */
+  tier?: 'basic';
 }
 
 /** Details of the last successful call, for status lines and Continue offers. */
@@ -403,7 +421,7 @@ export async function executeUniversalPrompt(options: UniversalPromptOptions): P
     {
       provider,
       apiKey: getProviderKey(provider),
-      model: getProviderModel(provider),
+      model: modelForTask(provider, options.tier),
       baseUrl: getProviderBaseUrl(provider)
     },
     options
@@ -430,7 +448,8 @@ async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalProm
     thinking,
     maxTokens,
     signal,
-    schema
+    schema,
+    ...(options.tier === 'basic' ? { timeoutMs: AI_SHORT_TIMEOUT_MS } : {})
   });
   lastModelUsed = reply.model;
   lastCallMeta = {
@@ -1081,7 +1100,7 @@ Output MUST be strictly valid JSON matching this schema:
 }`;
 
       const seedlist = await executeJsonPrompt<CategorySeedInfo>(
-        { userPrompt: prompt, temperature: 0.95, signal },
+        { userPrompt: prompt, temperature: 0.95, signal, tier: 'basic' },
         (v) => Array.isArray(v?.prompts) && v.prompts.length > 0
       );
       seedlist.prompts = seedlist.prompts.filter((x): x is string => typeof x === 'string' && x.trim().length > 0).map((x) => x.trim().slice(0, 400));
@@ -1352,7 +1371,7 @@ export async function refereeAdjudicate(params: { action: string; character: any
   ].join('\n');
   const user = `${currentStateBlock(params.character, params.world)}\nGenre: ${params.category}\n\nProposed action: ${params.action.trim().slice(0, 600)}`;
   try {
-    const text = await executeUniversalPrompt({ systemPrompt: system, userPrompt: user, temperature: 0.3, feature: 'Rules Referee' });
+    const text = await executeUniversalPrompt({ systemPrompt: system, userPrompt: user, temperature: 0.3, maxTokens: 1024, tier: 'basic', feature: 'Rules Referee' });
     return { text: text.trim(), modelUsed: getLastModelUsedLabel() };
   } catch (err) {
     const { message } = reportFeatureFailure(err, 'Rules Referee', false);

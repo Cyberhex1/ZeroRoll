@@ -7,6 +7,7 @@
 import { AIProviderId, AI_PROVIDERS } from '../lib/providersConfig';
 import { AIError, classifyAIError, isTransient, shouldTryNextModel } from '../lib/aiErrors';
 import { localCallFor } from '../desktop/localModel';
+import { formatResetTime, isModelOut, markModelOut, modelOutUntil, quotaScopeFromError, recordGeminiUsage } from './quota';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -40,6 +41,8 @@ export interface ProviderRequest {
    * Structured output removes most unparseable replies. Other providers ignore it.
    */
   schema?: Record<string, unknown>;
+  /** Give up on one request after this long (default AI_REQUEST_TIMEOUT_MS). Short tasks use less. */
+  timeoutMs?: number;
 }
 
 export interface ProviderReply {
@@ -67,21 +70,26 @@ export const DEFAULT_MAX_OUTPUT_TOKENS: Record<'gemini' | 'other', number> = { g
 // A whole turn (every model in the cascade, every retry) gives up after this long.
 export const AI_TURN_DEADLINE_MS = 180_000;
 
-// Default Gemini model: the "latest" alias Google keeps pointed at the current Flash release.
-export const GEMINI_DEFAULT_MODEL = 'gemini-flash-latest';
+// Default Gemini model. Free keys get about 500 Flash-Lite requests a day but only about 20
+// Flash requests, so Flash-Lite is the default and Flash is the player's choice (ohnna, 2026-11-21).
+export const GEMINI_DEFAULT_MODEL = 'gemini-3.5-flash-lite';
 
 // Models tried, in order, after the player's chosen model when it is unavailable,
 // rate-limited or overloaded. Stable IDs from https://ai.google.dev/gemini-api/docs/models
+// Flash-Lite first: it has the largest free allowance and answers in seconds. Note that
+// gemini-flash-latest and gemini-3.8-flash share one quota, so only one of them is listed.
 export const FALLBACK_MODELS = [
-  'gemini-flash-latest',
-  'gemini-3.8-flash',
-  'gemini-3.6-flash',
   'gemini-3.5-flash-lite',
-  'gemini-3.1-flash-lite'
+  'gemini-3.1-flash-lite',
+  'gemini-3.8-flash',
+  'gemini-3.6-flash'
 ];
 
-// Give up on a single provider request after this long.
-export const AI_REQUEST_TIMEOUT_MS = 90_000;
+// Give up on a single provider request after this long. A model that has not answered in a
+// minute is usually queued or overloaded, and the next model is a better bet than waiting.
+export const AI_REQUEST_TIMEOUT_MS = 60_000;
+// Short tasks (name rolls, the Rules Referee) on the basic tier.
+export const AI_SHORT_TIMEOUT_MS = 30_000;
 
 /* -------------------------------------------------------------------------- */
 /*                         GEMINI MODEL DISCOVERY                             */
@@ -188,9 +196,10 @@ export function probeCandidates(listed: string[], curated: string[], max = 12): 
     !/-customtools$/.test(m) &&
     !/-\d{3}$/.test(m) &&
     !/-\d{2}-\d{2,4}$/.test(m);
-  const fromList = listed.filter(current);
-  const curatedHere = curated.filter((m) => listed.includes(m));
-  return Array.from(new Set([...curatedHere, ...fromList])).slice(0, max);
+  // Only the curated current models: every probe is a real request against the key's daily
+  // limit (free Flash keys get about 20), so listing extras would spend it on models nobody picked.
+  const curatedHere = curated.filter((m) => listed.includes(m) && current(m));
+  return Array.from(new Set(curatedHere)).slice(0, max);
 }
 
 /** One tiny request: does this model answer with this key right now? */
@@ -207,7 +216,23 @@ export async function probeGeminiModel(apiKey: string, model: string, timeoutMs 
       timeoutMs,
       'gemini'
     );
-    if (res.ok) return { model, ok: true };
+    if (res.ok) {
+      try {
+        recordGeminiUsage(model, (await res.json())?.usageMetadata);
+      } catch (_) {}
+      return { model, ok: true };
+    }
+    if (res.status === 429) {
+      let scope;
+      try {
+        scope = quotaScopeFromError(await res.json());
+      } catch (_) {}
+      // A limit of 0 means the key can never use this model (paid only). Any other 429 is a
+      // limit that resets, so the model stays usable and the cascade skips it until then.
+      if (scope === 'zero') return { model, ok: false, reason: 'needs a paid key (limit 0)' };
+      if (scope === 'day') markModelOut(model, 'day');
+      return { model, ok: true, reason: scope === 'day' ? 'out of requests for today' : 'rate-limited right now' };
+    }
     return { model, ok: false, reason: `HTTP ${res.status}` };
   } catch (e) {
     return { model, ok: false, reason: e instanceof Error ? e.message : String(e) };
@@ -233,6 +258,10 @@ export async function probeGeminiModels(apiKey: string, candidates: string[], co
  */
 export function getGeminiCandidateModels(preferred?: string): string[] {
   const first = normalizeGeminiModelName(preferred);
+  return orderedGeminiCandidates(first).filter((m) => !isModelOut(m));
+}
+
+function orderedGeminiCandidates(first: string): string[] {
   const usable = getUsableGeminiModels();
   if (usable && usable.length) {
     const ordered = [first, ...FALLBACK_MODELS, ...usable].filter((m) => usable.includes(m));
@@ -278,15 +307,27 @@ export async function withTimeout<T>(
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** "quota" alone hides the useful part; a daily limit says when it comes back. */
+function swapReasonText(err?: AIError): string | undefined {
+  if (!err) return undefined;
+  if (err.kind === 'quota' && err.quotaScope === 'day' && err.resetAt) return `daily limit used up until ${formatResetTime(err.resetAt)}`;
+  if (err.kind === 'quota' && err.quotaScope === 'zero') return 'needs a paid key';
+  return err.kind;
+}
+/** Up to a second of random spread, so retries from many tabs or players don't land together. */
+const jitter = () => Math.floor(Math.random() * 1000);
 
 /** Time left for a call that must finish by `deadlineAt`, capped at the per-request timeout. */
-function requestBudget(deadlineAt: number, provider: string): number {
+function requestBudget(deadlineAt: number, provider: string, cap: number = AI_REQUEST_TIMEOUT_MS): number {
   const remaining = deadlineAt - Date.now();
   if (remaining < 2_000) {
     throw new AIError('timeout', `Gave up after ${Math.round(AI_TURN_DEADLINE_MS / 1000)}s without a reply.`, { provider });
   }
-  return Math.min(AI_REQUEST_TIMEOUT_MS, remaining);
+  return Math.min(cap, remaining);
 }
+
+// A local model on a home PC can take well over a minute for one reply; it has no quota to protect.
+const LOCAL_REQUEST_TIMEOUT_MS = 90_000;
 
 /** Seconds the provider asked us to wait, from "retry in 7.2s" or a RetryInfo "retryDelay": "7s". */
 export function parseRetryDelayMs(message: string): number | undefined {
@@ -302,6 +343,16 @@ export function parseRetryDelayMs(message: string): number | undefined {
 
 // Models that rejected a thinking level (older or non-thinking models); sent without it from then on.
 const modelsWithoutThinkingLevel = new Set<string>();
+// Models that reject "minimal" thinking (Flash); they get "low", the nearest level they take.
+const modelsWithoutMinimalThinking = new Set<string>();
+
+/**
+ * Gemini 3.6 and newer (and Gemini 4) ignore temperature and may reject it in a future
+ * release (Google troubleshooting guide), so it is not sent to them.
+ */
+export function geminiTakesTemperature(model: string): boolean {
+  return !/^gemini-(3\.([6-9]|\d{2})|[4-9])(\.|-)/.test(model) && !/^gemini-(flash|pro)-latest$/.test(model);
+}
 // Models that rejected a response schema; asked for plain JSON from then on.
 const modelsWithoutSchema = new Set<string>();
 
@@ -323,7 +374,9 @@ async function callGeminiModel(
   outer?: AbortSignal,
   schema?: Record<string, unknown>
 ): Promise<TransportReply> {
-  const generationConfig: Record<string, any> = { temperature, maxOutputTokens: maxTokens };
+  const generationConfig: Record<string, any> = { maxOutputTokens: maxTokens };
+  if (geminiTakesTemperature(modelName)) generationConfig.temperature = temperature;
+  if (thinking === 'minimal' && modelsWithoutMinimalThinking.has(modelName)) thinking = 'low';
   if (responseJson) generationConfig.responseMimeType = 'application/json';
   const useSchema = !!(responseJson && schema && !modelsWithoutSchema.has(modelName));
   if (useSchema) generationConfig.responseSchema = schema;
@@ -357,7 +410,27 @@ async function callGeminiModel(
         if (reason) parsedMsg += ` (${reason})`;
         const retryDelay = json.error?.details?.find((d: any) => d?.retryDelay)?.retryDelay;
         if (retryDelay) parsedMsg += ` retryDelay: ${retryDelay}`;
-      } catch (_) {}
+        if (res.status === 429) {
+          const scope = quotaScopeFromError(json);
+          if (scope === 'day' || scope === 'zero') {
+            // Waiting does not clear these, whatever retryDelay says: skip the model until the reset.
+            const resetAt = markModelOut(modelName, scope);
+            const what = scope === 'zero' ? 'gets no requests on this key (paid only)' : `is out of requests until ${formatResetTime(resetAt)}`;
+            throw new AIError('quota', `[Google Gemini] ${modelName} ${what}. ${parsedMsg}`, { provider: 'gemini', status: 429, quotaScope: scope, resetAt, model: modelName });
+          }
+          if (scope === 'minute') {
+            throw new AIError('quota', `[Google Gemini] API Error (429): ${parsedMsg}`, { provider: 'gemini', status: 429, quotaScope: 'minute', model: modelName });
+          }
+        }
+      } catch (e) {
+        if (e instanceof AIError) throw e;
+      }
+      // Flash rejects "minimal"; step up to "low" rather than dropping the setting, which would
+      // leave the model's default (more thinking, slower, more tokens).
+      if (res.status === 400 && useThinkingLevel && thinking === 'minimal' && /thinking level/i.test(parsedMsg) && /minimal/i.test(parsedMsg)) {
+        modelsWithoutMinimalThinking.add(modelName);
+        return callGeminiModel(apiKey, modelName, systemPrompt, messages, temperature, responseJson, 'low', maxTokens, timeoutMs, outer, schema);
+      }
       // Models without thinking levels reject the field; retry once without it.
       if (res.status === 400 && useThinkingLevel && /thinking/i.test(parsedMsg)) {
         modelsWithoutThinkingLevel.add(modelName);
@@ -372,6 +445,7 @@ async function callGeminiModel(
     }
 
     const data = JSON.parse(raw);
+    recordGeminiUsage(modelName, data.usageMetadata);
     const candidate = data.candidates?.[0];
     const finishReason: string | undefined = candidate?.finishReason;
     const blockReason: string | undefined = data.promptFeedback?.blockReason;
@@ -400,25 +474,43 @@ async function callGeminiWithCascade(
   deadlineAt: number = Date.now() + AI_TURN_DEADLINE_MS,
   outer?: AbortSignal,
   noCascade = false,
-  schema?: Record<string, unknown>
+  schema?: Record<string, unknown>,
+  timeoutMs: number = AI_REQUEST_TIMEOUT_MS
 ): Promise<ProviderReply> {
-  const candidates = noCascade ? [normalizeGeminiModelName(model)] : getGeminiCandidateModels(model);
+  const chosen = normalizeGeminiModelName(model);
+  const candidates = noCascade ? (isModelOut(chosen) ? [] : [chosen]) : getGeminiCandidateModels(model);
+  if (!candidates.length) {
+    // Every model is out for today: say so and when it resets, without calling Google again.
+    const out = modelOutUntil(chosen);
+    const resetAt = out?.until;
+    throw new AIError(
+      'quota',
+      `[Google Gemini] ${noCascade ? chosen : 'Every model this key can use'} is out of requests${resetAt ? ` until ${formatResetTime(resetAt)}` : ' for today'}.`,
+      { provider: 'gemini', status: 429, quotaScope: out?.scope === 'zero' ? 'zero' : 'day', resetAt, model: chosen }
+    );
+  }
   let lastError: AIError | undefined;
   let firstError: AIError | undefined;
   let lastBadRequest: string | undefined;
+  // The player's model is out for today and was skipped without a call: still say so.
+  const skippedOut = !noCascade && candidates[0] !== chosen ? modelOutUntil(chosen) : undefined;
+  if (skippedOut) {
+    firstError = new AIError('quota', `${chosen} is out of requests until ${formatResetTime(skippedOut.until)}.`, { provider: 'gemini', quotaScope: skippedOut.scope, resetAt: skippedOut.until, model: chosen });
+  }
+  const reported = skippedOut ? chosen : candidates[0];
 
   for (const modelName of candidates) {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const reply = await callGeminiModel(
           apiKey, modelName, systemPrompt, messages, temperature, responseJson, thinking, maxTokens,
-          requestBudget(deadlineAt, 'gemini'), outer, schema
+          Math.min(timeoutMs, requestBudget(deadlineAt, 'gemini')), outer, schema
         );
         return {
           ...reply,
           provider: 'gemini',
           model: modelName,
-          ...(modelName !== candidates[0] ? { swappedFrom: candidates[0], swapReason: firstError?.kind } : {})
+          ...(modelName !== reported ? { swappedFrom: reported, swapReason: swapReasonText(firstError) } : {})
         };
       } catch (raw) {
         const err = classifyAIError(raw, 'gemini');
@@ -427,13 +519,17 @@ async function callGeminiWithCascade(
         // A bad key, a blocked prompt, a cancel or the overall deadline fail the same way on every model.
         if (err.kind === 'auth' || err.kind === 'blocked' || err.kind === 'cancelled' || (err.kind === 'timeout' && deadlineAt - Date.now() < 2_000)) throw err;
         const hint = parseRetryDelayMs(err.message);
-        // Honour a short retry hint on quota errors before moving down the cascade.
+        // A daily limit (or a limit of 0) does not clear by waiting: go straight to the next model.
+        if (err.kind === 'quota' && (err.quotaScope === 'day' || err.quotaScope === 'zero')) break;
+        // Honour a short retry hint on per-minute limits before moving down the cascade.
         if (attempt === 0 && err.kind === 'quota' && hint !== undefined && hint <= 10_000 && deadlineAt - Date.now() > hint + 5_000) {
-          await sleep(hint);
+          await sleep(hint + jitter());
           continue;
         }
-        if (attempt === 0 && isTransient(err.kind)) {
-          await sleep(Math.min(hint ?? 1000, 5000));
+        // Busy (503) or a dropped connection: one quick retry with backoff. A timeout is not
+        // retried on the same model; it already waited the whole request budget.
+        if (attempt === 0 && isTransient(err.kind) && err.kind !== 'timeout') {
+          await sleep(Math.min(hint ?? 1000, 5000) + jitter());
           continue;
         }
         break;
@@ -696,13 +792,13 @@ export async function callProvider(cfg: ProviderCallConfig, req: ProviderRequest
   try {
     if (provider === 'gemini') {
       const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.gemini;
-      return await callGeminiWithCascade(apiKey, model, system, messages, temperature, json, thinking, maxTokens, deadlineAt, signal, req.noCascade, req.schema);
+      return await callGeminiWithCascade(apiKey, model, system, messages, temperature, json, thinking, maxTokens, deadlineAt, signal, req.noCascade, req.schema, req.timeoutMs);
     }
     const maxTokens = req.maxTokens ?? DEFAULT_MAX_OUTPUT_TOKENS.other;
     let reply: TransportReply;
     const local = cfg.local ?? localCallFor(provider, model, cfg.baseUrl);
     if (local) {
-      reply = await callLocalOllama(model, local, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider));
+      reply = await callLocalOllama(model, local, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider, LOCAL_REQUEST_TIMEOUT_MS));
     } else if (provider === 'anthropic') {
       const baseUrl = cfg.baseUrl || AI_PROVIDERS.anthropic?.defaultBaseUrl || 'https://api.anthropic.com/v1';
       reply = await callAnthropicApi(apiKey, baseUrl, model, system, messages, temperature, json, maxTokens, requestBudget(deadlineAt, provider), signal);

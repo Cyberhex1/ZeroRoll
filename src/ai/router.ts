@@ -17,6 +17,8 @@ import { getActiveProvider, getProviderBaseUrl, getProviderKey, getProviderModel
 import { AI_TURN_DEADLINE_MS, ChatMessage, ProviderReply, callProvider } from './transport';
 import { getLadderPatch } from './weeklyModelCheck';
 import { localBasicTier } from '../desktop/localModel';
+import { getUsableGeminiModels } from './transport';
+import { isModelOut } from './quota';
 
 export type Tier = 'basic' | 'good' | 'best';
 export const TIERS: Tier[] = ['basic', 'good', 'best'];
@@ -140,8 +142,18 @@ export function planRoute(tier: Tier): RouteStep[] {
 
   const steps: RouteStep[] = [];
   const seen = new Set<string>();
+  const usableGemini = getUsableGeminiModels();
+  // Gemini models this key can't use, or that are out of requests until the daily reset,
+  // are skipped without a call (each call would spend part of the key's limit for nothing).
+  const skipGemini = (model: string) => isModelOut(model) || (!!usableGemini?.length && !usableGemini.includes(model));
+  const skipped: RouteStep[] = [];
   const push = (s: RouteStep) => {
     const k = `${s.provider}|${s.model}`;
+    if (s.provider === 'gemini' && s.source !== 'override' && skipGemini(s.model)) {
+      if (!seen.has(k)) skipped.push(s);
+      seen.add(k);
+      return;
+    }
     if (!seen.has(k)) {
       seen.add(k);
       steps.push(s);
@@ -164,6 +176,9 @@ export function planRoute(tier: Tier): RouteStep[] {
       push({ provider, model: m.model, tier: t, source: m.source });
     }
   }
+  // Nothing left: keep the first skipped step so the player gets the real error (e.g. the
+  // daily limit and when it resets) instead of an empty route.
+  if (!steps.length && skipped.length) steps.push(skipped[0]);
   return steps;
 }
 

@@ -21,13 +21,22 @@ export class AIError extends Error {
   kind: AIErrorKind;
   status?: number;
   provider?: string;
+  /** quota only: which limit was hit (per minute, per day, or a limit of 0 for this key). */
+  quotaScope?: 'minute' | 'day' | 'zero';
+  /** quota only: when the limit resets (epoch ms), for "out until 3:00 AM". */
+  resetAt?: number;
+  /** quota only: the model that ran out. */
+  model?: string;
 
-  constructor(kind: AIErrorKind, message: string, opts: { status?: number; provider?: string } = {}) {
+  constructor(kind: AIErrorKind, message: string, opts: { status?: number; provider?: string; quotaScope?: 'minute' | 'day' | 'zero'; resetAt?: number; model?: string } = {}) {
     super(message);
     this.name = 'AIError';
     this.kind = kind;
     this.status = opts.status;
     this.provider = opts.provider;
+    this.quotaScope = opts.quotaScope;
+    this.resetAt = opts.resetAt;
+    this.model = opts.model;
   }
 }
 
@@ -111,8 +120,15 @@ export function describeAIError(err: AIError, providerName = 'The AI provider'):
       return `${providerName} rejected your API key${err.status ? ` (${err.status})` : ''}. Check the key in AI settings.`;
     case 'model_not_found':
       return `${providerName} doesn't offer the selected model to your key. Pick another model in AI settings.`;
-    case 'quota':
+    case 'quota': {
+      const which = err.model ? ` for ${err.model}` : '';
+      if (err.quotaScope === 'zero') return `Your key gets no ${providerName} requests${which}; that model needs a paid key. Pick another model in AI settings.`;
+      if (err.quotaScope === 'day') {
+        const when = err.resetAt ? new Date(err.resetAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : 'midnight Pacific time';
+        return `${providerName}'s daily limit${which} is used up until ${when}. Pick another model in AI settings, or wait for the reset.`;
+      }
       return `${providerName} quota or rate limit reached. Wait a minute or switch models.`;
+    }
     case 'overloaded':
       return `${providerName} is overloaded right now. Try again shortly.`;
     case 'network':

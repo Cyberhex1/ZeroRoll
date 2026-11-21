@@ -221,6 +221,11 @@ describe('story prompt', () => {
     expect(p).toContain('STORY SEED');
     expect(p).toContain('A cursed bell rings at noon');
     expect(p).toContain('Pronouns: she/her');
+    // The hero must be the person the premise describes (a clerk is not a rogue, a job is not an origin).
+    expect(p).toContain('HERO FIT');
+    expect(p).toContain('a bookkeeper is a bookkeeper, not a rogue');
+    expect(p).toContain('Never a job or rank');
+    expect(p).toContain('not a hidden blade');
   });
 
   it("an adapt roll keeps the player's words and the name", () => {

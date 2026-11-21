@@ -101,10 +101,19 @@ export const STORY_SCHEMA = {
 
 const SKILL_LIST = Object.keys(SKILLS).join(', ');
 
+/** Who the hero is: shared by the story roll and the class/origin rerolls, so a reroll keeps the fit. */
+const CLASS_RULE =
+  'roleClass: who the hero is when the story starts, in two to four words: their job, calling or place in life, exactly as the premise describes them (e.g. "Exchequer Clerk", "Hotel Heiress", "Dock Smuggler", "Battle Mage"). Use an adventurer archetype (rogue, ranger, paladin, warlock) only when the premise makes them one: a bookkeeper is a bookkeeper, not a rogue.';
+const ORIGIN_RULE =
+  'origin: where the hero comes from or what people they belong to (e.g. "Sinks District native", "Harbor-born human", "Half-elf of the Marches"). Never a job or rank: "dockworker", "clerk", "sailor" and "captain" are jobs. It must agree with the premise; don\'t give them a past the premise contradicts.';
+const HERO_FIT =
+  'HERO FIT: before you reply, read only the premise and check the hero against it. Someone who knows nothing else should recognise this class, origin, ability scores and gear as the person the premise describes. If anything clashes, change the hero, not the premise.';
+
 const SHEET_RULES = `HERO SHEET (D&D 5e, level 1). It must make sense for this hero in this story:
 - abilityScores: 5e point buy. Every score from 8 to 15, total cost at most ${POINT_BUY_BUDGET} (8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9). Put the high scores where this hero's life and this story need them.
 - skills: exactly 4, chosen from: ${SKILL_LIST}. Pick the ones this hero would really have learned.
-- gear: 4 to 7 things this hero carries when the story starts, named for this story (type is weapon, armor, potion, scroll, relic or misc). No generic filler like "Adventurer Tool".
+- abilityScores and skills follow from the life the hero has lived so far, not from an adventurer template.
+- gear: 4 to 7 things this person really carries in their everyday life when the story starts, named for this story (type is weapon, armor, potion, scroll, relic or misc). A clerk carries ledgers, pens and keys, not a hidden blade. Give weapons or armor only when their life gives them a reason (a soldier, guard, thief, hunter or duelist, or a setting where everyone goes armed). No generic filler like "Adventurer Tool".
 - spells: only for a hero whose class really casts spells or wields supernatural power in this setting (a wizard, a priestess, a witch): 1 to 4, in the genre's own flavour. Everyone else (fighters, thieves, scouts, soldiers, nurses, detectives, nobles, ordinary people) gets an empty list. Don't invent powers or "abilities" to fill it.`;
 
 const SHEET_EXAMPLE = `"sheet": {
@@ -172,8 +181,8 @@ export function buildStoryPrompt(input: StoryRollInput): string {
   const heroLines = [
     `- Pronouns: ${pronouns}. ${fixed.name ? '' : `Give the hero a first and last name that suits these pronouns and the setting.`}`,
     fixed.name ? `- Name: keep "${fixed.name}" exactly.` : '',
-    fixed.roleClass ? `- Class: keep "${fixed.roleClass}".` : '- roleClass: a class or archetype this story calls for, in the genre\'s own terms.',
-    fixed.origin ? `- Origin: keep "${fixed.origin}".` : '- origin: a people, species or background (never a job), fitting the setting.',
+    fixed.roleClass ? `- Class: keep "${fixed.roleClass}".` : `- ${CLASS_RULE}`,
+    fixed.origin ? `- Origin: keep "${fixed.origin}".` : `- ${ORIGIN_RULE}`,
     '- appearance: one or two sentences on build, face and what they wear or carry. Looks only, no backstory.'
   ].filter(Boolean);
 
@@ -233,6 +242,8 @@ THE HERO
 ${heroLines.join('\n')}
 
 ${SHEET_RULES}
+
+${HERO_FIT}
 ${freshness.length ? `\nFRESHNESS\n${freshness.join('\n')}\n` : ''}
 Reply with JSON only, in this shape:
 {
@@ -328,8 +339,8 @@ const PART_SCHEMAS: Record<HeroPart, Record<string, unknown>> = {
 const PART_ASKS: Record<HeroPart, (ctx: HeroPartContext) => string> = {
   title: (ctx) => `Write a new title for this story (not "${ctx.title}"). Evocative, no chapter number.\nReply as JSON: { "title": "…" }`,
   name: (ctx) => `Give the hero a new first and last name (not "${ctx.hero.name}") that suits the pronouns ${ctx.pronouns} and this story's setting.\nReply as JSON: { "name": "…" }`,
-  origin: (ctx) => `Give the hero a new origin (not "${ctx.hero.origin}"): a people, species or background (never a job) that fits this story's setting, and new looks to match (one or two sentences: build, face, what they wear or carry).\nReply as JSON: { "origin": "…", "appearance": "…" }`,
-  roleClass: (ctx) => `Give the hero a new class or archetype (not "${ctx.hero.roleClass}") that this story could be told around, and the hero sheet that goes with it.\n\n${SHEET_RULES}\n\nReply as JSON: { "roleClass": "…", ${SHEET_EXAMPLE} }`
+  origin: (ctx) => `Give the hero a new origin (not "${ctx.hero.origin}"). ${ORIGIN_RULE} Then new looks to match (one or two sentences: build, face, what they wear or carry).\nReply as JSON: { "origin": "…", "appearance": "…" }`,
+  roleClass: (ctx) => `Give the hero a new class (not "${ctx.hero.roleClass}") that still fits the premise, and the hero sheet that goes with it. ${CLASS_RULE}\n\n${SHEET_RULES}\n\n${HERO_FIT}\n\nReply as JSON: { "roleClass": "…", ${SHEET_EXAMPLE} }`
 };
 
 export function buildHeroPartPrompt(part: HeroPart, ctx: HeroPartContext): string {

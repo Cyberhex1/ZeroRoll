@@ -194,7 +194,7 @@ export function HeroSheetCard({ draft, rulesMode, onRulesMode, onChange, onReset
       <div className="space-y-1">
         <div className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold">Spells {edit && !noSpells && <span className="normal-case tracking-normal font-normal">(up to {MAX_SPELLS})</span>}</div>
         {noSpells ? (
-          <p className="text-[10px] text-slate-500">None. A {draft.hero.roleClass.trim()} doesn't cast spells.</p>
+          <p className="text-[10px] text-slate-500">None. {/^[aeiou]/i.test(draft.hero.roleClass.trim()) ? 'An' : 'A'} {draft.hero.roleClass.trim()} doesn't cast spells.</p>
         ) : edit ? (
           <div className="flex flex-wrap items-center gap-1.5">
             {sheet.spells.map((sp) => (

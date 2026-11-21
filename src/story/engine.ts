@@ -113,7 +113,7 @@ function applyEffect(story: Story, flags: Flags, e: FlagEffect): FlagValue | und
  * Turns the narrator's reported flags into effects. Only declared flags count; booleans
  * take true/false, counters take a number, "+N" or "-N".
  */
-export function effectsFromNarrator(story: Story, reported: Record<string, unknown> | undefined): FlagEffect[] {
+export function effectsFromNarrator(story: Story, reported: Record<string, unknown> | undefined, current: Record<string, unknown> = {}): FlagEffect[] {
   const out: FlagEffect[] = [];
   for (const [flag, raw] of Object.entries(reported ?? {})) {
     const def = story.flags[flag];
@@ -122,7 +122,11 @@ export function effectsFromNarrator(story: Story, reported: Record<string, unkno
       if (typeof raw === 'boolean') out.push({ flag, set: raw });
       else if (raw === 'true' || raw === 'false') out.push({ flag, set: raw === 'true' });
     } else if (typeof raw === 'number' && Number.isInteger(raw)) {
-      out.push({ flag, set: raw });
+      // Models restate counters from memory and get them wrong (trust 3 reported as 2), so an
+      // absolute number only moves the counter one step toward it; the same number is no change.
+      const now = typeof current[flag] === 'number' ? (current[flag] as number) : undefined;
+      if (now === undefined) out.push({ flag, set: raw });
+      else if (raw !== now) out.push({ flag, add: raw > now ? 1 : -1 });
     } else if (typeof raw === 'string' && /^[+-]\d+$/.test(raw.trim())) {
       out.push({ flag, add: parseInt(raw.trim(), 10) });
     }
@@ -189,9 +193,11 @@ export function applyNarratorTail(story: Story, state: StoryState, tail: Narrato
   const events: EngineEvent[] = [];
   let next: StoryState = { ...state, notice: undefined, turns: state.turns + 1, turnsInBeat: state.turnsInBeat + 1 };
   if (state.ending) return { state: next, events };
-  next = setFlags(story, next, effectsFromNarrator(story, tail.flags), events);
+  next = setFlags(story, next, effectsFromNarrator(story, tail.flags, next.flags), events);
 
-  const claim = typeof tail.beatReached === 'string' && tail.beatReached.trim() && tail.beatReached !== 'none' ? tail.beatReached.trim() : null;
+  // Naming the beat the story is already in is not a move (local models often do this).
+  const raw = typeof tail.beatReached === 'string' ? tail.beatReached.trim() : '';
+  const claim = raw && raw !== 'none' && raw !== next.beat ? raw : null;
   if (claim) {
     const refusal = gateRefusal(story, next, claim);
     if (refusal) {

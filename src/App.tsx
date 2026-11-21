@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { campaignTitle } from './lib/titles';
 import { uid } from './lib/ids';
 import { continueToNextBook } from './dnd/nextBook';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
@@ -25,7 +26,9 @@ import {
   importAllProviderSettings,
   purgeUnusableStoredKeys,
   getActiveProvider,
-  setProviderModel
+  setProviderModel,
+  setActiveProvider,
+  getProviderKey
 } from './lib/geminiService';
 import { resetAIStatus } from './lib/aiStatus';
 import { watchKeyChanges } from './lib/keySync';
@@ -55,7 +58,7 @@ import {
 } from './types';
 import { DEFAULT_GEMINI_MODEL, usableGeminiModelOptions } from './lib/modelsConfig';
 import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
-import { mergeInventoryAdditive, createVariedInitialMap } from './lib/experienceHelpers';
+import { createVariedInitialMap } from './lib/experienceHelpers';
 import { audioManager } from './audio/manager';
 
 function safeGetStorage(key: string): string | null {
@@ -89,6 +92,8 @@ const GUEST_PROFILE: UserProfile = {
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  // Bumped when Firebase reports "signed out", so the guest list loads again after that callback cleared it.
+  const [signedOutEpoch, setSignedOutEpoch] = useState(0);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [activeExperience, setActiveExperience] = useState<Experience | null>(null);
 
@@ -279,6 +284,7 @@ export default function App() {
         // Signed out — synchronously clear ALL user-specific state first to prevent data leak
         setUser(null);
         setExperiences([]);
+        setSignedOutEpoch((n) => n + 1);
         setActiveExperience(null);
         pendingActiveExpId.current = null;
         setUserProfile(GUEST_PROFILE);
@@ -334,7 +340,7 @@ export default function App() {
     );
 
     return () => unsubscribe();
-  }, [user]); // Only re-subscribe when the user identity changes
+  }, [user, signedOutEpoch]); // Re-subscribe when the user identity changes (or after a sign-out cleared the list)
 
   // ---------------------------------------------------------------------------
   // Settings Persistence
@@ -343,6 +349,8 @@ export default function App() {
     setSelectedModel(modelId);
     safeSetStorage('dnd_selected_model', modelId);
     // The navbar picker lists Gemini models; make the choice the one AI calls actually use.
+    // Picking a Gemini model while a local model is active switches back to Gemini.
+    if (getActiveProvider() !== 'gemini' && getProviderKey('gemini').trim()) setActiveProvider('gemini');
     if (getActiveProvider() === 'gemini') {
       setProviderModel('gemini', modelId);
       resetAIStatus();
@@ -377,20 +385,9 @@ export default function App() {
   // ---------------------------------------------------------------------------
   // Experience CRUD
   //
-  // handleCreateExperience() picks the freshest possible scenario for the
-  // chosen category.  Resolution order:
-  //   1. If the user supplied a custom opening prompt AND an AI key is
-  //      configured, call generateScenarioAI() so the AI weaves the user's
-  //      premise into a fully custom Act I scene.
-  //   2. Otherwise (or if AI fails) AND an AI key is configured, call
-  //      generateScenarioAI() with no user prompt so the AI still produces
-  //      a fresh, varied scenario for the category instead of repeating
-  //      a baked-in template.
-  //   3. Fall back to generateRandomScenarioSetup() — 3 distinct hooks
-  //      per category with shuffled names/roles/items (vs the 1 static
-  //      hook per category).
-  //   4. Last-resort fallback to the original generateScenarioHook()
-  //      static dispatcher.
+  // handleCreateExperience() saves a campaign the launch setup menu (src/setup) prepared:
+  // the story, the outline, the hero and their sheet, and Chapter One when the AI wrote it.
+  // It writes nothing itself and calls no AI.
   // ---------------------------------------------------------------------------
   const handleCreateExperience = async (
     category: ExperienceCategory,
@@ -406,13 +403,9 @@ export default function App() {
   ) => {
     const categoryInfo = CATEGORIES_DATA.find(c => c.id === category);
 
-    // CategoriesGrid has already prepared the character, including stats and inventory.
-    // We just need to merge in the category default items so the hero isn't naked.
-    const categoryDefaultInventory = getCategoryDefaultInventory(category);
-    const combinedInventory = mergeInventoryAdditive(
-      character.inventory,
-      categoryDefaultInventory
-    );
+    // The setup menu already gave the hero the gear from their story (or the category's
+    // starter kit when the story had none), so nothing is added that the story didn't name.
+    const combinedInventory = character.inventory.length ? character.inventory : getCategoryDefaultInventory(category);
 
     const initialMap: MapData = createVariedInitialMap(
       category,
@@ -565,6 +558,7 @@ export default function App() {
                     onCreateExperience={handleCreateExperience}
                     onDeleteExperience={handleDeleteExperience}
                     selectedModel={selectedModel}
+                    onOpenAISettings={() => setIsApiKeyModalOpen(true)}
                   />
                 </Suspense>
               )}
@@ -587,7 +581,7 @@ export default function App() {
         onSignOut={logoutUser}
         soundEnabled={soundEnabled}
         onToggleSound={handleToggleSound}
-        activeExperienceTitle={activeExperience?.title}
+        activeExperienceTitle={activeExperience ? campaignTitle(activeExperience.title) : undefined}
         onBackToExperiences={activeExperience ? () => handleSelectExperience(null) : undefined}
         userProfile={userProfile}
         isSaving={isSaving}

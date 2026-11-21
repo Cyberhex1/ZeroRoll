@@ -64,7 +64,7 @@ export function dismissAINotice(): void {
 export function reportAIFailure(
   err: AIError,
   message: string,
-  opts: { feature?: string; usedFallback?: boolean } = {}
+  opts: { feature?: string; usedFallback?: boolean; banner?: boolean } = {}
 ): void {
   emit({
     state: 'error',
@@ -72,7 +72,8 @@ export function reportAIFailure(
     message,
     feature: opts.feature,
     usedFallback: !!opts.usedFallback,
-    visible: true,
+    // A screen that shows the error itself (with its own retry) keeps the banner out of the way.
+    visible: opts.banner ?? true,
     at: Date.now(),
     lastModel: status.lastModel,
     notice: status.notice

@@ -53,14 +53,70 @@ const num = (s?: string) => {
 
 const END: Record<string, string> = { COURSE_TRIGGER: 'END_TRIGGER', CHECK_REQUIRED: 'END_CHECK' };
 const endOf = (name: string) => END[name] ?? `END_${name}`;
+const BLOCK_NAMES = ['STATE_UPDATE', 'COURSE_TRIGGER', 'CHECK_REQUIRED', 'AVATAR_EVOLUTION'];
 
-function blocks(text: string, name: string): string[] {
-  const re = new RegExp(`---${name}---([\\s\\S]*?)---${endOf(name)}---`, 'g');
-  return [...text.matchAll(re)].map((m) => m[1]);
+/**
+ * Block markers as models really write them: any case, with or without spaces, two or
+ * more dashes (---state_update---, --- STATE UPDATE ---). They become the canonical form.
+ */
+export function normaliseMarkers(text: string): string {
+  return text.replace(/-{2,}\s*([A-Za-z][A-Za-z _]*?)\s*-{2,}/g, (whole, raw: string) => {
+    const name = raw.trim().toUpperCase().replace(/\s+/g, '_');
+    const known = name === 'OPTIONS' || BLOCK_NAMES.includes(name) || BLOCK_NAMES.some((b) => endOf(b) === name);
+    return known ? `---${name}---` : whole;
+  }).replace(INLINE_FIELD, '\n$1:');
 }
 
+const FIELD_NAMES = 'HP_DELTA|ITEMS_GAINED|ITEMS_LOST|CONDITIONS_ADDED|CONDITIONS_REMOVED|GOLD_DELTA|XP_GAINED|SPELLS_GAINED|LOCATION|TITLE|TYPE|SUBTITLE|DESCRIPTION|SKILL|STAT|DC|REASON|ADVANTAGE|EVOLVED|PHYSICAL_DESCRIPTION';
+/** Fields written on one line ("HP_DELTA: -40 ITEMS_LOST: [...]") are split onto their own lines. */
+const INLINE_FIELD = new RegExp(`[ \\t]+(${FIELD_NAMES}):`, 'g');
+
+/**
+ * Every block of a kind. A block whose end marker is missing runs to the next block, the
+ * options or the end of the reply, so its changes still apply (playtest D19).
+ */
+function blockSpans(text: string, name: string): Array<{ start: number; end: number; body: string }> {
+  const out: Array<{ start: number; end: number; body: string }> = [];
+  const open = `---${name}---`;
+  const close = `---${endOf(name)}---`;
+  let from = 0;
+  for (;;) {
+    const start = text.indexOf(open, from);
+    if (start === -1) break;
+    const bodyAt = start + open.length;
+    const closeAt = text.indexOf(close, bodyAt);
+    const next = text.slice(bodyAt).search(/---[A-Z_]+---/);
+    const nextAt = next === -1 ? -1 : bodyAt + next;
+    if (closeAt !== -1 && (nextAt === -1 || closeAt <= nextAt)) {
+      out.push({ start, end: closeAt + close.length, body: text.slice(bodyAt, closeAt) });
+      from = closeAt + close.length;
+    } else {
+      // No end marker: the block's fields are the "KEY: value" lines right after it.
+      const stop = nextAt === -1 ? text.length : nextAt;
+      const rest = text.slice(bodyAt, stop);
+      const lines = rest.split('\n');
+      let used = 0;
+      let len = 0;
+      for (const l of lines) {
+        if (used > 0 && l.trim() && !/^\s*[A-Z][A-Z_ ]*:/.test(l)) break;
+        len += l.length + 1;
+        used++;
+      }
+      const end = Math.min(stop, bodyAt + len);
+      out.push({ start, end, body: text.slice(bodyAt, end) });
+      from = end;
+    }
+  }
+  return out;
+}
+
+const blocks = (text: string, name: string) => blockSpans(text, name).map((b) => b.body);
+
+/** "DM: With a firm grip..." is the log's format leaking into the reply (playtest D11). */
+const LEADING_SPEAKER = /^\s*(?:\*\*)?(?:DM|GM|Game Master|Dungeon Master|Narrator)(?:\*\*)?\s*:\s*/i;
+
 export function parseGmReply(raw: string): ParsedGmReply {
-  let text = raw.replace(/\r\n/g, '\n');
+  let text = normaliseMarkers(raw.replace(/\r\n/g, '\n')).replace(LEADING_SPEAKER, '');
 
   // Options run to the end of the reply and have no end marker.
   let options: string[] = [];
@@ -123,11 +179,9 @@ export function parseGmReply(raw: string): ParsedGmReply {
     };
   }
 
-  // Remove every complete block, then anything left open by a cut-off reply.
-  for (const name of ['STATE_UPDATE', 'COURSE_TRIGGER', 'CHECK_REQUIRED', 'AVATAR_EVOLUTION']) {
-    text = text.replace(new RegExp(`---${name}---[\\s\\S]*?---${endOf(name)}---`, 'g'), '');
-    const open = text.indexOf(`---${name}---`);
-    if (open !== -1) text = text.slice(0, open);
+  // Remove every block, including ones with no end marker.
+  for (const name of BLOCK_NAMES) {
+    for (const b of blockSpans(text, name).reverse()) text = `${text.slice(0, b.start)}\n\n${text.slice(b.end)}`;
   }
   text = text.replace(/---END_[A-Z_]+---/g, '').replace(/\n{3,}/g, '\n\n').trim();
 

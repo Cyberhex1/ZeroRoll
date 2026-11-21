@@ -245,7 +245,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                     : 'bg-[#111118] border border-white/10 text-slate-200 rounded-tl-none shadow-md'
                 }`}>
                   {isPlayer ? (
-                    <div className="whitespace-pre-wrap">{log.text}</div>
+                    <div className="whitespace-pre-wrap">{playerText(log.text)}</div>
                   ) : (
                     <div className="prose prose-invert max-w-none text-xs sm:text-sm leading-relaxed text-slate-200">
                       <ReactMarkdown
@@ -282,7 +282,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                         </span>
                       </div>
                       <div className="text-[10px] text-slate-500">
-                        Formula: {log.diceRoll.formula} • Rolls: [{log.diceRoll.rolls.join(', ')}] {log.diceRoll.modifier ? `+ ${log.diceRoll.modifier}` : ''}
+                        Formula: {log.diceRoll.formula} • Rolls: [{log.diceRoll.rolls.join(', ')}] {log.diceRoll.modifier ? `${log.diceRoll.modifier > 0 ? '+' : '-'} ${Math.abs(log.diceRoll.modifier)}` : ''}
                       </div>
                     </div>
                   )}
@@ -425,3 +425,19 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
     </div>
   );
 };
+
+/**
+ * A dice result is sent to the narrator with instructions meant for it ("Narrate the
+ * outcome..."), and with markdown bold. The player sees the roll and the result only.
+ */
+export function playerText(text: string): string {
+  if (!text.startsWith('🎲')) return text;
+  return text
+    .replace(/ It is for what I was just doing: ".*?"\.(?= Narrate)/s, '')
+    .replace(/\n*\s*(Narrate (?:the outcome|what this roll means|what happens)[^\n]*)$/i, '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/^🎲 \[CHECK RESULT: ([^\]]+)\]/, '🎲 $1 check:')
+    .replace(/^🎲 \[DICE ROLL\] /, '🎲 ')
+    .replace(/^🎲 \[DEATH SAVE\] /, '🎲 Death save: ')
+    .trim();
+}

@@ -106,7 +106,7 @@ export const DiceRollModal: React.FC<DiceRollModalProps> = ({
             )}
 
             <p className="text-[11px] text-slate-400 font-mono">
-              Individual Rolls: [{rollResult.rolls.join(', ')}] {rollResult.modifier ? `+ ${rollResult.modifier}` : ''}
+              Individual Rolls: [{rollResult.rolls.join(', ')}] {rollResult.modifier ? `${rollResult.modifier > 0 ? '+' : '-'} ${Math.abs(rollResult.modifier)}` : ''}
             </p>
           </div>
         )}

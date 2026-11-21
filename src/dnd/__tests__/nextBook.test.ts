@@ -11,16 +11,17 @@ import type { Experience } from '../../types';
 
 const exp = {
   id: 'e1', title: 'Saltmarsh', category: 'fantasy', book: 1, concluded: { reason: 'story', at: '' },
-  character: { name: 'Rook', level: 4, hp: 0, maxHp: 22, raceOrigin: 'Elf', roleClass: 'Rogue', inventory: [{ id: 'i', name: 'Silver Key', type: 'misc', quantity: 1 }], deathSaves: { successes: 1, failures: 1 } },
+  character: { name: 'Rook', level: 4, hp: 0, maxHp: 22, raceOrigin: 'Elf', roleClass: 'Rogue', statusEffects: ['Frightened'], inventory: [{ id: 'i', name: 'Silver Key', type: 'misc', quantity: 1 }], deathSaves: { successes: 1, failures: 1 } },
   gameWorldState: { currentChapter: 3, activeQuest: 'old', customNotes: '' },
-  storyOutline: { chapters: ['Docks', 'Marsh', 'Bell'] },
+  storyOutline: { chapters: ['Docks', 'Marsh', 'Bell', 'Never reached'], keyNpcs: [{ name: 'Liana Whisperwind', role: 'Ally' }] },
   memory: { entries: [], pending: [], summary: 'Rook rang the drowned bell.', summarizedThrough: 10 },
   logs: [{ id: 'l', sender: 'dm', text: 'The bell falls silent forever.', timestamp: '' }]
 } as unknown as Experience;
 
 describe('next book', () => {
   it('builds a recap from the summary, chapters and ending', () => {
-    expect(bookRecap(exp)).toMatch(/drowned bell[\s\S]*Docks \| Marsh \| Bell[\s\S]*falls silent/);
+    expect(bookRecap(exp)).toMatch(/drowned bell[\s\S]*Docks \| Marsh \| Bell\n[\s\S]*Liana Whisperwind[\s\S]*falls silent/);
+    expect(bookRecap(exp)).not.toContain('Never reached');
     expect(nextBookPrompt(exp)).toMatch(/Start Book 2[\s\S]*Silver Key/);
   });
 
@@ -28,7 +29,7 @@ describe('next book', () => {
     const next = await continueToNextBook(exp, 'm');
     expect(next.id).toBe('e1');
     expect(next).toMatchObject({ book: 2, concluded: null, gameWorldState: { currentChapter: 1, activeQuest: 'Find the wreck' } });
-    expect(next.character).toMatchObject({ hp: 22, deathSaves: undefined });
+    expect(next.character).toMatchObject({ hp: 22, deathSaves: undefined, statusEffects: [] });
     expect(next.memory!.entries[0]).toMatchObject({ pinned: true });
     expect(next.memory!.entries[0].text).toMatch(/^Book 1:/);
     expect(next.logs.slice(-1)[0]).toMatchObject({ sender: 'dm', text: 'Salt wind. Chapter One.', suggestedActions: ['Board the ship'] });

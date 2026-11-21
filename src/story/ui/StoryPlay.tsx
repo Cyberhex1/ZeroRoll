@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isTauri } from '../../lib/platform';
 import { Link, useParams } from 'react-router';
 import { ArrowLeft, Brain, Download, Map as MapIcon, RefreshCw, RotateCcw, SkipForward } from 'lucide-react';
 import { complete, Tier, TIERS } from '../../ai/router';
@@ -20,9 +21,11 @@ import type { Story } from '../schema';
 import { resolveSkin, skinVars } from '../skins';
 import ArtImage from './ArtImage';
 import Particles from './Particles';
+import { LENGTH_WORDS } from '../prompt';
 
-const TIER_LABEL: Record<Tier, string> = { basic: 'Basic (fast, local on PC)', good: 'Good (default)', best: 'Best (strongest)' };
-const LENGTHS = ['Short', 'Medium', 'Long'];
+const TIER_LABEL: Record<Tier, string> = { basic: 'Basic (fast, local on this PC)', good: 'Good (default)', best: 'Best (strongest)' };
+// What the length slider means, in words of story per reply (LENGTH_WORDS in ../prompt).
+const LENGTHS = [`Short, about ${LENGTH_WORDS.short} words`, `Medium, about ${LENGTH_WORDS.medium} words`, `Long, about ${LENGTH_WORDS.long} words`];
 
 /** Plays one story. Every component here reads colours and fonts from the skin variables. */
 export default function StoryPlay() {
@@ -244,9 +247,13 @@ export default function StoryPlay() {
       <Particles kind={skin.particles} />
 
       <div className="relative max-w-3xl mx-auto px-4 py-5 flex flex-col gap-4">
-        <header className="flex flex-wrap items-center justify-between gap-2">
+        {/* Stays on screen while the story scrolls, so leaving a story never needs a scroll back up. */}
+        <header
+          className="sticky top-14 z-30 -mx-4 px-4 py-2 flex flex-wrap items-center justify-between gap-2 backdrop-blur-md"
+          style={{ background: 'color-mix(in srgb, var(--sk-bg) 88%, transparent)', borderBottom: '1px solid color-mix(in srgb, var(--sk-text) 12%, transparent)' }}
+        >
           <div className="flex items-center gap-2 min-w-0">
-            <Link to="/story" aria-label="Back to stories" className="p-1 rounded" style={{ color: 'var(--sk-muted)' }}><ArrowLeft className="w-4 h-4" /></Link>
+            <Link to="/story" className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs shrink-0" style={{ color: 'var(--sk-muted)', border: '1px solid color-mix(in srgb, var(--sk-text) 20%, transparent)' }}><ArrowLeft className="w-3.5 h-3.5" />Stories</Link>
             <div className="min-w-0">
               <h1 className="text-lg font-bold truncate" style={{ fontFamily: 'var(--sk-font-heading)', color: 'var(--sk-accent)' }}>{story.meta.title}</h1>
               <p className="text-[11px]" style={{ color: 'var(--sk-muted)' }}>{ended ? 'The end' : beat.title}</p>
@@ -379,8 +386,8 @@ export default function StoryPlay() {
             <div className="flex flex-wrap items-center gap-3 text-xs" style={{ color: 'var(--sk-muted)' }}>
               <button type="button" onClick={reroll} disabled={busy || (!save.undo && !lastIsPlayer)} className={btn} style={btnStyle}><RefreshCw className="w-3 h-3" />{lastIsPlayer ? 'Try again' : 'Reroll'}</button>
               <button type="button" onClick={() => send({ text: 'Continue.' })} disabled={busy || lastIsPlayer} className={btn} style={btnStyle}><SkipForward className="w-3 h-3" />Continue</button>
-              <label className="flex items-center gap-2">
-                Length
+              <label className="flex items-center gap-2" title="How much story the narrator writes each reply">
+                Reply length
                 <input
                   type="range"
                   min={0}
@@ -391,12 +398,12 @@ export default function StoryPlay() {
                   aria-valuetext={LENGTHS[save.length]}
                   style={{ accentColor: 'var(--sk-accent)' }}
                 />
-                <span className="w-12">{LENGTHS[save.length]}</span>
+                <span className="whitespace-nowrap">{LENGTHS[save.length]}</span>
               </label>
               <label className="flex items-center gap-2">
                 Model
                 <select value={save.tier} onChange={(e) => void persist({ ...save, tier: e.target.value as Tier })} className="rounded px-2 py-1 border bg-transparent" style={{ borderColor: 'color-mix(in srgb, var(--sk-text) 25%, transparent)' }}>
-                  {TIERS.map((t) => (
+                  {TIERS.filter((t) => t !== 'basic' || isTauri()).map((t) => (
                     <option key={t} value={t} style={{ background: '#111' }}>{TIER_LABEL[t]}</option>
                   ))}
                 </select>

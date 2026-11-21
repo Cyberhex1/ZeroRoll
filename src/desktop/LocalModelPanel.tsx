@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, Cpu, Download, ExternalLink, RefreshCw, X } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { Band, ModelPick, OllamaStatus, SystemInfo, bandFor, getLocalModelSettings, isInstalled, picksFor, saveLocalModelSettings } from './localModel';
+import { Band, ModelPick, OllamaStatus, SystemInfo, bandFor, getLocalModelSettings, isInstalled, pickForTag, picksFor, saveLocalModelSettings } from './localModel';
 import { isMatureContentEnabled, setMatureContentEnabled } from '../lib/contentRating';
 import { complete } from '../ai/router';
 
@@ -77,6 +77,13 @@ export default function LocalModelPanel() {
       setNote({ kind: 'ok', text: `${pick.name} is ready. Quick replies (the basic tier) now use it. Press Test it to check.` });
     });
 
+  /** Use a model that is already in Ollama, even when it is not this PC's recommendation. */
+  const pickInstalled = (tag: string) => {
+    const known = pickForTag(tag);
+    update({ model: tag, modelName: known?.name ?? tag, context: known?.context ?? 8192, enabled: true });
+    setNote({ kind: 'ok', text: `${known?.name ?? tag} is ready. Press Test it to check.` });
+  };
+
   const test = () =>
     run('test', async () => {
       const r = await complete([{ role: 'user', content: 'In one sentence, greet a new adventurer.' }], 'basic', { feature: 'Local model test', maxTokens: 120 });
@@ -95,7 +102,7 @@ export default function LocalModelPanel() {
         <Cpu className="w-3 h-3" /> Local model (PC app)
       </h3>
       <p className="text-[11px] text-slate-400">
-        Run a model on this PC with Ollama for quick replies. It is free, private and works offline; story turns still use your chosen provider.
+        Run a model on this PC with Ollama. It is free, private and works offline. It answers quick replies, and every turn too if you tick &ldquo;Use for every turn&rdquo;.
       </p>
 
       {!info ? (
@@ -164,6 +171,33 @@ export default function LocalModelPanel() {
                     </div>
                   );
                 })}
+              {(() => {
+                const shown = band ? picksFor(band, mature).map((p) => p.ollama) : [];
+                const others = ollama.models.filter((m) => !shown.some((t) => isInstalled(t, [m])));
+                if (!others.length) return null;
+                return (
+                  <>
+                    <div className="text-slate-400 pt-1">Already on this PC:</div>
+                    {others.map((m) => {
+                      const inUse = settings.model?.toLowerCase() === m.toLowerCase() || `${settings.model ?? ''}:latest`.toLowerCase() === m.toLowerCase();
+                      return (
+                        <div key={m} className="flex flex-wrap items-center justify-between gap-2 bg-black/30 rounded px-2 py-1.5">
+                          <span className="break-all">{pickForTag(m)?.name ?? m}</span>
+                          <button
+                            type="button"
+                            disabled={!!busy || inUse}
+                            onClick={() => pickInstalled(m)}
+                            className={`${btn} ${inUse ? 'border border-emerald-500/40 text-emerald-300' : 'bg-amber-500 text-slate-950'}`}
+                          >
+                            <Check className="w-3 h-3" />
+                            {inUse ? 'In use' : 'Use this'}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </>
+                );
+              })()}
             </>
           )}
         </div>

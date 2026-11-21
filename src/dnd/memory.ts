@@ -8,10 +8,26 @@ import type { ChatMessage } from '../ai/transport';
 import { MemoryState, addEntry, deleteEntry, emptyMemory } from '../memory/memoryStore';
 import { PromptMeter, buildPrompt } from '../memory/promptBuilder';
 import { Completer, Turn, shouldSummarize, summarize, summaryPatch } from '../memory/summarizer';
+import { DEFAULT_CHAPTERS } from './applyTurn';
 
 /** Leaves room for the game master prompt, the genre corpus and the roadmap. */
 const DND_CONTEXT_TOKENS = 24_000;
 const DND_REPLY_TOKENS = 2_000;
+
+/** Reply cap for a local model's D&D turn: about 650 words, plus the blocks. */
+export const LOCAL_DND_REPLY_TOKENS = 1_000;
+/** The short local game master prompt and roadmap, with room to spare. */
+const LOCAL_DND_SYSTEM_TOKENS = 1_800;
+
+/**
+ * The story context's budget. A local model runs at its own context (8k by default), and
+ * Ollama cuts an oversized prompt from the top, which is where the block formats are, so
+ * the local budget leaves a fifth spare for tokenizer differences (playtest D2).
+ */
+export function dndContextBudget(localContext?: number): { contextTokens: number; replyReserve: number } {
+  if (!localContext) return { contextTokens: DND_CONTEXT_TOKENS, replyReserve: DND_REPLY_TOKENS };
+  return { contextTokens: Math.max(1_500, Math.floor(localContext * 0.8) - LOCAL_DND_SYSTEM_TOKENS), replyReserve: LOCAL_DND_REPLY_TOKENS };
+}
 
 const n = (v: unknown, fallback: number) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
 const mod = (score: number) => {
@@ -50,9 +66,11 @@ export function currentStateBlock(c: Partial<CharacterSheet> | undefined, world?
 /** CURRENT CHAPTER: N of M, with the chapter's roadmap text (S10). */
 export function chapterLine(world?: Partial<GameWorldState>, outline?: Partial<DMStoryOutline>): string {
   const chapters = outline?.chapters ?? [];
-  if (!chapters.length) return '';
-  const n = Math.min(chapters.length, Math.max(1, world?.currentChapter ?? 1));
-  return `CURRENT CHAPTER: ${n} of ${chapters.length}: ${chapters[n - 1]}`;
+  const total = chapters.length || DEFAULT_CHAPTERS;
+  const n = Math.min(total, Math.max(1, world?.currentChapter ?? 1));
+  const last = n === total ? ' This is the final chapter.' : '';
+  if (!chapters.length) return `CURRENT CHAPTER: ${n} of ${total} (no written roadmap: shape this chapter from the premise).${last}`;
+  return `CURRENT CHAPTER: ${n} of ${total}: ${chapters[n - 1]}${last}`;
 }
 
 /** Marks the player's questions to the Rules Referee, which stay out of the story transcript. */
@@ -73,7 +91,7 @@ export function experienceMemory(exp: Pick<Experience, 'memory'>): MemoryState {
  * The story context for a turn: memory list, summary and as much recent log as fits.
  * The CURRENT STATE sheet is counted in the budget; executeActionTurn sends it itself.
  */
-export function buildDndContext(exp: Experience, logs: LogMessage[] = exp.logs, recallScores?: Record<string, number> | null): { contents: string; meter: PromptMeter } {
+export function buildDndContext(exp: Experience, logs: LogMessage[] = exp.logs, recallScores?: Record<string, number> | null, localContext?: number): { contents: string; meter: PromptMeter } {
   const memory = experienceMemory(exp);
   const sheet = currentStateBlock(exp.character, exp.gameWorldState);
   const built = buildPrompt({
@@ -81,8 +99,7 @@ export function buildDndContext(exp: Experience, logs: LogMessage[] = exp.logs, 
     sheets: [sheet],
     memory,
     turns: dndTurns(logs).slice(memory.summarizedThrough),
-    contextTokens: DND_CONTEXT_TOKENS,
-    replyReserve: DND_REPLY_TOKENS,
+    ...dndContextBudget(localContext),
     recallScores
   });
   const context = built.system.slice(sheet.length).trim();

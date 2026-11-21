@@ -169,6 +169,34 @@ describe('Gemini specifics', () => {
     expect(calls[0].init.headers['x-goog-api-key']).toBe('AIzaSy-header-only');
   });
 
+  it('sends a response schema with JSON requests, and drops it on the same model if the model rejects it', async () => {
+    useProvider('gemini');
+    const schema = { type: 'OBJECT', properties: { title: { type: 'STRING' } } };
+    route = () => gemini('{"title":"x"}');
+    await run(svc.executeUniversalPrompt({ userPrompt: 'hi', responseJson: true, schema }));
+    expect(JSON.parse(calls[0].init.body).generationConfig.responseSchema).toEqual(schema);
+
+    calls.length = 0;
+    route = (_url, init) =>
+      JSON.parse(init.body).generationConfig.responseSchema ? { status: 400, body: errorBody('Invalid JSON payload: response_schema') } : gemini('{"title":"x"}');
+    await expect(run(svc.executeUniversalPrompt({ userPrompt: 'hi', responseJson: true, schema }))).resolves.toBe('{"title":"x"}');
+    expect(calls).toHaveLength(2);
+    expect(calls[1].url).toBe(calls[0].url);
+    expect(JSON.parse(calls[1].init.body).generationConfig.responseSchema).toBeUndefined();
+  });
+
+  it('a call the player cancels is not reported as an AI failure', async () => {
+    useProvider('gemini');
+    route = () => ({ hang: true });
+    const ctrl = new AbortController();
+    const p = svc.executeUniversalPrompt({ userPrompt: 'hi', signal: ctrl.signal }).catch((e) => e);
+    ctrl.abort();
+    const err = await run(p);
+    expect(err).toMatchObject({ kind: 'cancelled' });
+    svc.reportFeatureFailure(err, 'Story roll', false);
+    expect(getAIStatus().state).not.toBe('error');
+  });
+
   it('a safety block is "blocked", not a key problem, and is not retried on other models', async () => {
     useProvider('gemini');
     localStorage.setItem('zeroroll_gemini_available_models', JSON.stringify(['gemini-flash-latest', 'gemini-3.8-flash']));

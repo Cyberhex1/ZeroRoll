@@ -48,7 +48,7 @@ export function summaryRequest(previous: string, turns: Turn[], knownFacts: stri
 
 export function parseSummary(text: string): { summary: string; facts: string[] } | null {
   const raw = text.match(/\{[\s\S]*\}/)?.[0];
-  if (!raw) return null;
+  if (!raw) return parseMarkdownSummary(text);
   try {
     const v = JSON.parse(raw.replace(/,\s*([}\]])/g, '$1'));
     if (typeof v.summary !== 'string' || !v.summary.trim()) return null;
@@ -57,6 +57,23 @@ export function parseSummary(text: string): { summary: string; facts: string[] }
   } catch (_) {
     return null;
   }
+}
+
+/**
+ * Local models often answer "**Summary:** ... **Facts:** - ..." instead of JSON (playtest
+ * D10). The summary is the text under the summary heading; facts are its bullet lines.
+ */
+function parseMarkdownSummary(text: string): { summary: string; facts: string[] } | null {
+  const clean = text.replace(/\r\n/g, '\n');
+  const m = clean.match(/(?:^|\n)\s*(?:#+\s*|\*\*)?summary(?:\*\*)?\s*:?\s*(?:\*\*)?\s*([\s\S]*?)(?=\n\s*(?:#+\s*|\*\*)?(?:key\s+)?facts?\b|$)/i);
+  const summary = (m?.[1] ?? '').replace(/\*\*/g, '').trim();
+  if (summary.length < 20) return null;
+  const factsAt = clean.search(/\n\s*(?:#+\s*|\*\*)?(?:key\s+)?facts?\b/i);
+  const facts = factsAt === -1 ? [] : clean.slice(factsAt).split('\n').slice(1)
+    .map((l) => l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.+)$/)?.[1]?.replace(/\*\*/g, '').trim() ?? '')
+    .filter((f) => f.length > 3)
+    .slice(0, 8);
+  return { summary, facts };
 }
 
 /**

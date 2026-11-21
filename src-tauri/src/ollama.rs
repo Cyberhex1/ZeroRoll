@@ -281,6 +281,9 @@ pub async fn ollama_chat(req: ChatRequest) -> Result<ChatReply, String> {
         "temperature": req.temperature.unwrap_or(0.8),
         "num_predict": req.max_tokens.unwrap_or(1024),
         "num_ctx": req.num_ctx.unwrap_or(8192),
+        // Discourages replies that copy the previous turn word for word.
+        "repeat_penalty": 1.12,
+        "repeat_last_n": 256,
     });
     let raw = req.prompt_format.as_deref().and_then(|f| build_prompt(f, req.system.as_deref(), &req.messages));
     let (url, mut body) = if let Some((prompt, stop)) = raw {
@@ -297,6 +300,9 @@ pub async fn ollama_chat(req: ChatRequest) -> Result<ChatReply, String> {
     if req.json.unwrap_or(false) {
         body["format"] = json!("json");
     }
+    // Keep the model loaded between turns; Ollama's 5-minute default meant a ~20 s reload
+    // whenever the player paused to think.
+    body["keep_alive"] = json!("30m");
     let res = c.post(url).json(&body).send().await.map_err(conn_err)?;
     if !res.status().is_success() {
         return Err(error_text(res).await);

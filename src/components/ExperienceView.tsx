@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { campaignTitle } from '../lib/titles';
 import { uid } from '../lib/ids';
 import {
   ScrollText,
@@ -18,9 +19,11 @@ import { NarrativeStream } from './NarrativeStream';
 import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
-import { executeActionTurn, generateAvatarAI, getLastModelUsedLabel, refereeAdjudicate } from '../lib/geminiService';
+import { activeLocalContext, executeActionTurn, generateAvatarAI, getLastModelUsedLabel, refereeAdjudicate } from '../lib/geminiService';
 import { complete } from '../ai/router';
-import { applyDelta, applyWorld, nextAlert, rulesModeOf } from '../dnd/applyTurn';
+import { applyDelta, applyWorld, chapterCount, gateAlerts, nextAlert, rulesModeOf } from '../dnd/applyTurn';
+import { leadAlert } from '../dnd/turnParser';
+import { PortraitsOffError } from '../lib/portraits';
 import { RULES_MODES, RulesMode, checkOutcome, deathSave, naturalOf, planCheck, rollPlan } from '../dnd/rules';
 import { resolveSkin, skinVars } from '../story/skins';
 import { turnRecallScores } from '../memory/recallService';
@@ -28,6 +31,8 @@ import { REFEREE_PREFIX, buildDndContext, dndTurns, experienceMemory, maybeSumma
 import { mergeMemories } from '../memory/summarizer';
 import MemoryPanel from '../memory/ui/MemoryPanel';
 import { useDialog } from './ui/useDialog';
+
+const ALERT_ICON: Record<string, string> = { chapter_transition: '📖', story_conclusion: '🏁', ambush: '⚔️', crisis: '🔥', twist: '🌀', opportunity: '✨', course_change: '🧭' };
 
 interface ExperienceViewProps {
   experience: Experience;
@@ -89,7 +94,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       : `Book ${experience.book ?? 1} has ended.`
     : undefined;
 
-  const memoryMeter = React.useMemo(() => buildDndContext(experience).meter, [experience]);
+  const memoryMeter = React.useMemo(() => buildDndContext(experience, experience.logs, null, activeLocalContext()).meter, [experience]);
 
   // Show who actually answered, not the picker's label (the cascade can swap models).
   const lastAnsweredBy =
@@ -127,7 +132,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       const tempMemory = experienceMemory(tempExp);
       const recallScores = await turnRecallScores(tempMemory, dndTurns(updatedLogs).slice(tempMemory.summarizedThrough));
       const data = await executeActionTurn({
-        contents: buildDndContext(tempExp, updatedLogs, recallScores).contents,
+        contents: buildDndContext(tempExp, updatedLogs, recallScores, activeLocalContext()).contents,
         category: tempExp.category,
         model: selectedModel,
         systemInstruction: tempExp.customSystemPrompt,
@@ -150,48 +155,31 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
           : getCategoryFallbackActions(experience.category)
       };
 
-      // Check for Course Changing Alert & Required Check
-      const newAlert: CourseChangeAlert | null = data.courseChangeAlert || null;
-      const newCheck: PendingCheck | null = data.requiredCheck || null;
+      const turnNumber = latestExpRef.current.logs.filter((l) => l.sender === 'player' && !l.text.startsWith(REFEREE_PREFIX)).length;
+      // Chapter changes and endings that come too early are held back (playtest D8, D15).
+      const alerts = gateAlerts(latestExpRef.current, data.alerts ?? (data.courseChangeAlert ? [data.courseChangeAlert] : []), turnNumber);
+      const newAlert: CourseChangeAlert | null = leadAlert(alerts);
+      // The same check asked again right after it was rolled is a loop, not a new check (playtest D7).
+      const justRolled = checkResolved ? currentExp.pendingCheck : null;
+      const repeat = !!(justRolled && data.requiredCheck && justRolled.skill.toLowerCase() === data.requiredCheck.skill.toLowerCase());
+      const newCheck: PendingCheck | null = repeat ? null : data.requiredCheck || null;
 
-      // 1. Perform async avatar generation BEFORE reading the final state
-      let evoAvatarResult: any = null;
-      let evoNewDesc: string | undefined = undefined;
-
-      if (data.avatarEvolution?.evolved) {
-        try {
-          const curExp = latestExpRef.current;
-          evoNewDesc = data.avatarEvolution.updatedPhysicalDescription;
-          evoAvatarResult = await generateAvatarAI({
-            characterName: curExp.character.name,
-            roleClass: curExp.character.roleClass,
-            raceOrigin: curExp.character.raceOrigin,
-            category: curExp.category,
-            physicalDescription: evoNewDesc || curExp.character.physicalDescription,
-            recentStoryContext: `${curExp.logs.slice(-2).map(l => l.text).join('\n')}\n${dmMsg.text}`,
-            model: selectedModel
-          });
-        } catch (evoErr) {
-          console.warn('Auto avatar evolution error:', evoErr);
-        }
-      }
-
-      // 2. GET THE ABSOLUTE FRESHEST EXPERIENCE (after all async work is done)
-      const finalExp = latestExpRef.current;
       // The player may have left this campaign while the reply was on its way (S4).
+      const finalExp = latestExpRef.current;
       if (finalExp.id !== tempExp.id) return;
       const mode = rulesModeOf(finalExp);
 
       // 3. Hero sheet, world and alerts, all through the rules module.
       const sheet = applyDelta(finalExp.character, data.stateDelta, mode);
       const updatedChar = { ...sheet.character };
-      if (evoAvatarResult?.avatarUrl) {
-        updatedChar.avatarUrl = evoAvatarResult.avatarUrl;
-        if (evoNewDesc) updatedChar.physicalDescription = evoNewDesc;
-      }
-      const alerts = data.alerts ?? (newAlert ? [newAlert] : []);
-      const world = applyWorld(finalExp, data.stateDelta, alerts);
-      const ruleNotes: LogMessage[] = sheet.notes.map((text) => ({ id: `msg_${uid()}`, sender: 'system', text: `🎲 ${text}`, timestamp: new Date().toISOString() }));
+      // The new look is saved whether or not a portrait is drawn (playtest D20).
+      const evoNewDesc = data.avatarEvolution?.evolved ? data.avatarEvolution.updatedPhysicalDescription : undefined;
+      if (evoNewDesc) updatedChar.physicalDescription = evoNewDesc;
+      const world = applyWorld(finalExp, data.stateDelta, alerts, turnNumber);
+      const now = new Date().toISOString();
+      const ruleNotes: LogMessage[] = sheet.notes.map((text) => ({ id: `msg_${uid()}`, sender: 'system', text: `🎲 ${text}`, timestamp: now }));
+      // Twists, ambushes and chapter titles stay in the log after the alert is dismissed (playtest D21).
+      const alertNotes: LogMessage[] = alerts.map((a) => ({ id: `msg_${uid()}`, sender: 'system', text: `${ALERT_ICON[a.type] ?? '⚡'} ${a.title}${a.subtitle ? `: ${a.subtitle}` : ''}`, timestamp: now }));
       // Full 5e: dropping to 0 HP starts death saves, which take over the check slot.
       const deathCheck: PendingCheck | null = sheet.downed
         ? { skill: 'Death Saving Throw', dc: 10, reason: 'The hero is down at 0 HP.', kind: 'death_save' }
@@ -202,7 +190,6 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         playAlertSound();
       }
 
-      const turnNumber = finalExp.logs.filter((l) => l.sender === 'player').length;
       let memory = memoryFromTurn(experienceMemory(finalExp), turnNumber, data.stateDelta, null);
       for (const a of alerts) memory = memoryFromTurn(memory, turnNumber, null, a);
       const afterTurn: Experience = {
@@ -210,11 +197,31 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         character: updatedChar,
         ...world,
         memory,
-        logs: [...finalExp.logs, dmMsg, ...ruleNotes],
+        logs: [...finalExp.logs, dmMsg, ...alertNotes, ...ruleNotes],
         activeAlert: nextAlert(checkResolved ? null : finalExp.activeAlert, newAlert),
         pendingCheck: deathCheck || newCheck || (checkResolved ? null : finalExp.pendingCheck)
       };
       onUpdateExperience(afterTurn);
+      // A new portrait is drawn after the turn is on screen, so the reply never waits for it.
+      if (data.avatarEvolution?.evolved) {
+        void generateAvatarAI({
+          characterName: updatedChar.name,
+          gender: updatedChar.gender,
+          roleClass: updatedChar.roleClass,
+          raceOrigin: updatedChar.raceOrigin,
+          category: afterTurn.category,
+          physicalDescription: updatedChar.physicalDescription,
+          recentStoryContext: `${finalExp.logs.slice(-2).map((l) => l.text).join('\n')}\n${dmMsg.text}`,
+          model: selectedModel
+        })
+          .then((r: any) => {
+            const latest = latestExpRef.current;
+            if (r?.avatarUrl && latest.id === afterTurn.id) onUpdateExperience({ ...latest, character: { ...latest.character, avatarUrl: r.avatarUrl } });
+          })
+          .catch((evoErr: unknown) => {
+            if (!(evoErr instanceof PortraitsOffError)) console.warn('Auto avatar evolution error:', evoErr);
+          });
+      }
       // The memory worker runs after the reply is on screen, so it never slows a turn.
       void maybeSummarizeExperience(afterTurn, complete).then((apply) => {
         if (apply && latestExpRef.current.id === afterTurn.id) onUpdateExperience(apply(latestExpRef.current));
@@ -295,12 +302,12 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       rollCheck(pending);
       return;
     }
-    setActiveRoll(rollDice(`1d20${modifier >= 0 ? '+' : ''}${modifier}`, `${statName} Check`));
+    setActiveRoll(rollDice(`1d20${modifier >= 0 ? '+' : ''}${modifier}`, /\bcheck$/i.test(statName) ? statName : `${statName} check`));
   };
 
   // Quick Roll D20
   const handleQuickRollD20 = () => {
-    handleRollStat('d20 Check', 0);
+    handleRollStat('d20 roll', 0);
   };
 
   // Handle Forced Check Roll
@@ -343,7 +350,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       const outcome = checkOutcome(result.total, currentCheck.dc, naturalOf(result));
       rollPrompt = `🎲 [CHECK RESULT: ${currentCheck.skill}] Rolled ${result.total} (${result.formula}): **${outcome.text}**\nReason: ${currentCheck.reason}\n\nNarrate the outcome and its immediate consequences.`;
     } else {
-      rollPrompt = `🎲 [DICE ROLL] I rolled ${result.reason || 'a check'} (${result.formula}) -> Total: ${result.total}. Narrate what this roll means.`;
+      // A free roll says what it was for: the player's last action (playtest D25).
+      const lastAction = [...exp.logs].reverse().find((l) => l.sender === 'player' && !l.text.startsWith('🎲') && !l.text.startsWith(REFEREE_PREFIX))?.text;
+      rollPrompt = `🎲 [DICE ROLL] I rolled ${result.reason || 'a check'} (${result.formula}) -> Total: ${result.total}.${lastAction ? ` It is for what I was just doing: "${lastAction.slice(0, 200)}".` : ''} Narrate what this roll means.`;
     }
 
     handleSendMessage(rollPrompt, result, !!currentCheck);
@@ -381,7 +390,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h2 className="text-xs sm:text-base font-bold truncate max-w-[180px] xs:max-w-[240px] sm:max-w-none" style={{ fontFamily: 'var(--sk-font-heading)', color: 'var(--sk-accent)' }}>
-                  {experience.title} <span className="text-amber-500/80 font-normal">| {(experience.book ?? 1) > 1 ? `Book ${experience.book}, ` : ''}Chapter {experience.gameWorldState.currentChapter || 1} of {experience.storyOutline?.chapters?.length || 3}</span>
+                  {campaignTitle(experience.title)} <span className="text-amber-500/80 font-normal">| {(experience.book ?? 1) > 1 ? `Book ${experience.book}, ` : ''}Chapter {Math.min(chapterCount(experience), experience.gameWorldState.currentChapter || 1)} of {chapterCount(experience)}</span>
                 </h2>
                 <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-mono uppercase font-bold rounded bg-white/5 text-amber-400 border border-white/10 shrink-0">
                   {experience.category.replace('_', ' ')}
@@ -430,7 +439,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
               }`}
             >
               <ScrollText className="w-3.5 h-3.5" />
-              <span>Narrative</span>
+              <span>Story</span>
             </button>
 
             <button

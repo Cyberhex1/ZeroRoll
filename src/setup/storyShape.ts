@@ -35,7 +35,7 @@ export const STORY_SHAPES: readonly StoryShape[] = [
     label: 'While things are still building',
     weight: 3,
     brief:
-      'Start while the trouble is building: warning signs, small slights, a rival circling, something that does not add up. The breaking point lands around the middle of the story, on screen. The first half builds to it; the second half is the response. For example: a trusted, overworked clerk is handed extra work and talked down to for a few chapters, then fired for something she did not do, and only then uses what she knows to bring down her coworkers and her old boss.',
+      'Start while the trouble is building: warning signs, small slights, a rival circling, something that does not add up. The breaking point lands around the middle of the story, on screen. The first half builds to it; the second half is the response. For example, in Revenge: a trusted, overworked clerk is handed extra work and talked down to for a few chapters, then fired for something she did not do, and only then uses what she knows to bring down her coworkers and her old boss. In Zombie Outbreak: a nurse notices the odd admissions for a few shifts before the hospital falls.',
     pacing: 'The player starts while the trouble is building. Plant warning signs and small wrongs; the breaking point lands mid-story, on screen, and the second half is the response.'
   },
   {

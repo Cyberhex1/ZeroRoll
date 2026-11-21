@@ -4,16 +4,16 @@ import type { CategoryContent } from '../types';
 export const tiktokDrama = {
   "card": {
     "name": "Short Drama",
-    "tagline": "ReelShot, DramaBox & GoodNovel: Secret Heiress, $50B Slap & Arrogant CEOs",
-    "description": "High-octane viral drama inspired by ReelShot, DramaBox, GoodNovel, ActDrama, and PrimeDrama tropes: undercover billionaires, shocking banquet reveals, public confrontations, and dramatic contract marriages.",
+    "tagline": "Secret Heiresses, Contract Marriages & the Perfect Comeback",
+    "description": "High-tension viral drama inspired by ReelShot, DramaBox, GoodNovel, ActDrama and PrimeDrama: underestimated heroes who are mocked, dismissed and thrown out, until the right moment comes to show everyone who they really are.",
     "iconName": "Clapperboard",
     "gradient": "from-pink-600/30 via-purple-900/40 to-slate-950",
     "accentColor": "#f43f5e",
     "bgTheme": "cozy",
     "defaultCharacter": {
-      "name": "Sienna Sterling",
-      "roleClass": "Undercover Heiress",
-      "raceOrigin": "Undercover Heiress",
+      "name": "Sienna Hartley",
+      "roleClass": "Hotel Front Desk Clerk",
+      "raceOrigin": "Old-money family",
       "level": 1,
       "hp": 10,
       "maxHp": 10,
@@ -30,54 +30,57 @@ export const tiktokDrama = {
       "inventory": [
         {
           "id": "tk1",
-          "name": "Sterling Family Crest Signet Ring (Concealed)",
+          "name": "Grandmother's Signet Ring (kept out of sight)",
           "type": "relic",
           "quantity": 1
         },
         {
           "id": "tk2",
-          "name": "Grand Mirage Hotel Staff ID Lanyard",
+          "name": "Grand Mirage Staff ID Lanyard",
           "type": "misc",
-          "quantity": 1
+          "quantity": 1,
+          "isEquipped": true
         },
         {
           "id": "tk3",
-          "name": "Encrypted Phone with Private Bank App",
+          "name": "Phone with a Private Bank App",
           "type": "misc",
           "quantity": 1
         }
       ],
-      "spells": [
-        "Insightful Observation",
-        "Graceful Composure",
-        "Authoritative Presence"
-      ],
+      "spells": [],
       "statusEffects": [
         "Well-Rested"
       ],
-      "backgroundNotes": "Completing the final day of a 3-year humble trial before stepping into the family chairman role."
+      "backgroundNotes": "Working the front desk under her mother's maiden name, keeping a family secret nobody at work suspects."
     },
     "samplePrompts": [
-      "I review the VIP banquet seating chart to see who is attending the evening gala.",
-      "I speak with the friendly head chef in the kitchen to prepare the banquet room.",
-      "I check my encrypted phone for the arrival confirmation from my family's security team."
+      "I start my shift at the front desk and check today's VIP arrivals.",
+      "I ask the head chef what the events manager has planned for tonight.",
+      "I keep my head down and do the job nobody else wants."
     ]
   },
   "profile": {
     "seedSource": "GoodNovel, ReelShot, DramaBox, ActDrama & PrimeDrama Top Tropes",
+    "pattern": {
+      "hero": "Someone underestimated, like a new hire, a quiet spouse, a waitress or a returning daughter, with a hidden status, skill or past nobody around them knows.",
+      "start": "A normal day where the slights pile up: mocked, dismissed, made to serve.",
+      "turn": "The humiliation escalates in public until it breaks: fired, dumped, accused, thrown out.",
+      "payoff": "The reveal lands at the right moment, and the people who mocked them have to face it. The secret stays hidden until then."
+    },
     "voice": "Snappy, high-tension, dramatic, emotionally charged. Balances quiet, supreme inner composure against the blatant arrogance and condescension of high-society rivals.",
     "atmosphere": "Glittering five-star hotel ballrooms, gilded chandelier atriums, rain-slick black executive sedans, quiet luxury concealed beneath simple uniforms, antique heirloom jewelry tucked in tote bags.",
-    "sceneStructure": "1. Arrival in humble attire/disguise -> 2. Confrontation with arrogant socialite, manager, or ex -> 3. Secret financial or familial asset held in reserve -> 4. Immediate high-stakes social/diplomatic choice fork.",
-    "storyBeats": "Paced for thrilling momentum: begins with an arrogant slight, escalates through public friction, teases impending reveal of immense status/wealth, and delivers crisp dramatic payoffs.",
-    "characterDynamics": "Undercover billionaires, secret heiresses, contract spouses, proud matriarchs, haughty socialites, loyal executive security waiting on standby.",
-    "encounterPatterns": "Boutique entry denials, banquet seating challenges, snide comments from in-laws, discrete phone notifications (\"Transfer of $50B approved, Chairman\"), surprise VIP arrivals.",
+    "sceneStructure": "1. The hero's ordinary job or family life, in plain clothes -> 2. A slight from a snob, a boss, an in-law or an ex -> 3. A small private sign of what they could do if they chose to -> 4. A choice: endure it, push back, or keep the secret one more day.",
+    "storyBeats": "Built for a satisfying reveal: slights pile up in public, the humiliation escalates until it breaks (fired, dumped, accused, thrown out), and only then does the hidden status, skill or past come out, at the right moment, in front of the people who mocked them.",
+    "characterDynamics": "Underestimated new hires, quiet spouses, waitresses, interns and returning daughters; snobbish in-laws, arrogant managers, scheming step-siblings and exes; one or two loyal friends who see the hero clearly.",
+    "encounterPatterns": "Being sent for coffee, seated at the far end of the table, blamed for someone else's mistake, mocked for cheap clothes; small private moments where the hero's real skill or standing shows.",
     "sensoryMotifs": [
       "Gilded crystal chandeliers reflecting off polished marble floors",
-      "The quiet buzz of an encrypted phone receiving a multi-billion dollar wire confirmation",
+      "The buzz of a phone the hero chooses not to answer in front of everyone",
       "The smooth, cold weight of a family crest signet ring hidden in a pocket",
       "The sharp click of designer high heels and haughty laughter at the VIP reception"
     ],
-    "avoid": "Medieval fantasy magic, archaic high-fantasy speech, slow meandering exposition, passive protagonist submission without internal leverage.",
+    "avoid": "Medieval fantasy magic, archaic high-fantasy speech, slow meandering exposition, passive protagonist submission without internal leverage, revealing the hero's secret in the premise or the first chapters, starting at the reveal or the slap.",
     "avoidKeywords": [
       "wizard",
       "spell",
@@ -211,11 +214,11 @@ export const tiktokDrama = {
       "id": "seed_sd_02",
       "title": "The Intercepted Letters",
       "tagline": "Everyone thinks you abandoned your fiancé — someone hid every letter.",
-      "premise": "Everyone in high society believes you abandoned your billionaire fiancé three years ago without a word. The truth is that his ambitious stepmother intercepted every single letter and wire transfer you sent. You have just walked into his charity auction to bid on your mother's stolen necklace.",
+      "premise": "Three years ago you left your fiancé without a word, and everyone in high society still says you ran off with his money. You know his stepmother stopped every letter and transfer you sent, but you can't prove it yet. Tonight you're at his charity auction in a borrowed dress, bidding on your mother's necklace, and he has just walked in.",
       "hero": {
         "name": "Julian Mercer",
-        "role": "Secret Benefactor",
-        "origin": "Exiled Tycoon"
+        "role": "Former Fiancée",
+        "origin": "Old-money family"
       },
       "actions": [
         "Raise your auction paddle to outbid the stepmother on the heirloom necklace.",
@@ -224,9 +227,17 @@ export const tiktokDrama = {
       ],
       "gear": [
         {
-          "name": "Tablet",
-          "type": "misc",
+          "name": "Borrowed Evening Dress",
+          "type": "armor",
           "isEquipped": true
+        },
+        {
+          "name": "Auction Paddle",
+          "type": "misc"
+        },
+        {
+          "name": "Copies of Your Old Letters",
+          "type": "scroll"
         }
       ],
       "spells": [
@@ -321,9 +332,17 @@ export const tiktokDrama = {
       ],
       "gear": [
         {
-          "name": "Tablet",
-          "type": "misc",
+          "name": "Borrowed Wedding Gown",
+          "type": "armor",
           "isEquipped": true
+        },
+        {
+          "name": "Your Sister's Note",
+          "type": "scroll"
+        },
+        {
+          "name": "Phone",
+          "type": "misc"
         }
       ],
       "spells": [
@@ -479,7 +498,7 @@ export const tiktokDrama = {
       "hero": {
         "name": "Sebastian Cole",
         "role": "Secret Chairman",
-        "origin": "Vanguard Owner"
+        "origin": "Self-made city family"
       },
       "actions": [
         "Let him present your pitch to the boardroom, then ask the technical questions only the author knows.",
@@ -488,13 +507,17 @@ export const tiktokDrama = {
       ],
       "gear": [
         {
-          "name": "Signet Ring",
-          "type": "relic",
+          "name": "Company Ownership Papers (locked away)",
+          "type": "scroll"
+        },
+        {
+          "name": "Junior Staff ID",
+          "type": "misc",
           "isEquipped": true
         },
         {
-          "name": "ID",
-          "type": "armor"
+          "name": "Notebook",
+          "type": "misc"
         }
       ],
       "spells": [
@@ -505,73 +528,73 @@ export const tiktokDrama = {
   ],
   "tropes": [
     {
-      "premise": "The billionaire CEO throws the divorce contract on the table, unaware that the \"useless\" wife he's discarding is the hidden founder of the rival mega-corporation."
+      "premise": "You have worked the front desk at the Grand Mirage for two years under your mother's maiden name, and the new events manager has decided you are the one who fetches her coffee, carries her bags and takes the blame."
     },
     {
-      "premise": "The arrogant heiress slaps you across the face at the luxury banquet, just as the doors open and your real family—the wealthiest dynasty in the country—arrives."
+      "premise": "Your husband's family calls you \"the country girl\" at every Sunday lunch, and this week your mother-in-law started leaving a divorce lawyer's card on the hall table."
     },
     {
-      "premise": "You sign the contract marriage agreement with the cold, calculating mafia boss, strictly for business, but his protective fury when a rival threatens you suggests otherwise."
+      "premise": "You are the quiet intern in the design department, and the creative director keeps presenting your sketches as his own while telling everyone you're only there as a favor."
     },
     {
-      "premise": "The alpha of the pack rejects you for a more powerful mate, completely oblivious to the fact that you possess a rare, ancient wolf bloodline."
+      "premise": "Your fiancé's sister booked the engagement dinner at the most expensive restaurant in the city, and she keeps asking, sweetly, whether you'll manage your share of the bill."
     },
     {
-      "premise": "Your cheating husband brings his mistress to your supposedly humble apartment, only to discover you own the entire luxury building."
+      "premise": "You moved back to your hometown to look after your father, and your old classmates at the reunion want to know why the girl voted most likely to succeed is waiting tables."
     },
     {
-      "premise": "You return to the high-society gala five years after being banished in disgrace, stunning the crowd as you enter on the arm of the city's most feared tycoon."
+      "premise": "You are the new cleaner on the executive floor, and the finance director's assistant makes you redo the boardroom three times a night while the others watch."
     },
     {
-      "premise": "The spoiled true daughter returns to claim her place, attempting to frame you for theft, but the evidence you calmly present destroys her reputation instantly."
+      "premise": "You have always been the plain one in a family of stars, and your stepsister has invited half the city to hear you play piano at her birthday, a piece she knows you haven't touched in years."
     },
     {
-      "premise": "The cold CEO refuses to acknowledge your presence, until he accidentally discovers you are the mysterious elite hacker he's been desperately trying to hire."
+      "premise": "You joined the bottom of the sales team last week, and your team lead handed you the oldest, angriest client list \"to see how long you last.\""
     },
     {
-      "premise": "You are forced to attend the wedding of your ex-fiancé, but you arrive dripping in diamonds, accompanied by a billionaire who publicly declares his obsession with you."
+      "premise": "Your in-laws gave you the smallest room in the family house and a list of chores, and your husband says it's only until his mother calms down."
     },
     {
-      "premise": "The scheming mother-in-law attempts to bribe you to leave her son, and you laugh, sliding a check for ten times the amount across the table to buy her silence."
+      "premise": "You run a tiny repair shop under the railway arch, and the property developer's son keeps dropping by to tell you the rent is about to triple."
     },
     {
-      "premise": "You conceal your pregnancy and flee from the possessive alpha, only to bump into him three years later with a child who possesses his exact golden eyes."
+      "premise": "You are the substitute teacher the rich parents have decided to get fired, and the head of the parents' committee has started recording your lessons."
     },
     {
-      "premise": "The arrogant young master demands you apologize on your knees, just as his own grandfather rushes in and bows respectfully to you."
+      "premise": "You agreed to a quiet contract marriage with a cold CEO, and his family makes it clear at every dinner that you are temporary."
     },
     {
-      "premise": "You endure three years of humiliation as the \"trash\" son-in-law, waiting for the exact moment the restriction lifts on your fifty-billion-dollar trust fund."
+      "premise": "You play piano in the hotel lounge on the night shift, and the owner's daughter has started requesting songs just to send them back."
     },
     {
-      "premise": "The villainous stepsister tries to ruin your fashion show by destroying the lead dress, forcing you to step onto the runway in a masterpiece you designed overnight."
+      "premise": "Your ex-fiancé's new partner booked your small catering company for their engagement party, and the deposit came with a list of demands built for you to fail."
     },
     {
-      "premise": "A misunderstanding leads the ruthless billionaire to believe you are a spy, trapping you in a tense, claustrophobic game of cat-and-mouse in his penthouse."
+      "premise": "You are the only woman on the factory's maintenance crew, and the new supervisor keeps giving you the jobs that make you late for the safety inspection."
     },
     {
-      "premise": "You wake up reincarnated as the doomed villainess of a romance novel, and you immediately resolve to avoid the male lead—which only makes him obsessed with you."
+      "premise": "You came home after seven years abroad, and your relatives have already decided you came back broke and are dividing your grandmother's house without you."
     },
     {
-      "premise": "The paparazzi leak a scandalous photo of you with the notoriously private billionaire, forcing you into a fake engagement to protect both your reputations."
+      "premise": "You are the junior translator at the embassy, and the deputy ambassador keeps sending you out for sandwiches during the meetings held in your languages."
     },
     {
-      "premise": "The rival CEO attempts a hostile takeover of your supposedly struggling company, only to realize you laid a financial trap that bankrupts him instead."
+      "premise": "Your boyfriend's friends call you his \"charity project,\" and tonight they are hosting a wine tasting where they plan to make you name every bottle."
     },
     {
-      "premise": "Your supposedly poor, ordinary husband casually makes a phone call that grounds a fleet of private jets, revealing his true identity to your stunned family."
+      "premise": "You were adopted into the Han family as a child, and now that their birth daughter has come home, the household staff have started serving you last."
     },
     {
-      "premise": "The grand banquet falls silent as you reveal the DNA test results, proving the pampered heir is an imposter and you are the true ruler of the estate."
+      "premise": "You work weekends at a luxury boutique, and the regular who mocks your shoes has just asked your manager to fire you before her next visit."
     }
   ],
   "procedural": {
     "titles": [
-      "The Secret Heiress's 3-Year Test: Chapter I",
-      "The $50 Billion Signet Ring: Chapter I",
-      "Undercover Chairman's Morning Shift: Chapter I",
-      "The Grand Mirage Hotel Gala: Chapter I",
-      "The Billionaire's Silent Return: Chapter I"
+      "The Front Desk Heiress: Chapter I",
+      "Three Years Under Another Name: Chapter I",
+      "The Quiet Wife at Sunday Lunch: Chapter I",
+      "The Intern Nobody Noticed: Chapter I",
+      "The Daughter Who Came Home: Chapter I"
     ],
     "firstNames": [
       "Victoria",
@@ -593,102 +616,99 @@ export const tiktokDrama = {
       "Montgomery"
     ],
     "roles": [
-      "Undercover Heiress",
-      "Disguised Chairman",
-      "Corporate Strategist",
-      "Secret Tycoon",
-      "Executive Envoy"
+      "Hotel Front Desk Clerk",
+      "Junior Copywriter",
+      "Quiet Daughter-in-law",
+      "Restaurant Server",
+      "Design Intern"
     ],
     "origins": [
-      "Billionaire Heiress",
-      "Disguised Tycoon",
-      "Executive Sovereign"
+      "Old-money family",
+      "Small-town family",
+      "Shipping-dynasty family"
     ],
     "physicalTraits": [
       "Dressed in simple hotel staff attire but with impeccable regal posture and piercing sapphire eyes, carrying an antique heirloom ring hidden inside a tote bag."
     ],
     "hooks": [
       {
-        "hook": "Morning at the Grand Mirage. You have your grandmother’s signet ring in your tote.",
+        "hook": "Morning shift at the Grand Mirage front desk. The events manager has already sent you for coffee twice, and she wants the ballroom set by noon with half the staff.",
         "actions": [
-          "Check seating",
-          "Talk to chef",
-          "Check phone"
+          "Start setting the ballroom",
+          "Ask the head chef for help",
+          "Bring her the coffee and say nothing"
         ],
         "gear": [
           {
-            "name": "Signet Ring",
+            "name": "Staff ID Lanyard",
+            "type": "misc",
+            "isEquipped": true
+          },
+          {
+            "name": "Grandmother's Signet Ring",
+            "type": "relic"
+          }
+        ],
+        "spells": [],
+        "hp": 10
+      },
+      {
+        "hook": "Sunday lunch with your husband's family. His mother has seated you at the children's table again, and his sister is asking, loudly, what you paid for your dress.",
+        "actions": [
+          "Smile and answer her",
+          "Help in the kitchen instead",
+          "Ask your husband to step outside"
+        ],
+        "gear": [
+          {
+            "name": "Wedding Ring",
             "type": "relic",
             "isEquipped": true
           },
           {
-            "name": "ID",
-            "type": "armor"
+            "name": "Phone",
+            "type": "misc"
           }
         ],
-        "spells": [
-          "Insightful Observation"
-        ],
-        "hp": 10
-      },
-      {
-        "hook": "The $50B deal is today. You wear a cheap suit, but you hold the power.",
-        "actions": [
-          "Review contract",
-          "Scan guests",
-          "Check accounts"
-        ],
-        "gear": [
-          {
-            "name": "Tablet",
-            "type": "misc",
-            "isEquipped": true
-          }
-        ],
-        "spells": [
-          "Authoritative Presence"
-        ],
+        "spells": [],
         "hp": 11
       },
       {
-        "hook": "The gala host just accused you of being a fraud. Everyone is watching.",
+        "hook": "Your first week at Vanguard Media. The branch manager has put your desk by the copier and your proposal in his own folder.",
         "actions": [
-          "Show ring",
-          "Laugh",
-          "Walk away"
+          "Ask for your proposal back",
+          "Rewrite it better tonight",
+          "Make friends with the copy room"
         ],
         "gear": [
           {
-            "name": "Ring",
-            "type": "relic",
+            "name": "Notebook",
+            "type": "misc",
             "isEquipped": true
+          },
+          {
+            "name": "Company Badge",
+            "type": "misc"
           }
         ],
-        "spells": [
-          "Graceful Composure"
-        ],
-        "hp": 12
+        "spells": [],
+        "hp": 10
       }
     ]
   },
   "starterInventory": [
     {
       "name": "Antique Signet Ring",
-      "type": "relic",
-      "quantity": 1,
-      "isEquipped": false,
-      "description": "Hidden inside your jacket pocket. Bears an unfamiliar crest."
+      "type": "relic"
     },
     {
-      "name": "Impeccably Tailored Plain Suit",
+      "name": "Plain Work Clothes",
       "type": "armor",
-      "quantity": 1,
       "isEquipped": true
     },
     {
-      "name": "Encrypted Smartphone",
-      "type": "misc",
-      "quantity": 1
+      "name": "Phone",
+      "type": "misc"
     }
   ],
   "ambient": [

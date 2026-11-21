@@ -132,8 +132,11 @@ export interface StoryRollInput {
   /**
    * fresh: a new story (optionally from a story seed). adapt: the player's own story, kept word
    * for word, with the rest rebuilt around it. opener: a hand-written opener, built out.
+   * sequel: the next book of a campaign, from its recap (src/dnd/nextBook.ts).
    */
-  mode: 'fresh' | 'adapt' | 'opener';
+  mode: 'fresh' | 'adapt' | 'opener' | 'sequel';
+  /** sequel only (Book Two and later): what happened so far and who the hero is now. */
+  continuation?: string;
   /** fresh only: the story seed the player picked. */
   seed?: string;
   /** fresh: where the player joins (storyShape.pickShape). opener: the opener's own shape, if it has one. */
@@ -200,6 +203,11 @@ Title: ${fixed.title}
 Premise: ${fixed.premise}
 First moves: ${(fixed.actions ?? []).join(' | ')}
 Build the rest around it: a full outline (people, conflicts, secrets, chapters, endings), the hero's looks, and the hero sheet.`;
+  } else if (mode === 'sequel') {
+    assignment = `THIS IS THE NEXT BOOK OF A CAMPAIGN THE PLAYER IS ALREADY PLAYING. Same hero, same world.
+${input.continuation ?? ''}
+
+Write the next book's story: a new arc that grows out of how the last book ended, with a new pressure, new chapters and a new turning point still ahead. Keep established names, places and relationships, and keep the hero's name, class and origin as given. The premise follows the story rules below: it is written to the player as "you", starts where this book starts (the hero's life after the last book, with the new pressure building), and does not spoil the new turning point.`;
   } else {
     assignment = `Write ONE original story for a "${profile.name}" campaign, and the hero who fits it. Everything you return belongs to this one story: the hero's class, origin, ability scores, skills, gear and spells all follow from the premise.
 ${seed
@@ -230,9 +238,11 @@ ${assignment}
 ${shapeBlock}
 
 STORY RULES
-- premise: a back-of-the-book pitch of 3 or 4 sentences, written to the player as "you" (never "he", "she" or the hero's name). It shows only what the hero knows and feels at the moment the player joins: who they are, their everyday life, who trusts or relies on them, and the pressure they can already feel (too much work, a rival or coworker who resents them, a warning they can't place). Then end on that pressure with a question to the player, e.g. "How long can you keep your head down? And what would you do if they turned on you?"
+- premise: a back-of-the-book pitch of 3 or 4 sentences, written to the player as "you" (never "he", "she" or the hero's name). It shows only what the hero knows and feels at the moment the player joins: who they are, their everyday life, who trusts or relies on them, and the pressure this category's PREMISE PATTERN says a story starts with (in Revenge, a coworker who resents them; in Horror, one small thing that's off; in Zombie Outbreak, a city that hasn't noticed yet; in Cozy, a neighbor who needs help). Use this category's kind of pressure, not another genre's: a cozy or horror story does not need a hostile boss. Then end on that pressure with a question to the player, e.g. "How long can you keep your head down?" or "What would you do if they turned on you?"
+- The closing question is about the pressure the hero already feels, or a general "what if" the hero could fear (e.g. "What would you do if they turned on you?"). It never names or describes the specific event the outline plans. Bad: "what will you do when they pin the missing necklace on you?", "what will you do when you realize the maps open sealed doors?", "before the trap snaps shut?". Never "when you realize…" or "when you discover…".
 - The premise must not spoil the story. Never state, name or promise the turning point or the twist (no "the betrayal has not happened yet", "a trap is being set", "you will be the scapegoat"), and no narrator's irony ("unaware that", "not realizing", "little do you know", "the ink is already dry"). The player learns the turning point by living through it.
 - Keep the hero sympathetic and their tone true to where they are now: an ordinary, likeable person with reasons the player shares. No dark or vengeful mood the story hasn't earned yet, and no shady deeds or hidden schemes of their own unless the premise is plainly about that.
+- Call the hero by the same name everywhere you name them (hero.name, outline, chapters, turningPoint).
 - outline and turningPoint are for the game master only; the player never reads them, so put the full plan there.
 - outline: startingCircumstances, incitingIncident and immediateGoal in one or two sentences each, all at the moment the player joins; backstory in two or three (only what is true before the player joins); 2 to 4 keyNpcs, each with a secret; 2 majorConflicts; 2 secretsAndReveals for later; 3 to 5 chapters naming this story's people and places, paced to the story's shape (the last resolves the story); 3 potentialEndings; storyShape; turningPoint (the defining event, and the chapter where it lands, e.g. "Chapter 2: your brother signs the estate over to the Varrows").
 - openingActions: three short first moves for the first scene, each a different approach.

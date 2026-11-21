@@ -160,7 +160,7 @@ export function pickInspiration(category: ExperienceCategory, openerId?: string,
   const c = getContent(category);
   return {
     media: shuffle(c.media, rand).slice(0, 4).map((m) => `${m.title} (${m.medium})`),
-    tropes: shuffle(c.tropes, rand).slice(0, 3).map((t) => (t.conflict ? `${t.premise} Conflict: ${t.conflict}` : t.premise)),
+    tropes: shuffle(c.tropes, rand).slice(0, 2).map((t) => (t.conflict ? `${t.premise} Conflict: ${t.conflict}` : t.premise)),
     ...(openerId ? { openerId } : {})
   };
 }

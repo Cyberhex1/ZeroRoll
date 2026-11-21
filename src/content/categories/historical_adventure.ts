@@ -63,6 +63,12 @@ export const historicalAdventure = {
   },
   "profile": {
     "seedSource": "High-Stakes Points in Authentic & Fictionalized World History",
+    "pattern": {
+      "hero": "An ordinary person of their time and place with real duties: a scribe, a tea house worker, an apprentice, a low-ranking soldier.",
+      "start": "Daily duty, with political tension growing around them.",
+      "turn": "History happens to them (a siege, a conspiracy, a decree) and they are caught in it.",
+      "payoff": "They come through it with their honor or their people intact."
+    },
     "voice": "Disciplined, authentic, culturally grounded, cinematic. Rich in historical terminology, respectful period etiquette, and realistic martial stakes.",
     "atmosphere": "Morning dew glistening on bamboo mountain passes, sealed imperial bamboo cylinders, woven straw sandals, quiet roadside tea houses, fortified provincial checkpoints.",
     "sceneStructure": "1. Arrival at mountain checkpoint or historical landmark -> 2. Cultural grounding & verifying permits/dispatches -> 3. Encounter with provincial guards or scholars -> 4. Tactical route decision.",
@@ -498,7 +504,7 @@ export const historicalAdventure = {
   ],
   "tropes": [
     {
-      "premise": "The Shogun's guards pass the sliding paper doors, completely unaware that you are clinging to the rafters above the assassination target."
+      "premise": "You serve tea in the Shogun's castle, and the new servant who arrived this week keeps asking which rooms the lord sleeps in."
     },
     {
       "premise": "The Library of Alexandria is burning, and you must choose between saving a trapped scholar or the only remaining copy of a world-altering text."
@@ -522,7 +528,7 @@ export const historicalAdventure = {
       "premise": "The crusader army breaches the city walls, and you must escort a group of refugees through the catacombs to safety."
     },
     {
-      "premise": "A hidden blade slips from your sleeve just as the corrupt Borgia cardinal steps out onto the Vatican balcony."
+      "premise": "You copy letters for a Borgia cardinal, and the last three you sealed were addressed to men who died within the month."
     },
     {
       "premise": "The siege engines launch flaming pitch over the castle walls of Edo, illuminating the shinobi scaling the stone ramparts."
@@ -549,7 +555,7 @@ export const historicalAdventure = {
       "premise": "A ninja throws a smoke bomb into the teahouse, and when the air clears, the emperor's heir has vanished."
     },
     {
-      "premise": "You stand in the mud of Agincourt, bracing your longbow as the thunderous charge of French cavalry approaches."
+      "premise": "You are a fletcher's apprentice marching with the English army through the rain, and the captain has just told your company to dig stakes in a muddy field near Agincourt."
     },
     {
       "premise": "A Venetian gondolier pulls a stiletto dagger on you in the middle of a foggy canal with no witnesses in sight."

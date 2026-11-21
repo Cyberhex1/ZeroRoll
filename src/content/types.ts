@@ -28,9 +28,22 @@ export interface CategoryCard {
   samplePrompts: string[];
 }
 
+/**
+ * The shape of a good premise in this category (ohnna's story patterns, 2026-11-21): who the
+ * hero usually is, where the story starts, what goes wrong on screen, and the payoff. Not a plot.
+ */
+export interface PremisePattern {
+  hero: string;
+  start: string;
+  /** What goes wrong (or, in gentle genres, what changes) on screen, after the start. */
+  turn: string;
+  payoff: string;
+}
+
 /** How stories in this category should read. Goes to the model (see ./injection.ts). */
 export interface NarrativeProfile {
   seedSource: string;
+  pattern: PremisePattern;
   voice: string;
   atmosphere: string;
   sceneStructure: string;

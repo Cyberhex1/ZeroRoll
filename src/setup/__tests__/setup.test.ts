@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { StatBlock } from '../../types';
-import { getContent } from '../../content';
+import { CATEGORY_IDS, getContent } from '../../content';
+import { turnContextBlock } from '../../content/injection';
 import { nameFitsPronouns } from '../../content/names';
 import { SKILLS, castsSpells } from '../../dnd/rules';
 import {
@@ -185,7 +186,7 @@ describe('setup draft rules', () => {
 
   it('a picked seed leads the tropes and clears the opener', () => {
     const i = inspirationWithSeed('fantasy', 'A lighthouse keeper finds a door', { media: [], tropes: ['x', 'y', 'z'], openerId: 'o' });
-    expect(i.tropes).toEqual(['A lighthouse keeper finds a door', 'x', 'y']);
+    expect(i.tropes).toEqual(['A lighthouse keeper finds a door', 'x']);
     expect(i.openerId).toBeUndefined();
   });
 
@@ -318,5 +319,36 @@ describe('hand-written openers', () => {
 
   it('categories without shaped openers still get three examples', () => {
     expect(exampleOpeners('horror', shapeById('before'))).toHaveLength(3);
+  });
+});
+
+describe('story patterns (ohnna, 2026-11-21)', () => {
+  const base = { category: 'revenge' as const, pronouns: 'she/her', rulesMode: 'narrative' as const, inspiration: { media: ['A'], tropes: ['B'] } };
+
+  it('every roll carries the category premise pattern and no spark seed', () => {
+    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape: STORY_SHAPES[0] });
+    expect(p).toContain('PREMISE PATTERN (Revenge)');
+    expect(p).toContain(getContent('revenge').profile.pattern.start);
+    expect(p).not.toContain('Spark for this roll');
+  });
+
+  it('a sequel uses the same story rules with the hero kept', () => {
+    const p = buildStoryPrompt({ ...base, mode: 'sequel', shape: STORY_SHAPES[1], continuation: 'Start Book 2 of this campaign.', fixed: { name: 'Odile Marchetti', roleClass: 'Bookkeeper', origin: 'Harbor-born human' } });
+    expect(p).toMatch(/NEXT BOOK[\s\S]*Start Book 2/);
+    expect(p).toContain('PREMISE PATTERN (Revenge)');
+    expect(p).toContain('The premise must not spoil the story');
+    expect(p).toContain('keep "Odile Marchetti" exactly');
+  });
+
+  it('game-master turns get no story seeds', () => {
+    const t = turnContextBlock('revenge', { media: ['John Wick (Film)'], tropes: ['You stand over the first betrayer'] });
+    expect(t).toContain('John Wick');
+    expect(t).not.toContain('first betrayer');
+  });
+
+  it('no category seed starts with the payoff or with narrator irony', () => {
+    for (const id of CATEGORY_IDS) {
+      for (const t of getContent(id).tropes) expect(t.premise).not.toMatch(/\b(unaware|oblivious|little do|too late)\b|first betrayer|on your list/i);
+    }
   });
 });

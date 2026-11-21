@@ -67,6 +67,12 @@ export const romantic = {
   },
   "profile": {
     "seedSource": "GoodNovel & PrimeDrama Passionate Dynasties & Masquerades",
+    "pattern": {
+      "hero": "A person with their own life and something at stake: a family name, a career, a promise.",
+      "start": "A meeting that goes wrong, or a situation that forces two people together (an arranged match, a rival, a new boss).",
+      "turn": "Misunderstandings, rivals and family pressure, then a real setback where they lose each other or the thing at stake.",
+      "payoff": "They choose each other, and it costs something."
+    },
     "voice": "Elegant, witty, emotionally perceptive, sensory-rich prose. High subtext, sparkling dialogue, lingering romantic tension, and sharp courtly awareness.",
     "atmosphere": "Venetian grand canals, moonlit palace balustrades, velvet domino masks, glittering crystal flutes, candlelit ballrooms, soft violin waltzes echoing over water.",
     "sceneStructure": "1. Arrival at an opulent masquerade or court ball -> 2. Tense encounter or lingering glance with a brooding rival/contract partner -> 3. Delicate social intrigue or secret letter -> 4. High-stakes conversational choice.",
@@ -511,7 +517,7 @@ export const romantic = {
       "premise": "The ice-cold CEO of the magical conglomerate demands you act as his fake fiancé for the season to appease his demanding family."
     },
     {
-      "premise": "A passionate, rain-soaked argument in the courtyard ends abruptly when they grab your face and silence you with a kiss."
+      "premise": "Your family's rival house has sent their heir to apprentice in your father's workshop, and he is annoyingly good at the work."
     },
     {
       "premise": "You are assigned to tutor the notorious bad boy of the magical academy, only to discover a vulnerable, fiercely protective side to him."

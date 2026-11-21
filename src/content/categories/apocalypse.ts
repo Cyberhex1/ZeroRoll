@@ -69,6 +69,12 @@ export const apocalypse = {
   },
   "profile": {
     "seedSource": "Fallout Sagas & Nuclear Wasteland Survival Lore",
+    "pattern": {
+      "hero": "A survivor with a role in a small community: a water tech, a scavenger, a trader's kid.",
+      "start": "The routine of survival, and one threat to it: failing water, a new raider gang, a sick friend.",
+      "turn": "The community's safety breaks, and they must leave or fight.",
+      "payoff": "A future for their people."
+    },
     "voice": "Gritty, resourceful, observant, pragmatic. Highlights the harsh beauty of reclaimed nature, scavenged engineering, and the resilience of wanderers.",
     "atmosphere": "Hissing shelter blast doors, calibrated Geiger counters, sunlit rust valleys, distant wind turbines, scavenged dusters, canteen moisture recyclers, abandoned pre-war checkpoints.",
     "sceneStructure": "1. Emerging from underground vault/shelter into sunlight -> 2. Environmental readings & checking gear -> 3. Spotting distant trading settlement or ruin -> 4. Scavenging route choice.",

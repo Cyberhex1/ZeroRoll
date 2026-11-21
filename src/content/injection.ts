@@ -2,8 +2,8 @@
  * Injection policy: what part of the category corpus goes into which prompt.
  *
  * - Scenario generation and Chapter One get the full profile plus the campaign's inspiration.
- * - Action turns get a short style card (at most STYLE_CARD_MAX characters) plus the same
- *   stored inspiration, verbatim, so the campaign keeps one voice from turn 1 to turn 100.
+ * - Action turns get a short style card (at most STYLE_CARD_MAX characters) plus the stored
+ *   tone references, so the campaign keeps one voice from turn 1 to turn 100. No seeds.
  * - The Rules Referee gets nothing from the corpus.
  * - Media and trope picks are made once (pickInspiration) and stored on the Experience.
  */
@@ -22,15 +22,29 @@ function clip(text: string, max: number): string {
 export function inspirationBlock(inspiration: CampaignInspiration): string {
   const lines: string[] = [];
   if (inspiration.media.length) lines.push(`Tone references: ${inspiration.media.join('; ')}.`);
-  if (inspiration.tropes.length) lines.push(`Story seeds:\n${inspiration.tropes.map((t) => `- ${t}`).join('\n')}`);
+  if (inspiration.tropes.length) lines.push(`Story seeds (starting situations, as examples):\n${inspiration.tropes.map((t) => `- ${t}`).join('\n')}`);
   if (!lines.length) return '';
   return `=== CAMPAIGN INSPIRATION ===\n${lines.join('\n')}\n${ANTI_COPY}`;
 }
 
-/** The whole profile, for scenario generation and the Chapter One scene. */
-export function fullProfileBlock(category: ExperienceCategory, inspiration?: CampaignInspiration): string {
+/** The category's premise pattern: the shape of a good story start, not a plot. */
+export function patternBlock(category: ExperienceCategory): string {
+  const { pattern: pat, name } = getCategoryProfile(category);
+  return `PREMISE PATTERN (${name}): the shape every story in this category follows. It is not a plot; invent your own people, places and events inside it.
+- The hero: ${pat.hero}
+- Where the story starts (the premise lives here): ${pat.start}
+- What goes wrong, on screen, after the start: ${pat.turn}
+- The payoff, at the end: ${pat.payoff}`;
+}
+
+/**
+ * The whole profile, for the story roll and the Chapter One scene. Story seeds are left out
+ * when `seeds` is false (Chapter One with an outline follows the outline, not the seeds).
+ */
+export function fullProfileBlock(category: ExperienceCategory, inspiration?: CampaignInspiration, opts: { seeds?: boolean } = {}): string {
   const p = getCategoryProfile(category);
-  const insp = inspiration ?? pickInspiration(category);
+  const base = inspiration ?? pickInspiration(category);
+  const insp = opts.seeds === false ? { ...base, tropes: [] } : base;
   return `=== GENRE PROFILE: ${p.name.toUpperCase()} ===
 Voice: ${p.voice}
 Atmosphere: ${p.atmosphere}
@@ -40,6 +54,8 @@ Story beats: ${p.storyBeats}
 Characters: ${p.characterDynamics}
 Encounters: ${p.encounterPatterns}
 Avoid: ${p.avoid}
+
+${patternBlock(category)}
 
 ${inspirationBlock(insp)}`;
 }
@@ -56,8 +72,12 @@ export function styleCard(category: ExperienceCategory): string {
   return card.length <= STYLE_CARD_MAX ? card : clip(card, STYLE_CARD_MAX);
 }
 
-/** Style card plus the campaign's stored inspiration, for every action turn. */
+/**
+ * Style card plus the campaign's tone references, for every action turn. The story seeds are
+ * not sent: after Chapter One the game master follows the story's own outline, and seeds kept
+ * pulling turns toward their own (often late) moments.
+ */
 export function turnContextBlock(category: ExperienceCategory, inspiration?: CampaignInspiration): string {
-  const insp = inspiration ? inspirationBlock(inspiration) : '';
+  const insp = inspiration ? inspirationBlock({ ...inspiration, tropes: [] }) : '';
   return insp ? `${styleCard(category)}\n\n${insp}` : styleCard(category);
 }

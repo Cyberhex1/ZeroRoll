@@ -43,6 +43,7 @@ import {
   validateDraft
 } from '../draft';
 import { HeroPart, rollHeroPart, rollStory } from '../storyRoll';
+import { pickShape, shapeById } from '../storyShape';
 import type { PronounChoice, SetupDraft, StoryPackage, TypedField } from '../types';
 import { StoryCard } from './StoryCard';
 import { HeroCard } from './HeroCard';
@@ -199,9 +200,11 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   const rollFresh = useCallback(
     async (seed?: string) => {
       const inspiration = seed ? inspirationWithSeed(catId, seed) : pickInspiration(catId);
+      // Where the player joins the story; a reroll never repeats the last one.
+      const shape = pickShape(shapeById(draftRef.current?.outline?.storyShape)?.id);
       const ok = await run(
         'story',
-        (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, rulesMode, inspiration, mode: 'fresh', seed, signal }),
+        (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, rulesMode, inspiration, mode: 'fresh', seed, shape, signal }),
         (pkg: StoryPackage) => setDraft((prev) => applyPackage(prev, pkg, { category: catId, inspiration, source: 'ai', seed })),
         { retry: () => void rollFresh(seed) }
       );

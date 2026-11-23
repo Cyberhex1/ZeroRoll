@@ -9,7 +9,7 @@ import { RULE_NEVER_CLIMAX, STORY_SHAPES } from '../setup/storyShape';
 import { CLASS_RULE, HERO_FIT, ORIGIN_RULE, SHEET_EXAMPLE, SHEET_RULES } from '../setup/heroRules';
 import type { FixedParts } from '../setup/normalize';
 import type { GateFailure } from './gate';
-import { STOCK_PLACES } from './gate';
+import { STOCK_PLACES, TITLE_TICS } from './gate';
 
 export const STOCK_PLACE_LINE = `Never call a place ${STOCK_PLACES.slice(0, -1).join(', ')}.`;
 
@@ -90,7 +90,7 @@ Pitch 4 stories from this spread that are truly different from each other:
 2. turns the offered hook inside out (the victim is the culprit, the gift is a debt, the monster is a guest);
 3. is built around ${s.spice ? 'the second influence' : 'the plot engine, pushed further than expected'};
 4. is the boldest one that still keeps the category line above.
-For each: title (two to five words, no chapter number, naming something only this story has: its place, a person, an object or the hook), hero (who they are and what they want, one sentence), hook (what happens in the first scene), turningPoint (the defining event ahead; never the hook itself), surprise (the element the player would not guess).
+For each: title (two to five words, no chapter number, naming something only this story has: its place, a person, an object or the hook; never the worn words ${[...new Set(TITLE_TICS.map((w) => w.replace(/e?s$/, '')))].join(', ')}), hero (who they are and what they want, one sentence), hook (what happens in the first scene), turningPoint (the defining event ahead; never the hook itself), surprise (the element the player would not guess).
 ${STOCK_PLACE_LINE}
 Reply with JSON only: { "pitches": [{ "title": "…", "hero": "…", "hook": "…", "turningPoint": "…", "surprise": "…" }] }`;
 }
@@ -192,7 +192,7 @@ ${s.hookIsSeed && mode === 'fresh' ? "If this shape starts before the seed's sit
   }
 
   parts.push(`OUTLINE (game master only; the player never reads it, so put the full plan here)
-- startingCircumstances, backstory, incitingIncident (the hook, on screen in the first scene), immediateGoal: one or two sentences each.
+- startingCircumstances, backstory, incitingIncident (the hook, on screen in the first scene), immediateGoal: one or two sentences each. startingCircumstances and immediateGoal are shown to the player, so write them to the hero as "you", like the premise.
 - keyNpcs: 3 or 4 people. Each has a role, what they want (motivation), a secret, and the move they make next if the hero does nothing.
 - fronts: 2 pressures that move on their own, whether or not the hero acts. Each has a name, an agenda and 3 or 4 portents that escalate in order; the last portent is what happens if nobody stops it.
 - setPieces: 4 big, vivid scenes for later chapters (a place plus something happening). You may transform these genre moments: ${s.setPieces.join(' | ')}

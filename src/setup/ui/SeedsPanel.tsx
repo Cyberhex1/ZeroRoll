@@ -1,6 +1,9 @@
-import { Dices, Lightbulb, RefreshCw, Sparkles } from 'lucide-react';
+import { Dices, Lightbulb, RefreshCw, Sparkles, Wand2 } from 'lucide-react';
 import { clickable } from '../../components/ui/a11y';
 import type { Opener, OpenerDraw } from '../../content';
+import type { Pitch } from '../../forge/pitch';
+
+export const NEW_IDEAS_TIP = "Four new pitches from a fresh draw of this genre's deck.";
 
 interface Props {
   categoryName: string;
@@ -11,13 +14,17 @@ interface Props {
   locked: boolean;
   regenerating: boolean;
   error: string | null;
+  /** 0.2: pitches to build, from the last roll or a "New ideas" draw. */
+  ideas?: Pitch[];
+  ideasFromRoll?: boolean;
+  onIdea?: (pitch: Pitch) => void;
   onSeed: (seed: string) => void;
   onOpener: (opener: Opener) => void;
   onShowOthers: () => void;
   onRegenerate: () => void;
 }
 
-export function SeedsPanel({ categoryName, seeds, openers, openerTotal, aiOn, locked, regenerating, error, onSeed, onOpener, onShowOthers, onRegenerate }: Props) {
+export function SeedsPanel({ categoryName, seeds, openers, openerTotal, aiOn, locked, regenerating, error, ideas = [], ideasFromRoll = false, onIdea, onSeed, onOpener, onShowOthers, onRegenerate }: Props) {
   const item = 'rounded bg-black/40 border border-white/5 transition focus:outline-none focus:ring-2 focus:ring-amber-500';
   const live = locked ? 'opacity-50 pointer-events-none' : 'cursor-pointer hover:border-amber-400/50 hover:bg-amber-500/10';
   return (
@@ -30,7 +37,7 @@ export function SeedsPanel({ categoryName, seeds, openers, openerTotal, aiOn, lo
           </div>
           <p className="text-[11px] text-amber-200/80">
             {aiOn
-              ? 'A story seed rolls a new story built from it. An opener keeps its hand-written start and the AI builds the rest around it.'
+              ? 'An idea or a story seed rolls a new story built from it. An opener keeps its hand-written start and the AI builds the rest around it.'
               : 'The AI is off: a seed becomes your story as written, and an opener is used as it is.'}
           </p>
         </div>
@@ -39,17 +46,38 @@ export function SeedsPanel({ categoryName, seeds, openers, openerTotal, aiOn, lo
             type="button"
             disabled={locked}
             onClick={onRegenerate}
+            title={NEW_IDEAS_TIP}
             className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-500 text-black font-bold text-[10px] font-mono flex items-center gap-1 shrink-0 transition disabled:opacity-50"
           >
             <RefreshCw className={`w-3 h-3 ${regenerating ? 'animate-spin' : ''}`} aria-hidden="true" />
-            New AI seeds
+            New ideas
           </button>
         )}
       </div>
       {error && (
         <p role="alert" className="p-2 rounded bg-red-950/60 border border-red-700/40 text-[11px] text-red-100">
-          {error} Your current seeds are still here.
+          {error} Your current ideas and seeds are still here.
         </p>
+      )}
+
+      {aiOn && ideas.length > 0 && onIdea && (
+        <div>
+          <div className="flex items-center justify-between mb-2 gap-2">
+            <h4 className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center gap-1.5">
+              <Wand2 className="w-3.5 h-3.5" aria-hidden="true" />
+              {ideasFromRoll ? 'More ideas from this roll' : 'New ideas'}
+            </h4>
+            <span className="text-[10px] text-slate-500 font-mono text-right">Click to build this one</span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {ideas.map((p, idx) => (
+              <div key={`${p.title}-${idx}`} className={`${item} ${live} px-3 py-2 space-y-0.5`} {...clickable(() => onIdea(p))}>
+                <div className="text-amber-300 font-bold font-serif text-[13px]">{p.title}</div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">{p.hook}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       <div>

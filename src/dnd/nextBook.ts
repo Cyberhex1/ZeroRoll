@@ -9,6 +9,7 @@ import { generateChapterOneAI } from '../lib/geminiService';
 import { rollStory } from '../setup/storyRoll';
 import { pickShape } from '../setup/storyShape';
 import { pickInspiration } from '../content';
+import { forgedInspiration } from '../setup/draft';
 import { addEntry } from '../memory/memoryStore';
 import type { Experience, LogMessage } from '../types';
 import { experienceMemory } from './memory';
@@ -49,16 +50,19 @@ export function nextBookPrompt(exp: Experience): string {
 export async function continueToNextBook(exp: Experience, model: string): Promise<Experience> {
   const book = (exp.book ?? 1) + 1;
   // A new book must continue this story; a failed roll throws, never a random procedural one.
+  const baseInspiration = exp.inspiration ?? pickInspiration(exp.category);
   const pkg = await rollStory({
     category: exp.category,
     pronouns: exp.character.gender || 'they/them',
     rulesMode: exp.rulesMode ?? 'narrative',
-    inspiration: exp.inspiration ?? pickInspiration(exp.category),
+    inspiration: baseInspiration,
     mode: 'sequel',
     continuation: nextBookPrompt(exp),
     shape: pickShape(),
     fixed: { name: exp.character.name, roleClass: exp.character.roleClass, origin: exp.character.raceOrigin }
   });
+  // 0.2: the new book keeps the story family and main influence (sequel spread) with a new draw for the rest.
+  const inspiration = forgedInspiration(baseInspiration, pkg);
   const scenario = { storyBlurb: pkg.premise, storyOutline: pkg.outline, suggestedActions: pkg.actions };
   // Between books the hero recovers (S12: HP 0 never carries into a new book).
   // Conditions end with the rest too (playtest D22).
@@ -69,7 +73,7 @@ export async function continueToNextBook(exp: Experience, model: string): Promis
     storyOutline: scenario.storyOutline,
     characterState: character,
     model,
-    inspiration: exp.inspiration
+    inspiration
   });
   const now = new Date().toISOString();
   const memory = addEntry(experienceMemory(exp), `Book ${book - 1}: ${clip(bookRecap(exp).replace(/\n/g, ' '), 380)}`, exp.logs.length, 'state', true);
@@ -96,6 +100,9 @@ export async function continueToNextBook(exp: Experience, model: string): Promis
       customNotes: scenario.storyOutline?.backstory || exp.gameWorldState.customNotes
     },
     memory,
+    inspiration,
+    // The Director rebuilds from the new outline's fronts and set-pieces.
+    director: undefined,
     logs: [...exp.logs, divider, chapterOne],
     concluded: null,
     activeAlert: null,

@@ -23,7 +23,6 @@ export interface CategorySeedInfo {
   prompts: string[];
 }
 import { getCategoryFallbackActions, getCategoryProfile, getContent, getOpenerById } from '../content';
-import { OVERUSED_NAMES } from './rollFreshness';
 import { fullProfileBlock, patternBlock, turnContextBlock } from '../content/injection';
 import { forgeContextBlock } from '../forge/context';
 import { namesOnHandFrom, traditionsFor } from '../forge/names';
@@ -705,7 +704,8 @@ RULES
 - Ask for a roll only with a CHECK_REQUIRED block, never in the story text. After a roll result, narrate what it caused; don't ask for the same check again.
 - Fights hurt: when the hero is hit, put the damage in HP_DELTA.
 - Move to the next chapter only when this chapter's goal is resolved. End the story only in the final chapter.
-- Give new characters names that fit the setting, never: ${OVERUSED_NAMES.slice(0, 20).join(', ')}.
+- Give new characters names that fit the setting.
+- A DIRECTOR NOTE in the player message is from the story's director: follow it this turn; never mention it.
 - Never repeat an earlier reply. Never start with "DM:".
 
 ${styleBlock}
@@ -762,6 +762,11 @@ export async function executeActionTurn(params: {
   rulesMode?: RulesMode;
   /** 'referee' is the free-text Rules Referee: no genre corpus and no outline (injection policy). */
   purpose?: 'turn' | 'referee';
+  /**
+   * 0.2 Director (src/forge/turnContext.ts): this turn's note, fresh-language line, names on hand
+   * and style-card lookups. Sent in the player message, so they read as "this turn". Ignored by the referee.
+   */
+  director?: { note?: string; language?: string; names?: string; context?: { turn: number; palette?: string; dna?: { title: string; dna: string } } };
 }): Promise<ActionTurnResult> {
   const { contents, category, model, systemInstruction, characterState, diceRoll, inspiration, purpose = 'turn' } = params;
   const isReferee = purpose === 'referee';
@@ -770,7 +775,8 @@ export async function executeActionTurn(params: {
 
   if (hasKey) {
     try {
-      const narrativeCorpus = isReferee ? '' : turnContextBlock(category, inspiration);
+      const director = isReferee ? undefined : params.director;
+      const narrativeCorpus = isReferee ? '' : turnContextBlock(category, inspiration, director?.context ?? {});
       // Issue #5: ALWAYS include the base GM prompt + narrative corpus +
       // story outline. The user's custom system instruction is appended as
       // a stylistic flavor on top, so the AI always has the campaign
@@ -778,7 +784,7 @@ export async function executeActionTurn(params: {
       // prompt or not.
       const localCtx = activeLocalContext();
       const fullPrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
-When you introduce a new character, give them a name that fits the setting and is not one of these overused names: ${OVERUSED_NAMES.join(', ')}.
+When you introduce a new character, give them a name that fits the setting.
 
 ${narrativeCorpus}
 
@@ -798,6 +804,8 @@ GAMEPLAY GM DIRECTIVES:
 - CHAPTER PROGRESSION: When the current chapter concludes and the story organically transitions to the next chapter of the roadmap, you MUST output a COURSE_TRIGGER with type "chapter_transition".
 - STORY CONCLUSION: When the final chapter resolves and the overarching plot is fully complete, you MUST output a COURSE_TRIGGER with type "story_conclusion".
 - React dynamically to player rolls and decisions, maintaining excitement, atmosphere, and authentic stakes without accelerating the timeline prematurely.
+- A DIRECTOR NOTE in the player message is from the story's director: follow it this turn in a way that fits the player's action; never mention it.
+- Use the FRESH LANGUAGE list, when there is one, to avoid repeating yourself.
 
 Output a state update block if inventory, conditions, or HP change:
 ---STATE_UPDATE---
@@ -851,7 +859,9 @@ At the end, provide 3 suggested actions formatted as:
         : basePrompt;
 
       const stateSheet = isReferee ? '' : [currentStateBlock(characterState, params.world, storyOutline), rulesLine(params.rulesMode ?? 'narrative')].filter(Boolean).join('\n');
-      const userMessage = `${stateSheet ? `${stateSheet}\n\n` : ''}${/Recent Story Log:/.test(contents) || isReferee ? contents : `Recent Story Log:\n${contents}`}
+      // Local models get the note only (their prompt is short); cloud models get all three lines.
+      const directorBlock = director ? (localCtx ? [director.note] : [director.note, director.language, director.names]).filter(Boolean).join('\n') : '';
+      const userMessage = `${stateSheet ? `${stateSheet}\n\n` : ''}${directorBlock ? `${directorBlock}\n\n` : ''}${/Recent Story Log:/.test(contents) || isReferee ? contents : `Recent Story Log:\n${contents}`}
 
 ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}${localCtx && !isReferee ? `\n\n${LOCAL_TURN_REMINDER}` : ''}`;
 

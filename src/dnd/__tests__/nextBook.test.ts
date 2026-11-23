@@ -56,4 +56,14 @@ describe('starting gear merge (PS7)', () => {
     ];
     expect(mergeInventoryAdditive(hero, defaults).map((i) => i.name)).toEqual(['Rapier', 'Leather Armor', 'Torch']);
   });
+
+  it('0.2: Book Two keeps the new forge record and resets the Director', async () => {
+    const forge = { v: 1, family: 'f', familyName: 'Fam', dna: ['a'], dnaTitles: ['A'], engine: 'heist' };
+    rollStory.mockResolvedValueOnce({ title: 'T2', premise: 'P2', outline: { chapters: ['One'] }, actions: [], hero: {}, sheet: {}, forge, spread: { primary: { title: 'A', medium: 'novel' } } } as any);
+    const next = await continueToNextBook({ ...exp, director: { v: 1 } } as any, 'm');
+    expect(next.inspiration?.forge).toEqual(forge);
+    expect(next.inspiration?.media).toEqual(['A (novel)']);
+    expect(next.director).toBeUndefined();
+    expect(rollStory.mock.calls.at(-1)?.[0].mode).toBe('sequel');
+  });
 });

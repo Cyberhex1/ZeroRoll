@@ -497,3 +497,50 @@ describe('Gemini limits (2026-11-21)', () => {
     expect(getGeminiUsageToday()['gemini-3.5-flash-lite']).toEqual({ requests: 1, inputTokens: 262, outputTokens: 40 });
   });
 });
+
+describe('0.2 migration', () => {
+  it('a campaign saved before 0.2 builds a turn prompt and plays a turn with the Director on', async () => {
+    const { turnDirection } = await import('../../forge/turnContext');
+    const { updateDirector } = await import('../../forge/director');
+    const { buildDndContext } = await import('../../dnd/memory');
+    // Shape of a 0.1 save: no inspiration.forge, no director, an outline without fronts, set-pieces or NPC moves.
+    const old: any = {
+      id: 'exp_old', userId: 'u', title: 'The Old Campaign', category: 'horror', description: 'A premise.', model: '',
+      createdAt: '2026-11-04T00:00:00Z', updatedAt: '2026-11-04T00:00:00Z',
+      character: { name: 'Mara Quill', roleClass: 'Archivist', raceOrigin: 'Human', level: 1, hp: 10, maxHp: 10, armorClass: 10, stats: { str: 10, dex: 12, con: 10, int: 14, wis: 12, cha: 10 }, inventory: [], spells: [], conditions: [] },
+      gameWorldState: { currentLocation: 'The house', timeOfDay: 'Night', activeQuest: 'Get out', dangerLevel: 'Safe', customNotes: '', currentChapter: 1 },
+      logs: [
+        { id: 'm1', sender: 'dm', text: 'The door shuts behind you.', timestamp: '2026-11-04T00:00:00Z' },
+        { id: 'm2', sender: 'player', text: 'I try the handle.', timestamp: '2026-11-04T00:01:00Z' }
+      ],
+      storyOutline: { backstory: 'An old house.', keyNpcs: [{ name: 'Mr. Hale', role: 'Caretaker', motivation: 'Keep the house shut', secret: 'He locked it' }], chapters: ['Chapter 1: The Door', 'Chapter 2: The Cellar'] },
+      inspiration: { media: ['Some Film (film)'], tropes: ['a locked house'] },
+      rulesMode: 'narrative', book: 1, pendingCheck: null, activeAlert: null
+    };
+    const direction = turnDirection(old, 1);
+    expect(direction.context.turn).toBe(1);
+    expect(direction.context.dna).toBeUndefined();
+    useProvider('openai');
+    route = () => openai('The handle turns, cold as a coin.\n---OPTIONS---\n[1] Go in\n[2] Wait\n[3] Call out');
+    const r = await run(
+      svc.executeActionTurn({
+        contents: buildDndContext(old).contents,
+        category: 'horror' as any,
+        model: '',
+        characterState: old.character,
+        world: old.gameWorldState,
+        rulesMode: 'narrative',
+        storyOutline: old.storyOutline,
+        inspiration: old.inspiration,
+        director: { note: direction.note?.text, language: direction.language, names: direction.names, context: direction.context }
+      })
+    );
+    expect(r.text).toContain('The handle turns');
+    const body = String(calls.at(-1)?.init?.body ?? '');
+    expect(body).toContain('I try the handle.');
+    expect(body).not.toMatch(/undefined|\[object Object\]/);
+    const state = updateDirector(old, { text: r.text, check: false, hpDelta: 0 }, 1, direction.note);
+    expect(state.v).toBe(1);
+    expect(state.frontStep).toEqual([]);
+  });
+});

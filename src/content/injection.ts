@@ -73,11 +73,49 @@ export function styleCard(category: ExperienceCategory): string {
 }
 
 /**
+ * The details a turn's style card offers, rotating by turn number through the family palette
+ * (split on commas) and the profile's sensory motifs (0.2: the same three anchors every turn
+ * read as a checklist and came back as stock phrases).
+ */
+export function paletteAnchors(category: ExperienceCategory, turn: number, palette?: string): [string, string] {
+  const p = getCategoryProfile(category);
+  const items = [...(palette ? palette.split(',').map((x) => x.trim()).filter(Boolean) : []), ...p.sensoryMotifs];
+  if (!items.length) return ['', ''];
+  const i = ((turn * 2) % items.length + items.length) % items.length;
+  return [items[i], items[(i + 1) % items.length]];
+}
+
+/** 0.2 turn style card (at most STYLE_CARD_MAX): the voice plus two rotating details to draw on. */
+export function turnStyleCard(category: ExperienceCategory, turn: number, palette?: string): string {
+  const p = getCategoryProfile(category);
+  const [a, b] = paletteAnchors(category, turn, palette).map((x) => clip(x, 60));
+  const head = `STYLE (${p.name}): `;
+  const tail = a ? ` Details to draw on this turn: ${a}${b && b !== a ? `; ${b}` : ''}.` : '';
+  const voice = clip(p.voice, Math.max(40, STYLE_CARD_MAX - head.length - tail.length));
+  const card = `${head}${voice}${tail}`;
+  return card.length <= STYLE_CARD_MAX ? card : clip(card, STYLE_CARD_MAX);
+}
+
+/**
  * Style card plus the campaign's tone references, for every action turn. The story seeds are
  * not sent: after Chapter One the game master follows the story's own outline, and seeds kept
  * pulling turns toward their own (often late) moments.
+ *
+ * 0.2: a forged campaign (inspiration.forge) gets the rotating turn card and one line of its
+ * primary storytelling DNA instead of the tone titles. Callers pass the forge lookups (`forge`),
+ * so this module needs no deck import.
  */
-export function turnContextBlock(category: ExperienceCategory, inspiration?: CampaignInspiration): string {
+export function turnContextBlock(
+  category: ExperienceCategory,
+  inspiration?: CampaignInspiration,
+  opts: { turn?: number; palette?: string; dna?: { title: string; dna: string } } = {}
+): string {
+  if (inspiration?.forge && opts.turn !== undefined) {
+    const card = turnStyleCard(category, opts.turn, opts.palette);
+    if (!opts.dna) return card;
+    const first = opts.dna.dna.match(/^.*?[.;](?=\s|$)/)?.[0] ?? opts.dna.dna;
+    return `${card}\n\n${clip(`Storytelling DNA (${opts.dna.title}): ${first}`, 200)}`;
+  }
   const insp = inspiration ? inspirationBlock({ ...inspiration, tropes: [] }) : '';
   return insp ? `${styleCard(category)}\n\n${insp}` : styleCard(category);
 }

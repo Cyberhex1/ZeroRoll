@@ -198,7 +198,8 @@ export function normalizeStoryReply(raw: unknown, ctx: { category: ExperienceCat
   const title = fixed.title ?? cleanTitle(r.title);
   if (!premise || !title) throw new Error('The reply had no story or no title.');
 
-  const roleClass = fixed.roleClass ?? (str(heroRaw.roleClass ?? heroRaw.class, FIELD_LIMITS.roleClass) || 'Adventurer');
+  // "Disgraced" was the class prefix on 3 of 10 rolls (0.2 eval A3); the disgrace belongs in the story, not the class.
+  const roleClass = fixed.roleClass ?? (str(heroRaw.roleClass ?? heroRaw.class, FIELD_LIMITS.roleClass).replace(/^disgraced\s+(?=\S)/i, '') || 'Adventurer');
   const origin = fixed.origin ?? (str(heroRaw.origin ?? heroRaw.raceOrigin, FIELD_LIMITS.raceOrigin) || 'Human');
   const name = fixed.name ?? fixName(heroRaw.name ?? heroRaw.heroName, ctx.category, ctx.pronouns, ctx.familyId);
   const appearance = str(heroRaw.appearance ?? heroRaw.physicalDescription, FIELD_LIMITS.description);

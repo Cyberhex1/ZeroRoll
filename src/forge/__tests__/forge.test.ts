@@ -415,3 +415,11 @@ describe('Phase A bug test fixes', () => {
     expect(g.map((i) => i.quantity)).toEqual([1, 6, 3, 2]);
   });
 });
+
+describe('class names', () => {
+  it('drops a leading "Disgraced" from the class', async () => {
+    const { normalizeStoryReply } = await import('../../setup/normalize');
+    const r = normalizeStoryReply({ title: 'T', premise: 'P', hero: { name: 'Ana Ruiz', roleClass: 'Disgraced Glassblower', origin: 'Guild-born' } } as any, { category: 'fantasy', pronouns: 'she/her' } as any);
+    expect(r.hero.roleClass).toBe('Glassblower');
+  });
+});

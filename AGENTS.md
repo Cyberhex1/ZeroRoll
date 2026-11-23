@@ -108,6 +108,8 @@ Do not collapse everything into one enormous prompt if the existing architecture
 
 The AI should receive enough context to understand the material without repeatedly sending unnecessary information.
 
+Since 0.2, D&D story seed material lives in the Story Forge decks (`src/content/forge/decks/`) as story families, DNA cards from each category's source works, engines, hooks, places, complications and set-pieces. Code draws the spread; the AI writes from it. See `docs/story-forge.md`.
+
 ---
 
 # 4. SOURCE FIDELITY

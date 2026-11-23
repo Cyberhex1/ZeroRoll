@@ -49,11 +49,11 @@ export function cleanTitle(v: unknown): string {
  * A hero name that fits the pronouns and is not a stock AI name. A name that fails either check
  * gets a new given name from the category's lists, keeping a fresh surname.
  */
-export function fixName(v: unknown, category: ExperienceCategory, pronouns: string): string {
+export function fixName(v: unknown, category: ExperienceCategory, pronouns: string, familyId?: string): string {
   const name = str(v, FIELD_LIMITS.heroName).replace(/^["']+|["']+$/g, '');
-  if (!name) return heroNameFor(category, pronouns);
+  if (!name) return heroNameFor(category, pronouns, undefined, familyId);
   if (isFreshName(name) && nameFitsPronouns(name, pronouns)) return name;
-  return heroNameFor(category, pronouns, name).slice(0, FIELD_LIMITS.heroName);
+  return heroNameFor(category, pronouns, name, familyId).slice(0, FIELD_LIMITS.heroName);
 }
 
 /** The skill from rules.SKILLS that a free-text name refers to, if any. */
@@ -126,9 +126,20 @@ export function normalizeOutline(v: unknown, premise: string, shape?: StoryShape
           name: str(n.name, 60),
           role: str(n.role, 60),
           motivation: str(n.motivation, 240),
-          ...(str(n.secret, 240) ? { secret: str(n.secret, 240) } : {})
+          ...(str(n.secret, 240) ? { secret: str(n.secret, 240) } : {}),
+          ...(str(n.move, 240) ? { move: str(n.move, 240) } : {})
         }))
     : [];
+  // 0.2: fronts (2 at most, 3 to 4 portents each) and set-pieces (4 to 6). Older replies have none.
+  const fronts = Array.isArray(o.fronts)
+    ? o.fronts
+        .map((f) => (f && typeof f === 'object' ? (f as Record<string, unknown>) : null))
+        .filter((f): f is Record<string, unknown> => !!f && !!str(f.name, 80))
+        .map((f) => ({ name: str(f.name, 80), agenda: str(f.agenda, 240), portents: strList(f.portents, 240, 4) }))
+        .filter((f) => f.portents.length >= 2)
+        .slice(0, 2)
+    : [];
+  const setPieces = strList(o.setPieces, 300, 6);
   return {
     startingCircumstances: str(o.startingCircumstances, 600) || premise.slice(0, 600),
     backstory: str(o.backstory, 800),
@@ -140,7 +151,9 @@ export function normalizeOutline(v: unknown, premise: string, shape?: StoryShape
     chapters: cleanChapters(Array.isArray(o.chapters) ? o.chapters.map((c) => str(c, 300)) : []),
     potentialEndings: strList(o.potentialEndings, 300, 4),
     ...((shape ?? shapeById(o.storyShape)?.id) ? { storyShape: shape ?? shapeById(o.storyShape)!.id } : {}),
-    ...(str(o.turningPoint, 300) ? { turningPoint: str(o.turningPoint, 300) } : {})
+    ...(str(o.turningPoint, 300) ? { turningPoint: str(o.turningPoint, 300) } : {}),
+    ...(fronts.length ? { fronts } : {}),
+    ...(setPieces.length ? { setPieces } : {})
   };
 }
 
@@ -156,7 +169,7 @@ export interface FixedParts {
 /**
  * The checked story package from a raw JSON reply. Throws when the reply has no usable story.
  */
-export function normalizeStoryReply(raw: unknown, ctx: { category: ExperienceCategory; pronouns: string; fixed?: FixedParts; shape?: StoryShapeId }): StoryPackage {
+export function normalizeStoryReply(raw: unknown, ctx: { category: ExperienceCategory; pronouns: string; fixed?: FixedParts; shape?: StoryShapeId; familyId?: string }): StoryPackage {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const fixed = ctx.fixed ?? {};
   const heroRaw = (r.hero && typeof r.hero === 'object' ? r.hero : r) as Record<string, unknown>;
@@ -167,7 +180,7 @@ export function normalizeStoryReply(raw: unknown, ctx: { category: ExperienceCat
 
   const roleClass = fixed.roleClass ?? (str(heroRaw.roleClass ?? heroRaw.class, FIELD_LIMITS.roleClass) || 'Adventurer');
   const origin = fixed.origin ?? (str(heroRaw.origin ?? heroRaw.raceOrigin, FIELD_LIMITS.raceOrigin) || 'Human');
-  const name = fixed.name ?? fixName(heroRaw.name ?? heroRaw.heroName, ctx.category, ctx.pronouns);
+  const name = fixed.name ?? fixName(heroRaw.name ?? heroRaw.heroName, ctx.category, ctx.pronouns, ctx.familyId);
   const appearance = str(heroRaw.appearance ?? heroRaw.physicalDescription, FIELD_LIMITS.description);
 
   const actions = fixed.actions?.length ? fixed.actions.slice(0, 3) : strList(r.openingActions ?? r.suggestedActions, 160, 3);

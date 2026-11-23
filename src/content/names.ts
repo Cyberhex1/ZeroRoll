@@ -5,7 +5,9 @@ export const OVERUSED_NAMES: readonly string[] = [
   'Kane', 'Cross', 'Raine', 'Jax', 'Ezra', 'Nova', 'Sable', 'Marcus', 'Aurelius', 'Reyes', 'Valerius', 'Draven',
   'Lysander', 'Isolde', 'Cassian', 'Evelyn', 'Mara', 'Finn', 'Orion', 'Selene', 'Vale', 'Wren',
   // Seen again in the 2026-11-05 D&D playtest.
-  'Vane', 'Sinclair', 'Mercer', 'Blackwell', 'Shadowcloak', 'Thistle', 'Quicksilver'
+  'Vane', 'Sinclair', 'Mercer', 'Blackwell', 'Shadowcloak', 'Thistle', 'Quicksilver',
+  // Seen again in the 2026-11-21 story samples (0.2 plan 4.5).
+  'Julian', 'Moretti', 'Bellini', 'Bianca'
 ];
 
 const OVERUSED = new Set(OVERUSED_NAMES.map((n) => n.toLowerCase()));

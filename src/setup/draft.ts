@@ -3,7 +3,7 @@
  * through these functions, so every rule (what a reroll replaces, when a name changes, what
  * the campaign starts with) is testable without the UI.
  */
-import type { CampaignInspiration, CategoryInfo, CharacterSheet, DMStoryOutline, ExperienceCategory, StatBlock } from '../types';
+import type { CampaignInspiration, CategoryInfo, CharacterSheet, DMStoryOutline, ExperienceCategory, ForgeRecord, StatBlock } from '../types';
 import type { Opener } from '../content/types';
 import { gearToInventory, getContent, pickInspiration } from '../content';
 import { heroNameFor } from '../content/procedural';
@@ -102,9 +102,20 @@ export function randomOpener(category: ExperienceCategory, notId?: string, rand:
  * edit keeps the name; an opener build-out keeps the opener's hero). The portrait goes when
  * the hero it showed is replaced.
  */
+/**
+ * 0.2: a forged story carries what it was made from. The campaign keeps that record, and its
+ * tone references become the two influences the story was actually built on.
+ */
+export function forgedInspiration(base: CampaignInspiration, pkg: StoryPackage & { forge?: ForgeRecord; spread?: { primary: { title: string; medium: string }; spice?: { title: string; medium: string } } }, seed?: string): CampaignInspiration {
+  if (!pkg.forge) return base;
+  const media = pkg.spread ? [pkg.spread.primary, ...(pkg.spread.spice ? [pkg.spread.spice] : [])].map((d) => `${d.title} (${d.medium})`) : pkg.forge.dnaTitles;
+  const { openerId } = base;
+  return { media, tropes: seed ? [seed] : [], ...(openerId ? { openerId } : {}), forge: pkg.forge };
+}
+
 export function applyPackage(
   prev: SetupDraft | null,
-  pkg: StoryPackage,
+  pkg: StoryPackage & { forge?: ForgeRecord },
   opts: { category: ExperienceCategory; inspiration: CampaignInspiration; source: StorySource; seed?: string; keepName?: boolean; keepTitle?: boolean }
 ): SetupDraft {
   const keepName = !!(opts.keepName && prev);
@@ -119,7 +130,7 @@ export function applyPackage(
     premise: pkg.premise,
     outline: pkg.outline,
     actions: pkg.actions,
-    inspiration: opts.inspiration,
+    inspiration: forgedInspiration(opts.inspiration, pkg, opts.seed),
     storySource: opts.source,
     builtIn: false,
     seed: opts.seed,

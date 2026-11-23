@@ -560,13 +560,13 @@ export const horror = {
       "Evelyn"
     ],
     "lastNames": [
-      "Vane",
+      "Hartigan",
       "Crane",
       "Holloway",
-      "Blackwood",
-      "Cross",
+      "Pruitt",
+      "Danforth",
       "Morrow",
-      "Sinclair"
+      "Ashby"
     ],
     "roles": [
       "Inquisitor Hunter",

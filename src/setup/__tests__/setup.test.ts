@@ -12,7 +12,7 @@ import {
   applyClass, applyHeroPart, applyPackage, applyStoryEdit, choosePronouns, draftFromOpener, editSheet, inspirationWithSeed,
   keepAsIs, offlinePart, resetSheet, sheetForRole, toCharacterSheet, typeHeroField, typedAmong, REPLACES, validateDraft
 } from '../draft';
-import { buildStoryPrompt, exampleOpeners } from '../storyRoll';
+import { buildStoryPrompt } from '../storyRoll';
 import { STORY_SHAPES, pickShape, shapeById } from '../storyShape';
 import { formatOutlineForPrompt } from '../../lib/geminiService';
 import type { SetupDraft, StoryPackage } from '../types';
@@ -219,14 +219,17 @@ describe('story prompt', () => {
 
   it('a seed roll puts the seed at the core of the story', () => {
     const p = buildStoryPrompt({ ...base, mode: 'fresh', seed: 'A cursed bell rings at noon' });
-    expect(p).toContain('STORY SEED');
+    expect(p).toContain("THE PLAYER'S CHOSEN STORY SEED");
     expect(p).toContain('A cursed bell rings at noon');
-    expect(p).toContain('Pronouns: she/her');
-    // The hero must be the person the premise describes (a clerk is not a rogue, a job is not an origin).
+    expect(p).toContain('Pronouns she/her');
+    // The hero must be the person the premise describes (a job is not an origin), with examples from many genres.
     expect(p).toContain('HERO FIT');
-    expect(p).toContain('a bookkeeper is a bookkeeper, not a rogue');
+    expect(p).toContain('a tomb painter is a tomb painter, not a rogue');
     expect(p).toContain('Never a job or rank');
     expect(p).toContain('not a hidden blade');
+    // 0.2: no Revenge bookkeeper examples, no stock closing question, no banned-name list.
+    expect(p).not.toMatch(/clerk|ledger|bookkeep|head down|how long can you/i);
+    expect(p).not.toContain('Vance');
   });
 
   it("an adapt roll keeps the player's words and the name", () => {
@@ -261,8 +264,8 @@ describe('where the player joins the story', () => {
     expect(p).toContain('Never drop the player at the climax');
     expect(p).toContain("the seed's situation is the turning point");
     expect(p).toContain('"storyShape": "before"');
-    expect(p).toContain('The premise must not spoil the story');
-    expect(p).toContain('with a question to the player');
+    expect(p).toContain('Only what the hero knows now');
+    expect(p).toMatch(/End with one question about/);
   });
 
   it("the roll's shape wins over the reply's, and the turning point is kept", () => {
@@ -304,40 +307,31 @@ describe('hand-written openers', () => {
     expect(p).not.toContain('EXAMPLE OPENERS');
   });
 
-  it('a fresh roll is shown openers from its category as examples, never to copy', () => {
-    const shape = shapeById('brewing')!;
-    const ex = exampleOpeners('revenge', shape, 3, () => 0.5);
-    expect(ex).toHaveLength(3);
-    expect(ex.every((o) => o.shape === 'brewing')).toBe(true);
-    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape, examples: ex });
-    expect(p).toContain('EXAMPLE OPENERS');
-    expect(p).toContain('EXAMPLES ONLY. Never reuse their titles, names, places, plots or twists');
-    for (const o of ex) expect(p).toContain(o.premise);
-    expect(p.indexOf('EXAMPLE OPENERS')).toBeLessThan(p.indexOf('ASSIGNMENT'));
-    expect(buildStoryPrompt({ ...base, mode: 'adapt', fixed: { premise: 'You run a tavern on a dragon.' } })).not.toContain('EXAMPLE OPENERS');
-  });
-
-  it('categories without shaped openers still get three examples', () => {
-    expect(exampleOpeners('horror', shapeById('before'))).toHaveLength(3);
+  it('0.2: fresh rolls are not shown hand-written openers as examples (they anchored every roll)', () => {
+    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape: shapeById('brewing') });
+    expect(p).not.toContain('EXAMPLE OPENERS');
+    for (const o of getContent('revenge').openers) expect(p).not.toContain(o.premise);
   });
 });
 
 describe('story patterns (ohnna, 2026-11-21)', () => {
   const base = { category: 'revenge' as const, pronouns: 'she/her', rulesMode: 'narrative' as const, inspiration: { media: ['A'], tropes: ['B'] } };
 
-  it('every roll carries the category premise pattern and no spark seed', () => {
-    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape: STORY_SHAPES[0] });
-    expect(p).toContain('PREMISE PATTERN (Revenge)');
-    expect(p).toContain(getContent('revenge').profile.pattern.start);
+  it('every roll carries a story family from the deck, the DNA of a source work, and no spark seed', () => {
+    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape: STORY_SHAPES[0], rand: () => 0 });
+    expect(p).toMatch(/Story family: [^.]+\. The hero is usually/);
+    expect(p).toMatch(/Borrow the storytelling DNA of /);
+    expect(p).toContain('Plot engine:');
+    expect(p).not.toContain('PREMISE PATTERN');
     expect(p).not.toContain('Spark for this roll');
   });
 
-  it('a sequel uses the same story rules with the hero kept', () => {
-    const p = buildStoryPrompt({ ...base, mode: 'sequel', shape: STORY_SHAPES[1], continuation: 'Start Book 2 of this campaign.', fixed: { name: 'Odile Marchetti', roleClass: 'Bookkeeper', origin: 'Harbor-born human' } });
+  it('a sequel keeps the hero and is not offered a new hook', () => {
+    const p = buildStoryPrompt({ ...base, mode: 'sequel', shape: STORY_SHAPES[1], continuation: 'Start Book 2 of this campaign.', fixed: { name: 'Odile Marchetti', roleClass: 'Harbor Pilot', origin: 'Harbor-born human' } });
     expect(p).toMatch(/NEXT BOOK[\s\S]*Start Book 2/);
-    expect(p).toContain('PREMISE PATTERN (Revenge)');
-    expect(p).toContain('The premise must not spoil the story');
+    expect(p).toContain('Only what the hero knows now');
     expect(p).toContain('keep "Odile Marchetti" exactly');
+    expect(p).not.toContain('An offered hook');
   });
 
   it('game-master turns get no story seeds', () => {

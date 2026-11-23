@@ -593,9 +593,9 @@ export const realLife = {
       "Kovacs",
       "Tanaka",
       "Chen",
-      "Vance",
+      "Okoye",
       "Patel",
-      "Hayes",
+      "Nguyen",
       "Morrison"
     ],
     "roles": [

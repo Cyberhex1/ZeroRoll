@@ -573,9 +573,9 @@ export const apocalypse = {
     ],
     "lastNames": [
       "Steel",
-      "Vance",
+      "Petrov",
       "Miller",
-      "Cross",
+      "Delgado",
       "Stone",
       "Walker",
       "Ryder"

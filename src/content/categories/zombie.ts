@@ -577,9 +577,9 @@ export const zombie = {
     "lastNames": [
       "Reid",
       "Chen",
-      "Vance",
-      "Mercer",
-      "Hayes",
+      "Park",
+      "Okafor",
+      "Brennan",
       "Walker",
       "Torres"
     ],

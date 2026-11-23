@@ -580,7 +580,7 @@ export const cosmicHorror = {
     ],
     "lastNames": [
       "Armitage",
-      "Blackwood",
+      "Gilman",
       "Dyer",
       "Peabody",
       "Ward",

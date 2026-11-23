@@ -40,6 +40,13 @@ export const IRONY: RegExp[] = [
 /** Worn words; two or more in one premise is a tic. */
 export const TIC_WORDS = ['ledger', 'rhythmic', 'ozone', 'hum', 'humming', 'trembling', 'tapestry', 'testament', 'palpable', 'whispers of', 'a sense of', 'sweaty palm'];
 
+/** Words Flash-Lite put in a third of 0.2's first 30 titles ("The Mercury Ledger", "Ink on Bone"). */
+export const TITLE_TICS = ['ledger', 'ledgers', 'ink', 'echo', 'echoes', 'whisper', 'whispers', 'shadow', 'shadows', 'tapestry'];
+
+export function titleTics(title: string): string[] {
+  return TITLE_TICS.filter((w) => new RegExp(`\\b${w}\\b`, 'i').test(title));
+}
+
 export const STOCK_PLACES = ['Oakhaven', 'Eldoria', 'Willowbrook', 'Silverbrook', 'Ravenswood', 'Riverbend', 'Stonehaven', 'Blackwood'];
 
 export interface GateContext {

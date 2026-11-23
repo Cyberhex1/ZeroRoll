@@ -82,7 +82,7 @@ Pitch 4 stories from this spread that are truly different from each other:
 2. turns the offered hook inside out (the victim is the culprit, the gift is a debt, the monster is a guest);
 3. is built around ${s.spice ? 'the second influence' : 'the plot engine, pushed further than expected'};
 4. is the boldest one that still keeps the category line above.
-For each: title (evocative, no chapter number), hero (who they are and what they want, one sentence), hook (what happens in the first scene), turningPoint (the defining event ahead; never the hook itself), surprise (the element the player would not guess).
+For each: title (two to five words, no chapter number, naming something only this story has: its place, a person, an object or the hook), hero (who they are and what they want, one sentence), hook (what happens in the first scene), turningPoint (the defining event ahead; never the hook itself), surprise (the element the player would not guess).
 ${STOCK_PLACE_LINE}
 Reply with JSON only: { "pitches": [{ "title": "…", "hero": "…", "hook": "…", "turningPoint": "…", "surprise": "…" }] }`;
 }
@@ -193,7 +193,7 @@ ${s.hookIsSeed && mode === 'fresh' ? "If this shape starts before the seed's sit
 - majorConflicts (2), secretsAndReveals (2, for later), potentialEndings (2 or 3).
 - openingActions: three first moves of different kinds (say something, do something, look into something).
 - Call the hero by the same name everywhere.
-- title: evocative, no chapter number.`, '');
+- title: two to five words, no chapter number, naming something only this story has (its place, a person, an object or the hook).`, '');
 
   parts.push('THE HERO', ...heroLines(pronouns, fixed, s.names), '', SHEET_RULES, '', HERO_FIT, '');
   parts.push(STOCK_PLACE_LINE, `Reply with JSON only, in this shape:\n${jsonShape(input.chooseShape ? '…' : s.shape.id)}`);
@@ -210,7 +210,18 @@ const REPAIR_LINES: Record<GateFailure['kind'], (f: GateFailure, s: Spread, firs
   off_genre: (f, s) => `"${f.detail}" does not belong in ${getContent(s.category).card.name}. Remove it.`
 };
 
-export function repairPrompt(input: { premise: string; startingCircumstances?: string; incitingIncident?: string; turningPoint?: string; failures: GateFailure[]; spread: Spread; firstWords: string }): string {
+export function repairPrompt(input: { premise: string; title?: string; titleTics?: string[]; startingCircumstances?: string; incitingIncident?: string; turningPoint?: string; failures: GateFailure[]; spread: Spread; firstWords: string }): string {
+  const titleLine = input.titleTics?.length
+    ? `\nTITLE: "${input.title}" uses a worn word (${input.titleTics.join(', ')}). Also give a new title of two to five words that names something only this story has (its place, a person, an object or the hook).`
+    : '';
+  if (!input.failures.length) {
+    return `Give this story a new title.
+
+PREMISE:
+${input.premise}
+${titleLine}
+Reply with JSON only: {"title": "..."}`;
+  }
   const fixes = input.failures.map((f) => `- ${REPAIR_LINES[f.kind](f, input.spread, input.firstWords)}`);
   return `Rewrite this story premise so it passes the checks below. Keep the same hero, place, hook and kind of closing question; change only what the checks name.
 
@@ -223,6 +234,6 @@ SECRET (must not appear or be hinted at): ${input.turningPoint ?? '(none)'}
 FIX:
 ${fixes.join('\n')}
 
-3 or 4 sentences, "you", present tense, about 70 to 100 words. End with one question about ${input.spread.closing}.
-Reply with JSON only: {"premise": "..."}`;
+3 or 4 sentences, "you", present tense, about 70 to 100 words. End with one question about ${input.spread.closing}.${titleLine}
+Reply with JSON only: {"premise": "..."${input.titleTics?.length ? ', "title": "..."' : ''}}`;
 }

@@ -9,7 +9,7 @@ import { activeLocalContext, executeJsonPrompt } from '../lib/geminiService';
 import { AIError } from '../lib/aiErrors';
 import { getCategoryProfile } from '../content';
 import { rememberRoll } from '../lib/rollFreshness';
-import { normalizeStoryReply } from '../setup/normalize';
+import { cleanTitle, normalizeStoryReply } from '../setup/normalize';
 import type { FixedParts } from '../setup/normalize';
 import { STORY_SCHEMA } from '../setup/schemas';
 import { shapeById } from '../setup/storyShape';
@@ -18,10 +18,11 @@ import type { StoryPackage } from '../setup/types';
 import { Spread, drawSpread, rememberSpread } from './spread';
 import { Pitch, pickPitch, pitchStories } from './pitch';
 import { BuildMode, buildPrompt } from './prompts';
-import { GateFailure, gatePremise } from './gate';
+import { GateFailure, gatePremise, titleTics } from './gate';
 import { repairPremise } from './repair';
 import { fixNpcNames, traditionsFor } from './names';
 import { recent } from './recent';
+import { forgeDebug } from './debug';
 
 /** Plan section 3: the pitch stage can be switched off if Phase D's measurement shows no gain. */
 export const PITCH_STAGE = true;
@@ -57,13 +58,6 @@ export interface ForgeStats {
 
 export type ForgedPackage = StoryPackage & { forge: ForgeRecord; alternates: Pitch[]; spread: Spread; stats: ForgeStats };
 
-function debug(...args: unknown[]): void {
-  try {
-    if (localStorage.getItem('zeroroll_forge_debug') === '1') console.info('[forge]', ...args);
-  } catch {
-    // no storage
-  }
-}
 
 function isCancel(err: unknown): boolean {
   return (err instanceof AIError && err.kind === 'cancelled') || (err instanceof Error && err.name === 'AbortError');
@@ -143,7 +137,7 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
   // 3. Names: stock NPC names get names from the family's traditions, everywhere they appear.
   const named = fixNpcNames({ title: pkg.title, premise: pkg.premise, outline: pkg.outline, actions: pkg.actions, heroName: pkg.hero.name }, traditionsFor(category, spread.family.id), rand);
   if (named.renamed.length) {
-    debug('renamed', named.renamed);
+    forgeDebug('renamed', named.renamed);
     pkg = { ...pkg, title: fixed.title ?? named.title, premise: fixed.premise ?? named.premise, outline: named.outline, actions: fixed.actions?.length ? pkg.actions : named.actions };
   }
 
@@ -159,21 +153,28 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
   const gateBefore = fixed.premise ? [] : gatePremise(pkg.premise, gateCtx);
   let gateAfter = gateBefore;
   let repaired = false;
-  if (gateBefore.length) {
+  // A title that leans on a worn word takes the pitch's title when that one is clean, else the repair writes one.
+  if (!fixed.title && titleTics(pkg.title).length && pitch && !titleTics(pitch.title).length) pkg = { ...pkg, title: cleanTitle(pitch.title) };
+  const badTitle = fixed.title ? [] : titleTics(pkg.title);
+  if (gateBefore.length || badTitle.length) {
     try {
-      const better = await repairPremise({ premise: pkg.premise, outline: pkg.outline, failures: gateBefore, spread, signal: input.signal });
-      const after = gatePremise(better, gateCtx);
-      if (after.length <= gateBefore.length) {
-        pkg = { ...pkg, premise: better };
-        gateAfter = after;
-        repaired = true;
+      const fix = await repairPremise({ premise: pkg.premise, title: pkg.title, titleTics: badTitle, outline: pkg.outline, failures: gateBefore, spread, signal: input.signal });
+      const title = fix.title ? cleanTitle(fix.title) : '';
+      if (title && !titleTics(title).length) pkg = { ...pkg, title };
+      if (fix.premise) {
+        const after = gatePremise(fix.premise, gateCtx);
+        if (after.length <= gateBefore.length) {
+          pkg = { ...pkg, premise: fix.premise };
+          gateAfter = after;
+          repaired = true;
+        }
       }
     } catch (err) {
       if (isCancel(err)) throw err;
       console.info(`[forge] repair skipped: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
-  debug({ spread, pitches, chosenIndex, gateBefore, gateAfter });
+  forgeDebug({ spread, pitches, chosenIndex, gateBefore, gateAfter });
 
   // 5. Remember what was drawn and rolled (only now that the build worked).
   rememberSpread(spread, { premise: fixed.premise ? undefined : pkg.premise, npcNames: (pkg.outline.keyNpcs ?? []).map((n) => n.name) });

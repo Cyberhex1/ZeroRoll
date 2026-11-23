@@ -421,5 +421,42 @@ describe('class names', () => {
     const { normalizeStoryReply } = await import('../../setup/normalize');
     const r = normalizeStoryReply({ title: 'T', premise: 'P', hero: { name: 'Ana Ruiz', roleClass: 'Disgraced Glassblower', origin: 'Guild-born' } } as any, { category: 'fantasy', pronouns: 'she/her' } as any);
     expect(r.hero.roleClass).toBe('Glassblower');
+describe('0.2 setup screen helpers', () => {
+  beforeEach(() => {
+    calls.length = 0;
+    replies = [];
+    local = undefined;
+    clearRecent();
+  });
+
+  it('the story card disclosure names the influences, never the complication or set-pieces', async () => {
+    const { forgeDisclosure } = await import('../context');
+    const pkg = await (async () => {
+      replies = [pitchReply, buildReply()];
+      return forgeStory({ category: 'mythology', pronouns: 'she/her', mode: 'fresh', rand: () => 0.3 });
+    })();
+    const d = forgeDisclosure('mythology', pkg.forge)!;
+    expect(d.line).toMatch(/^Inspired by /);
+    expect(d.line).toContain(pkg.spread.primary.title);
+    const all = d.items.map((i) => `${i.kind} ${i.text}`).join(' | ');
+    expect(all).toContain(pkg.spread.primary.dna);
+    expect(all).not.toContain(pkg.spread.complication);
+    for (const sp of pkg.spread.setPieces) expect(all).not.toContain(sp);
+    expect(all).toContain('Kept from you');
+    expect(forgeDisclosure('mythology', undefined)).toBeNull();
+  });
+
+  it('"New ideas" is one pitch call; building a picked idea is one build call on the same spread', async () => {
+    const { newIdeas, rollStory } = await import('../../setup/storyRoll');
+    replies = [pitchReply];
+    const ideas = await newIdeas({ category: 'mythology', pronouns: 'he/him' });
+    expect(calls.map((c) => c.feature)).toEqual(['Story pitch']);
+    expect(ideas.pitches.length).toBeGreaterThanOrEqual(2);
+    calls.length = 0;
+    replies = [buildReply()];
+    const pkg = await rollStory({ category: 'mythology', pronouns: 'he/him', rulesMode: 'narrative', inspiration: { media: [], tropes: [] }, mode: 'fresh', spread: ideas.spread, pitch: ideas.pitches[1], shape: ideas.spread.shape });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].userPrompt).toContain(ideas.pitches[1].hook);
+    expect(pkg.spread).toBe(ideas.spread);
   });
 });

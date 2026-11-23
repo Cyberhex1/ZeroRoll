@@ -4,6 +4,7 @@ import { InfoTip } from './InfoTip';
 import { FIELD_LIMITS } from '../normalize';
 import { shapeById } from '../storyShape';
 import type { SetupDraft } from '../types';
+import { forgeDisclosure } from '../../forge/context';
 
 const SOURCE_LABEL = (d: SetupDraft): string =>
   d.storySource === 'player' ? 'Your story' : d.storySource === 'ai' ? (d.seed ? 'Written by the AI from your seed' : 'Written by the AI') : d.builtIn ? 'Hand-written opener' : 'Opener, built out by the AI';
@@ -53,7 +54,8 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
   const start = o?.startingCircumstances && o.startingCircumstances.trim() !== draft.premise.trim() ? o.startingCircumstances : '';
   const goal = o?.immediateGoal || '';
   const joinAt = shapeById(o?.storyShape)?.label;
-  const steering = [
+  const forged = forgeDisclosure(draft.category, draft.inspiration.forge);
+  const steering = forged ? forged.items : [
     ...draft.inspiration.tropes.filter((t) => t !== draft.seed).map((t) => ({ kind: 'Seed', text: t })),
     ...draft.inspiration.media.map((m) => ({ kind: 'Tone', text: m }))
   ];
@@ -136,6 +138,7 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
               Roll Title
             </button>
           </div>
+          {forged?.line && <p className="text-[11px] text-slate-500 -mt-1.5">{forged.line}</p>}
           <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-line">{draft.premise}</p>
           {(start || goal || joinAt) && (
             <dl className="grid gap-1.5 text-[11px]">

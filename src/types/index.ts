@@ -1,5 +1,6 @@
 import type { MemoryState } from '../memory/memoryStore';
 import type { EngineId } from '../content/forge/types';
+import type { DirectorState } from '../forge/director';
 
 export type ExperienceCategory =
   | 'fantasy'
@@ -278,6 +279,8 @@ export interface Experience {
   book?: number;
   /** Set when the story concluded or the hero died; input is locked until the player continues. */
   concluded?: { reason: 'story' | 'death'; at: string } | null;
+  /** 0.2: the Director's state (src/forge/director.ts). Missing on older campaigns; made on first use. */
+  director?: DirectorState;
 }
 
 export interface CampaignInspiration {

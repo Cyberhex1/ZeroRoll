@@ -9,7 +9,7 @@ import { RULE_NEVER_CLIMAX, STORY_SHAPES } from '../setup/storyShape';
 import { CLASS_RULE, HERO_FIT, ORIGIN_RULE, SHEET_EXAMPLE, SHEET_RULES } from '../setup/heroRules';
 import type { FixedParts } from '../setup/normalize';
 import type { GateFailure } from './gate';
-import { STOCK_PLACES } from './gate';
+import { STOCK_PLACES, TITLE_TICS } from './gate';
 
 export const STOCK_PLACE_LINE = `Never call a place ${STOCK_PLACES.slice(0, -1).join(', ')}.`;
 
@@ -90,7 +90,7 @@ Pitch 4 stories from this spread that are truly different from each other:
 2. turns the offered hook inside out (the victim is the culprit, the gift is a debt, the monster is a guest);
 3. is built around ${s.spice ? 'the second influence' : 'the plot engine, pushed further than expected'};
 4. is the boldest one that still keeps the category line above.
-For each: title (two to five words, no chapter number, naming something only this story has: its place, a person, an object or the hook), hero (who they are and what they want, one sentence), hook (what happens in the first scene), turningPoint (the defining event ahead; never the hook itself), surprise (the element the player would not guess).
+For each: title (two to five words, no chapter number, naming something only this story has: its place, a person, an object or the hook; never the worn words ${[...new Set(TITLE_TICS.map((w) => w.replace(/e?s$/, '')))].join(', ')}), hero (who they are and what they want, one sentence), hook (what happens in the first scene), turningPoint (the defining event ahead; never the hook itself), surprise (the element the player would not guess).
 ${STOCK_PLACE_LINE}
 Reply with JSON only: { "pitches": [{ "title": "…", "hero": "…", "hook": "…", "turningPoint": "…", "surprise": "…" }] }`;
 }

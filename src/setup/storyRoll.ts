@@ -27,7 +27,7 @@ import { CLASS_RULE, HERO_FIT, ORIGIN_RULE, SHEET_EXAMPLE, SHEET_RULES } from '.
 import { S, SHEET_SCHEMA } from './schemas';
 import { ForgedPackage, forgeStory } from '../forge/forge';
 import { drawSpread, Spread } from '../forge/spread';
-import type { Pitch } from '../forge/pitch';
+import { Pitch, pitchStories } from '../forge/pitch';
 import { namesOnHandFrom, traditionsFor } from '../forge/names';
 import { buildPrompt } from '../forge/prompts';
 
@@ -115,6 +115,19 @@ export async function rollStory(input: StoryRollInput): Promise<ForgedPackage> {
     });
   } catch (err) {
     throw setupFailure(err, 'Story roll');
+  }
+}
+
+/**
+ * "New ideas" on the Seeds tab (0.2, plan 4.10): a fresh draw of the genre's deck and one pitch
+ * call. Picking one builds it on the same spread (one more call).
+ */
+export async function newIdeas(input: { category: ExperienceCategory; pronouns: string; signal?: AbortSignal }): Promise<{ pitches: Pitch[]; spread: Spread }> {
+  try {
+    const spread = drawSpread(input.category, { pronouns: input.pronouns });
+    return { pitches: await pitchStories(spread, input.signal), spread };
+  } catch (err) {
+    throw setupFailure(err, 'Story pitch');
   }
 }
 

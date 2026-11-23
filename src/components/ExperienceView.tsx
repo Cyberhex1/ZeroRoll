@@ -31,6 +31,9 @@ import { REFEREE_PREFIX, buildDndContext, dndTurns, experienceMemory, maybeSumma
 import { mergeMemories } from '../memory/summarizer';
 import MemoryPanel from '../memory/ui/MemoryPanel';
 import { useDialog } from './ui/useDialog';
+import { turnDirection } from '../forge/turnContext';
+import { updateDirector } from '../forge/director';
+import { forgeDebug } from '../forge/debug';
 
 const ALERT_ICON: Record<string, string> = { chapter_transition: '📖', story_conclusion: '🏁', ambush: '⚔️', crisis: '🔥', twist: '🌀', opportunity: '✨', course_change: '🧭' };
 
@@ -131,6 +134,10 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
     try {
       const tempMemory = experienceMemory(tempExp);
       const recallScores = await turnRecallScores(tempMemory, dndTurns(updatedLogs).slice(tempMemory.summarizedThrough));
+      // 0.2 Director: at most one short note for this turn, plus fresh-language and names lines (code only).
+      const thisTurn = updatedLogs.filter((l) => l.sender === 'player' && !l.text.startsWith(REFEREE_PREFIX)).length;
+      const direction = turnDirection(tempExp, thisTurn);
+      if (direction.note) forgeDebug('director', thisTurn, direction.note.kind, direction.note.text);
       const data = await executeActionTurn({
         contents: buildDndContext(tempExp, updatedLogs, recallScores, activeLocalContext()).contents,
         category: tempExp.category,
@@ -141,7 +148,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         rulesMode: rulesModeOf(tempExp),
         diceRoll,
         storyOutline: tempExp.storyOutline,
-        inspiration: tempExp.inspiration
+        inspiration: tempExp.inspiration,
+        director: { note: direction.note?.text, language: direction.language, names: direction.names, context: direction.context }
       });
 
       const dmMsg: LogMessage = {
@@ -199,7 +207,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         memory,
         logs: [...finalExp.logs, dmMsg, ...alertNotes, ...ruleNotes],
         activeAlert: nextAlert(checkResolved ? null : finalExp.activeAlert, newAlert),
-        pendingCheck: deathCheck || newCheck || (checkResolved ? null : finalExp.pendingCheck)
+        pendingCheck: deathCheck || newCheck || (checkResolved ? null : finalExp.pendingCheck),
+        director: updateDirector(finalExp, { text: dmMsg.text, check: !!data.requiredCheck, hpDelta: data.stateDelta?.hpDelta ?? 0 }, turnNumber, direction.note)
       };
       onUpdateExperience(afterTurn);
       // A new portrait is drawn after the turn is on screen, so the reply never waits for it.

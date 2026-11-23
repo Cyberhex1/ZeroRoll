@@ -185,6 +185,8 @@ describe('gate', () => {
   it('passes a good premise, and flags shape, tics and off-genre words', () => {
     expect(gatePremise(GOOD_PREMISE, ctx)).toEqual([]);
     expect(gatePremise('You row. The river is high.', ctx).map((f) => f.kind)).toContain('shape');
+    const thin = GOOD_PREMISE.replace(/[^.!]*\?$/, ' Do you keep your promise?');
+    expect(gatePremise(thin, ctx).find((f) => f.kind === 'shape')?.detail).toContain('too thin');
     expect(gatePremise(`${GOOD_PREMISE.slice(0, -1)} with a palpable, rhythmic dread?`, ctx).map((f) => f.kind)).toContain('tics');
     expect(gatePremise(GOOD_PREMISE.replace('lantern', 'demon'), { ...ctx, avoidKeywords: ['demon'] }).map((f) => f.kind)).toContain('off_genre');
   });
@@ -237,6 +239,11 @@ describe('outline normalization (0.2 fields)', () => {
     const old = normalizeOutline({ chapters: ['One'] }, 'P');
     expect(old.fronts).toBeUndefined();
     expect(old.setPieces).toBeUndefined();
+  });
+
+  it('numbers chapters once, in order', () => {
+    const o = normalizeOutline({ chapters: ['Chapter 1: The Toast', 'Chapter Two - Flight', 'Chapter 4: Chapter 4: Marissa poisons the water.', 'The End'] }, 'P');
+    expect(o.chapters).toEqual(['Chapter 1: The Toast', 'Chapter 2: Flight', 'Chapter 3: Marissa poisons the water.', 'Chapter 4: The End']);
   });
 });
 

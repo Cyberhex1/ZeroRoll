@@ -94,6 +94,8 @@ export function secretWords(ctx: Pick<GateContext, 'turningPoint' | 'incitingInc
 /** Spoiler thresholds (plan 7.2), calibrated on the Phase A eval. */
 export const SPOILER_MIN_WORDS = 4;
 export const SPOILER_MIN_JACCARD = 0.25;
+/** "Do you keep your promise?" names nothing from the story (0.2 eval). */
+export const MIN_QUESTION_WORDS = 7;
 export const SAMEY_JACCARD = 0.3;
 
 export function gatePremise(premise: string, ctx: GateContext): GateFailure[] {
@@ -113,7 +115,12 @@ export function gatePremise(premise: string, ctx: GateContext): GateFailure[] {
 
   const n = sentences(p).length;
   const words = wordCount(p);
-  if (n < 2 || n > 5 || words < 45 || words > 130 || !/\?["”’)]*$/.test(p)) out.push({ kind: 'shape', detail: `${n} sentences, ${words} words${/\?["”’)]*$/.test(p) ? '' : ', no closing question'}` });
+  const asks = /\?["”’)]*$/.test(p);
+  const last = sentences(p).at(-1) ?? '';
+  const thinQuestion = asks && wordCount(last) < MIN_QUESTION_WORDS;
+  if (n < 2 || n > 5 || words < 45 || words > 130 || !asks || thinQuestion) {
+    out.push({ kind: 'shape', detail: `${n} sentences, ${words} words${asks ? '' : ', no closing question'}${thinQuestion ? ', closing question too thin' : ''}` });
+  }
 
   const fw = firstWords(p);
   for (const r of ctx.recentPremises.slice(0, 5)) {

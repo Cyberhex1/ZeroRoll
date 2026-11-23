@@ -188,7 +188,7 @@ ${s.hookIsSeed && mode === 'fresh' ? "If this shape starts before the seed's sit
 - keyNpcs: 3 or 4 people. Each has a role, what they want (motivation), a secret, and the move they make next if the hero does nothing.
 - fronts: 2 pressures that move on their own, whether or not the hero acts. Each has a name, an agenda and 3 or 4 portents that escalate in order; the last portent is what happens if nobody stops it.
 - setPieces: 4 big, vivid scenes for later chapters (a place plus something happening). You may transform these genre moments: ${s.setPieces.join(' | ')}
-- chapters: 4 or 5, naming this story's people and places; the turning point lands in its own chapter, on screen; the last resolves the story.
+- chapters: 4 or 5 short chapter titles (3 to 8 words each), naming this story's people and places; the turning point lands in its own chapter, on screen, under a title of its own (not the turning point sentence); the last resolves the story.
 - turningPoint: what happens at the defining event, as a full sentence, and its chapter: "Chapter N: <who does what to whom>". Not a chapter title.
 - majorConflicts (2), secretsAndReveals (2, for later), potentialEndings (2 or 3).
 - openingActions: three first moves of different kinds (say something, do something, look into something).
@@ -204,7 +204,7 @@ const REPAIR_LINES: Record<GateFailure['kind'], (f: GateFailure, s: Spread, firs
   stock: (f) => `It uses a stock line ("${f.detail}"). Say it in this story's own words.`,
   irony: (f) => `It tells the player something the hero does not know ("${f.detail}"). Cut it; show only what the hero knows.`,
   spoiler: () => 'It gives away the secret turning point. Remove every hint of it.',
-  shape: () => 'It must be 3 or 4 sentences, about 70 to 100 words, and end with a question.',
+  shape: () => 'It must be 3 or 4 sentences, about 70 to 100 words, and end with a question that names someone or something from this story.',
   samey: (_f, s, fw) => `It opens like a recent story ("${fw}"). Open differently: ${s.opening}`,
   tics: (f) => `Replace these worn words: ${f.detail}.`,
   off_genre: (f, s) => `"${f.detail}" does not belong in ${getContent(s.category).card.name}. Remove it.`

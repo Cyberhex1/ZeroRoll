@@ -37,6 +37,19 @@ const str = (v: unknown, max: number): string => (typeof v === 'string' ? v.repl
 const strList = (v: unknown, max: number, count: number): string[] =>
   Array.isArray(v) ? [...new Set(v.map((x) => str(x, max)).filter(Boolean))].slice(0, count) : [];
 
+const CHAPTER_PREFIX = /^(?:Chapter\s+(?:[IVXLC]+|\d+|One|Two|Three|Four|Five|Six)\s*[:.\-\u2013\u2014|]\s*)+/i;
+
+/**
+ * Chapter lines numbered once, in order. Models sometimes write "Chapter 4: Chapter 4: …"
+ * or "Chapter Three:" on the fourth line (0.2 eval).
+ */
+export function numberChapters(chapters: string[]): string[] {
+  return chapters
+    .map((c) => c.replace(CHAPTER_PREFIX, '').replace(/^["'“”]+|["'“”]+$/g, '').trim())
+    .filter(Boolean)
+    .map((c, i) => `Chapter ${i + 1}: ${c}`);
+}
+
 /** A title without "Chapter I" and without wrapping quotes. */
 export function cleanTitle(v: unknown): string {
   const bare = str(v, FIELD_LIMITS.title + 20)
@@ -148,7 +161,7 @@ export function normalizeOutline(v: unknown, premise: string, shape?: StoryShape
     keyNpcs: npcs,
     majorConflicts: strList(o.majorConflicts, 300, 4),
     secretsAndReveals: strList(o.secretsAndReveals, 300, 4),
-    chapters: cleanChapters(Array.isArray(o.chapters) ? o.chapters.map((c) => str(c, 300)) : []),
+    chapters: numberChapters(cleanChapters(Array.isArray(o.chapters) ? o.chapters.map((c) => str(c, 300)) : [])),
     potentialEndings: strList(o.potentialEndings, 300, 4),
     ...((shape ?? shapeById(o.storyShape)?.id) ? { storyShape: shape ?? shapeById(o.storyShape)!.id } : {}),
     ...(str(o.turningPoint, 300) ? { turningPoint: str(o.turningPoint, 300) } : {}),

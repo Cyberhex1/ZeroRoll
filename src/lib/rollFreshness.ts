@@ -1,7 +1,6 @@
 /**
  * Keeps AI rolls on the setup screen fresh: remembers what was rolled recently (per
- * category and field) so the prompt can rule it out, bans the names every model reaches
- * for. (The random "spark" seed was dropped on 2026-11-21: the pattern, openers and two
+ * category and field) so the prompt can rule it out. (The random "spark" seed was dropped on 2026-11-21: the pattern, openers and two
  * seeds already steer the roll.)
  */
 import type { ExperienceCategory } from '../types';
@@ -52,7 +51,7 @@ export function freshnessLines(category: ExperienceCategory, fields: Field[]): s
     if (recent.length) lines.push(`Recently rolled ${f} values (do NOT reuse or closely echo any of them): ${recent.map((r) => `"${r}"`).join('; ')}.`);
   }
   if (fields.includes('heroName')) {
-    lines.push(`Never use these overused names, as first or last names: ${OVERUSED_NAMES.join(', ')}.`);
+    // 0.2: no banned-name list in prompts (listing "Vance" primed it); stock names are fixed in code.
     lines.push(`For variety this time, start the hero's first name with the letter ${pick([...LETTERS])}, and draw on a naming tradition that fits the setting rather than a generic fantasy or thriller name.`);
   }
   return lines;

@@ -121,7 +121,7 @@ describe('outline in prompts (SL4)', () => {
       keyNpcs: [{ name: 'Mira', role: 'Fence', motivation: 'Debt', secret: 'Informant' }],
       majorConflicts: ['E'], secretsAndReveals: ['F'], chapters: ['One', 'Two'], potentialEndings: [],
     } as any, 'full');
-    expect(out).toContain('Mira (Fence, Motivation: Debt, Secret: Informant)');
+    expect(out).toContain('Mira (Fence, Wants: Debt, Secret: Informant)');
     expect(out).toContain('Chapter Progression: One | Two');
     expect(out.split('\n')).toHaveLength(8);
   });

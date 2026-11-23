@@ -1,4 +1,5 @@
 import type { MemoryState } from '../memory/memoryStore';
+import type { EngineId } from '../content/forge/types';
 
 export type ExperienceCategory =
   | 'fantasy'
@@ -207,6 +208,16 @@ export interface StoryOutlineNPC {
   role: string;
   motivation: string;
   secret?: string;
+  /** 0.2: what they do next if the hero does nothing (the Director brings it on stage). */
+  move?: string;
+}
+
+/** 0.2: a pressure that moves on its own, whether or not the hero acts (the Director advances it). */
+export interface StoryFront {
+  name: string;
+  agenda: string;
+  /** Escalating signs, in order; the last is what happens if nobody stops it. */
+  portents: string[];
 }
 
 export interface DMStoryOutline {
@@ -223,6 +234,10 @@ export interface DMStoryOutline {
   storyShape?: string;
   /** The defining event the story builds to, and the chapter where it lands. */
   turningPoint?: string;
+  /** 0.2: two pressures that move on their own. Older campaigns have none. */
+  fronts?: StoryFront[];
+  /** 0.2: big scenes for later chapters, surfaced one at a time by the Director (never all at once). */
+  setPieces?: string[];
 }
 
 export interface TropeCategory {
@@ -270,6 +285,27 @@ export interface CampaignInspiration {
   tropes: string[];
   /** The opener the campaign started from, if any. */
   openerId?: string;
+  /** 0.2: what the Story Forge drew for this story (src/forge). Older campaigns have none. */
+  forge?: ForgeRecord;
+}
+
+/** 0.2: the Story Forge's draw for a story, kept on the campaign so later prompts stay in its voice. */
+export interface ForgeRecord {
+  v: 1;
+  /** Story family id and name (src/content/forge/decks). */
+  family: string;
+  familyName: string;
+  /** Primary then second influence: DNA card ids and titles. */
+  dna: string[];
+  dnaTitles: string[];
+  engine: EngineId;
+  /** The offered hook and place (shown to the player as what the AI was given). */
+  hook?: string;
+  place?: string;
+  /** The picked pitch's title, when a pitch call ran. */
+  pitchTitle?: string;
+  /** Gate failure kinds before and after the repair. */
+  gate?: { before: string[]; after: string[] };
 }
 
 export interface GeminiModelOption {

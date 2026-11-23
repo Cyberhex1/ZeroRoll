@@ -43,8 +43,11 @@ import {
   validateDraft
 } from '../draft';
 import { HeroPart, rollHeroPart, rollStory } from '../storyRoll';
+import type { ForgedPackage } from '../../forge/forge';
+import type { Pitch } from '../../forge/pitch';
+import type { Spread } from '../../forge/spread';
 import { pickShape, shapeById } from '../storyShape';
-import type { PronounChoice, SetupDraft, StoryPackage, TypedField } from '../types';
+import type { PronounChoice, SetupDraft, TypedField } from '../types';
 import { StoryCard } from './StoryCard';
 import { HeroCard } from './HeroCard';
 import { HeroSheetCard } from './HeroSheetCard';
@@ -191,6 +194,8 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
     []
   );
 
+  const alternatesRef = useRef<{ pitches: Pitch[]; spread: Spread } | null>(null);
+
   const openerDraft = useCallback(() => {
     const o = randomOpener(catId, draftRef.current?.inspiration.openerId);
     return o ? draftFromOpener(catId, o, pronounsRef.current) : null;
@@ -205,7 +210,11 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
       const ok = await run(
         'story',
         (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, rulesMode, inspiration, mode: 'fresh', seed, shape, signal }),
-        (pkg: StoryPackage) => setDraft((prev) => applyPackage(prev, pkg, { category: catId, inspiration, source: 'ai', seed })),
+        (pkg: ForgedPackage) => {
+          // The unpicked pitches from this roll, for "More ideas from this roll" (not saved).
+          alternatesRef.current = pkg.alternates?.length ? { pitches: pkg.alternates, spread: pkg.spread } : null;
+          setDraft((prev) => applyPackage(prev, pkg, { category: catId, inspiration, source: 'ai', seed }));
+        },
         { retry: () => void rollFresh(seed) }
       );
       if (ok === false && !draftRef.current) {
@@ -324,6 +333,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
           premise: d.premise,
           goal: d.outline?.immediateGoal,
           hero: d.hero,
+          familyId: d.inspiration.forge?.family,
           signal
         }),
       (r) => setDraft((prev) => (!prev ? prev : part === 'roleClass' && r.roleClass && r.sheet ? applyClass(prev, r.roleClass, r.sheet) : applyHeroPart(prev, r))),

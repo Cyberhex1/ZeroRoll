@@ -582,11 +582,11 @@ export const adventure = {
       "Silas"
     ],
     "lastNames": [
-      "Vane",
+      "Quintana",
       "Drake",
       "Hawthorne",
-      "Blackwood",
-      "Sterling",
+      "Marlowe",
+      "Okonkwo",
       "O'Malley",
       "Fairchild"
     ],

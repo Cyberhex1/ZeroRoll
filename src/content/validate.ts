@@ -36,7 +36,7 @@ function within(errors: string[], where: string, field: keyof typeof LIMITS, val
   if (len < min || len > max) errors.push(`${where}: ${field} is ${len} characters (allowed ${min} to ${max}).`);
 }
 
-function hasKeyword(text: string, keyword: string): boolean {
+export function hasKeyword(text: string, keyword: string): boolean {
   // Whole words (plus a plural s/es), so "demon" does not match "demonstration".
   // A trailing * makes it a prefix: "sorcer*" matches sorcerer and sorcery.
   const prefix = keyword.endsWith('*');

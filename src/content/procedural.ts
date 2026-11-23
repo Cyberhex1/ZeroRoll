@@ -8,6 +8,7 @@ import type { DMStoryOutline, ExperienceCategory, InventoryItem } from '../types
 import type { Opener } from './types';
 import { getContent, gearToInventory } from './index';
 import { givenName, isFreshName, nameFitsPronouns } from './names';
+import { namePool, traditionsFor } from './forge/names';
 
 export interface RandomizedScenarioData {
   title: string;
@@ -30,14 +31,20 @@ export interface RandomizedScenarioData {
 
 const pick = <T,>(xs: readonly T[], fallback: T): T => (xs.length ? xs[Math.floor(Math.random() * xs.length)] : fallback);
 
-/** A hero name from the category that is not a stock name and fits the pronouns. */
-export function heroNameFor(category: ExperienceCategory, pronouns?: string, preferred?: string): string {
+/**
+ * A hero name from the category that is not a stock name and fits the pronouns. With a story
+ * family (0.2 forge rolls) the names come from that family's naming traditions; otherwise from
+ * the category's openers and lists plus its traditions in the name bank.
+ */
+export function heroNameFor(category: ExperienceCategory, pronouns?: string, preferred?: string, familyId?: string): string {
   if (preferred && isFreshName(preferred) && nameFitsPronouns(preferred, pronouns)) return preferred;
   const c = getContent(category);
-  const firsts = [...new Set([...c.openers.map((o) => givenName(o.hero.name)), ...c.procedural.firstNames])]
+  const traditions = traditionsFor(category, familyId);
+  const bank = namePool(traditions, pronouns);
+  const firsts = [...new Set([...(familyId ? [] : [...c.openers.map((o) => givenName(o.hero.name)), ...c.procedural.firstNames]), ...bank.given])]
     .filter((n) => n && isFreshName(n) && nameFitsPronouns(n, pronouns));
   const preferredLast = preferred?.trim().split(/\s+/).slice(1).join(' ');
-  const lasts = c.procedural.lastNames.filter(isFreshName);
+  const lasts = [...new Set([...(familyId ? [] : c.procedural.lastNames), ...bank.family])].filter(isFreshName);
   const last = preferredLast && isFreshName(preferredLast) ? preferredLast : pick(lasts, 'Ashford');
   const first = pick(firsts.filter((n) => n !== givenName(preferred ?? '')), pick(firsts, 'Tamsin'));
   return `${first} ${last}`.trim();

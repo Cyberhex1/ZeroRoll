@@ -607,11 +607,11 @@ export const tiktokDrama = {
       "Vivian"
     ],
     "lastNames": [
-      "Sterling",
-      "Vance",
+      "Lau",
+      "Kwon",
       "DuPont",
       "Rothschild",
-      "Sinclair",
+      "Ashworth",
       "Fairfax",
       "Montgomery"
     ],

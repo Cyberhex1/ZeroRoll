@@ -35,7 +35,7 @@ export const STORY_SHAPES: readonly StoryShape[] = [
     label: 'While things are still building',
     weight: 3,
     brief:
-      'Start while the trouble is building: warning signs, small slights, a rival circling, something that does not add up. The breaking point lands around the middle of the story, on screen. The first half builds to it; the second half is the response. For example, in Revenge: a trusted, overworked clerk is handed extra work and talked down to for a few chapters, then fired for something she did not do, and only then uses what she knows to bring down her coworkers and her old boss. In Zombie Outbreak: a nurse notices the odd admissions for a few shifts before the hospital falls.',
+      'Start while the trouble is building: warning signs, small slights, a rival circling, something that does not add up. The breaking point lands around the middle of the story, on screen. The first half builds to it; the second half is the response. For example, in Zombie Outbreak: a nurse notices the odd admissions for a few shifts before the hospital falls.',
     pacing: 'The player starts while the trouble is building. Plant warning signs and small wrongs; the breaking point lands mid-story, on screen, and the second half is the response.'
   },
   {
@@ -63,9 +63,15 @@ export function shapeById(id: unknown): StoryShape | undefined {
   return STORY_SHAPES.find((s) => s.id === id);
 }
 
-/** A weighted random shape, never the one given (so Reroll Story varies where you join). */
-export function pickShape(notId?: StoryShapeId, rand: () => number = Math.random): StoryShape {
-  const pool = STORY_SHAPES.filter((s) => s.id !== notId);
+/**
+ * A weighted random shape, never the one given (so Reroll Story varies where you join).
+ * `allowed` limits the draw (a story family's shapes, e.g. Revenge never joins after the
+ * betrayal); when only the excluded shape is allowed, it is used anyway.
+ */
+export function pickShape(notId?: StoryShapeId, rand: () => number = Math.random, allowed?: readonly StoryShapeId[]): StoryShape {
+  const fits = STORY_SHAPES.filter((s) => !allowed?.length || allowed.includes(s.id));
+  const base = fits.length ? fits : [...STORY_SHAPES];
+  const pool = base.length > 1 ? base.filter((s) => s.id !== notId) : base;
   const total = pool.reduce((sum, s) => sum + s.weight, 0);
   let roll = rand() * total;
   for (const s of pool) {

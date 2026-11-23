@@ -25,6 +25,8 @@ export interface CategorySeedInfo {
 import { getCategoryFallbackActions, getCategoryProfile, getContent, getOpenerById } from '../content';
 import { OVERUSED_NAMES } from './rollFreshness';
 import { fullProfileBlock, patternBlock, turnContextBlock } from '../content/injection';
+import { forgeContextBlock } from '../forge/context';
+import { namesOnHandFrom, traditionsFor } from '../forge/names';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError } from './aiErrors';
 import { geminiBasicModel } from '../ai/taskModel';
@@ -412,8 +414,15 @@ export function getLastCallMeta(): AICallMeta | null {
  * Throws an AIError (never falls back silently). Soft problems on a successful call
  * (model swap, cut-off reply) are reported to the status line.
  */
+let aiCalls = 0;
+/** How many AI calls this page has made (each retry counts); the story eval reads it. */
+export function aiCallCount(): number {
+  return aiCalls;
+}
+
 export async function executeUniversalPrompt(options: UniversalPromptOptions): Promise<string> {
   const provider = getActiveProvider();
+  aiCalls++;
   const text = await runProviderPrompt(
     {
       provider,
@@ -645,8 +654,12 @@ export function formatOutlineForPrompt(outline: Partial<DMStoryOutline> | undefi
   add('Immediate Goal', text(outline.immediateGoal));
   const npcs = Array.isArray(outline.keyNpcs) ? outline.keyNpcs.filter((n) => n && text(n.name)) : [];
   add('Key NPCs', npcs.map((n) => detail === 'full'
-    ? `${text(n.name)} (${[text(n.role), text(n.motivation) && `Motivation: ${text(n.motivation)}`, text(n.secret) && `Secret: ${text(n.secret)}`].filter(Boolean).join(', ')})`
-    : `${text(n.name)}${text(n.role) ? ` (${text(n.role)})` : ''}`).join('; '));
+    ? `${text(n.name)} (${[text(n.role), text(n.motivation) && `Wants: ${text(n.motivation)}`, text(n.secret) && `Secret: ${text(n.secret)}`, text(n.move) && `Next move: ${text(n.move)}`].filter(Boolean).join(', ')})`
+    : `${text(n.name)}${text(n.role) ? ` (${text(n.role)})` : ''}${text(n.motivation) ? `, wants ${text(n.motivation)}` : ''}`).join('; '));
+  // Fronts: name and agenda only. The portents and set-pieces reach the GM one at a time via
+  // the Director, so the GM never rushes them.
+  const fronts = Array.isArray(outline.fronts) ? outline.fronts.filter((f) => f && text(f.name)) : [];
+  add('Pressures that move on their own', fronts.map((f) => `${text(f.name)}${text(f.agenda) ? `: ${text(f.agenda)}` : ''}`).join('; '));
   if (detail === 'full') {
     add('Major Conflicts', list(outline.majorConflicts).join('; '));
     add('Hidden Secrets / Reveals', list(outline.secretsAndReveals).join('; '));
@@ -930,7 +943,7 @@ SEED RULES
 - Every seed is a START, where the premise pattern says stories begin: an ordinary person in their everyday life, with the pressure already pulling at them (a coworker who resents them, a warning they can't place, a debt coming due). Never the climax, the reveal, the fight or the payoff.
 - Never spoil a twist or use narrator's irony ("unaware that", "not realizing", "little do you know", "too late").
 - The hero is sympathetic and specific: a job or a place in life, a named place, someone who relies on them.
-- Good: "You keep the books for a guild that has started paying you less and blaming you more, and the new clerk keeps asking for your keys."
+- Good: "You paint tombs on the west bank, and tonight the body carried into your workshop has a warm stone where its heart should be."
 - Bad: "You stand over the first betrayer on your list as the rain washes your blade." (starts at the payoff)
 - Bad: "The CEO signs the divorce papers, unaware that his wife owns the rival company." (spoils the reveal)
 
@@ -1058,6 +1071,13 @@ OPENING BEAT (from the hand-written opener this campaign starts from; open on th
 `;
 }
 
+/** A few names from the story family's traditions, not used in this story yet (0.2: no banned-name list). */
+function chapterOneNames(category: ExperienceCategory, inspiration: CampaignInspiration | undefined, outline: DMStoryOutline | undefined, heroName?: string): string[] {
+  const used = [heroName ?? '', ...(outline?.keyNpcs ?? []).map((n) => n.name)].flatMap((n) => n.split(/\s+/));
+  const n = namesOnHandFrom(traditionsFor(category, inspiration?.forge?.family), { exclude: used, given: 3, family: 2 });
+  return [...n.given, ...n.family];
+}
+
 export async function generateChapterOneAI(params: {
   category: ExperienceCategory;
   storyBlurb: string;
@@ -1072,10 +1092,11 @@ export async function generateChapterOneAI(params: {
 
   if (hasKey) {
     try {
+      const names = chapterOneNames(category, inspiration, storyOutline, characterState?.name);
       const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
-When you introduce a new character, give them a name that fits the setting and is not one of these overused names: ${OVERUSED_NAMES.join(', ')}.
+When you introduce a new character, give them a name that fits the setting.${names.length ? ` Names on hand, if you need them: ${names.join(', ')}.` : ''}
 
-${fullProfileBlock(category, inspiration, { seeds: !storyOutline })}
+${forgeContextBlock(category, inspiration) ?? fullProfileBlock(category, inspiration, { seeds: !storyOutline })}
 
 STORY PREMISE:
 ${storyBlurb}
@@ -1085,13 +1106,13 @@ ${formatOutlineForPrompt(storyOutline, 'brief')}
 ` : ''}
 CREATIVE ASSIGNMENT:
 Write the very first scene (Chapter One, Scene 1) of this campaign. 
-Open where the premise opens: the hero's everyday life, the place, the people they rely on, and the pressure they can already feel, exactly as pitched. Introduce the atmospheric setting and the immediate sensory situation. ${RULE_NEVER_CLIMAX} Nothing from the outline's turning point or later chapters happens in this scene, and nothing hints at it in the narrator's voice. Establish a deep, genre-appropriate tone.
+Open in the premise's first moment and stay there: the hook is happening now. Ground the scene in two concrete details from the palette. Bring one key NPC on stage in person, with what they want visible in what they do. End on a moment of choice. ${RULE_NEVER_CLIMAX} Nothing from the outline's turning point or later chapters happens in this scene, and nothing hints at it in the narrator's voice.
 
 GAMEPLAY GM DIRECTIVES:
 - Address the player as "you". Keep the narrative in present tense.
-- Faithfully reflect the category's narrative profile.
+- Faithfully reflect the category's voice.
 
-At the end, provide 3 suggested actions formatted as:
+At the end, provide 3 suggested actions of different kinds (one says something to someone, one does something, one looks into something), formatted as:
 ---OPTIONS---
 [1] Action 1
 [2] Action 2

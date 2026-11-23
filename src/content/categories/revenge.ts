@@ -62,7 +62,7 @@ export const revenge = {
       "backgroundNotes": "A trusted, overworked bookkeeper whose coworkers have started treating them as disposable."
     },
     "samplePrompts": [
-      "I finish the month's accounts and check who else has been writing in my ledger.",
+      "I finish the day's work and check who has been going through my things.",
       "I ask the porter what the partners were arguing about this morning.",
       "I eat lunch with the one coworker who still talks to me."
     ]
@@ -76,14 +76,14 @@ export const revenge = {
       "payoff": "They use what they already had (what they know, who still trusts them, the skills they were mocked for) to take back what's theirs and bring the people who wronged them down."
     },
     "voice": "Grounded and close to the hero, with tension that builds quietly. Early chapters feel like ordinary life with something wrong at the edges; cold resolve and restrained fury come only after the wrong has landed on screen.",
-    "atmosphere": "Counting houses and busy kitchens, ledger-lined offices, rain on familiar streets, the polite smiles of people who want what you have; later, back rooms, old records and quiet meetings.",
+    "atmosphere": "Feasts and busy kitchens, guild halls, vineyards, docks and arenas, the polite smiles of people who want what you have; later, masks, back rooms, old records and quiet reckonings.",
     "sceneStructure": "1. The hero's everyday work or home, and the people who rely on them -> 2. A small slight or a detail that doesn't add up -> 3. A conversation with an ally, a rival or the person they trust -> 4. A choice about how far to trust, dig or speak up.",
     "storyBeats": "A slow-building wrong, then the answer to it: an ordinary life under growing pressure, being devalued and set up, the wrong landing on screen (fired, framed, thrown out), then patient, clever payback using what the hero already knew.",
     "characterDynamics": "Trusted employees, loyal servants, family members and partners with something to lose; resentful coworkers, ambitious relatives, smiling bosses; a few people who still believe in the hero.",
-    "encounterPatterns": "Extra work dropped on the desk, meetings the hero isn't invited to, ledgers that don't match, overheard conversations, quiet favors from allies, and later the records and witnesses that prove the truth.",
+    "encounterPatterns": "Kindness and promises in the first chapter; the betrayal lived on screen; then allies regained, disguises, proof gathered, betrayers turned against each other, and a public reckoning.",
     "sensoryMotifs": [
-      "The scratch of a pen in a ledger someone else has been writing in",
-      "An office that goes quiet when you walk in",
+      "The click of a signet ring against a goblet",
+      "A room that goes quiet when you walk in",
       "Rain on the windows of a place you used to feel safe",
       "The weight of a key you were trusted with"
     ],
@@ -635,11 +635,11 @@ export const revenge = {
       "Zane"
     ],
     "lastNames": [
-      "Thorne",
-      "Vance",
+      "Castellane",
+      "Moreau",
       "Grimm",
-      "Blackwell",
-      "Vane",
+      "Ferrante",
+      "Albrecht",
       "Rook",
       "Mordecai"
     ],

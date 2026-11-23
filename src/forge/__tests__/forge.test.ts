@@ -421,6 +421,9 @@ describe('class names', () => {
     const { normalizeStoryReply } = await import('../../setup/normalize');
     const r = normalizeStoryReply({ title: 'T', premise: 'P', hero: { name: 'Ana Ruiz', roleClass: 'Disgraced Glassblower', origin: 'Guild-born' } } as any, { category: 'fantasy', pronouns: 'she/her' } as any);
     expect(r.hero.roleClass).toBe('Glassblower');
+  });
+});
+
 describe('0.2 setup screen helpers', () => {
   beforeEach(() => {
     calls.length = 0;

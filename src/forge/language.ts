@@ -1,7 +1,7 @@
 /**
  * FRESH LANGUAGE (0.2, plan 4.8): phrases the game master keeps repeating, found in code.
  * Word 4-grams that appear in 2 or more of the last 4 replies, plus any 5-gram copied verbatim
- * from the category profile or the family palette, plus worn tic words used 3 or more times.
+ * from the category profile or the family palette, plus worn tic words used twice or more.
  */
 import { TIC_WORDS } from './gate';
 import { STOPWORDS, ngrams, tokens } from './words';
@@ -32,10 +32,11 @@ export function repeatedPhrases(replies: readonly string[], profileText = ''): s
   return merged.sort((a, b) => b.length - a.length).slice(0, LANGUAGE_MAX);
 }
 
-/** Tic words used 3 or more times across the recent replies. */
+/** Tic words (and their forms: hums, humming, rhythmically) used twice or more across the recent replies. Counted in code, never listed in the prompt unless repeated. */
+export const TIC_REPEAT = 2;
 export function overusedTics(replies: readonly string[]): string[] {
   const text = replies.slice(-LANGUAGE_WINDOW).join(' \n ').toLowerCase();
-  return TIC_WORDS.filter((w) => (text.match(new RegExp(`\\b${w.replace(/\s+/g, '\\s+')}\\b`, 'g')) ?? []).length >= 3);
+  return TIC_WORDS.filter((w) => (text.match(new RegExp(`\\b${w.replace(/\s+/g, '\\s+')}(s|es|ed|ing|ming|ally)?\\b`, 'g')) ?? []).length >= TIC_REPEAT);
 }
 
 /** The FRESH LANGUAGE line for this turn, or '' when nothing repeats. */

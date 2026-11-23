@@ -140,3 +140,11 @@ describe('turn context', () => {
     expect(leaksDirector('The ice moves.')).toBe(false);
   });
 });
+
+describe('fresh language catches play tics (bug test S3)', () => {
+  it('flags hum, ozone and rhythmic when they repeat, not on one use', async () => {
+    const { overusedTics } = await import('../language');
+    expect(overusedTics(['An electric hum fills the hall; the air smells of ozone.', 'The lamps are humming, and ozone stings your nose.', 'A rhythmic glow pulses.'])).toEqual(expect.arrayContaining(['ozone', 'hum']));
+    expect(overusedTics(['A rhythmic glow pulses.', 'Rain on the roof.'])).not.toContain('rhythmic');
+  });
+});

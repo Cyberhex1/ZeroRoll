@@ -192,7 +192,7 @@ ${s.hookIsSeed && mode === 'fresh' ? "If this shape starts before the seed's sit
   }
 
   parts.push(`OUTLINE (game master only; the player never reads it, so put the full plan here)
-- startingCircumstances, backstory, incitingIncident (the hook, on screen in the first scene), immediateGoal: one or two sentences each.
+- startingCircumstances, backstory, incitingIncident (the hook, on screen in the first scene), immediateGoal: one or two sentences each. startingCircumstances and immediateGoal are shown to the player, so write them to the hero as "you", like the premise.
 - keyNpcs: 3 or 4 people. Each has a role, what they want (motivation), a secret, and the move they make next if the hero does nothing.
 - fronts: 2 pressures that move on their own, whether or not the hero acts. Each has a name, an agenda and 3 or 4 portents that escalate in order; the last portent is what happens if nobody stops it.
 - setPieces: 4 big, vivid scenes for later chapters (a place plus something happening). You may transform these genre moments: ${s.setPieces.join(' | ')}

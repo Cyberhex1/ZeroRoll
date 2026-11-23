@@ -2,8 +2,10 @@
  * Checks the 0.2 story decks (src/content/forge/decks). Run by `npm run content:check` and the
  * content tests. Errors fail CI; warnings are printed.
  */
+import { CARD_FAMILIES, HERO_CARDS, TaggedCardKind, cardFits } from './familyTags';
 import type { CategoryContent } from '../types';
 import type { StoryDeck } from './types';
+import type { ExperienceCategory } from '../../types';
 import { ENGINES } from './engines';
 import { hasKeyword } from '../validate';
 import { OVERUSED_NAMES, isFreshName, nameFitsPronouns } from '../names';
@@ -79,6 +81,26 @@ export function validateDecks(
       for (const n of t.feminine) if (!nameFitsPronouns(n, 'she/her')) errors.push(`names/${id}: feminine "${n}" reads as masculine.`);
       for (const n of t.masculine) if (!nameFitsPronouns(n, 'he/him')) errors.push(`names/${id}: masculine "${n}" reads as feminine.`);
       if (t.feminine.length < 6 || t.masculine.length < 6 || t.family.length < 6) errors.push(`names/${id}: needs 6 or more feminine, masculine and family names.`);
+    }
+  }
+  // Bug test M2: family-tagged cards and per-family hero cards.
+  for (const [cat, kinds] of Object.entries(CARD_FAMILIES)) {
+    const d = decks[cat];
+    if (!d) continue;
+    const ids = new Set(d.families.map((f) => f.id));
+    for (const [kind, cards] of Object.entries(kinds ?? {})) {
+      const list = d[kind as TaggedCardKind] as readonly string[];
+      for (const [card, tags] of Object.entries(cards ?? {})) {
+        if (!list.includes(card)) errors.push(`${cat}: tagged ${kind} card is not in the deck: "${card.slice(0, 60)}".`);
+        for (const t of tags) if (!ids.has(t)) errors.push(`${cat}: tagged card uses unknown family "${t}".`);
+      }
+    }
+  }
+  for (const [cat, d] of Object.entries(decks)) {
+    for (const f of d.families) {
+      if (!HERO_CARDS[`${cat}.${f.id}`]?.length) errors.push(`${cat}.${f.id}: no hero cards.`);
+      const n = (kind: TaggedCardKind) => d[kind].filter((c) => cardFits(cat as ExperienceCategory, kind, c, f.id)).length;
+      if (n('hooks') < 3 || n('places') < 2 || n('setPieces') < 3) errors.push(`${cat}.${f.id}: after family filtering needs 3 hooks, 2 places and 3 set-pieces (has ${n('hooks')}/${n('places')}/${n('setPieces')}).`);
     }
   }
   return { errors, warnings };

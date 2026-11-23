@@ -36,9 +36,10 @@ export const romantic = {
     'the hero\'s new roommate is the person who left them at the altar, and the lease is non-negotiable',
     'the hero catches the prince climbing out of a library window with a stolen book',
     'a love letter meant for the hero\'s sister arrives with the hero\'s name on it',
-    'the hero must teach the new duke to dance before the ball, and he is very bad at it on purpose'
+    'the hero must teach the new duke to dance before the ball, and he is very bad at it on purpose',
+    'the hero\'s dying sister wakes up cured, and a pale stranger arrives to collect the hero\'s first kiss as payment'
   ],
-  places: ['an orangery heated by a captured summer', 'a lending library where letters are left inside returned books', 'a masked ball held on frozen canals', 'a vineyard estate during harvest', 'a seaside hotel at the end of the season', 'a palace where every room has two doors'],
+  places: ['an orangery heated by a captured summer', 'a lending library where letters are left inside returned books', 'a masked ball held on frozen canals', 'a vineyard estate during harvest', 'a seaside hotel at the end of the season', 'a palace where every room has two doors', 'a night market under a bridge that sells memories by the ounce'],
   complications: ['the rival is protecting the hero from someone in their own family', 'the matchmaker is in love with one of them', 'the debt was never real', 'the letter that would clear everything up was burned by someone who meant well'],
   setPieces: [
     'At the masquerade your sworn enemy pulls you behind a velvet curtain, and their breath catches.',
@@ -48,6 +49,7 @@ export const romantic = {
     'A rain-soaked argument in the courtyard ends with a kiss.',
     'The crown prince announces he will choose his bride at the gala, and his gaze is on you.',
     'A scandalous anonymous letter reveals the secret only you and your lover knew.',
-    'They arrive at your door at midnight, bleeding, saying you are the only one they trust.'
+    'They arrive at your door at midnight, bleeding, saying you are the only one they trust.',
+    'At the court of masks you must find your partner\'s true face among a hundred, or stay forever.'
   ]
 } satisfies StoryDeck;

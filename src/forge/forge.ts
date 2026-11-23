@@ -79,7 +79,7 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
   const { category, pronouns, mode, fixed = {} } = input;
   const local = !!activeLocalContext();
   const rand = input.rand ?? Math.random;
-  const spread =
+  const drawn =
     input.spread ??
     drawSpread(category, {
       rand,
@@ -91,6 +91,9 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
       keepPrimary: mode === 'sequel' ? input.previous?.dna?.[0] : undefined,
       excludeNames: fixed.name ? fixed.name.split(/\s+/) : []
     });
+  // The offered hero is for fresh rolls; Book Two, adapt and openers keep their hero.
+  const { heroCard: _unusedHero, ...rest } = drawn;
+  const spread: Spread = mode === 'fresh' ? drawn : rest;
   const recentPremises = recent(category, 'premise');
 
   // 1. Pitch: fresh rolls on cloud models only. A failed pitch call never fails the roll.
@@ -102,7 +105,7 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
   if (!pitch && mode === 'fresh' && !local && PITCH_STAGE && !input.noPitch) {
     try {
       pitches = await pitchStories(spread, input.signal);
-      const picked = pickPitch(pitches, { category, recentPremises }, rand);
+      const picked = pickPitch(pitches, { category, recentPremises, heroCard: spread.heroCard }, rand);
       pitch = picked.chosen;
       alternates = picked.others;
       chosenIndex = pitches.indexOf(picked.chosen);
@@ -148,7 +151,8 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
     turningPoint: pkg.outline.turningPoint,
     incitingIncident: pkg.outline.incitingIncident,
     startingCircumstances: pkg.outline.startingCircumstances,
-    allowWords: [pkg.hero.name]
+    allowWords: [pkg.hero.name],
+    heroName: pkg.hero.name
   };
   const gateBefore = fixed.premise ? [] : gatePremise(pkg.premise, gateCtx);
   let gateAfter = gateBefore;

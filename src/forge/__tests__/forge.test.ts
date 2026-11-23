@@ -32,7 +32,7 @@ const { pickPitch } = await import('../pitch');
 const { gatePremise, STOCK, IRONY } = await import('../gate');
 const { fixNpcNames } = await import('../names');
 const { STORY_DECKS } = await import('../../content/forge/decks');
-const { normalizeOutline } = await import('../../setup/normalize');
+const { normalizeOutline, normalizeGear } = await import('../../setup/normalize');
 const { CATEGORY_IDS, CATEGORY_CONTENT } = await import('../../content');
 const { validateDecks } = await import('../../content/forge/validateDecks');
 const { FAMILY_TRADITIONS, NAME_TRADITIONS } = await import('../../content/forge/names');
@@ -338,5 +338,80 @@ describe('titles', () => {
     expect(calls[2].userPrompt).toContain('Give this story a new title');
     expect(pkg.title).toBe('The Comb Below the Ferry');
     expect(pkg.premise).toBe(GOOD_PREMISE);
+  });
+});
+
+describe('Phase A bug test fixes', () => {
+  beforeEach(() => clearRecent());
+
+  it('M1: offers a hero card per family, never the same twice in a row, varied over 6 draws', async () => {
+    const { rememberSpread } = await import('../spread');
+    const seen: string[] = [];
+    let x = 0.37;
+    const rand = () => (x = (x * 9301 + 49297) % 233280 / 233280);
+    for (let i = 0; i < 6; i++) {
+      const s = drawSpread('horror', { keepFamily: 'rules', rand });
+      expect(s.heroCard).toBeTruthy();
+      if (seen.length) expect(s.heroCard).not.toBe(seen.at(-1));
+      seen.push(s.heroCard!);
+      rememberSpread(s);
+    }
+    expect(new Set(seen).size).toBeGreaterThanOrEqual(5);
+  });
+
+  it('M1: only fresh rolls offer the hero, and the prompt never lists the worn roles', async () => {
+    const { buildPrompt, pitchPrompt } = await import('../prompts');
+    const s = drawSpread('fantasy', { rand: () => 0.3 });
+    const text = pitchPrompt(s) + buildPrompt({ mode: 'fresh', spread: s, pronouns: 'she/her' });
+    expect(text).toContain(`Offered hero (use them, or someone just as specific and surprising): ${s.heroCard}`);
+    for (const w of ['archivist', 'copyist', 'cupbearer', 'scrivener']) expect(text.toLowerCase()).not.toContain(w);
+    expect(buildPrompt({ mode: 'sequel', spread: s, pronouns: 'she/her', continuation: 'Book 2' })).not.toContain('Offered hero');
+  });
+
+  it('M1: worn roles and ledger/ink pitches score lower, unless the card offered that role', async () => {
+    const { scorePitch } = await import('../pitch');
+    const ctx = { category: 'fantasy' as const, recentPremises: [] };
+    const plain = { title: 'Salt Bells', hero: 'A ferry-woman.', hook: 'A bell rings.', turningPoint: 'x', surprise: 'y' };
+    const worn = { ...plain, hero: 'A royal archivist.' };
+    const r = () => 0;
+    expect(scorePitch(worn, 0, ctx, r)).toBeCloseTo(scorePitch(plain, 0, ctx, r) - 0.8);
+    expect(scorePitch(worn, 0, { ...ctx, heroCard: 'archivist of the dead' }, r)).toBeCloseTo(scorePitch(plain, 0, ctx, r));
+    expect(scorePitch({ ...plain, title: 'The Ink Debt' }, 0, ctx, r)).toBeCloseTo(scorePitch(plain, 0, ctx, r) - 0.5);
+  });
+
+  it('M2: a celtic Mythology spread never draws a card tagged only for Egypt', async () => {
+    const { CARD_FAMILIES } = await import('../../content/forge/familyTags');
+    const egyptOnly = new Set(
+      Object.values(CARD_FAMILIES.mythology ?? {}).flatMap((cards) => Object.entries(cards ?? {}).filter(([, t]) => t.length === 1 && t[0] === 'egypt').map(([c]) => c))
+    );
+    expect(egyptOnly.size).toBeGreaterThan(0);
+    let x = 0.123;
+    const rand = () => (x = (x * 9301 + 49297) % 233280 / 233280);
+    for (let i = 0; i < 200; i++) {
+      const s = drawSpread('mythology', { keepFamily: 'celtic', rand });
+      for (const c of [s.hook, s.place, ...s.setPieces]) expect(egyptOnly.has(c)).toBe(false);
+      if (s.spice) expect(s.family.sources).toContain(s.spice.id);
+    }
+  });
+
+  it('M3 and S2: the coma opening is stock; "ledger" or "trembling" fail on their own', () => {
+    const ctx = { avoidKeywords: [], recentPremises: [] };
+    expect(STOCK.some((re) => re.test('You wake from a long coma in an empty ward.'))).toBe(true);
+    expect(gatePremise(GOOD_PREMISE.replace('wet letter', 'wet ledger'), ctx).map((f) => f.kind)).toContain('tics');
+    expect(gatePremise(GOOD_PREMISE.replace('The river is high', 'The trembling river is high'), ctx).map((f) => f.kind)).toContain('tics');
+  });
+
+  it('S1: the hero named outside dialogue, or no "you", fails the pov check', () => {
+    const ctx = { avoidKeywords: [], recentPremises: [], heroName: 'Clotilde Varn' };
+    expect(gatePremise(GOOD_PREMISE, ctx)).toEqual([]);
+    expect(gatePremise(`Clotilde bends over the desk. ${GOOD_PREMISE}`, ctx).map((f) => f.kind)).toContain('pov');
+    expect(gatePremise(`"Clotilde, wake up," the bell-ringer says. ${GOOD_PREMISE}`, ctx).map((f) => f.kind)).not.toContain('pov');
+    const third = 'The bell-ringer\'s boy hands her a wet letter at the ferry steps: her sister is alive, and she is asking for the silver comb buried with her. The river is high and the ferryman wants double. Across the water, a lantern burns in the window of her old room. Does she pay the ferryman, or swim for the far bank tonight?';
+    expect(gatePremise(third, ctx).map((f) => f.kind)).toContain('pov');
+  });
+
+  it('N1: a single harp is one harp; plural and used-up gear keep their count', () => {
+    const g = normalizeGear([{ name: 'Brass-strung harp', quantity: 10 }, { name: 'Throwing knives', quantity: 6 }, { name: 'Torch', quantity: 3 }, { name: 'Healing potion', type: 'potion', quantity: 2 }]);
+    expect(g.map((i) => i.quantity)).toEqual([1, 6, 3, 2]);
   });
 });

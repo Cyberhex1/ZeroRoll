@@ -21,7 +21,7 @@ export const cosmic_horror = {
     { id: 'in_mouth', title: 'In the Mouth of Madness', medium: 'Film', dna: 'An insurance investigator hunts a missing horror novelist and finds the town from his books; reality is being rewritten by readers.' },
     { id: 'alien', title: 'Alien', medium: 'Film', dna: 'A working crew answers a distress call and brings something aboard; the company considers them expendable; one survivor in the dark.' },
     { id: 'prometheus', title: 'Prometheus', medium: 'Film', dna: 'Scientists follow star maps to meet humanity\'s makers, who turn out to want us gone; faith, hubris and a black goo that remakes life.' },
-    { id: 'soma', title: 'SOMA', medium: 'Game', dna: 'A man wakes in an undersea station after the world ended; consciousness copied into machines; the question of which copy is you.' },
+    { id: 'soma', title: 'SOMA', medium: 'Game', dna: 'The world has already ended outside; minds copied into machines and borrowed bodies; every rescue raises the question of which copy is the real person, and the hero must decide who gets to go on.' },
     { id: 'uzumaki', title: 'Uzumaki', medium: 'Manga by Junji Ito', dna: 'A town becomes obsessed with spirals; each chapter a new spiral horror; the obsession spreads through people until the town itself coils.' },
     { id: 'lighthouse', title: 'The Lighthouse', medium: 'Film', dna: 'Two keepers on a storm-bound rock; drink, power games and mermaids; the light at the top is forbidden and everything.' },
     { id: 'true_detective', title: 'True Detective (Season 1)', medium: 'TV Show', dna: 'Two detectives with clashing philosophies chase a ritual killer across years; bayou churches, a yellow king, and time as a flat circle.' },

@@ -14,13 +14,21 @@ import { STOCK_PLACES } from './gate';
 export const STOCK_PLACE_LINE = `Never call a place ${STOCK_PLACES.slice(0, -1).join(', ')}.`;
 
 /** The spread as the model reads it. `outlineOnly` (adapt, opener): ingredients for the outline, not the premise. */
-export function spreadBlock(s: Spread, opts: { outlineOnly?: boolean; noHook?: boolean } = {}): string {
+/** "night guard: a rules horror hero" -> "night guard"; the part before a colon, else the whole line. */
+export const heroKind = (hero: string): string => (hero.includes(':') ? hero.slice(0, hero.indexOf(':')).trim() : hero);
+
+export function spreadBlock(s: Spread, opts: { outlineOnly?: boolean; noHook?: boolean; adapt?: boolean } = {}): string {
   const card = getContent(s.category).card;
   const deck = deckFor(s.category);
   const profile = getCategoryProfile(s.category);
   const f = s.family;
   const lines = [
-    `- Story family: ${f.name}. The hero is usually ${f.hero}. It starts in ${f.start}. Later, ${f.turn}. Payoff: ${f.payoff}.`,
+    opts.adapt
+      ? `- Story family: ${f.name}. Later, ${f.turn}. Payoff: ${f.payoff}.`
+      : `- Story family: ${f.name}. The hero is usually ${heroKind(f.hero)}. It starts in ${f.start}. Later, ${f.turn}. Payoff: ${f.payoff}.`,
+    s.heroCard && !opts.outlineOnly && !opts.noHook
+      ? `- Offered hero (use them, or someone just as specific and surprising): ${s.heroCard}${s.hookIsSeed ? ' (only if the seed does not already say who the hero is)' : ''}.`
+      : '',
     `- Palette (things to draw from, not phrases to copy): ${f.palette}.`,
     f.rule ? `- Family rule: ${f.rule}` : '',
     `- Borrow the storytelling DNA of ${s.primary.title} (${s.primary.medium}): ${s.primary.dna}`,
@@ -131,7 +139,7 @@ export function buildPrompt(input: BuildPromptInput): string {
   const outlineOnly = mode === 'adapt' || mode === 'opener';
   const parts: string[] = ['You are the head writer of a tabletop RPG campaign, setting up its story.', ''];
 
-  parts.push(spreadBlock(s, { outlineOnly, noHook: mode === 'sequel' }));
+  parts.push(spreadBlock(s, { outlineOnly, noHook: mode === 'sequel', adapt: mode === 'adapt' }));
   parts.push(`- A complication for later (a secret for the outline, never the premise): ${s.complication}.`, '');
 
   if (mode === 'adapt') {
@@ -207,6 +215,7 @@ const REPAIR_LINES: Record<GateFailure['kind'], (f: GateFailure, s: Spread, firs
   shape: () => 'It must be 3 or 4 sentences, about 70 to 100 words, and end with a question that names someone or something from this story.',
   samey: (_f, s, fw) => `It opens like a recent story ("${fw}"). Open differently: ${s.opening}`,
   tics: (f) => `Replace these worn words: ${f.detail}.`,
+  pov: () => 'Write it in second person: the hero is "you"; their name appears only in someone\'s dialogue.',
   off_genre: (f, s) => `"${f.detail}" does not belong in ${getContent(s.category).card.name}. Remove it.`
 };
 

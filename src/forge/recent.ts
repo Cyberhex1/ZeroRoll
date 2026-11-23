@@ -9,7 +9,7 @@ const KEY = 'zeroroll_forge_recent_v1';
 
 export type RecentField = 'family' | 'primary' | 'spice' | 'engine' | 'hook' | 'place' | 'complication' | 'setPiece' | 'premise' | 'npcName';
 /** Opening and closing cards rotate across all categories. */
-export type GlobalField = 'opening' | 'closing';
+export type GlobalField = 'opening' | 'closing' | 'heroRole';
 
 /** How many of each to remember. */
 export const KEEP: Record<RecentField | GlobalField, number> = {
@@ -24,7 +24,9 @@ export const KEEP: Record<RecentField | GlobalField, number> = {
   premise: 6,
   npcName: 16,
   opening: 2,
-  closing: 2
+  closing: 2,
+  /** Offered hero cards, across all categories (bug test M1). */
+  heroRole: 12
 };
 
 type Store = Record<string, string[]>;

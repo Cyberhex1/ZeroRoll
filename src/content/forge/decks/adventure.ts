@@ -11,7 +11,7 @@ export const adventure = {
   ],
   dna: [
     { id: 'pirates_caribbean', title: 'Pirates of the Caribbean: Curse of the Black Pearl', medium: 'Film', dna: 'A cursed crew that cannot die, a gold piece that calls them, an unreliable rogue whose loyalty shifts scene by scene, and sword fights full of jokes.' },
-    { id: 'treasure_island', title: 'Treasure Island', medium: 'Book', dna: 'A boy finds a map and joins a voyage where the cook is the pirate captain; a charming villain he cannot help liking; mutiny on an island.' },
+    { id: 'treasure_island', title: 'Treasure Island', medium: 'Book', dna: 'A young nobody with a map joins a voyage full of people who want it; a charming villain the hero cannot help liking, whose loyalty turns with the tide; mutiny, a castaway, and a stockade to hold.' },
     { id: 'uncharted', title: "Uncharted 4: A Thief's End", medium: 'Game', dna: 'A retired treasure hunter pulled back by his long-lost brother; clues across continents to a pirate colony; climbing set-pieces and the cost of obsession on a marriage.' },
     { id: 'black_sails', title: 'Black Sails', medium: 'TV Show', dna: 'Pirate politics: a captain plans an impossible prize while managing a crew that votes; reputation is a weapon; a war against civilization itself.' },
     { id: 'indiana_jones', title: 'Indiana Jones: Raiders of the Lost Ark', medium: 'Film', dna: 'A professor-adventurer races an enemy army for a relic of real power; traps, chases, an old flame; the relic punishes those who misuse it.' },

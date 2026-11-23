@@ -10,6 +10,13 @@ import type { Spread } from './spread';
 import { PITCH_SCHEMA, pitchPrompt } from './prompts';
 import { STOCK, stockPlacesIn } from './gate';
 import { overlap } from './words';
+import { WORN_ROLES } from '../content/forge/familyTags';
+
+/** Roles Flash-Lite falls back to (code only; never sent to the model). */
+const WORN_ROLE = new RegExp(`\\b(${WORN_ROLES.join('|')})s?\\b`, 'i');
+const WORN_TITLE = /\b(ledgers?|ink)\b/i;
+
+type PitchContext = { category: Spread['category']; recentPremises: readonly string[]; heroCard?: string };
 
 export interface Pitch {
   title: string;
@@ -49,7 +56,7 @@ export async function pitchStories(spread: Spread, signal?: AbortSignal): Promis
 
 const OVERUSED = OVERUSED_NAMES.map((n) => new RegExp(`\\b${n}\\b`));
 
-export function scorePitch(p: Pitch, index: number, ctx: { category: Spread['category']; recentPremises: readonly string[] }, rand: () => number): number {
+export function scorePitch(p: Pitch, index: number, ctx: PitchContext, rand: () => number): number {
   const text = `${p.title} ${p.hero} ${p.hook}`;
   let score = rand() * 0.5;
   for (const re of STOCK) if (re.test(text)) score -= 1;
@@ -57,12 +64,15 @@ export function scorePitch(p: Pitch, index: number, ctx: { category: Spread['cat
   if (stockPlacesIn(text).length) score -= 1;
   if (OVERUSED.some((re) => re.test(text))) score -= 0.5;
   if (ctx.recentPremises.slice(0, 6).some((r) => overlap(p.hook, r) > 0.2)) score -= 0.6;
+  // Bug test M1: the same bookish hero kept winning.
+  if (WORN_ROLE.test(p.hero) && !(ctx.heroCard && WORN_ROLE.test(ctx.heroCard))) score -= 0.8;
+  if (WORN_TITLE.test(`${p.title} ${p.hook}`)) score -= 0.5;
   if (index === 1 || index === 2) score += 0.15;
   return score;
 }
 
 /** The best-scoring pitch, and the rest in their original order. */
-export function pickPitch(pitches: Pitch[], ctx: { category: Spread['category']; recentPremises: readonly string[] }, rand: () => number = Math.random): { chosen: Pitch; others: Pitch[] } {
+export function pickPitch(pitches: Pitch[], ctx: PitchContext, rand: () => number = Math.random): { chosen: Pitch; others: Pitch[] } {
   const scored = pitches.map((p, i) => ({ p, i, s: scorePitch(p, i, ctx, rand) }));
   const best = scored.reduce((a, b) => (b.s > a.s ? b : a));
   return { chosen: best.p, others: scored.filter((x) => x !== best).map((x) => x.p) };

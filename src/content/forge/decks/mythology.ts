@@ -42,9 +42,16 @@ export const mythology = {
     'the hero\'s shadow arrives home an hour before the hero does',
     'a one-eyed wanderer begs at the longhouse door, and the house has nothing left to give',
     'the pawnshop\'s new amulet whispers the price it wants to be sold for, and it is not money',
-    'the harper plays at a wedding on Samhain and looks up to find that a year has passed outside'
+    'the harper plays at a wedding on Samhain and looks up to find that a year has passed outside',
+    'the hero\'s foster-brother comes home from a raid wearing a gold arm-ring that will not come off, and the dead keep knocking to ask for it back',
+    'the Nile floods a month early and leaves a sealed coffin on the hero\'s doorstep, with the hero\'s own name painted in the cartouche',
+    'a temple cat drops a gold ring at the hero\'s feet, still on the finger of a pharaoh buried this morning',
+    'a client brings a grimoire to be rebound, pays in old teeth, and asks that no one read the last page',
+    'a rideshare passenger pays with a gold coin and gives an address in the middle of the river',
+    'after closing, the hero finds wet bronze footprints leading from a statue\'s empty plinth to the staff kitchen',
+    'a seal-skin comes up in the hero\'s nets, still warm, and someone on the shore is calling for it by name'
   ],
-  places: ['a whaling station built inside the ribs of something larger than a whale', 'a tomb-painters\' village whose painters are paid in beer and silence', 'an island that appears only at low tide on feast days', 'a convent library where the books are chained by the spine', 'a diner off the interstate where the old gods meet to settle debts', 'a ring of stones on a sheep farm that hums on the solstice'],
+  places: ['a whaling station built inside the ribs of something larger than a whale', 'a tomb-painters\' village whose painters are paid in beer and silence', 'an island that appears only at low tide on feast days', 'a convent library where the books are chained by the spine', 'a diner off the interstate where the old gods meet to settle debts', 'a ring of stones on a sheep farm that hums on the solstice', 'a longhouse at the edge of the ice where the hearth has not been allowed to go out in two hundred winters', 'a necropolis workshop where the coffin-makers measure the living for practice', 'an alchemist\'s cellar under a printing house, its furnace vented up the press-room chimney', 'a museum after closing, where the night-shift break room keeps one chair nobody sits in', 'a reed-boat village at the edge of the marsh where the dead are rowed across at dusk', 'a holy well at a crossroads where every rag tied to the hawthorn is the same color', 'a hermit\'s tower in a salt marsh, its observatory built from a shipwreck'],
   complications: ['the god asking for help is the one who caused the trouble', 'the oath was sworn by someone wearing the hero\'s face', 'the price was already paid, by someone who never told the hero', 'the spirit is keeping a promise to the hero\'s dead mother', 'two gods want the same thing from the hero, for opposite reasons'],
   setPieces: [
     'The World Tree shudders as the serpent lets go of its tail and the ground splits under the hall.',
@@ -54,6 +61,13 @@ export const mythology = {
     'The Wild Hunt rides across the storm, and you must hide before the hounds catch your scent.',
     'The chalk circle begins to glow as the summoned spirit takes shape in sulfur smoke and asks for its fee.',
     'Your heart is set on the scales against a feather, and something hungry waits beside them.',
-    'You stand on the sun god\'s night barge as the chaos serpent rises from the dark water.'
+    'You stand on the sun god\'s night barge as the chaos serpent rises from the dark water.',
+    'The fairy revel spills out of the hill at midnight, and you must not eat, drink or say thank you until dawn.',
+    'The tide goes out farther than it ever has, and a drowned town rises from the sand with its bells still ringing.',
+    'The homunculus in the sealed flask opens its eyes and asks whose blood it was made from.',
+    'The inquisitor\'s men break down the shop door just as the grimoire\'s pages begin to turn by themselves.',
+    'At 3 AM in a highway diner, two old gods bet your life on a hand of cards and ask you to deal.',
+    'A storm god\'s tantrum floods the subway, and you are the only one who can hear it crying.',
+    'At the museum gala the god in the glass case wakes up and walks out the front door, and only you follow.'
   ]
 } satisfies StoryDeck;

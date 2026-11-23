@@ -3,9 +3,9 @@
  * premise gets at most one targeted rewrite (repair.ts); the gate never blocks a roll.
  */
 import { hasKeyword } from '../content/validate';
-import { contentWords, firstWords, jaccard, overlap, sentences, wordCount } from './words';
+import { contentWords, escapeRegex, firstWords, jaccard, overlap, sentences, wordCount } from './words';
 
-export type GateKind = 'stock' | 'irony' | 'spoiler' | 'shape' | 'samey' | 'tics' | 'off_genre';
+export type GateKind = 'stock' | 'irony' | 'spoiler' | 'shape' | 'samey' | 'tics' | 'off_genre' | 'pov';
 
 export interface GateFailure {
   kind: GateKind;
@@ -23,7 +23,9 @@ export const STOCK: RegExp[] = [
   /\blately\b/i,
   /steady hands/i,
   /\bhead down\b/i,
-  /\brel(y|ies) on (your|you)\b/i
+  /\brel(y|ies) on (your|you)\b/i,
+  // The Walking Dead pilot (bug test M3).
+  /\b(wakes?|woke|waking)\s+(up\s+)?(from|after)\s+(a|the|your)\s+(long\s+)?coma\b/i
 ];
 
 /** The narrator telling the player what the hero does not know. */
@@ -36,6 +38,9 @@ export const IRONY: RegExp[] = [
   /\bwhen you (realize|discover|learn)\b/i,
   /\bsoon (you|they) will\b/i
 ];
+
+/** Worn words that fail a premise on their own (bug test S2). */
+export const SOLO_TICS = /\b(ledgers?|trembling)\b/i;
 
 /** Worn words; two or more in one premise is a tic. */
 export const TIC_WORDS = ['ledger', 'rhythmic', 'ozone', 'hum', 'humming', 'trembling', 'tapestry', 'testament', 'palpable', 'whispers of', 'a sense of', 'sweaty palm'];
@@ -57,6 +62,8 @@ export interface GateContext {
   turningPoint?: string;
   incitingIncident?: string;
   startingCircumstances?: string;
+  /** The hero's full name: the premise is second person, so it may appear only inside quotes. */
+  heroName?: string;
   /** Words that are allowed to overlap with the turning point: the hero's name, the place. */
   allowWords?: readonly string[];
 }
@@ -135,7 +142,14 @@ export function gatePremise(premise: string, ctx: GateContext): GateFailure[] {
   }
 
   const tics = ticsIn(p);
-  if (tics.length >= 2) out.push({ kind: 'tics', detail: tics.join(', ') });
+  const solo = p.match(SOLO_TICS)?.[0];
+  if (tics.length >= 2 || solo) out.push({ kind: 'tics', detail: [...new Set([...tics, ...(solo ? [solo.toLowerCase()] : [])])].join(', ') });
+
+  // Bug test S1: the premise is written to the player as "you"; the hero's name only in dialogue.
+  const given = ctx.heroName?.trim().split(/\s+/)[0];
+  const outside = p.replace(/["“][^"”]*["”]/g, ' ');
+  const named = !!given && given.length > 1 && new RegExp(`\\b${escapeRegex(given)}\\b`).test(outside);
+  if (named || !/\byou(r|rs|rself)?\b/i.test(p)) out.push({ kind: 'pov', detail: named ? `names ${given} outside dialogue` : 'no "you"' });
 
   const off = ctx.avoidKeywords.find((k) => hasKeyword(p, k));
   if (off) out.push({ kind: 'off_genre', detail: off.replace(/\*$/, '') });

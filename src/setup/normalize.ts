@@ -85,6 +85,9 @@ export function normalizeSkills(v: unknown, roleClass: string): string[] {
   return [...new Set([...picked, ...fill])].slice(0, SKILL_PICKS);
 }
 
+/** Things a hero can sensibly carry several of under a singular name. */
+const CONSUMABLE = /\b(torch|candle|ration|coin|arrow|bolt|dart|bandage|match|chalk|bead|nail|token|stake|herb|flare|cartridge|round|bullet|shell|seed|piece|bottle|stick|sheet|packet|pouch of)\b/i;
+
 export function normalizeGear(v: unknown): InventoryItem[] {
   if (!Array.isArray(v)) return [];
   const out: InventoryItem[] = [];
@@ -93,7 +96,11 @@ export function normalizeGear(v: unknown): InventoryItem[] {
     const name = str(item?.name, FIELD_LIMITS.gearName);
     if (!name || out.some((o) => o.name.toLowerCase() === name.toLowerCase())) continue;
     const type = GEAR_TYPES.includes(item?.type as InventoryItem['type']) ? (item!.type as InventoryItem['type']) : guessType(name);
-    const quantity = Number.isInteger(item?.quantity) && (item!.quantity as number) > 0 ? Math.min(item!.quantity as number, 99) : 1;
+    const asked = Number.isInteger(item?.quantity) && (item!.quantity as number) > 0 ? Math.min(item!.quantity as number, 99) : 1;
+    // One harp, not ten (bug test N1): gear comes singly unless the name is plural or it is used up.
+    const plural = /s\b/i.test(name.split(/\s+/).pop() ?? '');
+    const single = type !== 'potion' && type !== 'scroll' && !plural && !CONSUMABLE.test(name);
+    const quantity = single ? 1 : asked;
     const description = str(item?.description, 160);
     out.push({
       id: `item_${uid()}_${out.length}`,

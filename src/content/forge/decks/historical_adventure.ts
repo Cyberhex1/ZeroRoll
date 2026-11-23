@@ -32,9 +32,13 @@ export const historical_adventure = {
     'an innkeeper finds a famous sword wrapped in a guest\'s bedroll, and the guest is gone',
     'the printing house is ordered to print a confession by a man who has not been arrested yet',
     'the hero is asked to taste the Doge\'s wine at the masquerade because the official taster is missing',
-    'a ronin offers to protect the hero\'s village for a single bowl of rice a day'
+    'a ronin offers to protect the hero\'s village for a single bowl of rice a day',
+    'the legion\'s pay chest reaches the hero\'s frontier fort full of stones, and the paymaster swears the hero signed for it',
+    'a senator\'s freedwoman asks the hero to carry a sealed wax tablet into the arena before the emperor takes his seat',
+    'a wounded escort guard staggers into the hero\'s inn, presses a red envelope into their hands and dies before saying who it is for',
+    'the hero\'s old sect master is selling dumplings at the market and pretends not to know them'
   ],
-  places: ['a post station on a mountain road where every traveler must show papers', 'a Venetian glass furnace on an island where the masters may never leave', 'a gladiator school above a bakery', 'a tea house with a hidden room for rebels', 'an aqueduct under construction outside a provincial city', 'a caravanserai at the edge of the Silk Road'],
+  places: ['a post station on a mountain road where every traveler must show papers', 'a Venetian glass furnace on an island where the masters may never leave', 'a gladiator school above a bakery', 'a tea house with a hidden room for rebels', 'an aqueduct under construction outside a provincial city', 'a caravanserai at the edge of the Silk Road', 'a fresco workshop where the master paints over a family\'s secret map one wall at a time', 'a printing shop on a crowded bridge, its second press hidden under the floorboards', 'a river-ford inn where the martial sects must leave their swords at the door', 'a fishing village where the castle\'s tax boat comes once a month and leaves with someone\'s child'],
   complications: ['the lord the hero serves arranged the attack himself', 'the rebel the hero is hiding is the lord\'s child', 'the ally is a spy reporting to both sides', 'the document that would save everyone is a forgery'],
   setPieces: [
     'The Library of Alexandria burns, and you must choose between a trapped scholar and the last copy of a text.',
@@ -44,6 +48,11 @@ export const historical_adventure = {
     'Siege engines launch flaming pitch over the castle walls as shinobi climb the ramparts.',
     'You duel a master swordsman atop a swaying bamboo canopy.',
     'A ninja\'s smoke bomb fills the teahouse, and when it clears the heir is gone.',
-    'You must hold the mountain pass long enough for the village to escape.'
+    'You must hold the mountain pass long enough for the village to escape.',
+    'The carnival crowd swallows the assassin, and your only clue is the scent of the poison on your glove.',
+    'A rival guild cuts the scaffold ropes under the cathedral dome while the whole city watches it rise.',
+    'Twelve masked swordsmen land on the inn\'s roof tiles, and the innkeeper you trusted reaches under the counter.',
+    'You fight on the deck of a burning river barge as the stolen sword manual\'s pages scatter on the water.',
+    'The legion\'s eagle is lost in the forest, and the tribune wants a scapegoat by dawn.'
   ]
 } satisfies StoryDeck;

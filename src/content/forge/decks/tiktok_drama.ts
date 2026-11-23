@@ -38,7 +38,9 @@ export const tiktok_drama = {
     'the hero\'s boss tells them to hand over their best design to the boss\'s nephew "for the team"',
     'the hero finds a second wedding ring in their spouse\'s coat, engraved with tomorrow\'s date',
     'an old woman the hero helped on the bus last month sends a black car to pick them up',
-    'the pack alpha announces the mating ceremony and the hero is told to wait outside the circle'
+    'the pack alpha announces the mating ceremony and the hero is told to wait outside the circle',
+    'the hero opens their eyes at their graduation dinner, seated beside the best friend who will poison them in five years',
+    'the hero\'s wolf refuses to come out on the night of the trials, and the alpha\'s heir laughs the loudest'
   ],
   places: ['a revolving restaurant on top of the family\'s tower', 'a wedding hall booked for two weddings by mistake', 'a corporate gala on a yacht', 'a convenience store across from the company headquarters', 'a family villa where the servants know everything', 'a pack lodge in the mountains during the full moon'],
   complications: ['the cold rival has been quietly protecting the hero', 'the hero\'s best friend is the one leaking secrets', 'the hidden fortune comes with a condition', 'the person who humiliated the hero is being blackmailed'],
@@ -50,6 +52,7 @@ export const tiktok_drama = {
     'You arrive at your ex\'s wedding on the arm of the city\'s most feared tycoon.',
     'The mother-in-law offers you a bribe to leave, and you slide back a check for ten times as much.',
     'The rival\'s hostile takeover springs the trap you laid, and bankrupts him instead.',
-    'The alpha who rejected you kneels as your bloodline awakens under the full moon.'
+    'The alpha who rejected you kneels as your bloodline awakens under the full moon.',
+    'The moon festival goes silent when the elder\'s scent-test names you, not the chosen bride, as the alpha\'s true mate.'
   ]
 } satisfies StoryDeck;

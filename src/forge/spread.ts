@@ -11,6 +11,7 @@ import { StoryShape, StoryShapeId, pickShape } from '../setup/storyShape';
 import { recent, remember } from './recent';
 import { namesOnHandFrom, traditionsFor } from './names';
 import { recentRolls } from '../lib/rollFreshness';
+import { HERO_CARDS, SPICE_IN_FAMILY, TaggedCardKind, cardFits } from '../content/forge/familyTags';
 
 export interface Spread {
   category: ExperienceCategory;
@@ -31,6 +32,8 @@ export interface Spread {
   opening: string;
   closing: string;
   names: { given: string[]; family: string[] };
+  /** An offered hero, drawn per family with global recency (fresh rolls; not Book Two). */
+  heroCard?: string;
 }
 
 export interface DrawOptions {
@@ -100,17 +103,26 @@ export function drawSpread(category: ExperienceCategory, opts: DrawOptions = {})
   const keptPrimary = opts.keepPrimary ? byId.get(opts.keepPrimary) : undefined;
   const sources = family.sources.map((id) => byId.get(id)).filter((d): d is SourceDna => !!d);
   const primary = keptPrimary ?? pickFresh(sources.length ? sources : deck.dna, recent(category, 'primary'), (d) => d.id, rand);
-  const others = deck.dna.filter((d) => d.id !== primary.id);
+  // In some categories a second culture or era is a mash-up, so the spice stays in the family (bug test M2).
+  const others = (SPICE_IN_FAMILY.includes(category) ? sources : deck.dna).filter((d) => d.id !== primary.id);
   const spice = opts.local || !others.length ? undefined : pickFresh(others, recent(category, 'spice'), (d) => d.id, rand);
+  // Cards tagged for other families are left out; an empty result falls back to the whole list.
+  const fits = (kind: TaggedCardKind, cards: readonly string[]): string[] => {
+    const ok = cards.filter((c) => cardFits(category, kind, c, family.id));
+    return ok.length ? ok : [...cards];
+  };
 
   const engineId = pickFresh(deck.engines, recent(category, 'engine'), (e) => e, rand);
-  const hook = opts.seed?.trim() || pickFresh(deck.hooks, recent(category, 'hook'), (h) => h, rand);
-  const place = pickFresh(deck.places, recent(category, 'place'), (p) => p, rand);
+  const hook = opts.seed?.trim() || pickFresh(fits('hooks', deck.hooks), recent(category, 'hook'), (h) => h, rand);
+  const place = pickFresh(fits('places', deck.places), recent(category, 'place'), (p) => p, rand);
   const complication = pickFresh(deck.complications, recent(category, 'complication'), (c) => c, rand);
-  const setPieces = pickMany(deck.setPieces, opts.local ? 2 : 3, recent(category, 'setPiece'), rand);
+  const setPieces = pickMany(fits('setPieces', deck.setPieces), opts.local ? 2 : 3, recent(category, 'setPiece'), rand);
 
   const allowed = family.shapes;
   const shape = opts.shape && (!allowed?.length || allowed.includes(opts.shape.id)) ? opts.shape : pickShape(opts.notShape ?? opts.shape?.id, rand, allowed);
+
+  const heroCards = HERO_CARDS[`${category}.${family.id}`] ?? [];
+  const heroCard = heroCards.length ? pickFresh(heroCards, recent('*', 'heroRole'), (h) => h, rand) : undefined;
 
   const opening = pickFresh(OPENING_CARDS, recent('*', 'opening'), (c) => c, rand);
   const closing = pickFresh(CLOSING_CARDS, recent('*', 'closing'), (c) => c, rand);
@@ -133,7 +145,8 @@ export function drawSpread(category: ExperienceCategory, opts: DrawOptions = {})
     shape,
     opening,
     closing,
-    names
+    names,
+    ...(heroCard ? { heroCard } : {})
   };
 }
 
@@ -149,6 +162,7 @@ export function rememberSpread(s: Spread, extra: { premise?: string; npcNames?: 
   remember(s.category, 'setPiece', s.setPieces);
   remember('*', 'opening', s.opening);
   remember('*', 'closing', s.closing);
+  if (s.heroCard) remember('*', 'heroRole', s.heroCard);
   if (extra.premise) remember(s.category, 'premise', extra.premise);
   if (extra.npcNames?.length) remember(s.category, 'npcName', extra.npcNames.flatMap((n) => n.split(/\s+/)).filter((w) => w.length > 2));
 }

@@ -7,7 +7,7 @@
 import { AIProviderId, AI_PROVIDERS } from '../lib/providersConfig';
 import { AIError, classifyAIError, isTransient, shouldTryNextModel } from '../lib/aiErrors';
 import { localCallFor } from '../desktop/localModel';
-import { formatResetTime, isModelOut, markModelOut, modelOutUntil, quotaScopeFromError, recordGeminiUsage } from './quota';
+import { formatResetTime, isModelBusy, isModelOut, markModelBusy, markModelOut, modelOutUntil, quotaScopeFromError, recordGeminiUsage } from './quota';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -261,7 +261,37 @@ export function getGeminiCandidateModels(preferred?: string): string[] {
   return orderedGeminiCandidates(first).filter((m) => !isModelOut(m));
 }
 
+// "-latest" aliases run on the same model as a pinned ID, so when one is overloaded the other
+// is too, and the cascade skips it (2026-11-24: gemini-flash-lite-latest answered as gemini-3.5-flash-lite, and both gave
+// the same 503s). Replies carry modelVersion, which keeps this map current.
+const GEMINI_ALIAS_TARGETS: Record<string, string> = {
+  'gemini-flash-lite-latest': 'gemini-3.5-flash-lite',
+  'gemini-flash-latest': 'gemini-3.8-flash'
+};
+
+/** The model a name really runs on: an alias's current target, else the name itself. */
+export function geminiBackend(model: string): string {
+  return GEMINI_ALIAS_TARGETS[model] || model;
+}
+
+export function rememberGeminiAlias(model: string, modelVersion: unknown): void {
+  if (!/-latest$/.test(model) || typeof modelVersion !== 'string') return;
+  const target = normalizeGeminiModelName(modelVersion);
+  if (/^gemini-/.test(target) && target !== model) GEMINI_ALIAS_TARGETS[model] = target;
+}
+
+/** A model Google called overloaded in the last few minutes, by name or through its alias. */
+export function isGeminiBusy(model: string): boolean {
+  return isModelBusy(model) || isModelBusy(geminiBackend(model));
+}
+
 function orderedGeminiCandidates(first: string): string[] {
+  const ordered = rawGeminiCandidates(first);
+  // Busy models go last rather than out: if every model is busy, they are still worth a try.
+  return [...ordered.filter((m) => !isGeminiBusy(m)), ...ordered.filter((m) => isGeminiBusy(m))];
+}
+
+function rawGeminiCandidates(first: string): string[] {
   const usable = getUsableGeminiModels();
   if (usable && usable.length) {
     const ordered = [first, ...FALLBACK_MODELS, ...usable].filter((m) => usable.includes(m));
@@ -312,6 +342,7 @@ function swapReasonText(err?: AIError): string | undefined {
   if (!err) return undefined;
   if (err.kind === 'quota' && err.quotaScope === 'day' && err.resetAt) return `daily limit used up until ${formatResetTime(err.resetAt)}`;
   if (err.kind === 'quota' && err.quotaScope === 'zero') return 'needs a paid key';
+  if (err.kind === 'overloaded') return 'busy';
   return err.kind;
 }
 /** Up to a second of random spread, so retries from many tabs or players don't land together. */
@@ -446,6 +477,7 @@ async function callGeminiModel(
 
     const data = JSON.parse(raw);
     recordGeminiUsage(modelName, data.usageMetadata);
+    rememberGeminiAlias(modelName, data.modelVersion);
     const candidate = data.candidates?.[0];
     const finishReason: string | undefined = candidate?.finishReason;
     const blockReason: string | undefined = data.promptFeedback?.blockReason;
@@ -497,9 +529,19 @@ async function callGeminiWithCascade(
   if (skippedOut) {
     firstError = new AIError('quota', `${chosen} is out of requests until ${formatResetTime(skippedOut.until)}.`, { provider: 'gemini', quotaScope: skippedOut.scope, resetAt: skippedOut.until, model: chosen });
   }
-  const reported = skippedOut ? chosen : candidates[0];
+  // The player's model was overloaded a few minutes ago and was put last: say so too.
+  if (!firstError && !noCascade && candidates[0] !== chosen && isGeminiBusy(chosen)) {
+    firstError = new AIError('overloaded', `${chosen} was busy a few minutes ago.`, { provider: 'gemini', model: chosen });
+  }
+  const reported = firstError ? chosen : candidates[0];
 
+  // Real models that were overloaded during this call: an alias of one is skipped, not retried.
+  const busyHere = new Set<string>();
   for (const modelName of candidates) {
+    if (busyHere.has(geminiBackend(modelName))) {
+      console.warn(`[Gemini] ${modelName} skipped: it runs on ${geminiBackend(modelName)}, which is busy.`);
+      continue;
+    }
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const reply = await callGeminiModel(
@@ -542,6 +584,12 @@ async function callGeminiWithCascade(
       lastBadRequest = lastError.message;
     } else if (lastError && !shouldTryNextModel(lastError.kind) && lastError.kind !== 'bad_output' && lastError.kind !== 'timeout') {
       throw lastError;
+    }
+    // Still overloaded after the retry: try other models first for the next few minutes.
+    if (lastError?.kind === 'overloaded') {
+      busyHere.add(geminiBackend(modelName));
+      markModelBusy(modelName);
+      if (geminiBackend(modelName) !== modelName) markModelBusy(geminiBackend(modelName));
     }
     console.warn(`[Gemini] ${modelName} failed (${lastError?.kind}): ${lastError?.message}`);
   }

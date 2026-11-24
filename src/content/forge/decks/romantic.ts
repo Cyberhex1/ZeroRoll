@@ -37,10 +37,42 @@ export const romantic = {
     'the hero catches the prince climbing out of a library window with a stolen book',
     'a love letter meant for the hero\'s sister arrives with the hero\'s name on it',
     'the hero must teach the new duke to dance before the ball, and he is very bad at it on purpose',
-    'the hero\'s dying sister wakes up cured, and a pale stranger arrives to collect the hero\'s first kiss as payment'
+    'the hero\'s dying sister wakes up cured, and a pale stranger arrives to collect the hero\'s first kiss as payment',
+    'the hero bids at the charity auction by accident and wins an evening with the person they most dislike',
+    'a widowed earl asks the hero to pose as his intended for one house party, and the house party lasts a month',
+    'the hero and their rival are snowed in at the same mountain lodge the night before the finals',
+    'the hero wakes in the fae court wearing a wedding ring, and their new spouse looks just as alarmed',
+    'a vampire knocks at the hero\'s bakery after midnight and asks, very politely, to be invited in for bread',
+    'the palace picks the hero for the royal selection by mistake, and the prince\'s secretary refuses to admit it',
+    'the queen orders the hero to teach her stubborn heir to ride before the jubilee parade',
+    'the hero\'s ex turns up as best man at their sister\'s wedding, with a new date and the old playlist',
+    'a stranger on a delayed train recognizes the novel the hero is reading, because they wrote it'
   ],
-  places: ['an orangery heated by a captured summer', 'a lending library where letters are left inside returned books', 'a masked ball held on frozen canals', 'a vineyard estate during harvest', 'a seaside hotel at the end of the season', 'a palace where every room has two doors', 'a night market under a bridge that sells memories by the ounce'],
-  complications: ['the rival is protecting the hero from someone in their own family', 'the matchmaker is in love with one of them', 'the debt was never real', 'the letter that would clear everything up was burned by someone who meant well'],
+  places: [
+    'an orangery heated by a captured summer',
+    'a lending library where letters are left inside returned books',
+    'a masked ball held on frozen canals',
+    'a vineyard estate during harvest',
+    'a seaside hotel at the end of the season',
+    'a palace where every room has two doors',
+    'a night market under a bridge that sells memories by the ounce',
+    'a seaside dance hall reopened for one last summer',
+    'a fae market where kisses are legal tender',
+    'a palace greenhouse where the royal family grows the next bride\'s bouquet',
+    'two rival bakeries across the street from each other, sharing one back alley',
+    'a hunting lodge in the snow where the house party is stranded',
+    'a city rooftop garden shared by a whole apartment building'
+  ],
+  complications: [
+    'the rival is protecting the hero from someone in their own family',
+    'the matchmaker is in love with one of them',
+    'the debt was never real',
+    'the letter that would clear everything up was burned by someone who meant well',
+    'their families were each other\'s fiercest rivals a generation ago, over the same thing',
+    'the love interest made a promise to someone else before they met',
+    'the hero\'s best friend has been quietly helping them fall in love',
+    'one of them is leaving at the end of the season and has not said so'
+  ],
   setPieces: [
     'At the masquerade your sworn enemy pulls you behind a velvet curtain, and their breath catches.',
     'You are caught leaving the royal gardens at midnight, straight into the arms of the rebellious prince.',
@@ -50,6 +82,14 @@ export const romantic = {
     'The crown prince announces he will choose his bride at the gala, and his gaze is on you.',
     'A scandalous anonymous letter reveals the secret only you and your lover knew.',
     'They arrive at your door at midnight, bleeding, saying you are the only one they trust.',
-    'At the court of masks you must find your partner\'s true face among a hundred, or stay forever.'
+    'At the court of masks you must find your partner\'s true face among a hundred, or stay forever.',
+    'The music stops halfway through your waltz, and the whole ballroom is watching the two of you.',
+    'Your rival\'s secret recipe card falls into your hands an hour before the final round.',
+    'A fae bargain forces you to tell your companion the truth for one night, and they ask the question you feared.',
+    'At the coronation rehearsal, the prince slips a note into your glove.',
+    'A power cut traps you both in the elevator for an hour, and your phones die one after the other.',
+    'You run through the airport after them, and the gate agent turns out to be a romantic.',
+    'A picnic in a sudden summer storm leaves you both sheltering under one coat.',
+    'Your partner takes a blow meant for you in the duel, and their mask falls away.'
   ]
 } satisfies StoryDeck;

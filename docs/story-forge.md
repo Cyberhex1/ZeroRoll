@@ -44,6 +44,14 @@ To add a card, add it to the right list in the category's deck:
   its plot or names.
 * **Hook, place, complication, set-piece**: one line each. No stock names (see
   `OVERUSED_NAMES`) and no words from the category's `avoidKeywords`.
+* **Family tags**: a hook, place or set-piece that only fits some families goes in `CARD_FAMILIES`
+  (`src/content/forge/familyTags.ts`) with those family ids; untagged cards fit every family, and
+  complications are never tagged, so they must fit every family. Each family needs at least 3 hooks,
+  2 places and 3 set-pieces after filtering (aim for 6 or more hooks).
+* **Hero cards**: `HERO_CARDS` in the same file, keyed `<category>.<family>`. Keep them specific and
+  gender-neutral where you can (the player picks pronouns), and never a role from `WORN_ROLES`.
+* The check also fails a card listed twice and a card using a worn word (ledger, trembling, ozone,
+  hum, rhythmic, tapestry, testament, palpable).
 * **Family**: needs a name, a palette (things to draw from), the DNA ids it uses, and the shapes
   it allows.
 

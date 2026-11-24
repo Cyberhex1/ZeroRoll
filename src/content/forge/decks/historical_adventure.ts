@@ -36,10 +36,42 @@ export const historical_adventure = {
     'the legion\'s pay chest reaches the hero\'s frontier fort full of stones, and the paymaster swears the hero signed for it',
     'a senator\'s freedwoman asks the hero to carry a sealed wax tablet into the arena before the emperor takes his seat',
     'a wounded escort guard staggers into the hero\'s inn, presses a red envelope into their hands and dies before saying who it is for',
-    'the hero\'s old sect master is selling dumplings at the market and pretends not to know them'
+    'the hero\'s old sect master is selling dumplings at the market and pretends not to know them',
+    'a farmer brings the hero a blade he dug up in his rice field, bearing the crest of the lord\'s dead brother',
+    'the castle\'s new lord arrives a day early and asks the hero, not his steward, to show him around',
+    'a patron pays for a portrait of his wife, then asks the hero to paint her beside a man who is not in the room',
+    'a gladiator the hero patched up last month buys his freedom with a purse heavy enough to buy a senator',
+    'the escort agency takes a job to carry an empty coffin across three provinces, at ten times the usual rate',
+    'a girl arrives at the inn asking to learn the blade, and she carries a famous sect\'s jade token',
+    'the aqueduct the hero is building runs dry the day the governor arrives, and someone has blocked it on purpose',
+    'the chariot team the hero tends is bought overnight by a faction that has never won a race'
   ],
-  places: ['a post station on a mountain road where every traveler must show papers', 'a Venetian glass furnace on an island where the masters may never leave', 'a gladiator school above a bakery', 'a tea house with a hidden room for rebels', 'an aqueduct under construction outside a provincial city', 'a caravanserai at the edge of the Silk Road', 'a fresco workshop where the master paints over a family\'s secret map one wall at a time', 'a printing shop on a crowded bridge, its second press hidden under the floorboards', 'a river-ford inn where the martial sects must leave their swords at the door', 'a fishing village where the castle\'s tax boat comes once a month and leaves with someone\'s child'],
-  complications: ['the lord the hero serves arranged the attack himself', 'the rebel the hero is hiding is the lord\'s child', 'the ally is a spy reporting to both sides', 'the document that would save everyone is a forgery'],
+  places: [
+    'a post station on a mountain road where every traveler must show papers',
+    'a Venetian glass furnace on an island where the masters may never leave',
+    'a gladiator school above a bakery',
+    'a tea house with a hidden room for rebels',
+    'an aqueduct under construction outside a provincial city',
+    'a caravanserai at the edge of the Silk Road',
+    'a fresco workshop where the master paints over a family\'s secret map one wall at a time',
+    'a printing shop on a crowded bridge, its second press hidden under the floorboards',
+    'a river-ford inn where the martial sects must leave their swords at the door',
+    'a fishing village where the castle\'s tax boat comes once a month and leaves with someone\'s child',
+    'a kabuki theater whose trapdoors lead into the city\'s gambling dens',
+    'a merchant palazzo where the ballroom floor is inlaid with the family\'s trade routes',
+    'a bathhouse where senators talk freely because they think the attendants do not listen',
+    'a cliffside monastery reachable only by iron chains hammered into the rock',
+    'a salt smugglers\' camp in the reeds of a great river'
+  ],
+  complications: [
+    'the lord the hero serves arranged the attack himself',
+    'the rebel the hero is hiding is the lord\'s child',
+    'the ally is a spy reporting to both sides',
+    'the document that would save everyone is a forgery',
+    'the hero\'s teacher was the traitor in the story everyone tells about them',
+    'the reward was promised by a family that will fall from power before it can pay',
+    'the enemy the hero is hunting is protecting the hero\'s own kin'
+  ],
   setPieces: [
     'The Library of Alexandria burns, and you must choose between a trapped scholar and the last copy of a text.',
     'You draw your blade in the moonlit snow against three ronin come for your bounty.',
@@ -53,6 +85,12 @@ export const historical_adventure = {
     'A rival guild cuts the scaffold ropes under the cathedral dome while the whole city watches it rise.',
     'Twelve masked swordsmen land on the inn\'s roof tiles, and the innkeeper you trusted reaches under the counter.',
     'You fight on the deck of a burning river barge as the stolen sword manual\'s pages scatter on the water.',
-    'The legion\'s eagle is lost in the forest, and the tribune wants a scapegoat by dawn.'
+    'The legion\'s eagle is lost in the forest, and the tribune wants a scapegoat by dawn.',
+    'A wedding procession crosses the river bridge, and you have until it reaches the far bank to find the assassin among the guests.',
+    'The flood carries off the bridge with your lord\'s palanquin still on it.',
+    'The plague cart stops outside your workshop, and the city guard nails the door shut with you inside.',
+    'A chariot race in the Circus Maximus becomes a murder attempt on the third lap.',
+    'The legion locks shields under a storm of arrows, and you are carrying the wounded centurion.',
+    'A tournament duel on a ring of posts above a lake ends when your opponent\'s master breaks the rules.'
   ]
 } satisfies StoryDeck;

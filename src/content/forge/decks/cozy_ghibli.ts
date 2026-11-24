@@ -31,18 +31,56 @@ export const cozy_ghibli = {
     'a very small dragon is found sleeping in the bread oven, and it has a fever',
     'the hero\'s grandmother\'s garden gate opens onto a different season than the street',
     'a letter arrives addressed to the hero\'s house from someone who lived there a hundred years ago',
-    'the town\'s weather spirit loses its umbrella and it starts to rain only on the hero'
+    'the town\'s weather spirit loses its umbrella and it starts to rain only on the hero',
+    'the shop\'s first customer is a snowman who wants hot soup, and promises not to melt if it is only warm',
+    'the hero\'s bicycle bell rings by itself every time they cross the old bridge, as if greeting someone',
+    'a raccoon in a waistcoat leaves one acorn and a very polite note on the hero\'s windowsill every morning',
+    'the hero\'s cat keeps walking through a little door in grandma\'s attic and coming back with flowers',
+    'a passenger asks to be dropped at an island that only appears when someone aboard is homesick',
+    'a letter in the mailbag is addressed to "the moon", and the postmistress insists it must be delivered',
+    'the great-aunt\'s orchard comes with one condition: the trees get a song every spring, or they sulk',
+    'the water wheel on the hero\'s new farm creaks into motion on its own, and something small is turning it'
   ],
-  places: ['a bakery on a ferry that crosses a lake of clouds', 'a hillside town where every roof is a garden', 'a bathhouse for tired weather spirits', 'a train that stops at a different village each morning', 'a lending library in a hollow oak, run by owls', 'a market that opens only when the fog comes in'],
-  complications: ['the grumpy neighbor is the one who has been leaving gifts', 'the spirit\'s home was lost when the hero\'s family built their house', 'the festival is the last one before a friend moves away', 'the shy creature everyone fears is guarding a nest'],
+  places: [
+    'a bakery on a ferry that crosses a lake of clouds',
+    'a hillside town where every roof is a garden',
+    'a bathhouse for tired weather spirits',
+    'a train that stops at a different village each morning',
+    'a lending library in a hollow oak, run by owls',
+    'a market that opens only when the fog comes in',
+    'a hot-spring inn halfway up a mountain where the snow monkeys run the front desk',
+    'a canal town where every house has a boat instead of a front door',
+    'a forest crossing where a bus shelter is the only building for miles',
+    'a riverboat café that drifts a little farther downstream each night',
+    'a hill orchard with a stone tea-house that needs a new roof',
+    'a tiny post office on a windy island, its mailbags carried by gulls'
+  ],
+  complications: [
+    'the grumpy neighbor is the one who has been leaving gifts',
+    'the spirit\'s home was lost when the hero\'s family built their house',
+    'the festival is the last one before a friend moves away',
+    'the shy creature everyone fears is guarding a nest',
+    'the helper who keeps fixing things at night is too shy to be thanked',
+    'the thing the hero is trying to fix was broken on purpose, for a kind reason',
+    'the town\'s oldest resident remembers the last time this happened, and is embarrassed about how it ended',
+    'what the spirit really needs is not what it is asking for'
+  ],
   setPieces: [
     'A giant, sleepy forest guardian blocks the road and politely asks you for a cup of tea.',
-    'The flying bakery airship hums as you pull a tray of star-flour pastries from the oven.',
+    'The flying bakery airship creaks and sways as you pull a tray of star-flour pastries from the oven.',
     'The whole town gathers on the rooftops to watch the cloud whales migrate.',
     'A storm makes every spirit in the valley shelter in your shop at once.',
     'Soot sprites help you carry coal to the furnace of the spirit bathhouse.',
     'The Lantern Festival floats rise on a breeze, carrying everyone\'s wishes.',
     'You trade honey-cakes with a wandering frog-merchant for a seed that grows into a house.',
-    'A wind spirit steals your hat and leads you through a field of sunflowers.'
+    'A wind spirit steals your hat and leads you through a field of sunflowers.',
+    'The first snow of the year falls upward for an hour, and the whole town stops to watch.',
+    'A parade of lantern-carrying mushrooms crosses the road, and you have to wait very politely.',
+    'On festival morning the shop fills with customers, and every one of them orders something you have never made.',
+    'A paper airplane carries your letter across the whole valley and lands in exactly the right hand.',
+    'The boat drifts through a night sea full of glowing jellyfish, and a passenger begins to sing.',
+    'At the top of the mountain the clouds part, and you can see every place you have been.',
+    'The old greenhouse blooms all at once when the last pane of glass goes in.',
+    'The whole village turns up with tools and packed lunches on the day the barn roof goes up.'
   ]
 } satisfies StoryDeck;

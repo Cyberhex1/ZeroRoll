@@ -32,18 +32,57 @@ export const apocalypse = {
     'the caravan the hero guards stops answering on the radio, but its lights keep moving',
     'a child arrives at the gate carrying seeds from a plant that went extinct',
     'the trading robot at the outpost offers the hero a military weapon for one bottle cap and a hug',
-    'the hero\'s Geiger counter goes completely silent in the middle of the most radioactive district'
+    'the hero\'s Geiger counter goes completely silent in the middle of the most radioactive district',
+    'the overseer dies in the night, and the sealed envelope naming the successor is blank',
+    'the bunker\'s hydroponics fail on the same day someone knocks on the outer hatch',
+    'a working traffic light blinks over an empty crossroads, and someone has left fresh flowers under it',
+    'a dog wearing a courier\'s saddlebags trots into the hero\'s camp, alone',
+    'the warlord\'s favorite war-rig rolls back into the citadel with no driver and the engine still running',
+    'the water baron announces a race across the salt flats, and the prize is the hero\'s sister\'s freedom',
+    'a client at the checkpoint bar wants a guide into the Zone tonight and pays in pre-war gold',
+    'the bolt the hero throws ahead in the Zone comes flying back, thrown by someone else',
+    'an old satellite phone in the scrap pile rings, and the caller asks if the war is over yet'
   ],
-  places: ['a town built inside a beached aircraft carrier', 'a library-fortress guarded by the last librarians', 'a train that never stops, where tickets are inherited', 'a market held in the ribcage of a dead skyscraper', 'a greenhouse dome whose plants are slowly taking over', 'a highway overpass turned into a mile-long settlement'],
-  complications: ['the safe haven is real but needs workers, not guests', 'the raiders are refugees from something worse', 'the cure works, and it changes who survives', 'the settlement\'s founder caused the disaster'],
+  places: [
+    'a town built inside a beached aircraft carrier',
+    'a library-fortress guarded by the last librarians',
+    'a train that never stops, where tickets are inherited',
+    'a market held in the ribcage of a dead skyscraper',
+    'a greenhouse dome whose plants are slowly taking over',
+    'a highway overpass turned into a mile-long settlement',
+    'a stadium farm where corn grows in the stands and the scoreboard still counts the days',
+    'a frozen shopping mall where a family of hunters lives in the department store',
+    'a fuel town built around a single working refinery tower',
+    'a dead city block inside the Zone where snow never settles',
+    'a vault cafeteria whose mural of the outside is the only sky anyone has seen',
+    'a bridge toll run by kids on bicycles'
+  ],
+  complications: [
+    'the safe haven is real but needs workers, not guests',
+    'the raiders are refugees from something worse',
+    'the cure works, and it changes who survives',
+    'the settlement\'s founder caused the disaster',
+    'the hero\'s own people would rather the old world never came back',
+    'the stranger they rescued is the reason the settlement was found',
+    'the thing everyone is fighting over only works once',
+    'the leader is honest about everything except the day the food runs out'
+  ],
   setPieces: [
     'The Geiger counter screams as an irradiated monster bursts through the shell of a pre-war bus.',
     'A dust storm drives you into a half-buried convenience store with someone already inside.',
     'You hear a raider convoy outside the diner just as you find a pristine can of food.',
-    'A sealed bunker hums with power, and its biometric scanner waits for a hand.',
+    'A sealed bunker still has power, and its biometric scanner waits for a hand.',
     'Zealots who worship an unexploded bomb corner you in a ruined cathedral.',
     'The automated turrets of the ruined facility lock onto you.',
     'A crashed satellite\'s databanks still hold the coordinates of a military cache.',
-    'You defend your scrap fortress from a night raid with jury-rigged traps and too little ammo.'
+    'You defend your scrap fortress from a night raid with jury-rigged traps and too little ammo.',
+    'The blast door grinds open, and the first thing you see outside is a family having a picnic.',
+    'The vote to open the doors ends in a tie, and yours is the deciding hand.',
+    'A bridge of stalled cars over a flooded valley shifts under your boots.',
+    'You share your last can with a stranger, and they show you the seed vault on their map.',
+    'Twenty rigs race across the salt flats, and the lead rig is on fire.',
+    'The arena crowd chants your name as the warlord raises the water key.',
+    'An anomaly folds the street in half, and your client walks straight into it.',
+    'An emission is coming, and the only shelter is a basement full of rival stalkers.'
   ]
 } satisfies StoryDeck;

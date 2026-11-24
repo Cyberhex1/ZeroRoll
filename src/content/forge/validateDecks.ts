@@ -2,7 +2,7 @@
  * Checks the 0.2 story decks (src/content/forge/decks). Run by `npm run content:check` and the
  * content tests. Errors fail CI; warnings are printed.
  */
-import { CARD_FAMILIES, HERO_CARDS, TaggedCardKind, cardFits } from './familyTags';
+import { CARD_FAMILIES, HERO_CARDS, TaggedCardKind, WORN_ROLES, cardFits } from './familyTags';
 import type { CategoryContent } from '../types';
 import type { StoryDeck } from './types';
 import type { ExperienceCategory } from '../../types';
@@ -17,6 +17,10 @@ export interface DeckReport {
 }
 
 const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
+
+/** Words the model already leans on; a card that uses one teaches it the tic (0.2 gate, card expansion). */
+const CARD_TICS = /\b(ledgers?|trembling|ozone|hum|hums|humming|rhythmic|tapestry|testament|palpable)\b/i;
+const WORN_ROLE = new RegExp(`\\b(?:${WORN_ROLES.join('|')})s?\\b`, 'i');
 
 /** Every string in a deck except the DNA titles (those are real works and may contain any word). */
 function deckText(d: StoryDeck, opts: { signature: boolean }): string {
@@ -61,6 +65,16 @@ export function validateDecks(
     for (const [k, n] of Object.entries(min) as Array<[keyof typeof min, number]>) {
       if ((d[k]?.length ?? 0) < n) errors.push(`${cat}: ${d[k]?.length ?? 0} ${k} (need ${n} or more).`);
     }
+    for (const k of ['hooks', 'places', 'complications', 'setPieces'] as const) {
+      const seen = new Set<string>();
+      for (const c of d[k] ?? []) {
+        const key = c.trim().toLowerCase();
+        if (seen.has(key)) errors.push(`${cat}: ${k} card is listed twice: "${c.slice(0, 60)}".`);
+        seen.add(key);
+        const tic = c.match(CARD_TICS)?.[0];
+        if (tic) errors.push(`${cat}: ${k} card uses the worn word "${tic}": "${c.slice(0, 60)}".`);
+      }
+    }
     const all = deckText(d, { signature: true });
     for (const name of OVERUSED_NAMES) if (new RegExp(`\\b${name}\\b`).test(all)) errors.push(`${cat}: deck text uses the overused name "${name}".`);
     // Real Life's signature names "supernatural" on purpose, so the signature is left out here.
@@ -99,6 +113,9 @@ export function validateDecks(
   for (const [cat, d] of Object.entries(decks)) {
     for (const f of d.families) {
       if (!HERO_CARDS[`${cat}.${f.id}`]?.length) errors.push(`${cat}.${f.id}: no hero cards.`);
+      const heroes = HERO_CARDS[`${cat}.${f.id}`] ?? [];
+      for (const h of heroes) if (WORN_ROLE.test(h)) errors.push(`${cat}.${f.id}: hero card "${h}" is a worn role.`);
+      if (new Set(heroes).size !== heroes.length) errors.push(`${cat}.${f.id}: a hero card is listed twice.`);
       const n = (kind: TaggedCardKind) => d[kind].filter((c) => cardFits(cat as ExperienceCategory, kind, c, f.id)).length;
       if (n('hooks') < 3 || n('places') < 2 || n('setPieces') < 3) errors.push(`${cat}.${f.id}: after family filtering needs 3 hooks, 2 places and 3 set-pieces (has ${n('hooks')}/${n('places')}/${n('setPieces')}).`);
     }

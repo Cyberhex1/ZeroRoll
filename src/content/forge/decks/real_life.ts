@@ -35,10 +35,43 @@ export const real_life = {
     'the new manager asks the hero to train their own replacement, who turns out to be the manager\'s nephew',
     'a stranger at the laundromat leaves behind a bag with a wedding dress and a plane ticket for tomorrow',
     'the hero\'s little brother calls from a police station two states away and says "don\'t tell Mom"',
-    'the interviewer at the hero\'s dream job is the person they rear-ended in the parking lot ten minutes ago'
+    'the interviewer at the hero\'s dream job is the person they rear-ended in the parking lot ten minutes ago',
+    'the hotel front desk gets a call from room 712 asking for "the usual", on the hero\'s first night shift',
+    'a celebrity chef walks into the hero\'s diner during the lunch rush and orders the one dish the kitchen always burns',
+    'the neighbors\' new fence goes up two feet onto the hero\'s lawn, and the surveyor is their cousin',
+    'the elderly neighbor asks the hero to witness her will, and the hero\'s name is in it',
+    'Mom announces at the rehearsal dinner that she is selling the family house, and the buyer is at the table',
+    'the hero\'s brother brings his new girlfriend home for the holidays, and she is the hero\'s ex',
+    'an investor will fund the hero\'s food truck if they beat his son in a cook-off on Saturday',
+    'on the hero\'s first day at the new job, the desk is still covered in the last person\'s sticky notes, all of them warnings',
+    'the new neighbor borrows a ladder at midnight, and the hero sees which window they climb into',
+    'a package for next door lands on the hero\'s step, and it is a cake that says "SORRY"'
   ],
-  places: ['a 24-hour pharmacy next to a closed-down mall', 'a cul-de-sac where every house is the same model', 'a lake cabin the family has shared for thirty years', 'a hotel that hosts three weddings on the same Saturday', 'a food court where every vendor knows each other\'s secrets', 'a call center on the top floor of a parking garage'],
-  complications: ['the person causing trouble is trying to help someone', 'the hero is partly at fault', 'the solution would embarrass someone the hero loves', 'the rival is going through the same thing at home', 'the rule everyone is fighting about was written by the hero\'s late grandmother'],
+  places: [
+    'a 24-hour pharmacy next to a closed-down mall',
+    'a cul-de-sac where every house is the same model',
+    'a lake cabin the family has shared for thirty years',
+    'a hotel that hosts three weddings on the same Saturday',
+    'a food court where every vendor knows each other\'s secrets',
+    'a call center on the top floor of a parking garage',
+    'a minor-league ballpark whose mascot knows everyone\'s business',
+    'a family-owned bowling alley about to be sold',
+    'a church basement where the community theater rehearses',
+    'a startup office in a former bank, with the vault used as a nap room',
+    'the grandparents\' house, with a garage full of forty years of labeled boxes',
+    'an apartment building where everyone shares one washing machine and one group chat'
+  ],
+  complications: [
+    'the person causing trouble is trying to help someone',
+    'the hero is partly at fault',
+    'the solution would embarrass someone the hero loves',
+    'the rival is going through the same thing at home',
+    'the rule everyone is fighting about was written by the hero\'s late grandmother',
+    'the hero\'s plan works too well, and someone innocent takes the blame',
+    'the person the hero is competing with needs the win more',
+    'everyone already knows the secret and has been waiting for the hero to say it',
+    'the person who could fix everything is too proud to be asked'
+  ],
   setPieces: [
     'The family Thanksgiving erupts when a long-held secret is dropped during the main course.',
     'A server failure hits on the busiest day of the year, and the lead engineer is nowhere to be found.',
@@ -47,6 +80,14 @@ export const real_life = {
     'The kitchen is in the weeds, tickets are printing non-stop, and the chef wants your garnish now.',
     'The HOA president cites your mailbox for being the wrong beige, at the monthly meeting, in front of everyone.',
     'Your car dies in a downpour and a family in a minivan stops to help you, and will not take money.',
-    'The old friend\'s "great investment opportunity" pitch at the coffee shop has a slide about "downlines".'
+    'The old friend\'s "great investment opportunity" pitch at the coffee shop has a slide about "downlines".',
+    'The power goes out during your wedding toast, and you have to finish it in the dark, from memory.',
+    'Your neighbor\'s garage sale is selling the things you lent them.',
+    'The pitch meeting starts, and the investor is reading your old one-star review of their company.',
+    'The health inspector arrives early on the one day the walk-in freezer breaks.',
+    'The family road trip strands everyone at a motel with one available room.',
+    'The block party talent show turns into a public settling of every feud on the street.',
+    'You cover a coworker\'s closing shift and find out why they never let anyone else close.',
+    'Your parents\' anniversary slideshow has one photo nobody can explain.'
   ]
 } satisfies StoryDeck;

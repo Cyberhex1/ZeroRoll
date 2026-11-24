@@ -30,10 +30,44 @@ export const fantasy = {
     'the hero\'s spell works for the first time, and someone across the city screams at the same moment',
     'a dragon\'s egg is delivered to the bakery where the hero works, addressed to "the next keeper"',
     'the king\'s taster collapses, and the hero is the only one who saw what was in the cup',
-    'a map tattooed on a dead man\'s back shows the hero\'s home village with a cross over it'
+    'a map tattooed on a dead man\'s back shows the hero\'s home village with a cross over it',
+    'a famous adventuring party hires the hero to carry their bags, and on the first night their leader is found dead in his bedroll',
+    'the guild posts a contract for a monster that matches the hero\'s own description, down to the scar',
+    'a village elder pays the hero in advance for a beast nobody else has seen, and the coins are still warm from the forge',
+    'the hero\'s familiar comes back from its night hunt speaking in a voice the hero has never heard',
+    'the exam proctor hands the hero a sealed question that has already been answered, in the hero\'s own hand',
+    'the old queen dies at dinner and the herald must announce her heir before dessert, from a list with two names on it',
+    'a ferry passenger pays the toll in coins minted by a kingdom that is not at war yet, and asks how long until it is',
+    'the hero\'s debts are bought up overnight by a single stranger, who wants them repaid with one favor',
+    'a statue in the market square turns its head to watch the hero pass, and only the children notice',
+    'a merchant caravan rolls in a day late with every guard asleep and every horse facing backward'
   ],
-  places: ['a city built on the back of a sleeping titan', 'a tavern that moves to a new crossroads every full moon', 'a university of magic whose library is guarded by its own former students', 'a dwarven forge-hall where the forge has been burning for nine hundred years without fuel', 'a border bridge where two kingdoms collect tolls on the same stones', 'a forest where the trees gossip in the wind'],
-  complications: ['the patron who hired the hero caused the disaster', 'a companion is being paid to betray the party and is starting to regret it', 'the prophecy is about the hero\'s sibling, not the hero', 'the monster is the last of something, and it is grieving', 'the cure requires something the hero promised to someone else'],
+  places: [
+    'a city built on the back of a sleeping titan',
+    'a tavern that moves to a new crossroads every full moon',
+    'a university of magic whose library is guarded by its own former students',
+    'a dwarven forge-hall where the forge has been burning for nine hundred years without fuel',
+    'a border bridge where two kingdoms collect tolls on the same stones',
+    'a forest where the trees gossip in the wind',
+    'a mountain monastery that rents its bell tower to mercenaries between prayers',
+    'a swamp town on stilts where the toll-keeper is a very old, very polite crocodile',
+    'a dueling ground in the cellars of the magic college, scorched in neat circles',
+    'a coronation hall left half-built because the last three kings died before it was finished',
+    'a hunter\'s lodge whose trophy wall has one empty plaque, already engraved',
+    'a gambling barge where adventurers pawn their swords between jobs',
+    'a glass desert where an old battle is still visible under the surface'
+  ],
+  complications: [
+    'the patron who hired the hero caused the disaster',
+    'a companion is being paid to betray the party and is starting to regret it',
+    'the prophecy is about the hero\'s sibling, not the hero',
+    'the monster is the last of something, and it is grieving',
+    'the cure requires something the hero promised to someone else',
+    'the hero\'s oldest friend sold the plan to the other side before it began',
+    'the magic everyone relies on is borrowed from the thing they are fighting',
+    'the reward was promised by someone who no longer has the power to pay it',
+    'the villain is trying to stop a worse disaster, by the wrong means'
+  ],
   setPieces: [
     'A cracked dragon seal in the catacombs glows sickly green and the ground begins to tremble.',
     'The ancient bridge over the chasm crumbles as a wyvern swoops down from the peaks.',
@@ -42,6 +76,14 @@ export const fantasy = {
     'A shipwreck sits in the middle of a landlocked forest, full of untouched treasure.',
     'An elemental rift tears open the sky over the capital, raining ash and cinder-demons.',
     'The grand archmage summons you to her tower, and you realize you are speaking to her ghost.',
-    'The ancient dragon wakes, bows its head, and calls you its long-lost master.'
+    'The ancient dragon wakes, bows its head, and calls you its long-lost master.',
+    'The guild auction for your own bounty opens, and you are standing in the crowd.',
+    'The beast you were hired to kill lies wounded at your feet and speaks your mother\'s name.',
+    'A storm of loose spells breaks out of the college vault and rewrites the courtyard stone by stone.',
+    'In the final exam duel your opponent casts the forbidden spell you were blamed for last term.',
+    'Two armies meet on a frozen river, and the ice starts to crack under the banners.',
+    'The king asks you, the least important person in the room, to choose who rides out to parley.',
+    'The heist goes wrong at the vault door, and the new plan depends on a very confused troll.',
+    'A night market of goblin traders turns into a chase across the rooftops.'
   ]
 } satisfies StoryDeck;

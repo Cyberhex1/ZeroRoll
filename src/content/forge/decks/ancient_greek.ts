@@ -35,10 +35,43 @@ export const ancient_greek = {
     'an old shepherd swears the hero is the child of a god, and the god is coming to collect',
     'a golden apple rolls to a stop at the hero\'s feet during the festival, inscribed "for the fairest"',
     'the hero\'s loom unravels each night by itself, and the suitors downstairs grow impatient',
-    'a bronze giant walks out of the sea and sits down on the beach to wait'
+    'a bronze giant walks out of the sea and sits down on the beach to wait',
+    'the hero\'s ship lies becalmed for nine days, and on the tenth a stranger walks across the water to ask for wine',
+    'a swineherd recognizes the hero\'s scar and tells them their house is full of strangers eating their bread',
+    'the enemy herald comes under truce to collect the dead, and the body he asks for is the hero\'s brother',
+    'a captive in the camp tells the hero the city will fall tonight, because she has dreamed it three times',
+    'the king promises his daughter to whoever brings back the boar\'s tusks, and only the hero\'s sister steps forward',
+    'a red thread is tied to the hero\'s door at dawn, leading toward the palace',
+    'two rival goddesses appear at the hero\'s little shrine on the same night, each asking for the hero\'s offering',
+    'the hero\'s statue wins the festival prize, and the goddess it shows is not pleased with the nose',
+    'the hero is sent across the lines with a ransom of gold, and a god walks beside them in the shape of a boy',
+    'the camp\'s seer names the hero as the price of a fair wind',
+    'a wounded enemy prince asks the hero to tell his wife he died bravely'
   ],
-  places: ['an island whose shepherd is a one-eyed giant who keeps a perfect garden', 'a temple of Asclepius where the sick sleep among snakes to dream their cure', 'a bronze foundry on the slope of a volcano', 'the narrow pass above a burning plain', 'a palace labyrinth where the bull-dancers train', 'the bank of the river Styx, where the ferryman keeps accounts in coins'],
-  complications: ['the god helping the hero is the one who cursed them', 'the monster is keeping a promise to the hero\'s ancestor', 'the king who set the task wants the hero to fail', 'the prophecy came true already, in a way no one noticed'],
+  places: [
+    'an island whose shepherd is a one-eyed giant who keeps a perfect garden',
+    'a temple of Asclepius where the sick sleep among snakes to dream their cure',
+    'a bronze foundry on the slope of a volcano',
+    'the narrow pass above a burning plain',
+    'a palace labyrinth where the bull-dancers train',
+    'the bank of the river Styx, where the ferryman keeps accounts in coins',
+    'an island of lotus-eaters who have forgotten their own names',
+    'the camp on the beach, with the ships drawn up and slowly rotting',
+    'a mountain cave where a centaur teaches the sons and daughters of kings',
+    'the sanctuary at Delphi on the night before the oracle speaks',
+    'an Athenian marketplace where a philosopher will argue with anyone for free',
+    'an olive grove sacred to Athena where no blade may be drawn'
+  ],
+  complications: [
+    'the god helping the hero is the one who cursed them',
+    'the monster is keeping a promise to the hero\'s ancestor',
+    'the king who set the task wants the hero to fail',
+    'the prophecy came true already, in a way no one noticed',
+    'the hero\'s own ancestor broke the oath the god is still angry about',
+    'the mortal the hero is protecting is a god in disguise, testing them',
+    'winning a god\'s favor means another mortal loses it',
+    'the enemy king is the hero\'s guest-friend by an old oath, and the oath still binds'
+  ],
   setPieces: [
     'A tempest from Poseidon shatters the ship and washes you ashore on an island ruled by an enchantress.',
     'The siren song drifts across the sea, and you lash yourself to the mast.',
@@ -47,6 +80,18 @@ export const ancient_greek = {
     'You hold the narrow pass with a handful of hoplites as the enemy fills the plain.',
     'The Minotaur roars through the twisting, bloodstained corridors of the Labyrinth.',
     'You steal the Golden Fleece from a grove guarded by a sleepless dragon.',
-    'The gods descend onto the battlefield and Ares\' chariot of fire turns the tide.'
+    'The gods descend onto the battlefield and Ares\' chariot of fire turns the tide.',
+    'The cyclops rolls the stone aside, and you have one chance to make him laugh.',
+    'Your ship slips between the clashing rocks with a dove flying ahead.',
+    'Your king insults the god\'s priest, and plague arrows fall on the camp.',
+    'You cross the plain alone at night to beg the enemy king for your brother\'s body.',
+    'The hydra grows two heads for every one you cut, and your companion holds the torch.',
+    'The great boar bursts from the thicket and scatters the princes of Greece.',
+    'Two gods argue over your fate at a feast, and you are the one pouring the wine.',
+    'An eagle drops a golden ram at your feet, and every king in Greece wants it.',
+    'Two champions duel before both armies, and your champion\'s spear breaks.',
+    'A goddess disguised as an old weaver challenges you to a contest you cannot win and cannot refuse.',
+    'The messenger god offers you a shortcut through the underworld, for a favor to be named later.',
+    'At the festival games the sun god races in a mortal\'s body, and you are in the next lane.'
   ]
 } satisfies StoryDeck;

@@ -36,10 +36,48 @@ export const cosmic_horror = {
     'every fish in the morning catch has the same pattern on its scales, and it is a map',
     'the hero\'s sleep-study patient describes the hero\'s childhood bedroom in perfect detail',
     'a seismic sensor in the ice picks up a slow rhythm, like breathing, under the expedition camp',
-    'the building\'s floor plan has a room the hero has walked past every day, and the door is new'
+    'the building\'s floor plan has a room the hero has walked past every day, and the door is new',
+    'the auction lot the hero bought for its frame is a painting of the hero\'s house seen from above, with one extra room',
+    'the court record shows a witness answer that nobody in the courtroom heard spoken',
+    'the hero\'s ferry docks and the whole harbor stops working to watch them step ashore',
+    'a drowned sailor\'s family asks the hero to return his ring to the reef where he was found',
+    'the drill brings up a core sample with a carved step in it, two miles down',
+    'base camp receives a radio message from the team in the cave, timestamped tomorrow',
+    'the station\'s sonar finds a structure on the sea floor that matches the station\'s own blueprints',
+    'the hero\'s late mother\'s recipe box holds a card in no known alphabet, filed under "for when it calls"',
+    'the expedition\'s sponsor wires one instruction: "If you find the door, do not knock"',
+    'the team\'s dog will not cross a line in the sand that the hero cannot see',
+    'a distress call reaches the hero\'s station from a vessel with the same name as theirs',
+    'the station medic finds the same fresh scar on every crew member, overnight',
+    'the relief crew arrives a month early, and none of them will say why',
+    'the seabed camera shows a diver waving, and every diver is accounted for'
   ],
-  places: ['a university observatory that closed after a single night', 'a fishing town where everyone wears gold and nobody swims', 'a research station on stilts over a sinkhole', 'a deep-sea mining platform during a storm', 'a cathedral library with a basement shelf that goes down further every year', 'an island archipelago that does not appear on the same map twice'],
-  complications: ['the hero\'s family made the first pact', 'the mentor already went mad and is pretending well', 'the entity is not hostile; it simply does not notice humans', 'stopping it requires someone to understand it fully, and stay'],
+  places: [
+    'a university observatory that closed after a single night',
+    'a fishing town where everyone wears gold and nobody swims',
+    'a research station on stilts over a sinkhole',
+    'a deep-sea mining platform during a storm',
+    'a cathedral library with a basement shelf that goes down further every year',
+    'an island archipelago that does not appear on the same map twice',
+    'a dune hotel whose ballroom floor slopes slightly toward the sea',
+    'a cave the size of a cathedral, lit only by glowing salt',
+    'a decommissioned radio telescope array where the last astronomer still lives',
+    'an orbital hospital module drifting with its lights still on',
+    'a private museum of meteorites, sealed by the founder\'s will',
+    'a whalers\' church whose pews face the windows instead of the altar',
+    'a desert dig where the sand around the find stays warm all night',
+    'a seabed habitat whose portholes look out on a lit city that is on no chart'
+  ],
+  complications: [
+    'the hero\'s family made the first pact',
+    'the mentor already went mad and is pretending well',
+    'the entity is not hostile; it simply does not notice humans',
+    'stopping it requires someone to understand it fully, and stay',
+    'the hero has already been changed, and the change is why they understand',
+    'the people warning the hero are the ones who opened the door',
+    'the thing is asleep, and every attempt to stop it makes it dream more clearly',
+    'the only record of the truth is the hero\'s own memory, and it is being edited'
+  ],
   setPieces: [
     'The hallway curves upward into an endless, spiraling abyss.',
     'A cyclopean city beneath the Antarctic ice, built for beings far larger than humans.',
@@ -48,6 +86,14 @@ export const cosmic_horror = {
     'A hidden asylum room covered in fractal drawings that hurt to look at.',
     'A shadowy tentacle breaches the ocean and drags a warship under without a sound.',
     'The moon opens like an eye over the city.',
-    'The fungus in the facility speaks in the voices of the scientists it consumed.'
+    'The fungus in the facility speaks in the voices of the scientists it consumed.',
+    'The pages of the book rearrange into a floor plan of the room you are sitting in, with you marked on it.',
+    'Every clock in the reading room stops at once, and the person beside you keeps reading.',
+    'The whole town walks into the sea at low tide, singing, and your cousin waves for you to follow.',
+    'The reef rises above the waves at dawn, and it has doors.',
+    'The ice wall gives way to a staircase cut for feet three times the size of yours.',
+    'The photographer\'s last roll of film shows the camp from a height no one could reach.',
+    'The airlock cycles on its own, and the voice asking to come in is yours.',
+    'Your lights find a window in the trench wall, and something on the other side switches its own light off.'
   ]
 } satisfies StoryDeck;

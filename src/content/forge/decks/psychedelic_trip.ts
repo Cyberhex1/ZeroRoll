@@ -35,10 +35,41 @@ export const psychedelic_trip = {
     'the ceremony guide hands the hero a cup and says, "Your grandmother already drank hers"',
     'every clock in the apartment shows a different time, and each one is a day the hero regrets',
     'the hero\'s phone autocorrects every message into the same sentence: "come and see"',
-    'the desert campsite\'s fire starts to burn downward, opening a staircase'
+    'the desert campsite\'s fire starts to burn downward, opening a staircase',
+    'at the hero\'s father\'s memorial picnic, the trees begin to breathe in time with the eulogy',
+    'the hero\'s therapist leans forward mid-session and says, "You can stop pretending. We\'re both inside it now."',
+    'the hero\'s code compiles into a door, and something on the other side knocks back',
+    'a choir of small geometric beings throws the hero a welcome-back party in a place the hero has never been',
+    'the hero\'s elevator stops at floor thirteen and a half, where the same commute plays on every window',
+    'the editor wants the festival story by dawn, and the photographer has just driven the car into the hotel pool',
+    'the band\'s tour van takes a wrong turn, and the GPS starts narrating the drummer\'s childhood',
+    'the retreat guide asks everyone to bring one object that matters, and the hero packed the wrong one',
+    'the hero\'s late dog walks out of the jungle during the ceremony and lies down at their feet'
   ],
-  places: ['a museum where the paintings breathe after closing', 'a festival field at 4 AM under a sky of moving geometry', 'a laundromat where each machine spins a different memory', 'a waiting room the color of a pastel sunrise', 'a jungle hut where the walls are made of sound', 'a highway diner where the menu changes as you read it'],
-  complications: ['the entity guiding the hero is part of the hero', 'the memory the hero is avoiding is a happy one', 'someone in the real world is trying to reach the hero right now', 'coming back means giving up a gift'],
+  places: [
+    'a museum where the paintings breathe after closing',
+    'a festival field at 4 AM under a sky of moving geometry',
+    'a laundromat where each machine spins a different memory',
+    'a waiting room the color of a pastel sunrise',
+    'a jungle hut where the walls are made of sound',
+    'a highway diner where the menu changes as you read it',
+    'a planetarium that projects the sky from the night the hero was born',
+    'an endless office floor where every cubicle is the desk the hero once sat at',
+    'a wedding chapel on the strip that is open twenty-five hours a day',
+    'a riverside ceremony hut where the river sounds like the hero\'s mother calling',
+    'a crystal cathedral built from every word the hero ever wrote down',
+    'a motel pool at 3 AM whose water reflects a different sky'
+  ],
+  complications: [
+    'the entity guiding the hero is part of the hero',
+    'the memory the hero is avoiding is a happy one',
+    'someone in the real world is trying to reach the hero right now',
+    'coming back means giving up a gift',
+    'the voice guiding the hero has been lying kindly, to keep them from turning back',
+    'the person the hero needs to forgive is not the one they think',
+    'the vision is showing the hero someone else\'s life, and that person needs it back',
+    'the way home runs through the moment the hero most wants to forget'
+  ],
   setPieces: [
     'A towering entity of folding light asks you a question in a language you can taste.',
     'The wind becomes indigo and shatters into glass fractals.',
@@ -47,6 +78,14 @@ export const psychedelic_trip = {
     'A plant intelligence speaks by placing memories directly into your mind.',
     'A jester of impossible colors mocks the rules of gravity.',
     'The room folds inward like origami, revealing an alien landscape outside.',
-    'A library of every thought ever conceived, each a glowing orb.'
+    'A library of every thought ever conceived, each a glowing orb.',
+    'You meet yourself at seven years old, and the child asks why you stopped drawing.',
+    'Your grief takes the shape of a house, and you must walk through every room.',
+    'The beings hand you a gift you cannot describe and ask you to carry it back without dropping it.',
+    'A cathedral of moving numbers sings the name you were going to be given.',
+    'The world pauses mid-sentence, and the only thing still moving is a cat in a window.',
+    'You are offered a door-shaped moon and a stair-shaped sun, and must step through one.',
+    'The casino carpet becomes an ocean, and the bartender keeps serving you on a raft.',
+    'The jungle opens like a book, and every leaf shows someone you have hurt or helped.'
   ]
 } satisfies StoryDeck;

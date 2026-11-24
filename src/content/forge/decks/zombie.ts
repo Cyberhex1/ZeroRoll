@@ -32,10 +32,48 @@ export const zombie = {
     'a survivor arrives at the camp gate with a bitten hand and the cure for the camp\'s fever',
     'the radio loop of a survivor begging for help suddenly says the hero\'s call sign',
     'the hero\'s little sister texts "don\'t come home, they\'re in the house, it\'s mom"',
-    'a bus full of people stops for the hero on an empty highway, and the driver will not open the door'
+    'a bus full of people stops for the hero on an empty highway, and the driver will not open the door',
+    'the wedding the hero is catering goes perfectly until the groom\'s uncle bites the cake-cutter',
+    'the hero\'s overnight flight lands, and the airport is empty except for a cleaner who will not turn around',
+    'an emergency alert interrupts the school play, and every parent\'s phone goes off at once',
+    'the group\'s supply run finds a fully stocked bunker with a note on the door: "back in ten minutes"',
+    'a stranger with a working radio asks to join the camp, and he already knows everyone\'s names',
+    'the hero is paid in fuel to drive a silent girl to a lighthouse on the coast, no questions asked',
+    'the hero\'s brother hands over his baby at the checkpoint and walks back into the city',
+    'the hero\'s roommate comes home from a party covered in blood, insisting it\'s fake',
+    'the mall opens its doors for the big sale, and the crowd outside is not here for the discounts',
+    'the group finds a school bus of survivors who swear they have been driving in circles for a week',
+    'the hero\'s watch ends, and the next name on the rota is someone the group buried yesterday',
+    'the hero\'s ex calls for the first time in years: their kid is immune, and the hero is the only one with a car',
+    'a doctor hands the hero a cooler of samples and a map to a lab on the far side of the state',
+    'the escape-room team is locked in for the final hour, and the actor playing the zombie has stopped acting',
+    'the bachelor party wakes up in a cabin surrounded by the dead, and the groom is missing',
+    'the reality show\'s final challenge is "survive the night", and the producers have already fled'
   ],
-  places: ['a dialysis clinic with a backup generator', 'a cruise ship anchored offshore with its lights still on', 'a high-school gym turned triage center', 'a ski resort cut off by snow', 'a supermarket with a pharmacy and a loading dock', 'a radio station on a hill above the city'],
-  complications: ['the safe zone is culling the sick and the hero is a carrier', 'the group\'s leader hid the bite', 'the person the hero is protecting is the source', 'a loved one turned and is still wandering nearby'],
+  places: [
+    'a dialysis clinic with a backup generator',
+    'a cruise ship anchored offshore with its lights still on',
+    'a high-school gym turned triage center',
+    'a ski resort cut off by snow',
+    'a supermarket with a pharmacy and a loading dock',
+    'a radio station on a hill above the city',
+    'an aquarium where the survivors sleep in the tunnel under the shark tank',
+    'a prison farm with working wells and far too many locks',
+    'a hospital helipad where a helicopter has been waiting for three days',
+    'a small-town bowling alley with a bar and a generator',
+    'a ferry terminal where the last boat to the island leaves at dawn',
+    'a county fair with a locked-down petting zoo'
+  ],
+  complications: [
+    'the safe zone is culling the sick and the hero is a carrier',
+    'the group\'s leader hid the bite',
+    'the person the hero is protecting is the source',
+    'a loved one turned and is still wandering nearby',
+    'someone in the group knew this was coming and stocked up only for themselves',
+    'the military broadcast is a recording made before the base fell',
+    'the infection can be slowed, and someone is hoarding the medicine',
+    'the safe place is real, and it is full'
+  ],
   setPieces: [
     'You reach for the last antibiotics and a decayed hand grabs your wrist from the shadows.',
     'A massive horde blocks the highway, and you weave silently between abandoned cars.',
@@ -44,6 +82,14 @@ export const zombie = {
     'A car alarm you triggered draws every infected within a mile.',
     'A child is trapped on the roof of a school bus surrounded by the dead.',
     'The power grid fails and heavy, dragging footsteps approach your hideout.',
-    'A bitten survivor hands you their weapon and begs you to end it.'
+    'A bitten survivor hands you their weapon and begs you to end it.',
+    'The traffic jam on the bridge becomes a stampede as the dead pour in from the far end.',
+    'The hospital elevator stops between floors, and something presses against the doors.',
+    'The vote on whether to let the newcomers in happens while they stand at the gate.',
+    'A herd passes your hiding place in the corn, so close you can hear their teeth.',
+    'The kid you are escorting gets separated from you in a flooded subway station.',
+    'You crawl through the ducts of a quarantined hospital with the one person who matters.',
+    'You hold the mall food court with a fire extinguisher and a karaoke machine.',
+    'The ice-cream truck\'s jingle lures the horde exactly where you need it, until the battery dies.'
   ]
 } satisfies StoryDeck;

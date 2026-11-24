@@ -33,18 +33,57 @@ export const adventure = {
     'the tide goes out three times farther than it should, and reveals a mast',
     'a museum visitor slips the hero a note: "The exhibit is a fake. The real one is under your feet."',
     'the hero\'s grandmother\'s will leaves them a key, a compass and a confession',
-    'the expedition\'s sponsor arrives on the dock with armed men instead of supplies'
+    'the expedition\'s sponsor arrives on the dock with armed men instead of supplies',
+    'the harbor master hands the hero a captain\'s hat and mentions that its last three owners drowned within a week',
+    'a message in a bottle washes up in the hero\'s own handwriting, dated twenty years ago',
+    'a crate of "farm tools" bound for the museum rattles, then knocks politely from inside',
+    'the hero\'s dig team pulls a modern wristwatch out of a layer three thousand years deep, still ticking',
+    'a balloon drifts down into the hero\'s town with an empty basket, a bloodied journal and a live orchid nobody can name',
+    'the expedition\'s guide quits at the river mouth and leaves the hero a drawing of what not to wake',
+    'the hero buys a secondhand coat at a flea market and finds half a treasure map sewn into the lining',
+    'an old woman at the hero\'s bus stop says, "You\'re late, the others already left for the island"',
+    'a rival crew hires the hero to steal back something they swear the hero\'s family stole first'
   ],
-  places: ['a pirate free-port built on the wrecks of a hundred ships', 'a cliff monastery reachable only by a basket on a rope', 'a sunken cathedral visible through clear water at noon', 'a jungle temple whose stairs rearrange at night', 'a night market on a river of barges', 'a desert where a lighthouse stands two hundred miles from the sea'],
-  complications: ['the map was drawn as a trap for treasure hunters', 'the hero\'s mentor already found the treasure and hid it again', 'the curse is the only thing keeping a monster asleep', 'the rival is racing for the treasure to pay a ransom'],
+  places: [
+    'a pirate free-port built on the wrecks of a hundred ships',
+    'a cliff monastery reachable only by a basket on a rope',
+    'a sunken cathedral visible through clear water at noon',
+    'a jungle temple whose stairs rearrange at night',
+    'a night market on a river of barges',
+    'a desert where a lighthouse stands two hundred miles from the sea',
+    'a floating casino anchored over a famous wreck',
+    'a smugglers\' cave whose mouth shows only at the lowest tide of the year',
+    'a mountaintop railway station abandoned mid-construction, its tunnel still open',
+    'a cloud-wrapped plateau where the waterfalls blow back upward in the morning wind',
+    'a catacomb under an opera house, decorated in bones and forgotten stage props',
+    'a chain of volcanic islands, each with a different captain\'s claim nailed to its palm trees'
+  ],
+  complications: [
+    'the map was drawn as a trap for treasure hunters',
+    'the hero\'s mentor already found the treasure and hid it again',
+    'the curse is the only thing keeping a monster asleep',
+    'the rival is racing for the treasure to pay a ransom',
+    'the hero\'s partner is the heir the treasure was stolen from',
+    'the people living near the treasure have been guarding it on purpose',
+    'the hero\'s famous ancestor was a fraud, and the treasure proves it',
+    'there are two maps, and both of them are real'
+  ],
   setPieces: [
     'A cannonball shreds the mainsail as the ghost ship rams your starboard side.',
     'The obsidian compass points straight down into the abyssal trench.',
     'You swing across a collapsing jungle temple with the idol as the floor falls away.',
     'A kraken tentacle the size of a galleon wraps around the hull and drags you toward the maelstrom.',
-    'The ancient mechanism traps you in a room filling with sand while a riddle echoes from the walls.',
+    'The ancient mechanism traps you in a room filling with sand while a voice recites a riddle from the walls.',
     'A rival holds you at gunpoint on a rope bridge over a gorge.',
     'A whirlpool pulls the crew down to a domed city waiting intact on the ocean floor.',
-    'You trigger a pressure plate and a boulder chases you into the dark.'
+    'You trigger a pressure plate and a boulder chases you into the dark.',
+    'Two ships trade broadsides through a fog bank, and you can only aim at their lanterns.',
+    'You walk the plank and land on the back of something enormous and very much alive.',
+    'The idol\'s pedestal sinks, and every statue in the hall turns to face you.',
+    'The flooded tomb chamber fills to your chin as you work the last lock by feel.',
+    'A herd of creatures thought extinct stampedes through the expedition camp at dawn.',
+    'The airship\'s gas bag tears over the canyon, and you have one rope and three passengers.',
+    'A bicycle chase through a fish market ends with you hanging from a crane hook over the harbor.',
+    'The villain\'s pipe-organ trap stops only if you play the tune right, by ear.'
   ]
 } satisfies StoryDeck;

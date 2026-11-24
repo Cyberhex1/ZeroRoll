@@ -36,10 +36,45 @@ export const revenge = {
     'the retired hero\'s old partner knocks on the door, bleeding, and says "they found the list"',
     'the hero\'s younger brother brings home a fiancée the whole family adores, except the dog',
     'the hero wins the city\'s highest honor, and their best friend gives the toast',
-    'the captain promotes the hero to first mate on the morning the ship sails for the richest port in the world'
+    'the captain promotes the hero to first mate on the morning the ship sails for the richest port in the world',
+    'the hero is asked to give the harvest toast at the estate, the first time anyone from the kitchens ever has',
+    'the hero\'s fiancé hands them the keys to their new shop on the morning the deed is signed in the fiancé\'s name',
+    'the hero\'s father announces at dinner that he is changing his will, and asks the hero to stay after the toast',
+    'the hero\'s twin asks to swap places for one night, "just this once"',
+    'the factory pins a medal on the hero for a safety record the hero knows is a lie',
+    'the hero\'s kid sister lands a job at the company that runs the city, and the hero is so proud they cry',
+    'the retired hero\'s neighbor brings over a puppy that needs a home, and the hero says yes',
+    'a polite stranger buys every flower in the retired hero\'s shop and pays with a coin the hero buried years ago',
+    'the hero is made foreman on the day the mill owners vote to cut wages, and the hero\'s mother works the night looms',
+    'the city hands the hero the key to the new tram line and asks them to drive the mayor on its first run',
+    'the retired hero\'s grandchild brings home a classmate wearing a ring the hero recognizes from the old life',
+    'the retired hero finally finishes the garden they started the day they quit, and a car parks across the street',
+    'the retired hero\'s piano student plays a tune that only one person from the old life ever knew'
   ],
-  places: ['a floating opera house that moves between harbor cities', 'a monastery that also runs the region\'s only bank', 'a fighting arena under a cathedral', 'a vineyard estate where the cellar is older than the house', 'a hotel for professionals where no business may be done on the grounds', 'a salt-prison island visible from the city\'s richest street'],
-  complications: ['one of the betrayers was protecting the hero', 'the hero\'s ally wants the same revenge for a different reason', 'the person who did it is dying and asks for forgiveness', 'the hero\'s beloved married the betrayer to keep the hero alive'],
+  places: [
+    'a floating opera house that moves between harbor cities',
+    'a monastery that also runs the region\'s only bank',
+    'a fighting arena under a cathedral',
+    'a vineyard estate where the cellar is older than the house',
+    'a hotel for professionals where no business may be done on the grounds',
+    'a salt-prison island visible from the city\'s richest street',
+    'a lawn-tennis club where the city\'s real decisions are made between sets',
+    'a family chapel where three generations of heirs were married and one was buried too early',
+    'a dockside tavern where the shift whistles can be heard from every table',
+    'a riverside flower shop with a cellar the last owner never mentioned',
+    'a gilded prison for nobles where the meals are excellent and nobody leaves',
+    'a company tower whose top floor has no stairs, only a private lift'
+  ],
+  complications: [
+    'one of the betrayers was protecting the hero',
+    'the hero\'s ally wants the same revenge for a different reason',
+    'the person who did it is dying and asks for forgiveness',
+    'the hero\'s beloved married the betrayer to keep the hero alive',
+    'the betrayer was blackmailed by someone the hero has not met yet',
+    'the hero\'s revenge will ruin an innocent person who stands close to the target',
+    'the one who saved the hero did it to use them later',
+    'what was stolen has already been sold to someone who loves it'
+  ],
   setPieces: [
     'You crash the high-society gala and reveal the evidence that destroys the aristocrat who framed you.',
     'You orchestrate a heist not to steal gold, but to plant proof of treason in your enemy\'s chambers.',
@@ -48,6 +83,14 @@ export const revenge = {
     'The third betrayer hides in a guarded monastery, and you go in as a silent monk.',
     'You leave a single calling card on the sleeping magistrate\'s pillow.',
     'The corrupt judge goes pale as you read out the exact bribes he took.',
-    'You confront your former mentor on a cliff edge, blades drawn, and demand to know why.'
+    'You confront your former mentor on a cliff edge, blades drawn, and demand to know why.',
+    'At the will reading, you calmly produce the codicil everyone thought was burned.',
+    'You sit across the card table from the one who ruined you, and they do not recognize you.',
+    'Your masked message is read aloud from every pulpit in the city at the same hour.',
+    'You light the signal fire, and every worker on the docks lays down their tools at once.',
+    'The old hotel\'s rules forbid violence on the grounds, and your enemy walks into the lobby smiling.',
+    'You dig up the case under the floorboards and find a note from the person you trusted most.',
+    'Your betrayer\'s coronation is in an hour, and you are the only cook left in the palace kitchen.',
+    'The ship you were left to die on sails back into the harbor, under your flag.'
   ]
 } satisfies StoryDeck;

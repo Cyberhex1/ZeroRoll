@@ -320,8 +320,8 @@ describe('story patterns (ohnna, 2026-11-21)', () => {
   it('every roll carries a story family from the deck, the DNA of a source work, and no spark seed', () => {
     const p = buildStoryPrompt({ ...base, mode: 'fresh', shape: STORY_SHAPES[0], rand: () => 0 });
     expect(p).toMatch(/Story family: [^.]+\. The hero is usually/);
-    expect(p).toMatch(/Borrow the storytelling DNA of /);
-    expect(p).toContain('Plot engine:');
+    expect(p).toMatch(/Storytelling DNA of /);
+    expect(p).toContain("plot engine for the middle chapters");
     expect(p).not.toContain('PREMISE PATTERN');
     expect(p).not.toContain('Spark for this roll');
   });
@@ -331,7 +331,7 @@ describe('story patterns (ohnna, 2026-11-21)', () => {
     expect(p).toMatch(/NEXT BOOK[\s\S]*Start Book 2/);
     expect(p).toContain('Only what the hero knows now');
     expect(p).toContain('keep "Odile Marchetti" exactly');
-    expect(p).not.toContain('An offered hook');
+    expect(p).not.toContain("The hook (use it");
   });
 
   it('game-master turns get no story seeds', () => {

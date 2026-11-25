@@ -51,6 +51,10 @@ interface Row {
   error?: string;
   title?: string;
   premise?: string;
+  start?: string;
+  goal?: string;
+  role?: string;
+  inspired?: string;
   closing?: string;
   heroName?: string;
   npcNames?: string[];
@@ -75,14 +79,14 @@ for (const category of cats) {
       const secs = (Date.now() - t0) / 1000;
       const calls = aiCallCount() - before;
       const o = pkg.outline;
-      md += `\n### ${pkg.title}\n_(${s.family.name} · ${s.primary.title}${s.spice ? ` + ${s.spice.title}` : ''} · ${s.engine.name} · ${s.shape.id} · ${p})_\n_Opening: ${s.opening} Closing: ${s.closing}_\n\n${pkg.premise}\n\n`;
+      md += `\n### ${pkg.title}\n_(${s.family.name} · ${s.primary.title}${s.spice ? ` + ${s.spice.title}` : ''} · ${s.engine.name} · ${s.shape.id} · ${p})_\n_Opening: ${s.opening} Closing: ${s.closing}_\n\n${pkg.premise}\n\n- Where you start: ${o.startingCircumstances}\n- First goal: ${o.immediateGoal}\n`;
       md += `- Hero: ${pkg.hero.name}, ${pkg.hero.roleClass}, ${pkg.hero.origin}\n- Gear: ${pkg.sheet.gear.map((g) => g.name).join('; ')}${pkg.sheet.spells.length ? `\n- Spells: ${pkg.sheet.spells.join('; ')}` : ''}\n`;
       md += `- NPCs: ${(o.keyNpcs ?? []).map((x) => `${x.name} (${x.role}; wants ${x.motivation}; next: ${x.move ?? '-'})`).join(' | ')}\n`;
       md += `- Turning point: ${o.turningPoint}\n- Fronts: ${(o.fronts ?? []).map((f) => `${f.name}: ${f.portents.join(' > ')}`).join(' || ')}\n- Set-pieces: ${(o.setPieces ?? []).join(' | ')}\n- Chapters: ${(o.chapters ?? []).join(' / ')}\n- First moves: ${pkg.actions.join(' | ')}\n`;
       if (pkg.stats.pitches.length) md += `- Pitches: ${pkg.stats.pitches.map((x, k) => `${k === pkg.stats.chosenIndex ? '**' : ''}${x.title}: ${x.hook}${k === pkg.stats.chosenIndex ? '**' : ''}`).join(' | ')}\n`;
       if (pkg.stats.pitchSkipped) md += `- Pitch skipped: ${pkg.stats.pitchSkipped}\n`;
       md += `- Gate: before [${pkg.stats.gateBefore.map((g) => `${g.kind}: ${g.detail}`).join('; ')}] after [${pkg.stats.gateAfter.map((g) => `${g.kind}: ${g.detail}`).join('; ')}]${pkg.stats.repaired ? ' (repaired)' : ''}\n- Calls: ${calls}, ${secs.toFixed(1)} s\n`;
-      rows.push({ category, ok: true, title: pkg.title, premise: pkg.premise, closing: s.closing, heroName: pkg.hero.name, npcNames: (o.keyNpcs ?? []).map((x) => x.name), gateBefore: pkg.stats.gateBefore.map((g) => g.kind), gateAfter: pkg.stats.gateAfter.map((g) => g.kind), calls, seconds: secs });
+      rows.push({ category, ok: true, title: pkg.title, premise: pkg.premise, start: o.startingCircumstances, goal: o.immediateGoal, role: `${pkg.hero.roleClass}, ${pkg.hero.origin}`, inspired: `${s.family.name} · ${s.primary.title}${s.spice ? ` + ${s.spice.title}` : ''} · ${s.shape.id}`, closing: s.closing, heroName: pkg.hero.name, npcNames: (o.keyNpcs ?? []).map((x) => x.name), gateBefore: pkg.stats.gateBefore.map((g) => g.kind), gateAfter: pkg.stats.gateAfter.map((g) => g.kind), calls, seconds: secs });
       console.log(`ok   ${category} #${i + 1} (${calls} calls, ${secs.toFixed(1)}s): ${pkg.title}`);
     } catch (err: any) {
       const secs = (Date.now() - t0) / 1000;

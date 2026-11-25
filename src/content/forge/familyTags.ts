@@ -6,8 +6,8 @@
  *    it is untagged or its tags include the drawn family's id; if that leaves nothing, the whole list.
  *    (Fixes Mythology mixing Egyptian embalmers into a Celtic Samhain hall, Doge's wine in feudal
  *    Japan, and the werewolf pack taking over a TikTok rebirth story.)
- * 2. SPICE_IN_FAMILY: in these categories the second influence comes from the drawn family's own
- *    sources (minus the primary), because a second culture or era there is a mash-up, not a spice.
+ * 2. (Was SPICE_IN_FAMILY, for mythology and historical adventure only. Since 2026-11-25 the second
+ *    influence comes from the drawn family's own sources in every category; see spread.ts.)
  * 3. HERO_CARDS: one offered hero per roll, drawn in code with global recency, so the model stops
  *    falling back to the same bookish hero (A1: "archivist" 17 times in 30 rolls, plus scribes and
  *    copyists, ink and ledgers). Keyed "<category>.<familyId>"; every family has 5 or 6.
@@ -801,8 +801,6 @@ export const CARD_FAMILIES: Partial<Record<ExperienceCategory, Partial<Record<Ta
   }
 };
 
-/** Second influence from the family's own sources in these categories (see 2 above). */
-export const SPICE_IN_FAMILY: readonly ExperienceCategory[] = ['mythology', 'historical_adventure'];
 
 /** One of these is offered per roll as "the hero" (see 3 above). Keyed "<category>.<familyId>". */
 export const HERO_CARDS: Record<string, readonly string[]> = {

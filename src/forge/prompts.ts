@@ -22,39 +22,54 @@ export function spreadBlock(s: Spread, opts: { outlineOnly?: boolean; noHook?: b
   const deck = deckFor(s.category);
   const profile = getCategoryProfile(s.category);
   const f = s.family;
-  const lines = [
+  // Coherence fix (2026-11-25): every card used to be offered on equal terms ("fuse and transform
+  // it"), so the model stitched hero, hook, place, a second film and the palette into one premise
+  // (a retired baker waking in a hotel copy of their prison cell). Now the family, the hook and
+  // the primary DNA are the core; everything else is optional and may be left out.
+  const hookLine = opts.outlineOnly || opts.noHook
+    ? ''
+    : s.hookIsSeed
+      ? `- THE PLAYER'S CHOSEN STORY SEED (the core of this story; keep its situation and its central conflict, and invent the people, places and stakes): ${s.hook}`
+      : `- The hook (use it, twist it, or replace it with a stronger one of the same kind): ${s.hook}.`;
+  const core = [
     opts.adapt
       ? `- Story family: ${f.name}. Later, ${f.turn}. Payoff: ${f.payoff}.`
       : `- Story family: ${f.name}. The hero is usually ${heroKind(f.hero)}. It starts in ${f.start}. Later, ${f.turn}. Payoff: ${f.payoff}.`,
-    s.heroCard && !opts.outlineOnly && !opts.noHook
-      ? `- Offered hero (use them, or someone just as specific and surprising): ${s.heroCard}${s.hookIsSeed ? ' (only if the seed does not already say who the hero is)' : ''}.`
-      : '',
-    `- Palette (things to draw from, not phrases to copy): ${f.palette}.`,
     f.rule ? `- Family rule: ${f.rule}` : '',
-    `- Borrow the storytelling DNA of ${s.primary.title} (${s.primary.medium}): ${s.primary.dna}`,
-    s.spice ? `- A second influence, for one idea only: ${s.spice.title}: ${s.spice.dna}` : '',
-    `- Plot engine: ${s.engine.name}. What drives its scenes: ${s.engine.drive}.`,
-    opts.outlineOnly || opts.noHook
-      ? ''
-      : s.hookIsSeed
-        ? `- THE PLAYER'S CHOSEN STORY SEED (the core of this story; keep its situation and its central conflict, and invent the people, places and stakes): ${s.hook}`
-        : `- An offered hook (use it, twist it, or replace it with a stronger one): ${s.hook}.`,
-    opts.outlineOnly ? '' : `- An offered place (use it if it fits this story family, or invent one in the same spirit): ${s.place}.`
+    hookLine,
+    `- Storytelling DNA of ${s.primary.title} (${s.primary.medium}): ${s.primary.dna}`
+  ].filter(Boolean);
+  const optional = [
+    s.heroCard && !opts.outlineOnly && !opts.noHook
+      ? `- A hero idea: ${s.heroCard}. Use it only if it fits the hook${s.hookIsSeed ? ' and the seed does not already say who the hero is' : ''}; otherwise pick someone who belongs in the hook's world.`
+      : '',
+    opts.outlineOnly ? '' : `- A place idea: ${s.place}. Use it only if the hook could happen there; otherwise invent a place where it naturally would.`,
+    `- A plot engine for the middle chapters: ${s.engine.name} (${s.engine.drive}).`,
+    s.spice ? `- A second influence, for one small idea in the outline at most: ${s.spice.title}: ${s.spice.dna}` : '',
+    `- Palette for scenes and details, mostly in later chapters (never a list to tick off): ${f.palette}.`
   ].filter(Boolean);
   return `CATEGORY: ${card.name}. ${deck.signature}
 Voice: ${profile.voice}
 
-${opts.outlineOnly ? "INGREDIENTS FOR THE OUTLINE (drawn at random for this story; use them in the plan, not in the player's premise)" : "THIS ROLL'S SPREAD (drawn at random for this story; fuse and transform it)"}
-${lines.join('\n')}
+${opts.outlineOnly ? "INGREDIENTS FOR THE OUTLINE (drawn at random for this story; use them in the plan, not in the player's premise)" : "THIS ROLL'S CARDS (drawn at random for this story)"}
+THE CORE (build the story from these):
+${core.join('\n')}
+OPTIONAL CARDS (drawn independently, so some will not fit. Take one only if it fits the core without bending it; leaving most of them out is normal and expected):
+${optional.join('\n')}
+${ONE_STORY}
 Borrow structure, dynamics and feel from the influences, never their names, characters, places or plots.`;
 }
 
+/** The rule the stitched premises broke. */
+export const ONE_STORY =
+  'ONE STORY, NOT A COLLAGE: the result must read as one situation a real writer chose on purpose: one hero, one place, one thing happening. If a card would need explaining away to fit, leave it out.';
+
 export const CRAFT = `WHAT MAKES A GREAT OPENING HERE
 - A specific person with a want they would fight for and a flaw or fear that will cost them. A job, if they have one, is texture, not the story.
-- A place nobody has seen before, with one concrete detail that could only exist in this story.
+- A place that feels real and lived-in, with one concrete detail that could only exist in this story.
 - The hook is happening NOW, in the first scene: an arrival, a discovery, an offer, a theft, a summons, a body, a door. Something the player can grab with both hands.
 - The defining event of the story (the turning point) is still ahead. The hook opens the door; the turning point is what waits behind it.
-- One element the player would not guess from the genre name, in the genre's own tone.
+- One element the player would not guess from the genre name, in the genre's own tone. It grows out of this situation; it is never a second situation bolted on.
 - Tell it from inside the hero: only what they know, see and want. Other people's secrets stay hidden.`;
 
 export const PITCH_SCHEMA = {
@@ -85,15 +100,18 @@ ${spreadBlock(s)}
 
 ${CRAFT}
 
-Pitch 4 stories from this spread that are truly different from each other:
-1. plays the spread straight, at its best;
-2. turns the offered hook inside out (the victim is the culprit, the gift is a debt, the monster is a guest);
-3. is built around ${s.spice ? 'the second influence' : 'the plot engine, pushed further than expected'};
+Pitch 4 stories from these cards that are truly different from each other. Each pitch is ONE clear situation built from the core; it may take one or two optional cards that fit, and drops the rest.
+1. plays the core straight, at its best;
+2. turns the hook inside out (the victim is the culprit, the gift is a debt, the monster is a guest);
+3. pushes the family's later turn somewhere the player would not expect;
 4. is the boldest one that still keeps the category line above.
 For each: title (two to five words, no chapter number, naming something only this story has: its place, a person, an object or the hook; never the worn words ${[...new Set(TITLE_TICS.map((w) => w.replace(/e?s$/, '')))].join(', ')}), hero (who they are and what they want, one sentence), hook (what happens in the first scene), turningPoint (the defining event ahead; never the hook itself), surprise (the element the player would not guess).
 ${STOCK_PLACE_LINE}
 Reply with JSON only: { "pitches": [{ "title": "…", "hero": "…", "hook": "…", "turningPoint": "…", "surprise": "…" }] }`;
 }
+
+/** The screenshot bug: premise in a cell, "where you start" baking bread at home. */
+export const SAME_MOMENT = `SAME-MOMENT CHECK: before you reply, read the premise, startingCircumstances, incitingIncident and immediateGoal together, as the player will. They describe the same hero, in the same place, at the same moment: startingCircumstances is the hero's life right up to the premise's scene, incitingIncident is the hook in that scene, and immediateGoal is what the hero wants to do next because of it. If any of them describes a different situation, rewrite it to match the premise.`;
 
 export type BuildMode = 'fresh' | 'adapt' | 'opener' | 'sequel';
 
@@ -185,14 +203,16 @@ ${s.hookIsSeed && mode === 'fresh' ? "If this shape starts before the seed's sit
   if (!outlineOnly) {
     parts.push(`PREMISE (the only part the player reads before playing)
 - 3 or 4 sentences, to the player as "you", present tense, about 70 to 100 words.
-- ${s.opening}
-- Use at most two of the spread's ingredients in the premise; the rest belong in the outline.
+- First sentence: ${s.opening.replace(/^Open with/, 'open with').replace(/\.$/, '')}, already inside the hook's scene (same place, same moment). Never open in one scene and cut to another. If that opening cannot work there, open on the hook itself.
+- One scene: the hero, where they are, and the hook happening to them. Name at most two other people or objects, and only ones that matter to the hook.
 - Only what the hero knows now. The turning point, the complication and every secret stay in the outline.
-- End with one question about ${s.closing}, specific to this story.`, '');
+- End with one question about ${s.closing}. Both answers come straight out of the scene above, and each one risks or costs something the premise has shown the hero cares about.`, '');
   }
 
   parts.push(`OUTLINE (game master only; the player never reads it, so put the full plan here)
-- startingCircumstances, backstory, incitingIncident (the hook, on screen in the first scene), immediateGoal: one or two sentences each. startingCircumstances and immediateGoal are shown to the player, so write them to the hero as "you", like the premise.
+- startingCircumstances, backstory, incitingIncident (the hook, on screen in the first scene), immediateGoal: one or two sentences each. startingCircumstances and immediateGoal are shown to the player under the premise, so write them to the hero as "you", like the premise, and make them agree with it word for word on facts:
+  - startingCircumstances ("Where you start"): who you are and how your life stands as the premise's scene begins: your work, your home, the people and things you care about. Background for that scene, never a different scene, an earlier time or another place. Every object and person it names is where the premise puts them.
+  - immediateGoal ("Your first goal"): what you want to get done in the first scene or two, whichever way the player answers the premise's question. It never assumes an answer, never jumps ahead to later events, and adds no new people, places or objects the premise has not set up.
 - keyNpcs: 3 or 4 people. Each has a role, what they want (motivation), a secret, and the move they make next if the hero does nothing.
 - fronts: 2 pressures that move on their own, whether or not the hero acts. Each has a name, an agenda and 3 or 4 portents that escalate in order; the last portent is what happens if nobody stops it.
 - setPieces: 4 big, vivid scenes for later chapters (a place plus something happening). You may transform these genre moments: ${s.setPieces.join(' | ')}
@@ -204,6 +224,7 @@ ${s.hookIsSeed && mode === 'fresh' ? "If this shape starts before the seed's sit
 - title: two to five words, no chapter number, naming something only this story has (its place, a person, an object or the hook).`, '');
 
   parts.push('THE HERO', ...heroLines(pronouns, fixed, s.names), '', SHEET_RULES, '', HERO_FIT, '');
+  if (!outlineOnly) parts.push(SAME_MOMENT, '');
   parts.push(STOCK_PLACE_LINE, `Reply with JSON only, in this shape:\n${jsonShape(input.chooseShape ? '…' : s.shape.id)}`);
   return parts.join('\n');
 }
@@ -213,7 +234,7 @@ const REPAIR_LINES: Record<GateFailure['kind'], (f: GateFailure, s: Spread, firs
   irony: (f) => `It tells the player something the hero does not know ("${f.detail}"). Cut it; show only what the hero knows.`,
   spoiler: () => 'It gives away the secret turning point. Remove every hint of it.',
   shape: () => 'It must be 3 or 4 sentences, about 70 to 100 words, and end with a question that names someone or something from this story.',
-  samey: (_f, s, fw) => `It opens like a recent story ("${fw}"). Open differently: ${s.opening}`,
+  samey: (_f, s, fw) => `It opens like a recent story ("${fw}"). Open differently, in the same scene: ${s.opening}`,
   tics: (f) => `Replace these worn words: ${f.detail}.`,
   pov: () => 'Write it in second person: the hero is "you"; their name appears only in someone\'s dialogue.',
   off_genre: (f, s) => `"${f.detail}" does not belong in ${getContent(s.category).card.name}. Remove it.`

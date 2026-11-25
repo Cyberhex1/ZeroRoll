@@ -314,7 +314,7 @@ describe('forgeStory', () => {
     expect(calls.map((c) => c.feature)).toEqual(['Story roll']);
     expect(pkg.spread.family.id).toBe(first.family.id);
     expect(pkg.spread.primary.id).toBe(first.primary.id);
-    expect(calls[0].userPrompt).not.toContain('An offered hook');
+    expect(calls[0].userPrompt).not.toContain("The hook (use it");
   });
 
   it('a bare chapter-title turning point takes the pitch event', () => {
@@ -363,9 +363,9 @@ describe('Phase A bug test fixes', () => {
     const { buildPrompt, pitchPrompt } = await import('../prompts');
     const s = drawSpread('fantasy', { rand: () => 0.3 });
     const text = pitchPrompt(s) + buildPrompt({ mode: 'fresh', spread: s, pronouns: 'she/her' });
-    expect(text).toContain(`Offered hero (use them, or someone just as specific and surprising): ${s.heroCard}`);
+    expect(text).toContain(`A hero idea: ${s.heroCard}.`);
     for (const w of ['archivist', 'copyist', 'cupbearer', 'scrivener']) expect(text.toLowerCase()).not.toContain(w);
-    expect(buildPrompt({ mode: 'sequel', spread: s, pronouns: 'she/her', continuation: 'Book 2' })).not.toContain('Offered hero');
+    expect(buildPrompt({ mode: 'sequel', spread: s, pronouns: 'she/her', continuation: 'Book 2' })).not.toContain("A hero idea");
   });
 
   it('M1: worn roles and ledger/ink pitches score lower, unless the card offered that role', async () => {
@@ -461,5 +461,29 @@ describe('0.2 setup screen helpers', () => {
     expect(calls).toHaveLength(1);
     expect(calls[0].userPrompt).toContain(ideas.pitches[1].hook);
     expect(pkg.spread).toBe(ideas.spread);
+  });
+});
+
+describe('coherent rolls (ohnna, 2026-11-25)', () => {
+  it('the second influence always comes from the family\'s own sources, in every category', () => {
+    for (const cat of ['revenge', 'fantasy', 'horror', 'romantic', 'zombie', 'tiktok_drama'] as const) {
+      for (let i = 0; i < 40; i++) {
+        const s = drawSpread(cat, { rand: Math.random });
+        if (s.spice) expect(s.family.sources).toContain(s.spice.id);
+      }
+    }
+  });
+
+  it('the prompt splits core cards from optional ones and asks for one situation', async () => {
+    const { buildPrompt, pitchPrompt } = await import('../prompts');
+    const s = drawSpread('revenge', { rand: () => 0.3 });
+    const p = pitchPrompt(s);
+    expect(p).toContain('THE CORE');
+    expect(p).toContain('OPTIONAL CARDS');
+    expect(p).toContain('ONE STORY, NOT A COLLAGE');
+    expect(p).not.toContain('built around the second influence');
+    const b = buildPrompt({ mode: 'fresh', spread: s, pronouns: 'she/her' });
+    expect(b).toContain('SAME-MOMENT CHECK');
+    expect(b).toMatch(/each one risks or costs something/);
   });
 });

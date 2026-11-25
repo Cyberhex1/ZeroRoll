@@ -11,7 +11,7 @@ import { StoryShape, StoryShapeId, pickShape } from '../setup/storyShape';
 import { recent, remember } from './recent';
 import { namesOnHandFrom, traditionsFor } from './names';
 import { recentRolls } from '../lib/rollFreshness';
-import { HERO_CARDS, SPICE_IN_FAMILY, TaggedCardKind, cardFits } from '../content/forge/familyTags';
+import { HERO_CARDS, TaggedCardKind, cardFits } from '../content/forge/familyTags';
 
 export interface Spread {
   category: ExperienceCategory;
@@ -103,8 +103,9 @@ export function drawSpread(category: ExperienceCategory, opts: DrawOptions = {})
   const keptPrimary = opts.keepPrimary ? byId.get(opts.keepPrimary) : undefined;
   const sources = family.sources.map((id) => byId.get(id)).filter((d): d is SourceDna => !!d);
   const primary = keptPrimary ?? pickFresh(sources.length ? sources : deck.dna, recent(category, 'primary'), (d) => d.id, rand);
-  // In some categories a second culture or era is a mash-up, so the spice stays in the family (bug test M2).
-  const others = (SPICE_IN_FAMILY.includes(category) ? sources : deck.dna).filter((d) => d.id !== primary.id);
+  // The spice stays in the family's own sources: a source from another family pulled its whole
+  // situation into the premise (John Wick's retired hero waking in Oldboy's cell, 2026-11-25).
+  const others = sources.filter((d) => d.id !== primary.id);
   const spice = opts.local || !others.length ? undefined : pickFresh(others, recent(category, 'spice'), (d) => d.id, rand);
   // Cards tagged for other families are left out; an empty result falls back to the whole list.
   const fits = (kind: TaggedCardKind, cards: readonly string[]): string[] => {

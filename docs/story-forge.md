@@ -9,10 +9,17 @@ part of this; it covers D&D campaigns only.
 `src/forge/forge.ts`, called through `rollStory` in `src/setup/storyRoll.ts`.
 
 1. **Spread** (`src/forge/spread.ts`, code). Draws from the category's deck: a story family, a
-   primary DNA card and sometimes a second influence, a plot engine, a hook, a place, a
-   complication, set-pieces, a story shape, an opening card and a closing card, and names from
-   the name bank. Recently used cards are skipped (`src/forge/recent.ts`, localStorage key
-   `zeroroll_forge_recent_v1`).
+   primary DNA card and sometimes a second influence (always from the family's own sources), a
+   plot engine, a hook, a place, a complication, set-pieces, a story shape, an opening card and a
+   closing card, and names from the name bank. Recently used cards are skipped
+   (`src/forge/recent.ts`, localStorage key `zeroroll_forge_recent_v1`).
+
+   The prompt splits the spread into **the core** (family, hook, primary DNA), which the story is
+   built from, and **optional cards** (hero idea, place idea, plot engine, second influence,
+   palette), which the model takes only when they fit. Cards are drawn independently, so before
+   2026-11-25 the model stitched them all into one premise and rolls stopped making sense. The
+   build also runs a same-moment check so "Where you start" and "Your first goal" agree with the
+   premise, and the closing question has to offer a choice with something at stake.
 2. **Pitch** (1 call, fresh cloud rolls only). Four short pitches from the spread, each a
    different take. `pickPitch` scores them in code. The three not picked are offered on the
    Seeds tab as "More ideas from this roll".
@@ -77,5 +84,8 @@ lazily, and Book Two resets it.
 * `npm run story:eval -- [perCategory] [--no-pitch] [category …]`: real rolls with a summary table.
 * `npm run turn:eval -- [turns] [category …]`: Chapter One plus scripted turns, Director on vs off.
 
-Both need `GEMINI_API_KEY` and `NODE_USE_ENV_PROXY=1` in the cloud environment, and should run on
+* `npx vite-node scripts/story-judge.ts <eval.json> [model]`: rates each story card from a
+  story:eval run for coherence, consistency, stakes and clarity (measurement only).
+
+All need `GEMINI_API_KEY` and `NODE_USE_ENV_PROXY=1` in the cloud environment, and should run on
 Flash-Lite (the free Flash quota is about 20 requests a day).

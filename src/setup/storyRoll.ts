@@ -62,6 +62,7 @@ export interface StoryRollInput {
   pitch?: Pitch;
   /** The eval's pitch-off arm. */
   noPitch?: boolean;
+  noContinuity?: boolean;
 }
 
 /**
@@ -111,7 +112,8 @@ export async function rollStory(input: StoryRollInput): Promise<ForgedPackage> {
       previous: input.previous ?? input.inspiration?.forge,
       spread: input.spread,
       pitch: input.pitch,
-      noPitch: input.noPitch
+      noPitch: input.noPitch,
+      noContinuity: input.noContinuity
     });
   } catch (err) {
     throw setupFailure(err, 'Story roll');

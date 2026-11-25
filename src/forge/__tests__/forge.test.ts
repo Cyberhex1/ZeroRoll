@@ -13,9 +13,18 @@ class MemoryStorage {
 
 const calls: Array<{ feature?: string; userPrompt: string }> = [];
 let replies: Array<unknown | Error> = [];
+/** The continuity read is counted apart, so the older call-count tests keep their meaning. */
+const checks: Array<{ userPrompt: string }> = [];
+let checkReplies: Array<unknown | Error> = [];
 let local: number | undefined;
 vi.mock('../../lib/geminiService', () => ({
   executeJsonPrompt: vi.fn(async (opts: { feature?: string; userPrompt: string }, isValid: (v: unknown) => boolean) => {
+    if (opts.feature === 'Story check') {
+      checks.push(opts);
+      const c = checkReplies.shift() ?? { problems: [] };
+      if (c instanceof Error) throw c;
+      return c;
+    }
     calls.push(opts);
     const r = replies.shift();
     if (r instanceof Error) throw r;
@@ -79,6 +88,8 @@ function buildReply(premise = GOOD_PREMISE, over: Record<string, unknown> = {}) 
 
 beforeEach(() => {
   calls.length = 0;
+  checks.length = 0;
+  checkReplies = [];
   replies = [];
   local = undefined;
   clearRecent();
@@ -485,5 +496,33 @@ describe('coherent rolls (ohnna, 2026-11-25)', () => {
     const b = buildPrompt({ mode: 'fresh', spread: s, pronouns: 'she/her' });
     expect(b).toContain('SAME-MOMENT CHECK');
     expect(b).toMatch(/each one risks or costs something/);
+  });
+});
+
+describe('continuity read (ohnna, 2026-11-25)', () => {
+  it('runs once per roll and applies only the fields it fixed', async () => {
+    replies = [pitchReply, buildReply()];
+    checkReplies = [{ problems: ['"Where you start" is a different scene'], startingCircumstances: 'You run the ferry at the bell-ringer\'s steps, waiting for the last crossing.' }];
+    const pkg = await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'fresh', rand: () => 0.4 });
+    expect(checks).toHaveLength(1);
+    expect(checks[0].userPrompt).toContain(GOOD_PREMISE);
+    expect(pkg.outline.startingCircumstances).toContain('waiting for the last crossing');
+    expect(pkg.premise).toBe(GOOD_PREMISE);
+    expect(pkg.stats.continuityFixed).toEqual(['startingCircumstances']);
+  });
+
+  it('a failed read keeps the card', async () => {
+    replies = [pitchReply, buildReply()];
+    checkReplies = [new Error('busy')];
+    const pkg = await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'fresh', rand: () => 0.4 });
+    expect(pkg.premise).toBe(GOOD_PREMISE);
+  });
+
+  it('never rewrites the player\'s own premise', async () => {
+    const mine = 'You keep the lighthouse on a rock the maps forgot. Tonight a ship signals that it is carrying your brother, who drowned ten years ago. The keeper before you left one rule: never answer a ship at night. Do you answer the signal, or keep the rule?';
+    replies = [buildReply(mine)];
+    checkReplies = [{ problems: ['x'], premise: 'A completely different premise that the model wrote instead of the one the player typed, long enough to count as a premise for the check.' }];
+    const pkg = await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'adapt', fixed: { premise: mine }, rand: () => 0.4 });
+    expect(pkg.premise).toBe(mine);
   });
 });

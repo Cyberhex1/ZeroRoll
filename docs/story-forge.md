@@ -32,7 +32,17 @@ part of this; it covers D&D campaigns only.
 6. **Repair** (at most 1 call). Fixes only what the gate flagged; the version with fewer
    failures wins.
 
-A roll is 2 calls most of the time, 3 when the gate asks for a repair. Local models skip the
+7. **Continuity read** (1 call, `src/forge/continuity.ts`). Reads the story card as the player
+   will (title, premise, "Where you start", "Your first goal", hero) and returns fixes for
+   contradictions, stitched-in elements, things that appear from nowhere and a closing question
+   with nothing at stake. Only the fields it changed are applied; a rewritten premise must pass the
+   gate; the player's own premise is never touched; a failed call keeps the card.
+
+Build and the continuity read use the **story model** when the player picked one in settings
+("Write new stories with", stored in `zeroroll_story_model_gemini`) and their key can use it;
+otherwise the player's model. The pitch and repair stay on the basic tier.
+
+A roll is 3 calls most of the time, 4 when the gate asks for a repair. Local models skip the
 pitch and get a shorter spread.
 
 The campaign keeps a `ForgeRecord` in `inspiration.forge`, so Chapter One, every turn and Book

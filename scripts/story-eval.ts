@@ -28,6 +28,9 @@ if (!key) {
 localStorage.setItem('zeroroll_ai_provider', 'gemini');
 localStorage.setItem('zeroroll_key_gemini', key);
 localStorage.setItem('zeroroll_model_gemini', process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite');
+// STORY_MODEL: the "Write new stories with" setting. USABLE: comma list, as Test Connection would store it.
+if (process.env.STORY_MODEL) localStorage.setItem('zeroroll_story_model_gemini', process.env.STORY_MODEL);
+if (process.env.USABLE) localStorage.setItem('zeroroll_gemini_usable_models', JSON.stringify({ models: process.env.USABLE.split(','), checkedAt: Date.now() }));
 
 const { rollStory } = await import('../src/setup/storyRoll');
 const { pickShape } = await import('../src/setup/storyShape');
@@ -40,7 +43,8 @@ const { CLOSING_CARDS } = await import('../src/content/forge/cards');
 
 const args = process.argv.slice(2);
 const noPitch = args.includes('--no-pitch');
-const rest = args.filter((a) => a !== '--no-pitch');
+const noContinuity = args.includes('--no-continuity');
+const rest = args.filter((a) => a !== '--no-pitch' && a !== '--no-continuity');
 const per = /^\d+$/.test(rest[0] ?? '') ? Number(rest.shift()) : 2;
 const cats = rest.length ? rest : [...CATEGORY_IDS];
 const pronouns = ['she/her', 'he/him', 'they/them'];
@@ -64,7 +68,7 @@ interface Row {
   seconds: number;
 }
 const rows: Row[] = [];
-let md = `# Story Forge eval (${new Date().toISOString().slice(0, 16)}Z)\n\nModel: ${localStorage.getItem('zeroroll_model_gemini')}. Pitch: ${noPitch ? 'off' : 'on'}. ${per} per category.\n`;
+let md = `# Story Forge eval (${new Date().toISOString().slice(0, 16)}Z)\n\nModel: ${localStorage.getItem('zeroroll_model_gemini')}. Story model: ${process.env.STORY_MODEL || 'same'}. Pitch: ${noPitch ? 'off' : 'on'}. Continuity read: ${noContinuity ? 'off' : 'on'}. ${per} per category.\n`;
 
 let n = 0;
 for (const category of cats) {
@@ -74,7 +78,7 @@ for (const category of cats) {
     const before = aiCallCount();
     const t0 = Date.now();
     try {
-      const pkg = await rollStory({ category: category as any, pronouns: p, rulesMode: 'narrative' as any, inspiration: pickInspiration(category as any), mode: 'fresh', shape: pickShape(), noPitch });
+      const pkg = await rollStory({ category: category as any, pronouns: p, rulesMode: 'narrative' as any, inspiration: pickInspiration(category as any), mode: 'fresh', shape: pickShape(), noPitch, noContinuity });
       const s = pkg.spread;
       const secs = (Date.now() - t0) / 1000;
       const calls = aiCallCount() - before;
@@ -85,7 +89,7 @@ for (const category of cats) {
       md += `- Turning point: ${o.turningPoint}\n- Fronts: ${(o.fronts ?? []).map((f) => `${f.name}: ${f.portents.join(' > ')}`).join(' || ')}\n- Set-pieces: ${(o.setPieces ?? []).join(' | ')}\n- Chapters: ${(o.chapters ?? []).join(' / ')}\n- First moves: ${pkg.actions.join(' | ')}\n`;
       if (pkg.stats.pitches.length) md += `- Pitches: ${pkg.stats.pitches.map((x, k) => `${k === pkg.stats.chosenIndex ? '**' : ''}${x.title}: ${x.hook}${k === pkg.stats.chosenIndex ? '**' : ''}`).join(' | ')}\n`;
       if (pkg.stats.pitchSkipped) md += `- Pitch skipped: ${pkg.stats.pitchSkipped}\n`;
-      md += `- Gate: before [${pkg.stats.gateBefore.map((g) => `${g.kind}: ${g.detail}`).join('; ')}] after [${pkg.stats.gateAfter.map((g) => `${g.kind}: ${g.detail}`).join('; ')}]${pkg.stats.repaired ? ' (repaired)' : ''}\n- Calls: ${calls}, ${secs.toFixed(1)} s\n`;
+      md += `- Gate: before [${pkg.stats.gateBefore.map((g) => `${g.kind}: ${g.detail}`).join('; ')}] after [${pkg.stats.gateAfter.map((g) => `${g.kind}: ${g.detail}`).join('; ')}]${pkg.stats.repaired ? ' (repaired)' : ''}\n- Continuity: ${pkg.stats.continuity?.length ? pkg.stats.continuity.join(' / ') : 'passed'}${pkg.stats.continuityFixed?.length ? ` (fixed ${pkg.stats.continuityFixed.join(', ')})` : ''}\n- Calls: ${calls}, ${secs.toFixed(1)} s\n`;
       rows.push({ category, ok: true, title: pkg.title, premise: pkg.premise, start: o.startingCircumstances, goal: o.immediateGoal, role: `${pkg.hero.roleClass}, ${pkg.hero.origin}`, inspired: `${s.family.name} · ${s.primary.title}${s.spice ? ` + ${s.spice.title}` : ''} · ${s.shape.id}`, closing: s.closing, heroName: pkg.hero.name, npcNames: (o.keyNpcs ?? []).map((x) => x.name), gateBefore: pkg.stats.gateBefore.map((g) => g.kind), gateAfter: pkg.stats.gateAfter.map((g) => g.kind), calls, seconds: secs });
       console.log(`ok   ${category} #${i + 1} (${calls} calls, ${secs.toFixed(1)}s): ${pkg.title}`);
     } catch (err: any) {

@@ -39,7 +39,9 @@ import {
   getCachedGeminiModels,
   getUsableGeminiModels,
   setOfflineMode,
-  isOfflineMode
+  isOfflineMode,
+  getStoryModel,
+  setStoryModel
 } from '../lib/geminiService';
 import { resetAIStatus } from '../lib/aiStatus';
 import { usableGeminiModelOptions } from '../lib/modelsConfig';
@@ -67,6 +69,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 
   const [apiKey, setApiKey] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('');
+  // '' = write new stories with the same model as play.
+  const [storyModel, setStoryModelState] = useState<string>(() => getStoryModel());
   const [customModelInput, setCustomModelInput] = useState<string>('');
   const [isCustomModel, setIsCustomModel] = useState<boolean>(false);
   const [baseUrl, setBaseUrl] = useState<string>('');
@@ -218,6 +222,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     setActiveProvider(selectedProvider);
     setProviderKey(selectedProvider, apiKey.trim());
     setProviderModel(selectedProvider, activeModel);
+    if (selectedProvider === 'gemini') setStoryModel(storyModel);
     
     if (baseUrl.trim()) {
       setProviderBaseUrl(selectedProvider, baseUrl.trim());
@@ -502,6 +507,28 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 </select>
               ) : null}
               {pcLocal && ollamaNote && <p className="mt-1 text-[10px] text-amber-300">{ollamaNote}</p>}
+              {selectedProvider === 'gemini' && !pcLocal && !isCustomModel && (
+                <div className="mt-2">
+                  <label className="block text-[10px] uppercase font-mono text-slate-400 font-bold mb-1">
+                    Write new stories with
+                  </label>
+                  <select
+                    value={storyModel}
+                    onChange={(e) => setStoryModelState(e.target.value)}
+                    className="w-full bg-[#0A0A0F] border border-white/15 rounded-lg px-3 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500/80"
+                  >
+                    <option value="">Same as Model Choice</option>
+                    {usableGeminiModelOptions(usableModels).map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name} {m.badge ? `(${m.badge})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-[10px] text-slate-500">
+                    Used only when a new story is rolled, so play stays fast. A flagship writes the most coherent stories but a roll can take up to a minute.
+                  </p>
+                </div>
+              )}
               {selectedProvider === 'gemini' && !pcLocal && <GeminiUsageMeter />}
               {!isCustomModel ? null : (
                 <div className="flex items-center gap-1.5">

@@ -193,9 +193,48 @@ export function getProviderModel(provider: AIProviderId): string {
   return AI_PROVIDERS[provider]?.defaultModel || GEMINI_DEFAULT_MODEL;
 }
 
-/** The model for one call: Gemini's basic-tier model for short tasks, otherwise the player's model. */
-function modelForTask(provider: AIProviderId, tier?: 'basic'): string {
-  if (tier === 'basic' && provider === 'gemini' && !activeLocalContext()) return geminiBasicModel(getProviderModel('gemini'));
+const STORY_MODEL_KEY = 'zeroroll_story_model_gemini';
+
+/** Gemini 4 flagships can take most of a minute to write a whole story package. */
+const AI_STORY_TIMEOUT_MS = 120_000;
+
+/**
+ * Models that read a story card well enough to catch contradictions, best first. Flash-Lite
+ * passed every card it checked, including broken ones (2026-11-25 eval); 3.8 Flash caught them
+ * in a few seconds, where a flagship would add most of a minute.
+ */
+export const CHECK_MODELS = ['gemini-3.8-flash', 'gemini-4-hydrogen', 'gemini-flash-latest'];
+
+/** The Gemini model that writes new stories (setup), or '' for "same as the player's model". */
+export function getStoryModel(): string {
+  try {
+    return (localStorage.getItem(STORY_MODEL_KEY) ?? '').trim();
+  } catch (_) {
+    return '';
+  }
+}
+
+export function setStoryModel(model: string): void {
+  try {
+    if (model.trim()) localStorage.setItem(STORY_MODEL_KEY, model.trim());
+    else localStorage.removeItem(STORY_MODEL_KEY);
+  } catch (_) {}
+}
+
+/**
+ * The model for one call: Gemini's basic-tier model for short tasks; the story model (when the
+ * player picked one their key can use) for writing a new story; otherwise the player's model.
+ */
+function modelForTask(provider: AIProviderId, tier?: 'basic' | 'story' | 'check'): string {
+  if (provider === 'gemini' && !activeLocalContext()) {
+    if (tier === 'basic') return geminiBasicModel(getProviderModel('gemini'));
+    const usable = getUsableGeminiModels();
+    const story = getStoryModel();
+    const writer = story && (!usable || usable.includes(story)) ? story : getProviderModel('gemini');
+    if (tier === 'story') return writer;
+    // A fast, careful reader: proven to catch what Lite misses, and quicker than a flagship.
+    if (tier === 'check') return CHECK_MODELS.find((m) => usable?.includes(m)) ?? writer;
+  }
   return getProviderModel(provider);
 }
 
@@ -379,9 +418,12 @@ export interface UniversalPromptOptions {
   /**
    * 'basic' sends a short task (a name roll, the Rules Referee) to Gemini's basic-tier model
    * (Flash-Lite) even when the player picked Flash for the story, so small tasks don't spend
-   * Flash's small daily allowance. Other providers use the player's model.
+   * Flash's small daily allowance. 'story' writes a new story with the story model the player
+   * picked in settings (for example a Gemini 4 flagship), else their model. Other providers
+   * use the player's model. 'check' reads a finished story card with the first of
+   * CHECK_MODELS the key can use, else the story model.
    */
-  tier?: 'basic';
+  tier?: 'basic' | 'story' | 'check';
 }
 
 /** Details of the last successful call, for status lines and Continue offers. */
@@ -454,7 +496,7 @@ async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalProm
     maxTokens,
     signal,
     schema,
-    ...(options.tier === 'basic' ? { timeoutMs: AI_SHORT_TIMEOUT_MS } : {})
+    ...(options.tier === 'basic' ? { timeoutMs: AI_SHORT_TIMEOUT_MS } : options.tier === 'story' || options.tier === 'check' ? { timeoutMs: AI_STORY_TIMEOUT_MS } : {})
   });
   lastModelUsed = reply.model;
   lastCallMeta = {

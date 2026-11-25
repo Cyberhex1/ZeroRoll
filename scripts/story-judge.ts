@@ -9,9 +9,13 @@ const [file, model = 'gemini-3.8-flash'] = process.argv.slice(2);
 const key = process.env.GEMINI_API_KEY;
 if (!key || !file) { console.error('usage: story-judge.ts <eval.json> [model]'); process.exit(1); }
 const { rows } = JSON.parse(readFileSync(file, 'utf8'));
+class M { d = new Map<string, string>(); getItem(k: string) { return this.d.get(k) ?? null; } setItem(k: string, v: string) { this.d.set(k, v); } removeItem(k: string) { this.d.delete(k); } }
+(globalThis as any).localStorage = new M();
+const { deckFor } = await import('../src/forge/spread');
+const { getContent } = await import('../src/content');
 const PROMPT = (r: any) => `You are a strict story editor. A player sees this story card before starting a role-playing campaign. Judge only whether it makes sense as ONE story.
 
-Category: ${r.category}
+Category: ${getContent(r.category).card.name}. What this category promises: ${deckFor(r.category).signature}
 Title: ${r.title}
 Premise: ${r.premise}
 Where you start: ${r.start}

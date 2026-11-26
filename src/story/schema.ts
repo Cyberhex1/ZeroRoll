@@ -140,6 +140,24 @@ export const SkinSchema = z
   })
   .strict();
 
+/** What kind of work a fan fiction story is set in. Drives the picker's sections. */
+export const MEDIUMS = ['game', 'anime', 'manga', 'manhwa', 'tv', 'film', 'book'] as const;
+export type Medium = (typeof MEDIUMS)[number];
+
+/**
+ * Set on fan fiction: the work the story is set in. Stories without it are ZeroRoll Originals.
+ * Fan fiction is new writing set in that world, with the player as a new character.
+ */
+export const SourceSchema = z
+  .object({
+    /** The work's usual name, e.g. "Baldur's Gate 3". Stories with the same title are grouped. */
+    title: z.string().min(1).max(80),
+    medium: z.enum(MEDIUMS),
+    /** Who owns the work, for the "Unofficial fan fiction" note, e.g. "Larian Studios". */
+    owner: z.string().max(80).optional()
+  })
+  .strict();
+
 export const StorySchema = z
   .object({
     schemaVersion: z.literal(STORY_SCHEMA_VERSION),
@@ -155,7 +173,11 @@ export const StorySchema = z
         character: id.optional(),
         blurb: z.string().min(20).max(400),
         cover: id.optional(),
-        author: z.string().max(80).optional()
+        author: z.string().max(80).optional(),
+        /** Fan fiction only: the work this story is set in. */
+        source: SourceSchema.optional(),
+        /** Made in the app with "Create your own fanfic" (stored on this device only). */
+        created: z.boolean().optional()
       })
       .strict(),
     world: z.string().min(40).max(2000),
@@ -187,5 +209,6 @@ export type CastMember = z.infer<typeof CastSchema>;
 export type StoryArt = z.infer<typeof ArtSchema>;
 export type SkinOverride = z.infer<typeof SkinSchema>;
 export type Story = z.infer<typeof StorySchema>;
+export type StorySource = z.infer<typeof SourceSchema>;
 export type FlagValue = boolean | number;
 export type Flags = Record<string, FlagValue>;

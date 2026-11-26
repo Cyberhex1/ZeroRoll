@@ -426,6 +426,8 @@ export interface UniversalPromptOptions {
    * CHECK_MODELS the key can use, else the story model.
    */
   tier?: 'basic' | 'story' | 'check';
+  /** Overrides the tier's time limit, for very long replies (a whole fan fiction story). */
+  timeoutMs?: number;
 }
 
 /** Details of the last successful call, for status lines and Continue offers. */
@@ -498,7 +500,7 @@ async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalProm
     maxTokens,
     signal,
     schema,
-    ...(options.tier === 'basic' ? { timeoutMs: AI_SHORT_TIMEOUT_MS } : options.tier === 'story' || options.tier === 'check' ? { timeoutMs: AI_STORY_TIMEOUT_MS } : {})
+    ...(options.timeoutMs ? { timeoutMs: options.timeoutMs } : options.tier === 'basic' ? { timeoutMs: AI_SHORT_TIMEOUT_MS } : options.tier === 'story' || options.tier === 'check' ? { timeoutMs: AI_STORY_TIMEOUT_MS } : {})
   });
   lastModelUsed = reply.model;
   lastCallMeta = {

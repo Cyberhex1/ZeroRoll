@@ -4,7 +4,8 @@
  * directive variant because 12B models follow short lists better than long prose.
  */
 import { NarratorTail, StoryState, beatOf, describeCondition, enterableExits, goalStatus } from './engine';
-import { Story } from './schema';
+import { Medium, Story, StorySource } from './schema';
+import { PlayerIdentity, playerLine } from './player';
 
 export type PromptVariant = 'full' | 'compact';
 
@@ -33,8 +34,40 @@ const TAIL_SPEC = [
   'Never copy the DIRECTOR notes, location headings or flag values into the narration; they belong only in the JSON block.'
 ];
 
+export const MEDIUM_NAMES: Record<Medium, string> = {
+  game: 'video game',
+  anime: 'anime',
+  manga: 'manga',
+  manhwa: 'manhwa (Korean webcomic)',
+  tv: 'TV series',
+  film: 'film',
+  book: 'book'
+};
+
+/** "Baldur's Gate 3 (video game)". */
+export function sourceName(source: StorySource): string {
+  return `${source.title} (${MEDIUM_NAMES[source.medium]})`;
+}
+
+/** "Unofficial fan fiction set in Baldur's Gate 3 (video game), owned by Larian Studios." */
+export function fanFictionNote(story: Story): string {
+  const src = story.meta.source;
+  if (!src) return '';
+  return `Unofficial fan fiction set in ${sourceName(src)}${src.owner ? `, which belongs to ${src.owner}` : ''}. Not made or endorsed by its creators.`;
+}
+
+/**
+ * Fan fiction: what the story is set in, in the style of the category master prompts. The work
+ * grounds the world, the canon cast and the tone; the story itself is new.
+ */
+export function sourceBlock(source: StorySource): string {
+  return `SOURCE
+This is unofficial fan fiction set in the world of ${sourceName(source)}. Use what fans know of it: its world, rules, places, tone, and how its characters look, talk and act. Any canon character who appears stays true to who they are.
+The player is a new character in that world and this is a new story. Never retell the original's plot, never quote its dialogue or song lyrics, and never let the player's story be decided by events they had no part in.`;
+}
+
 /** The fixed part of the prompt: who the narrator is and what the story is. */
-export function storySystemPrompt(story: Story, variant: PromptVariant, words: number): string {
+export function storySystemPrompt(story: Story, variant: PromptVariant, words: number, player?: PlayerIdentity): string {
   const character = story.meta.mode === 'character' ? story.cast.find((c) => c.id === story.meta.character) : undefined;
   const role = character
     ? `You are ${character.name}, talking with the player in a character story. Speak as ${character.name} in first person and describe only what ${character.name} does and notices.`
@@ -44,8 +77,10 @@ export function storySystemPrompt(story: Story, variant: PromptVariant, words: n
     return [
       role,
       `Story: ${story.meta.title}. ${story.world}`,
+      ...(story.meta.source ? [`This is fan fiction set in ${sourceName(story.meta.source)}: keep its world and canon characters true, but tell a new story and never quote it.`] : []),
       `Tone: ${story.tone}`,
       `The player is: ${story.playerRole}`,
+      ...(player ? [playerLine(player)] : []),
       'Cast (keep their looks exactly):',
       ...castLines(story),
       'Rules:',
@@ -60,9 +95,10 @@ export function storySystemPrompt(story: Story, variant: PromptVariant, words: n
     `This is "${story.meta.title}" (${story.meta.category.replace(/_/g, ' ')}, rated ${story.meta.rating}).`,
     '',
     `WORLD\n${story.world}`,
+    ...(story.meta.source ? [sourceBlock(story.meta.source)] : []),
     `TONE\n${story.tone}`,
     `NARRATOR STYLE\n${story.narratorStyle}`,
-    `THE PLAYER\n${story.playerRole}`,
+    `THE PLAYER\n${story.playerRole}${player ? `\n${playerLine(player)}` : ''}`,
     `CAST (their appearance never changes; reuse these details)\n${castLines(story).join('\n')}`,
     '',
     'HOW TO PLAY',

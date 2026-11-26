@@ -74,6 +74,40 @@
         "author": {
           "type": "string",
           "maxLength": 80
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            },
+            "medium": {
+              "type": "string",
+              "enum": [
+                "game",
+                "anime",
+                "manga",
+                "manhwa",
+                "tv",
+                "film",
+                "book"
+              ]
+            },
+            "owner": {
+              "type": "string",
+              "maxLength": 80
+            }
+          },
+          "required": [
+            "title",
+            "medium"
+          ],
+          "additionalProperties": false
+        },
+        "created": {
+          "type": "boolean"
         }
       },
       "required": [

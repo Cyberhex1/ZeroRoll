@@ -21,7 +21,9 @@ import type { Story } from '../schema';
 import { resolveSkin, skinVars } from '../skins';
 import ArtImage from './ArtImage';
 import Particles from './Particles';
-import { LENGTH_WORDS } from '../prompt';
+import { LENGTH_WORDS, fanFictionNote } from '../prompt';
+import PlayerSetup from './PlayerSetup';
+import { PlayerIdentity, rememberPlayer } from '../player';
 
 const TIER_LABEL: Record<Tier, string> = { basic: 'Basic (fast, local on this PC)', good: 'Good (default)', best: 'Best (strongest)' };
 // What the length slider means, in words of story per reply (LENGTH_WORDS in ../prompt).
@@ -149,6 +151,13 @@ export default function StoryPlay() {
     void runNarrator(next);
   };
 
+  // Every story starts by asking who the player is (PlayerSetup).
+  const begin = (player: PlayerIdentity) => {
+    if (!save || busy) return;
+    rememberPlayer(player);
+    void runNarrator({ ...save, player });
+  };
+
   const reroll = () => {
     if (!save || busy) return;
     const back = rewindForReroll(save);
@@ -256,7 +265,10 @@ export default function StoryPlay() {
             <Link to="/story" className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs shrink-0" style={{ color: 'var(--sk-muted)', border: '1px solid color-mix(in srgb, var(--sk-text) 20%, transparent)' }}><ArrowLeft className="w-3.5 h-3.5" />Stories</Link>
             <div className="min-w-0">
               <h1 className="text-lg font-bold truncate" style={{ fontFamily: 'var(--sk-font-heading)', color: 'var(--sk-accent)' }}>{story.meta.title}</h1>
-              <p className="text-[11px]" style={{ color: 'var(--sk-muted)' }}>{ended ? 'The end' : beat.title}</p>
+              <p className="text-[11px]" style={{ color: 'var(--sk-muted)' }}>
+                {ended ? 'The end' : beat.title}
+                {save.player && save.messages.length > 0 ? ` · Playing as ${save.player.name} (${save.player.pronouns})` : ''}
+              </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -313,9 +325,8 @@ export default function StoryPlay() {
             <div className="space-y-3">
               {story.meta.cover && <ArtImage story={story} art={story.meta.cover} className="w-full max-h-72 object-cover" />}
               <p className="text-sm" style={{ color: 'var(--sk-muted)' }}>{story.meta.blurb}</p>
-              <button type="button" disabled={busy} onClick={() => runNarrator(save)} className="rounded px-4 py-2 text-sm font-semibold" style={{ background: 'var(--sk-accent)', color: 'var(--sk-bg)' }}>
-                {busy ? 'The story is starting...' : 'Begin the story'}
-              </button>
+              {story.meta.source && <p className="text-[11px]" style={{ color: 'var(--sk-muted)' }}>{fanFictionNote(story)}</p>}
+              <PlayerSetup initial={save.player} busy={busy} onBegin={begin} />
             </div>
           )}
           {save.messages.map((m) => {
@@ -452,3 +463,4 @@ function ProgressMap({ story, save, progress }: { story: Story; save: PlaySave; 
     </section>
   );
 }
+

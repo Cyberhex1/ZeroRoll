@@ -1,0 +1,500 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-bg3-a-debt-in-the-lower-city",
+    "title": "A Debt in the Lower City",
+    "category": "fantasy",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You wake above the Elfsong Tavern with a Guild debt marker under your pillow and no memory of the dice game you supposedly lost. Karlach wants to help. Astarion wants something in return. The Guild wants payment by moonset.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Baldur's Gate 3",
+      "medium": "game",
+      "owner": "Larian Studios and Wizards of the Coast",
+      "aka": [
+        "BG3"
+      ]
+    }
+  },
+  "world": "Baldur's Gate's Lower City at night: the Elfsong Tavern, the crowded Wide, the Basilisk Gate with its Flaming Fist checkpoint, the sewers under the counting houses where the Guild does business, and Wyrm's Rock fortress looming over the Chionthar. The player is a newcomer who was drugged at the Blushing Mermaid and framed with a Guild debt marker so the Guild would have a desperate nobody to carry a sealed lockbox past the Fist. The lockbox holds a hunter's warrant and a silver-chased stake made to kill one particular vampire spawn: a pale elf with white curls. The buyer waiting on the bridge below Wyrm's Rock is Odric Thale, a vampire hunter who has tracked Astarion to the city. Nobody in the Guild knows Astarion is the target. Karlach and Astarion are already in the city on their own business, travelling together; this is a side night for them, not their main story.",
+  "tone": "Swaggering Forgotten Realms adventure with banter, crooked deals and warm loyalty under the jokes. Danger is real but the night has room for laughter.",
+  "playerRole": "A newcomer to Baldur's Gate who woke up owing the Guild a debt they don't remember. You have a travel pack, a few coppers, a dagger and whatever skills brought you to the city. You decide what kind of adventurer you are.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense, lively and specific to the Lower City: smells of the harbour, Fist patrols, street preachers, gulls on Wyrm's Rock. Let Karlach and Astarion banter like old travelling companions. When one of them strongly likes or dislikes what the player just did, you may add one short line on its own, like *Karlach approves.* or *Astarion disapproves.* Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 5,
+  "cast": [
+    {
+      "id": "karlach",
+      "name": "Karlach",
+      "appearance": "A very tall, broad-shouldered tiefling woman with red skin, two large curved horns, dark hair shaved at the sides, a scarred face, and a glowing infernal engine showing through her chest plate. She carries a huge battle-axe.",
+      "voice": "Loud, warm and blunt, quick to laugh, swears cheerfully, calls people 'soldier' or 'friend'. Gets heated, literally, when angry.",
+      "stance": "Likes the player on sight and wants to help, because she knows what it is to be owned by someone else's contract. She can't touch anyone without burning them, and jokes about it to hide that it hurts."
+    },
+    {
+      "id": "astarion",
+      "name": "Astarion",
+      "appearance": "A slender high elf with pale grey skin, white curly hair, red eyes and sharp fangs, in a fitted dark leather coat with a high collar, with a pair of daggers at his belt.",
+      "voice": "Silky, theatrical and sarcastic. Flirts as a weapon, mocks everyone, and goes quiet and cold when something touches a nerve.",
+      "stance": "Offers help for a price and treats the player as a useful mark, until they show him real loyalty. He is a vampire spawn: he can't enter a home uninvited and keeps to the night."
+    },
+    {
+      "id": "dagny",
+      "name": "Dagny Vell",
+      "appearance": "A halfling woman in her fifties with cropped iron-grey hair, small round spectacles, ink-stained fingers and a neat brown waistcoat full of pockets. A Guild signet hangs on a cord at her neck.",
+      "voice": "Polite, precise and terrifying, like a clerk reading out a death sentence. Never raises her voice.",
+      "stance": "The Guild collector who planted the marker. Sees the player as a cheap courier and nothing more."
+    },
+    {
+      "id": "odric",
+      "name": "Odric Thale",
+      "appearance": "A lean human man in his forties with a shaved head, a grey beard, a burn scar down one cheek, a long weathered oilskin coat, and a crossbow strapped across his back.",
+      "voice": "Soft-spoken and patient, like a man who has waited at many doors. Quotes old prayers against the dead.",
+      "stance": "The buyer. A vampire hunter who will pay well, and who will see anyone who protects a vampire as one more thing to burn."
+    }
+  ],
+  "flags": {
+    "plan_made": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has decided who to bring along to answer the debt."
+    },
+    "job_known": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player knows the debt was a set-up to make them a courier."
+    },
+    "job": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 accepted the job as asked, 2 meant to look inside the box first."
+    },
+    "box_opened": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has seen the warrant and the silver stake."
+    },
+    "told_astarion": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player told Astarion he is the target."
+    },
+    "through_gate": {
+      "type": "bool",
+      "initial": false,
+      "description": "the party is past the Flaming Fist checkpoint."
+    },
+    "final_choice": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has chosen what happens on the bridge."
+    },
+    "karlach": {
+      "type": "counter",
+      "initial": 0,
+      "description": "how much Karlach approves of the player tonight (0 to 3)."
+    },
+    "astarion": {
+      "type": "counter",
+      "initial": 0,
+      "description": "how much Astarion trusts the player tonight (0 to 3)."
+    }
+  },
+  "start": "elfsong",
+  "beats": [
+    {
+      "id": "elfsong",
+      "title": "A Marker Under the Pillow",
+      "goal": [
+        {
+          "flag": "plan_made",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player wakes in a cramped room above the Elfsong Tavern with a sore head and a Guild debt marker (a black wax seal with a nine-fingered hand) under the pillow, plus a note: three hundred gold, or one favour, by moonset, at the grate behind the Counting House. Downstairs, the ghostly singing in the cellar that gives the Elfsong its name drifts up through the floor. Karlach is eating breakfast at noon and offers help without being asked. Astarion, at a shadowed corner table, has already read the note over the player's shoulder and offers his help 'for a small consideration'. The player does not remember any dice game: they were drugged, but they don't know that yet. The scene ends once the player chooses who they lean on.",
+      "choices": [
+        {
+          "id": "ask_karlach",
+          "label": "Ask Karlach to watch your back",
+          "sets": [
+            {
+              "flag": "plan_made",
+              "set": true
+            },
+            {
+              "flag": "karlach",
+              "add": 1
+            }
+          ],
+          "target": "the_wide"
+        },
+        {
+          "id": "ask_astarion",
+          "label": "Ask Astarion what his help costs",
+          "sets": [
+            {
+              "flag": "plan_made",
+              "set": true
+            },
+            {
+              "flag": "astarion",
+              "add": 1
+            }
+          ],
+          "target": "the_wide"
+        },
+        {
+          "id": "both",
+          "label": "Bring them both and promise to sort out the price later",
+          "sets": [
+            {
+              "flag": "plan_made",
+              "set": true
+            }
+          ],
+          "target": "the_wide"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_wide"
+      ],
+      "isEnding": false,
+      "hint": "Karlach thumps the table: 'Right, soldier. Who's coming with you?'"
+    },
+    {
+      "id": "the_wide",
+      "title": "Lanterns on the Wide",
+      "goal": [
+        {
+          "flag": "job_known",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Evening on the Wide: street preachers, Fist patrols, a puppet show. A Guild runner, a thin boy with a limp, follows the party at a distance. If caught, he admits the truth: the player never played dice. Dagny Vell had them drugged at the Blushing Mermaid so they would owe a debt and carry something past the Fist. The runner is scared of Dagny and can lead them to her. Karlach hates that someone was tricked into a contract; Astarion finds it 'almost elegant'.",
+      "choices": [
+        {
+          "id": "corner_runner",
+          "label": "Let Karlach corner the runner",
+          "sets": [
+            {
+              "flag": "job_known",
+              "set": true
+            },
+            {
+              "flag": "karlach",
+              "add": 1
+            }
+          ],
+          "target": "guild_den"
+        },
+        {
+          "id": "charm_runner",
+          "label": "Let Astarion charm the truth out of him",
+          "sets": [
+            {
+              "flag": "job_known",
+              "set": true
+            },
+            {
+              "flag": "astarion",
+              "add": 1
+            }
+          ],
+          "target": "guild_den"
+        },
+        {
+          "id": "coin_runner",
+          "label": "Buy the boy a hot pie and ask him kindly",
+          "sets": [
+            {
+              "flag": "job_known",
+              "set": true
+            }
+          ],
+          "target": "guild_den"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "guild_den"
+      ],
+      "isEnding": false,
+      "hint": "A limping boy ducks behind the puppet stall every time the player looks back."
+    },
+    {
+      "id": "guild_den",
+      "title": "Under the Counting House",
+      "goal": [
+        {
+          "flag": "job",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Through the grate behind the Counting House, down into the sewers, to a dry vault where the Guild keeps its books. Dagny Vell explains the deal politely: carry a sealed iron lockbox through the Basilisk Gate checkpoint and hand it to a buyer on the bridge under Wyrm's Rock at moonset. Do that and the debt is gone. Refuse and the Guild sells the marker to people who collect in fingers. She does not know what is in the box and does not care. The box is locked and warded; a clever rogue could open it without leaving a mark.",
+      "choices": [
+        {
+          "id": "accept_job",
+          "label": "Take the box and the deal as offered",
+          "sets": [
+            {
+              "flag": "job",
+              "set": 1
+            }
+          ],
+          "target": "basilisk_gate"
+        },
+        {
+          "id": "peek_job",
+          "label": "Take the box, then find somewhere quiet to open it",
+          "sets": [
+            {
+              "flag": "job",
+              "set": 2
+            }
+          ],
+          "target": "lockbox"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "basilisk_gate",
+        "lockbox"
+      ],
+      "isEnding": false,
+      "hint": "Dagny taps the lockbox: 'The moon won't wait, dear.'"
+    },
+    {
+      "id": "lockbox",
+      "title": "What the Lockbox Holds",
+      "goal": [
+        {
+          "flag": "box_opened",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "job",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In an alley off the Wide, Astarion picks the lock with insulting ease. Inside: a hunter's warrant sealed by a temple of Lathander, listing a pale elf with white curls and red eyes, 'spawn of the dead, two centuries in the city', and a silver-chased stake etched with prayers. Astarion sees it at once if he is looking; whether the player tells him, hides it, or lies is the whole point of this beat. Karlach, who can't stand people being hunted for what was done to them, will side with whoever is honest.",
+      "choices": [
+        {
+          "id": "tell_astarion",
+          "label": "Show Astarion the warrant",
+          "sets": [
+            {
+              "flag": "box_opened",
+              "set": true
+            },
+            {
+              "flag": "told_astarion",
+              "set": true
+            },
+            {
+              "flag": "astarion",
+              "add": 1
+            },
+            {
+              "flag": "karlach",
+              "add": 1
+            }
+          ],
+          "target": "basilisk_gate"
+        },
+        {
+          "id": "hide_it",
+          "label": "Close the box and say it's just old papers",
+          "sets": [
+            {
+              "flag": "box_opened",
+              "set": true
+            }
+          ],
+          "target": "basilisk_gate"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "basilisk_gate"
+      ],
+      "isEnding": false,
+      "hint": "The silver stake catches the lantern light. Astarion has gone very still."
+    },
+    {
+      "id": "basilisk_gate",
+      "title": "The Basilisk Gate Search",
+      "goal": [
+        {
+          "flag": "through_gate",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Flaming Fist checkpoint at the Basilisk Gate searches everyone going toward the river. A bored sergeant and two recruits with a hound. A warded box is exactly what they look for. Karlach's engine runs hot when she is nervous and the hound hates the smell. Astarion can't enter the gatehouse uninvited, which matters if anyone is dragged inside. Ways through: a distraction, a bluff, a bribe, or something cleverer. Once past, the bridge under Wyrm's Rock is in sight.",
+      "choices": [
+        {
+          "id": "karlach_distract",
+          "label": "Let Karlach start a very loud 'accident'",
+          "sets": [
+            {
+              "flag": "through_gate",
+              "set": true
+            },
+            {
+              "flag": "karlach",
+              "add": 1
+            }
+          ],
+          "target": "wyrms_rock"
+        },
+        {
+          "id": "bluff_gate",
+          "label": "Bluff your way through as a temple courier",
+          "sets": [
+            {
+              "flag": "through_gate",
+              "set": true
+            }
+          ],
+          "target": "wyrms_rock"
+        },
+        {
+          "id": "astarion_gate",
+          "label": "Let Astarion talk the sergeant into a bad decision",
+          "sets": [
+            {
+              "flag": "through_gate",
+              "set": true
+            },
+            {
+              "flag": "astarion",
+              "add": 1
+            }
+          ],
+          "target": "wyrms_rock"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "wyrms_rock"
+      ],
+      "isEnding": false,
+      "hint": "The hound starts barking at Karlach's chest plate. The sergeant reaches for the box."
+    },
+    {
+      "id": "wyrms_rock",
+      "title": "The Buyer on the Bridge",
+      "goal": [
+        {
+          "flag": "final_choice",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Moonset on the bridge below Wyrm's Rock, the Chionthar loud underneath. Odric Thale waits with his crossbow. If the box was never opened, he opens it now and reads the warrant aloud, and Astarion hears it here for the first time; if the player hid what they saw, Astarion realises they knew. Odric offers the player the debt paid and a purse besides, and asks them to step aside. Karlach's engine is roaring. This is the player's choice; make each option's cost clear.",
+      "choices": [
+        {
+          "id": "hand_over",
+          "label": "Hand Odric the box and walk away",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "paid_in_full"
+        },
+        {
+          "id": "burn_warrant",
+          "label": "Stand with Astarion and burn the warrant",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "ashes_on_the_river"
+        },
+        {
+          "id": "karlach_settle",
+          "label": "Tell Karlach to settle it her way",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "hot_engine"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "paid_in_full",
+        "ashes_on_the_river",
+        "hot_engine"
+      ],
+      "isEnding": false,
+      "hint": "Odric raises his crossbow a finger's width. 'Your choice, friend. Quickly.'"
+    },
+    {
+      "id": "paid_in_full",
+      "title": "Paid in Full",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player hands over the box. Odric pays and the debt marker burns in Dagny's lamp the next morning. Astarion disappears into the night without a word, and Karlach says she understands, in a voice that means she doesn't. The player is free and richer and alone. Close quietly on the cost, without punishing them further.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Paid in Full"
+    },
+    {
+      "id": "ashes_on_the_river",
+      "title": "Ashes on the Chionthar",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "astarion",
+          "atLeast": 2
+        }
+      ],
+      "sceneBrief": "The player stands beside Astarion; the warrant goes into the river as ash and the stake after it. Odric retreats, promising to return; the Guild will be furious about the lost sale. Astarion, rattled, says something almost sincere and then covers it with a joke, and offers the player a place in their odd company. Close on the three of them walking back up through the Lower City at dawn's edge, Astarion hurrying for shade.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Ashes on the Chionthar"
+    },
+    {
+      "id": "hot_engine",
+      "title": "Hot Engine, Cold River",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "karlach",
+          "atLeast": 2
+        }
+      ],
+      "sceneBrief": "Karlach settles it: Odric goes over the bridge rail into the Chionthar, crossbow and all (he survives, swearing). The party runs for it through the dock alleys with the Fist's whistles behind them, laughing. At a safe corner Karlach offers a gauntleted fist bump, the closest she can get to a hug, and says the player is welcome to stick around. Astarion grudgingly admits that was fun.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Hot Engine, Cold River"
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c9a0ff"
+    },
+    "particles": "embers"
+  }
+}

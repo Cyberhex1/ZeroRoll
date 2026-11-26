@@ -37,6 +37,6 @@ export function matchesSearch(m: StoryMeta, query: string): boolean {
   } catch {
     genre = m.category;
   }
-  const hay = fold([m.title, m.blurb, genre, m.source?.title ?? '', m.source?.owner ?? ''].join(' '));
+  const hay = fold([m.title, m.blurb, genre, m.source?.title ?? '', m.source?.owner ?? '', ...(m.source?.aka ?? [])].join(' '));
   return words.every((w) => hay.includes(w));
 }

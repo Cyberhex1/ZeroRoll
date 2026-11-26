@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-diablo-the-sleepless-chapel",
+    "title": "The Sleepless Chapel",
+    "category": "horror",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "In a snowbound village in the Fractured Peaks, nobody has slept for nine nights, and the chapel bell rings at hours no priest keeps. An old Horadric scholar has asked a wanderer for help. Something under the altar is very much awake.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Diablo",
+      "medium": "game",
+      "owner": "Blizzard Entertainment",
+      "aka": [
+        "Diablo IV",
+        "Diablo 4"
+      ]
+    }
+  },
+  "world": "Sanctuary, in the Fractured Peaks: a small mountain village called Drevnik under a hanging snowfield, with an outpost chapel of the Cathedral of Light. Nine nights ago its priest, Father Mikhel, made a bargain with a lesser demon of the Burning Hells sealed under the chapel by the Horadrim long ago: Vashtul the Unresting, who feeds on sleep. In return for the villagers' sleep, Vashtul holds back the avalanche that would bury the village. The Horadric seal on its prison is cracked; a missing shard lies in the flooded ossuary under the crypt. Vashtul will also offer its strength to anyone desperate enough, at a price that marks them. Lorath Nahr, an old Horadric scholar, received a letter from Mikhel's acolyte and asked the wanderer to come.",
+  "tone": "Gothic dark fantasy: snow, candle smoke, frightened faith and old evil. Grim and tense, with small human kindnesses. Horror through dread and wrongness, not gore.",
+  "playerRole": "A wanderer who answered Lorath Nahr's letter: a fighter, hunter, spellcaster or something stranger, travelling the Fractured Peaks with a weapon, a lantern, a waterskin and a few healing draughts. Your skills and your past are your own.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Cold, heavy, sensory prose: breath steam, cracking ice, wax dripping, the bell. Let dread build through small wrong details (red-rimmed eyes, villagers whispering the same words). Combat is short and punchy, never gory. Lorath is gruff and dry. Never decide what the player does or feels.",
+  "strictness": "hard",
+  "hintAfterTurns": 5,
+  "cast": [
+    {
+      "id": "lorath",
+      "name": "Lorath Nahr",
+      "appearance": "An old, weathered man with a long grey beard and tired, sharp eyes, in a heavy travelling coat with a fur collar, always holding a pipe.",
+      "voice": "Gruff, dry and blunt, with a tired sense of humour. Knows more than he says and hates sentiment.",
+      "stance": "A reluctant ally who respects ability and will warn the player off any bargain with demons in the harshest terms."
+    },
+    {
+      "id": "mikhel",
+      "name": "Father Mikhel",
+      "appearance": "A gaunt middle-aged priest with a shaved head, deep shadows under red-rimmed eyes, cracked lips, and white-and-gold Cathedral of Light robes stained with wax.",
+      "voice": "Too calm, too gentle, repeats scripture as if to drown something out. Cracks into pleading when cornered.",
+      "stance": "Lies to the player to protect his bargain, because he truly believes it is saving the village."
+    },
+    {
+      "id": "irinka",
+      "name": "Irinka",
+      "appearance": "A small girl of about seven with long tangled black hair, a red wool scarf, a patched sheepskin coat and bare feet she never seems to notice.",
+      "voice": "Speaks in her sleep in a flat older voice, repeating the demon's words; awake, she is shy and sleepy.",
+      "stance": "The only person in Drevnik who still sleeps, because Vashtul speaks through her dreams. Trusts whoever is kind to her."
+    },
+    {
+      "id": "vashtul",
+      "name": "Vashtul the Unresting",
+      "appearance": "A tall, starved demon of grey skin stretched over long bones, with dozens of half-open eyes along its arms and a crown of melted candle wax, chained in a pit of black ice.",
+      "voice": "Soft and patient, sounds like many sleepers murmuring at once. Offers comfort and strength, never threatens directly.",
+      "stance": "Wants to be freed and wants a new bargain; will try to tempt the player with power."
+    }
+  ],
+  "flags": {
+    "met_lorath": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has met Lorath and heard why he called them."
+    },
+    "clue_found": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player knows the shared dream points under the chapel."
+    },
+    "way_down": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has found the stair under the chapel."
+    },
+    "priest_confronted": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player confronted Father Mikhel about the bargain."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 searching for the seal's missing shard, 2 listening to the demon's offer."
+    },
+    "shard_found": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player recovered the Horadric seal's missing shard."
+    },
+    "corruption": {
+      "type": "counter",
+      "initial": 0,
+      "description": "how much demonic power the player has taken (0 to 3)."
+    },
+    "final_choice": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has chosen how to end Vashtul's hold."
+    }
+  },
+  "start": "village_gate",
+  "beats": [
+    {
+      "id": "village_gate",
+      "title": "Bells in the Snow",
+      "goal": [
+        {
+          "flag": "met_lorath",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Dusk at Drevnik. Snow is falling. The chapel bell rings out of time. Villagers stand in doorways with red-rimmed eyes, too tired to speak. Lorath Nahr waits at the shrine by the gate with his pipe: he got a letter from the priest's acolyte, who has since vanished, saying no one has slept for nine nights. He needs someone who can fight. He does not yet know about the bargain. The scene ends once the player agrees to look into it, with Lorath or on their own terms.",
+      "choices": [
+        {
+          "id": "hear_lorath",
+          "label": "Hear Lorath out by the shrine",
+          "sets": [
+            {
+              "flag": "met_lorath",
+              "set": true
+            }
+          ],
+          "target": "wakeful_square"
+        },
+        {
+          "id": "ask_villager",
+          "label": "Ask a villager what the bell means",
+          "sets": [
+            {
+              "flag": "met_lorath",
+              "set": true
+            }
+          ],
+          "target": "wakeful_square"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "wakeful_square"
+      ],
+      "isEnding": false,
+      "hint": "Lorath taps out his pipe: 'Well? Are you staying or shall I find someone with a sword and fewer questions?'"
+    },
+    {
+      "id": "wakeful_square",
+      "title": "The Wakeful Ones",
+      "goal": [
+        {
+          "flag": "clue_found",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The village square at night: people sit around a fire, talking in circles to stay awake. Everyone has had the same waking dream: a door under the chapel floor, and a voice saying 'rest is a price'. In one cottage the girl Irinka is the only one asleep; in her sleep she murmurs in a flat, older voice about 'the crack in the circle' and 'the piece in the drowned bones'. The priest's house is dark and locked. Either source points under the chapel.",
+      "choices": [
+        {
+          "id": "watch_irinka",
+          "label": "Sit by the sleeping girl and listen",
+          "sets": [
+            {
+              "flag": "clue_found",
+              "set": true
+            }
+          ],
+          "target": "chapel"
+        },
+        {
+          "id": "search_house",
+          "label": "Break into the priest's house",
+          "sets": [
+            {
+              "flag": "clue_found",
+              "set": true
+            }
+          ],
+          "target": "chapel"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "chapel"
+      ],
+      "isEnding": false,
+      "hint": "The bell rings again, and every head in the square turns toward the chapel at once."
+    },
+    {
+      "id": "chapel",
+      "title": "Wax and Scripture",
+      "goal": [
+        {
+          "flag": "way_down",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The outpost chapel of the Cathedral of Light: hundreds of burned-down candles, frost on the inside of the windows. Father Mikhel insists all is well and the village is being tested by the Light. He is lying: he made a bargain with the thing below to hold back the avalanche on the snowfield above. Pressed hard, he confesses and begs the player not to break it. Behind the altar, a hidden stair leads down. Lorath recognises the Horadric marks on it.",
+      "choices": [
+        {
+          "id": "confront_mikhel",
+          "label": "Confront Father Mikhel about the bargain",
+          "sets": [
+            {
+              "flag": "priest_confronted",
+              "set": true
+            },
+            {
+              "flag": "way_down",
+              "set": true
+            }
+          ],
+          "target": "crypt"
+        },
+        {
+          "id": "find_stair",
+          "label": "Search behind the altar while Lorath keeps him talking",
+          "sets": [
+            {
+              "flag": "way_down",
+              "set": true
+            }
+          ],
+          "target": "crypt"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crypt"
+      ],
+      "isEnding": false,
+      "hint": "Cold air breathes out from a gap behind the altar."
+    },
+    {
+      "id": "crypt",
+      "title": "The Cracked Seal",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Below the chapel: a round crypt with a Horadric seal on the floor, a ring of carved stone with a wedge-shaped piece missing. Something breathes beneath it. Lorath says the seal can be made whole if the shard is found, and that it likely fell into the flooded ossuary below. Then Vashtul's voice fills the room, soft and kind, offering the player the strength to end this quickly. Lorath tells the player, very plainly, not to listen. The choice of path matters.",
+      "choices": [
+        {
+          "id": "seek_shard",
+          "label": "Go down into the flooded ossuary for the shard",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "ossuary"
+        },
+        {
+          "id": "hear_offer",
+          "label": "Listen to what the voice is offering",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "offered_hand"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "ossuary",
+        "offered_hand"
+      ],
+      "isEnding": false,
+      "hint": "Lorath grips the player's arm: 'Down, or out. Not toward the voice.'"
+    },
+    {
+      "id": "ossuary",
+      "title": "Bones Under Ice",
+      "goal": [
+        {
+          "flag": "shard_found",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "A flooded ossuary: knee-deep black water, a ceiling of skulls, ice forming on everything. The sleepless dead of Drevnik's old graves stir and rise, slow and confused, guarding the shard that glows under the water. The player can fight, sneak, or find something cleverer. Lorath holds the stair. When they surface with the shard, the bell above rings once and stops.",
+      "choices": [
+        {
+          "id": "take_shard",
+          "label": "Fight through to the glowing shard",
+          "sets": [
+            {
+              "flag": "shard_found",
+              "set": true
+            }
+          ],
+          "target": "the_bound_one"
+        },
+        {
+          "id": "sneak_shard",
+          "label": "Douse your lantern and wade past the dead",
+          "sets": [
+            {
+              "flag": "shard_found",
+              "set": true
+            }
+          ],
+          "target": "the_bound_one"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_bound_one"
+      ],
+      "isEnding": false,
+      "hint": "The shard's pale glow pulses under the black water, a few strides away."
+    },
+    {
+      "id": "offered_hand",
+      "title": "The Offered Hand",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In a side chamber lit by candles nobody lit, Vashtul speaks only to the player. It offers strength: no more cold, no more fear, a blade or spell that would cut anything. The price is small, it says: their sleep, for a while. Accepting marks the player (eyes that ache, a cold in their veins) and makes them stronger. Refusing costs nothing but the offer. Lorath can be heard shouting from the crypt. Either way the next step is the pit where Vashtul is chained.",
+      "choices": [
+        {
+          "id": "accept_power",
+          "label": "Take the demon's strength",
+          "sets": [
+            {
+              "flag": "corruption",
+              "add": 2
+            }
+          ],
+          "target": "the_bound_one"
+        },
+        {
+          "id": "refuse_power",
+          "label": "Refuse and walk back to Lorath",
+          "sets": [],
+          "target": "the_bound_one"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_bound_one"
+      ],
+      "isEnding": false,
+      "hint": "The candles lean toward the player as if listening."
+    },
+    {
+      "id": "the_bound_one",
+      "title": "Vashtul Wakes",
+      "goal": [
+        {
+          "flag": "final_choice",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Beneath the seal, a pit of black ice where Vashtul is chained, eyes opening along its arms. The chains are slipping. Father Mikhel has followed them down, desperate. Above, the snowfield groans. The player chooses how to end it: restore the seal with the shard (only if they found it), take Vashtul's hold into themselves (only if already marked by its power), or collapse the crypt on the demon, which also brings down the chapel and wakes the avalanche, so the village must run. Make each cost clear.",
+      "choices": [
+        {
+          "id": "seal_it",
+          "label": "Press the shard into the seal",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "dawn_over_drevnik"
+        },
+        {
+          "id": "bind_self",
+          "label": "Take Vashtul's hold into yourself",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "wanderers_bargain"
+        },
+        {
+          "id": "bring_it_down",
+          "label": "Bring the crypt down on the demon",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "bring_down_the_mountain"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "dawn_over_drevnik",
+        "wanderers_bargain",
+        "bring_down_the_mountain"
+      ],
+      "isEnding": false,
+      "hint": "A chain snaps. Lorath shouts: 'Whatever you're going to do, do it now!'"
+    },
+    {
+      "id": "dawn_over_drevnik",
+      "title": "Dawn Over Drevnik",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "shard_found",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The seal closes with a sound like a held breath let go. Vashtul sinks into the ice. Above, the whole village falls asleep where it stands, in doorways and by the fire. The avalanche does not come; the bargain is broken but the snow holds, for now. Mikhel weeps. Lorath, gruffly, admits the player did well and lights his pipe. Close on sunrise and snoring.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Dawn Over Drevnik"
+    },
+    {
+      "id": "wanderers_bargain",
+      "title": "The Wanderer's Bargain",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "corruption",
+          "atLeast": 2
+        }
+      ],
+      "sceneBrief": "The player takes Vashtul's hold into themselves. The demon goes quiet; the village sleeps; the snow stays up. But the player does not sleep, and something behind their eyes is patient. Lorath looks at them for a long time and says he will be watching. Close on the player alone on the chapel steps at dawn, wide awake.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Wanderer's Bargain"
+    },
+    {
+      "id": "bring_down_the_mountain",
+      "title": "Bring Down the Mountain",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The crypt comes down on Vashtul; the chapel follows; the snowfield lets go. The player, Lorath and the villagers run for the high pass as the avalanche buries Drevnik behind them. Everyone lives, but the village is gone. On the ridge, the villagers sleep in the snow in heaps, and Lorath says nothing for a long time. Bittersweet, not cruel.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Bring Down the Mountain"
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c23b2e"
+    },
+    "particles": "snow"
+  }
+}

@@ -1,0 +1,481 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-yamada-lv999-offline-meetup",
+    "title": "Offline Meetup",
+    "category": "romantic",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "Your duo partner in Forest of Savior quit the game and your group chat on the same night. So you join a new guild, with a relentlessly kind healer called Akane and a top player called Yamada who barely talks. Then the guild announces an offline meetup.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "My Love Story with Yamada-kun at Lv999",
+      "medium": "manga",
+      "owner": "Mashiro",
+      "aka": [
+        "Yamada-kun",
+        "Yamada Lv999",
+        "Loving Yamada at Lv999"
+      ]
+    }
+  },
+  "world": "Present-day Tokyo and the online MMORPG Forest of Savior. The player was just ghosted by Ren, their long-time duo partner, who quit their party for a flashier guild. They join a small, friendly guild that includes Akane Kinoshita, a cheerful university student healer who knows exactly how getting dumped over a game feels, and Akito Yamada, an eighteen-year-old top-ranked player who is blunt, sleepy and secretly kind. There is also Haru Mizuno, the guild's patient support player, who works early shifts at a bakery in real life and has had a quiet crush on the player's play style since their first raid. In two weeks the guild enters an amateur guild tournament, and Ren's new guild is in their bracket. Nothing about anyone's feelings is decided yet.",
+  "tone": "Warm, funny, low-stakes romantic comedy: gamer jokes, awkward silences, convenience-store snacks, late-night voice chat, and small moments that mean a lot.",
+  "playerRole": "A gamer in their early twenties who plays a damage-dealer in Forest of Savior, has a day job or classes they're behind on, and a phone full of screenshots of a friendship that just ended. Your class build and your heart are yours to decide.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense, light and funny with romcom timing: inner-monologue-style beats left for the player, game UI moments (loot drops, party chat) written as short lines, real-life scenes full of small details. Keep Akane and Yamada true to the manga's personalities without quoting it. Romance is slow and sweet; nothing is forced. Never decide what the player says or feels.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "akane",
+      "name": "Akane Kinoshita",
+      "appearance": "A young woman of about twenty with shoulder-length brown hair, bright expressive eyes, casual cute fashion (a cardigan, a skirt) and a phone with a game-charm strap.",
+      "voice": "Bubbly, emotional and dramatic, laughs at herself, fiercely supportive; overreacts and then gives great advice.",
+      "stance": "Adopts the player as a friend immediately and takes their side about the ex-duo without hesitation."
+    },
+    {
+      "id": "yamada",
+      "name": "Akito Yamada",
+      "appearance": "A tall, slim eighteen-year-old with messy dark hair, sleepy half-lidded eyes, a pale face and a plain hoodie, usually with headphones around his neck.",
+      "voice": "Short, flat, blunt sentences; says exactly what he thinks, usually about gameplay. Occasionally says something unexpectedly kind and then looks away.",
+      "stance": "Thinks the player has good instincts and bad positioning. Slowly, warily curious about them as a person."
+    },
+    {
+      "id": "haru",
+      "name": "Haru Mizuno",
+      "appearance": "A gentle-looking young person in their early twenties with soft wavy auburn hair, round glasses, flour often on one sleeve, and a knitted scarf.",
+      "voice": "Soft-spoken, patient and teasing in a quiet way; apologises too much and laughs easily.",
+      "stance": "The guild's support player. Has admired the player since the first raid and is too shy to say so."
+    },
+    {
+      "id": "ren",
+      "name": "Ren",
+      "appearance": "A flashy young man with dyed silver hair, a branded gaming jacket, and a confident grin.",
+      "voice": "Breezy and dismissive; talks about 'meta' and 'upgrading teams' like that explains everything.",
+      "stance": "The player's ex-duo partner. Thinks he did nothing wrong by leaving."
+    }
+  ],
+  "flags": {
+    "joined": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player joined the new guild."
+    },
+    "raid_done": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player finished their first raid with the guild."
+    },
+    "yamada": {
+      "type": "counter",
+      "initial": 0,
+      "description": "how close the player and Yamada have grown (0 to 3)."
+    },
+    "haru": {
+      "type": "counter",
+      "initial": 0,
+      "description": "how close the player and Haru have grown (0 to 3)."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 practising late at night with Yamada, 2 a dawn morning at Haru's bakery."
+    },
+    "practised": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has had their one-on-one time before the tournament."
+    },
+    "final_choice": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has chosen who they spend the tournament night's end with."
+    }
+  },
+  "start": "logged_out",
+  "beats": [
+    {
+      "id": "logged_out",
+      "title": "Logged Out",
+      "goal": [
+        {
+          "flag": "joined",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Late night. The player's duo partner Ren has left their party for a big-name guild and left the group chat with one emoji. The player is staring at Forest of Savior's guild recruitment board. A small guild's post catches their eye, and the moment they apply, a healer called Akane messages them with five exclamation marks and a welcome sticker. The scene ends when they join.",
+      "choices": [
+        {
+          "id": "join_guild",
+          "label": "Join Akane's guild",
+          "sets": [
+            {
+              "flag": "joined",
+              "set": true
+            }
+          ],
+          "target": "first_raid"
+        },
+        {
+          "id": "vent_akane",
+          "label": "Tell Akane what just happened with Ren",
+          "sets": [
+            {
+              "flag": "joined",
+              "set": true
+            }
+          ],
+          "target": "first_raid"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "first_raid"
+      ],
+      "isEnding": false,
+      "hint": "Akane's message blinks again: 'We have snacks! Virtual ones! Join us!!!'"
+    },
+    {
+      "id": "first_raid",
+      "title": "Your First Raid",
+      "goal": [
+        {
+          "flag": "raid_done",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In game: a forest-temple raid with the guild. Yamada, top-ranked, carries the fight and gives the player blunt notes in party chat ('stop standing in the fire'). Haru keeps the player alive with perfectly timed heals and apologises for nothing. Akane cheers everyone. The player can listen to Yamada's advice, show off a risky play, or cover Haru when the boss targets them.",
+      "choices": [
+        {
+          "id": "take_advice",
+          "label": "Follow Yamada's call and reposition",
+          "sets": [
+            {
+              "flag": "raid_done",
+              "set": true
+            },
+            {
+              "flag": "yamada",
+              "add": 1
+            }
+          ],
+          "target": "meetup"
+        },
+        {
+          "id": "cover_haru",
+          "label": "Cover Haru when the boss turns on them",
+          "sets": [
+            {
+              "flag": "raid_done",
+              "set": true
+            },
+            {
+              "flag": "haru",
+              "add": 1
+            }
+          ],
+          "target": "meetup"
+        },
+        {
+          "id": "show_off",
+          "label": "Pull off a risky solo play",
+          "sets": [
+            {
+              "flag": "raid_done",
+              "set": true
+            }
+          ],
+          "target": "meetup"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "meetup"
+      ],
+      "isEnding": false,
+      "hint": "Party chat, Yamada: 'move.' The boss is winding up."
+    },
+    {
+      "id": "meetup",
+      "title": "The Offline Meetup",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "A guild offline meetup at a cosy izakaya. Akane is excited and nervous. Haru arrives early with a box of bread from work. Yamada arrives late, looks about eighteen, orders juice, and says almost nothing until someone mentions the tournament. The player gets a seat next to Yamada or Haru. At the end of the night both ask, separately, to practise before the tournament: Yamada at night online, Haru at the bakery at dawn before a shift.",
+      "choices": [
+        {
+          "id": "sit_yamada",
+          "label": "Sit next to Yamada",
+          "sets": [
+            {
+              "flag": "yamada",
+              "add": 1
+            }
+          ]
+        },
+        {
+          "id": "sit_haru",
+          "label": "Sit next to Haru",
+          "sets": [
+            {
+              "flag": "haru",
+              "add": 1
+            }
+          ]
+        },
+        {
+          "id": "practise_yamada",
+          "label": "Agree to late-night practice with Yamada",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "duo_queue"
+        },
+        {
+          "id": "visit_haru",
+          "label": "Agree to meet Haru at the bakery at dawn",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "bakery"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "duo_queue",
+        "bakery"
+      ],
+      "isEnding": false,
+      "hint": "Akane, a little tipsy: 'So! Who are you practising with?' Everyone looks at the player."
+    },
+    {
+      "id": "duo_queue",
+      "title": "Late-Night Duo Queue",
+      "goal": [
+        {
+          "flag": "practised",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "2 a.m. voice chat with Yamada, grinding duel practice. He is a strict, patient teacher, and between matches he says one or two unexpectedly personal things about why he plays and how annoying it is when people leave. The player can be honest about Ren, or just focus on the game. Either way they get much better.",
+      "choices": [
+        {
+          "id": "open_up_yamada",
+          "label": "Tell Yamada how Ren leaving felt",
+          "sets": [
+            {
+              "flag": "practised",
+              "set": true
+            },
+            {
+              "flag": "yamada",
+              "add": 1
+            }
+          ],
+          "target": "tournament"
+        },
+        {
+          "id": "just_play",
+          "label": "Keep it about the game",
+          "sets": [
+            {
+              "flag": "practised",
+              "set": true
+            }
+          ],
+          "target": "tournament"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "tournament"
+      ],
+      "isEnding": false,
+      "hint": "Yamada: '...again.' The duel timer resets."
+    },
+    {
+      "id": "bakery",
+      "title": "Bakery at Dawn",
+      "goal": [
+        {
+          "flag": "practised",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "5 a.m. at the small bakery where Haru works. Warm ovens, flour, the street still dark. Haru teaches the player to shape bread while they talk strategy, and then not strategy. Haru admits, very quietly, that they noticed the player in the first raid. The player can respond however they like.",
+      "choices": [
+        {
+          "id": "stay_shift",
+          "label": "Stay and help through the morning rush",
+          "sets": [
+            {
+              "flag": "practised",
+              "set": true
+            },
+            {
+              "flag": "haru",
+              "add": 1
+            }
+          ],
+          "target": "tournament"
+        },
+        {
+          "id": "strategy_only",
+          "label": "Talk tournament plans and head out",
+          "sets": [
+            {
+              "flag": "practised",
+              "set": true
+            }
+          ],
+          "target": "tournament"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "tournament"
+      ],
+      "isEnding": false,
+      "hint": "Haru dusts their hands: 'Um. Can I tell you something?'"
+    },
+    {
+      "id": "tournament",
+      "title": "Guild Tournament Night",
+      "goal": [
+        {
+          "flag": "final_choice",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Tournament night, everyone in voice chat. In the final, the enemy guild includes Ren, who taunts the player in all-chat. The match comes down to the player. Win or lose, the guild celebrates. Afterward, the player has a choice of where to spend the rest of the night: a late convenience-store walk with Yamada (if they've grown close), a sunrise call with Haru (if they've grown close), or a group victory video call with everyone.",
+      "choices": [
+        {
+          "id": "walk_yamada",
+          "label": "Walk to the convenience store with Yamada",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "level_up"
+        },
+        {
+          "id": "call_haru",
+          "label": "Stay on call with Haru until sunrise",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "player_two"
+        },
+        {
+          "id": "group_call",
+          "label": "Party with the whole guild",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "party_of_four"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "level_up",
+        "player_two",
+        "party_of_four"
+      ],
+      "isEnding": false,
+      "hint": "Ren types in all-chat: 'still bad lol'. The final round starts."
+    },
+    {
+      "id": "level_up",
+      "title": "Level Up",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "yamada",
+          "atLeast": 2
+        }
+      ],
+      "sceneBrief": "A quiet walk to a convenience store at 1 a.m. with Yamada. He buys the player their favourite snack without asking which, says something blunt and kind about how they played, and stands closer than he needs to. Nothing is declared, but something has started. Close on two cans of juice and a streetlight.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Level Up"
+    },
+    {
+      "id": "player_two",
+      "title": "Player Two",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "haru",
+          "atLeast": 2
+        }
+      ],
+      "sceneBrief": "On a call with Haru as the sun comes up, the player hears an oven timer and Haru's laugh. Haru asks if the player wants to duo, properly, and maybe get breakfast after. Close on the first light and a 'yes'.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Player Two"
+    },
+    {
+      "id": "party_of_four",
+      "title": "Party of Four",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "A chaotic group video call: Akane crying happy tears, Haru holding up bread to the camera, Yamada eating chips silently. Ren messages an apology; the player decides whether to answer, later. Close on the guild screenshot, everyone in a silly pose, and a feeling of having found their people.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Party of Four"
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#7ee0a8",
+      "background": "#0d1520",
+      "surface": "#16222f"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

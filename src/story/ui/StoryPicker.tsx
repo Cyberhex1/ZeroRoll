@@ -286,7 +286,12 @@ export default function StoryPicker() {
             <Pin className="w-4 h-4" style={{ color: 'var(--sk-accent)' }} aria-hidden="true" /> Originals
           </h2>
           <p className="text-xs" style={{ color: 'var(--sk-muted)' }}>ZeroRoll's own stories.</p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{originals.map(renderCard)}</div>
+          {/* A swipeable row on phones, so the fan fiction below is not pushed off screen. */}
+          <div className="flex gap-3 overflow-x-auto snap-x pb-1 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible">
+            {originals.map((m) => (
+              <div key={m.id} className="shrink-0 w-[80%] snap-start sm:w-auto">{renderCard(m)}</div>
+            ))}
+          </div>
         </section>
       )}
 
@@ -322,12 +327,22 @@ export default function StoryPicker() {
           return (
             <div key={g.id} className="space-y-3">
               <h3 className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--sk-accent)' }}>{g.name}</h3>
-              {groupBySource(inGroup).map(([title, list]) => (
-                <div key={title} className="space-y-1.5">
-                  <h4 className="text-sm font-semibold">{title} <span className="text-xs font-normal" style={{ color: 'var(--sk-muted)' }}>· {list.length} {list.length === 1 ? 'story' : 'stories'}</span></h4>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{list.map(renderCard)}</div>
+              {!query.trim() && (
+                <div className="flex flex-wrap gap-1.5" role="group" aria-label={`${g.name}: jump to a work`}>
+                  {groupBySource(inGroup).map(([title, list]) => (
+                    <button
+                      key={title}
+                      type="button"
+                      onClick={() => setQuery(title)}
+                      className="text-[11px] rounded-full px-2.5 py-1 border"
+                      style={{ borderColor: 'color-mix(in srgb, var(--sk-text) 20%, transparent)', color: 'var(--sk-text)' }}
+                    >
+                      {title} <span style={{ color: 'var(--sk-muted)' }}>{list.length}</span>
+                    </button>
+                  ))}
                 </div>
-              ))}
+              )}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{groupBySource(inGroup).flatMap(([, list]) => list).map(renderCard)}</div>
             </div>
           );
         })}

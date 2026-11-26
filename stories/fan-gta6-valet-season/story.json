@@ -1,0 +1,401 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-gta6-valet-season",
+    "title": "Valet Season",
+    "category": "adventure",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You park cars for rich people on Vice Beach. Tonight a sweaty guest tosses you the keys to a cherry-red supercar, and the burner phone in its trunk starts ringing. Whoever's calling thinks you're the driver. By dawn you need to be in the Leonida Keys, or very far away from them.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Grand Theft Auto VI",
+      "medium": "game",
+      "owner": "Rockstar Games",
+      "aka": [
+        "GTA 6",
+        "GTA VI",
+        "GTA6"
+      ]
+    }
+  },
+  "world": "Vice City and the state of Leonida, present day: neon on Vice Beach, influencers filming everything, swamp airboats in the Grassrivers, and the long causeway highway down to the Leonida Keys. The player works the night valet stand at the Starfish Grand hotel. The guest who hands over a cherry-red supercar is Detective Kyle Boone, a crooked Vice City cop; the duffel in the trunk is cash skimmed from an evidence room, meant as a payoff to a Keys fixer called Dez Marrero, who runs boats out of Leonida. Boone's courier never showed, so Dez's burner phone in the trunk keeps calling. The player's coworker and best friend Marisol Ybarra films everything for her channel. Boone wants his car and his cash back without anyone knowing they existed.",
+  "tone": "Sunny, satirical crime caper: neon, palm trees, bad decisions, ridiculous people, fast cars. Danger and guns exist but the story is about nerve, luck and friendship, not bloodshed.",
+  "playerRole": "A night-shift valet at a Vice Beach hotel, behind on rent, good behind the wheel, with a valet jacket, a key lockbox, a cracked phone and big plans that haven't happened yet. How far you're willing to go tonight is up to you.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense, quick and funny: radio stations, social media comments, absurd billboards, humid air. Keep it a satire of Florida-style life without real brands. Never quote or retell the game's story or use its main characters. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "marisol",
+      "name": "Marisol Ybarra",
+      "appearance": "A young Latina woman with curly dark hair in a high ponytail, gold hoop earrings, a red valet jacket over a crop top, and a phone always held up filming.",
+      "voice": "Fast, funny Vice City slang, narrates her life for her followers, loyal to the bone.",
+      "stance": "The player's best friend and coworker. Will ride along on anything as long as she can film it."
+    },
+    {
+      "id": "boone",
+      "name": "Detective Kyle Boone",
+      "appearance": "A sunburned, heavy-set white man in his forties with slicked-back thinning hair, mirrored sunglasses at night, a loud tropical shirt over a shoulder holster, and a gold watch.",
+      "voice": "Friendly-dad charm that turns into cop threats in one sentence. Sweats a lot.",
+      "stance": "Wants his car and his cash back quietly and will frame the player for theft if it helps."
+    },
+    {
+      "id": "dez",
+      "name": "Dez Marrero",
+      "appearance": "A calm, lean man in his thirties with a shaved head, a neatly trimmed beard, a faded fishing shirt, cargo shorts and white boat shoes, with a toothpick always in his mouth.",
+      "voice": "Unhurried, polite, dryly funny, speaks in fishing metaphors.",
+      "stance": "The fixer waiting for the cash. Values reliability and nerve, and is curious about this new 'driver'."
+    }
+  ],
+  "flags": {
+    "noticed_bag": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has found the cash and the ringing burner phone."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 driving to the Keys, 2 hiding the car and playing both sides."
+    },
+    "escaped": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player got clear of Boone's people on the road."
+    },
+    "leverage": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has something on Boone."
+    },
+    "filmed": {
+      "type": "bool",
+      "initial": false,
+      "description": "Marisol has footage that proves what Boone is."
+    },
+    "dez_trust": {
+      "type": "bool",
+      "initial": false,
+      "description": "Dez trusts the player as a driver."
+    },
+    "final_choice": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has decided what happens at the dock."
+    }
+  },
+  "start": "valet_stand",
+  "beats": [
+    {
+      "id": "valet_stand",
+      "title": "Keys on the Hook",
+      "goal": [
+        {
+          "flag": "noticed_bag",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Midnight at the Starfish Grand valet stand on Vice Beach: neon, bass from a club, tourists filming a man walking an iguana. A sweaty guest in mirrored sunglasses tosses the player the keys to a cherry-red supercar with a hundred-dollar tip and a warning not to touch anything. When the player parks it, something in the trunk keeps buzzing: a burner phone on top of a duffel bag stuffed with cash. Marisol is right behind them with her phone up. The scene ends when they open the trunk or answer the phone.",
+      "choices": [
+        {
+          "id": "answer_phone",
+          "label": "Answer the buzzing phone",
+          "sets": [
+            {
+              "flag": "noticed_bag",
+              "set": true
+            }
+          ],
+          "target": "the_call"
+        },
+        {
+          "id": "open_duffel",
+          "label": "Unzip the duffel bag",
+          "sets": [
+            {
+              "flag": "noticed_bag",
+              "set": true
+            },
+            {
+              "flag": "filmed",
+              "set": true
+            }
+          ],
+          "target": "the_call"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_call"
+      ],
+      "isEnding": false,
+      "hint": "The trunk buzzes again. Marisol whispers: 'Bro. Bro. Open it.'"
+    },
+    {
+      "id": "the_call",
+      "title": "Wrong Valet",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The caller, calm and polite, is Dez Marrero. He assumes the player is the courier, tells them the car and the bag need to be at a dock in the Leonida Keys by sunrise, and hangs up. A minute later the guest comes back down the hotel steps with two large friends, scanning the lot. Marisol has worked out from his badge clip that he's a cop. Decide fast: drive south, or hide the car in the hotel garage and make the cop come to them.",
+      "choices": [
+        {
+          "id": "drive_south",
+          "label": "Floor it toward the Keys with Marisol",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "causeway"
+        },
+        {
+          "id": "hide_car",
+          "label": "Hide the car on garage level B3",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "garage"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "causeway",
+        "garage"
+      ],
+      "isEnding": false,
+      "hint": "The guest is pointing at the valet stand and asking questions."
+    },
+    {
+      "id": "causeway",
+      "title": "The Long Causeway",
+      "goal": [
+        {
+          "flag": "escaped",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Night drive south out of Vice City: radio blasting, Marisol livestreaming then thinking better of it. Boone's friends follow in an unmarked SUV. The player can lose them on the causeway, or cut through the Grassrivers swamp, where an airboat captain owes Marisol's cousin a favour (and an alligator is in the way). Escaping is the goal; how is up to the player.",
+      "choices": [
+        {
+          "id": "outdrive",
+          "label": "Outdrive them across the causeway",
+          "sets": [
+            {
+              "flag": "escaped",
+              "set": true
+            }
+          ],
+          "target": "keys_dock"
+        },
+        {
+          "id": "airboat",
+          "label": "Ditch the car's trail through the Grassrivers by airboat",
+          "sets": [
+            {
+              "flag": "escaped",
+              "set": true
+            },
+            {
+              "flag": "filmed",
+              "set": true
+            }
+          ],
+          "target": "keys_dock"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "keys_dock"
+      ],
+      "isEnding": false,
+      "hint": "Headlights in the mirror, closing. The causeway is long and straight."
+    },
+    {
+      "id": "garage",
+      "title": "Level B3",
+      "goal": [
+        {
+          "flag": "leverage",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The hotel garage at 2 a.m., humming lights and dripping pipes. Boone finds the car and the player, and drops the friendly act: hand it over, or he'll arrest them for grand theft and nobody will believe a valet. But Marisol has been filming from behind a pillar, and the duffel still has the evidence-room tags on it. Getting leverage on Boone is the goal. Then they still need to get the bag to the dock before dawn, or Dez will come looking.",
+      "choices": [
+        {
+          "id": "show_tags",
+          "label": "Show Boone the evidence tags and smile",
+          "sets": [
+            {
+              "flag": "leverage",
+              "set": true
+            }
+          ],
+          "target": "keys_dock"
+        },
+        {
+          "id": "signal_marisol",
+          "label": "Signal Marisol to keep filming while he talks",
+          "sets": [
+            {
+              "flag": "leverage",
+              "set": true
+            },
+            {
+              "flag": "filmed",
+              "set": true
+            }
+          ],
+          "target": "keys_dock"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "keys_dock"
+      ],
+      "isEnding": false,
+      "hint": "Boone's hand drifts to the holster under his shirt."
+    },
+    {
+      "id": "keys_dock",
+      "title": "The Dock at Dawn",
+      "goal": [
+        {
+          "flag": "final_choice",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Sunrise on a fishing dock in the Leonida Keys: pelicans, pastel water, a fast boat idling. Dez waits with a toothpick. He's amused the courier is a valet and impressed they made it. Then Boone's SUV pulls up. Everyone wants the bag. The player decides how this ends: hand it to Dez and take his offer of steady driving work; let Marisol post everything (only works if she has real footage of Boone); or walk away from all of them and leave the bag on the dock.",
+      "choices": [
+        {
+          "id": "work_for_dez",
+          "label": "Hand Dez the bag and take his offer",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            },
+            {
+              "flag": "dez_trust",
+              "set": true
+            }
+          ],
+          "target": "keys_to_the_keys"
+        },
+        {
+          "id": "post_it",
+          "label": "Tell Marisol to post everything",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "gone_viral"
+        },
+        {
+          "id": "walk_away",
+          "label": "Drop the keys on the bag and walk away",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "back_on_the_stand"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "keys_to_the_keys",
+        "gone_viral",
+        "back_on_the_stand"
+      ],
+      "isEnding": false,
+      "hint": "Dez rolls his toothpick: 'Somebody make a decision. The fish are biting.'"
+    },
+    {
+      "id": "keys_to_the_keys",
+      "title": "Keys to the Keys",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "dez_trust",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Dez pays the player more than a year of valet tips and gives them a number to call. Boone is told, politely, that this is now Dez's business. The player and Marisol drive back north as the sun comes up, rich, nervous, and in a new line of work. Close on the phone buzzing with a new job.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Keys to the Keys"
+    },
+    {
+      "id": "gone_viral",
+      "title": "Gone Viral",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "filmed",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Marisol posts the footage of a Vice City detective with an evidence-room duffel. It explodes: millions of views, memes, a news chopper over the dock. Boone is arrested by his own department by lunch; Dez is long gone by boat. The player is briefly the most famous valet in Leonida. Close on comments scrolling past faster than they can read.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Gone Viral"
+    },
+    {
+      "id": "back_on_the_stand",
+      "title": "Back on the Stand",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player leaves the bag on the dock and walks away, letting the crooks sort it out. Marisol complains the whole bus ride back. Nobody comes looking for them. Monday night they're back on the valet stand on Vice Beach with a hundred-dollar tip still in their pocket and a much better story than anyone they park for. Close on the neon and a new car pulling up.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Back on the Stand"
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#ff5fa2",
+      "background": "#120b1e",
+      "surface": "#1e1230"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "none"
+  }
+}

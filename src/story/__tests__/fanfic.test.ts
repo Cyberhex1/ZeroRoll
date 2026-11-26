@@ -61,6 +61,7 @@ describe('fan fiction stories', () => {
     expect(matchesSearch(list[2], 'fantasy baldur')).toBe(true);
     expect(matchesSearch(list[2], 'diablo')).toBe(false);
     expect(matchesSearch(fan('Les', 'Les Misérables', 'book'), 'miserables')).toBe(true);
+    expect(matchesSearch({ ...list[0], source: { title: 'Grand Theft Auto VI', medium: 'game', aka: ['GTA 6'] } }, 'gta')).toBe(true);
   });
 });
 

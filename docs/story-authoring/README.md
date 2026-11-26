@@ -59,6 +59,30 @@ set (see `scripts/story-import.ts`); otherwise it copies the art into `public/st
 for local testing. It then writes `stories/<id>/story.json`, and the story shows up in the
 Story mode picker.
 
+## Fan fiction
+
+A story with `meta.source` is fan fiction: `{ "title": "Baldur's Gate 3", "medium": "game",
+"owner": "Larian Studios", "aka": ["BG3"] }` (medium is one of game, anime, manga, manhwa, tv,
+film, book). The picker pins stories without a source as **Originals** and lists fan fiction
+below them by kind of work, with search (title, blurb, genre, the work and its `aka` names) and
+genre chips. The narrator gets a SOURCE block: use the work's world and canon characters as
+fans know them, but tell a new story and never quote the original. Fan fiction is always new
+writing with the player as a new character; art shows places, moods and original characters,
+never logos or copies of official character designs.
+
+**Create your own fanfic** (`/story/create`, `src/story/createFanfic.ts`) asks for the work and
+an optional idea, and the player's story model writes a whole story in this format. The code
+checks the beat graph (one rewrite if it is broken), a second model reads the story against the
+prompt (one rewrite if it finds problems), and the story is saved on the device with
+`meta.created: true` and no art. Any failure shows an error; there is no stand-in story.
+`npx vite-node scripts/fanfic-eval.ts "Lookism:manhwa"` runs it on real Gemini output.
+
+## Player name and pronouns
+
+Every story asks "Who are you in this story?" before it begins. The answer is kept on the save
+(`player`) and sent in the story prompt every turn, so `playerRole` must never name the player
+or fix their gender.
+
 ## Ratings
 
 `everyone`, `teen` or `mature`. Mature stories are hidden unless the player turns on

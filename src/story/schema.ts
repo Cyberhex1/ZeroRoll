@@ -154,7 +154,9 @@ export const SourceSchema = z
     title: z.string().min(1).max(80),
     medium: z.enum(MEDIUMS),
     /** Who owns the work, for the "Unofficial fan fiction" note, e.g. "Larian Studios". */
-    owner: z.string().max(80).optional()
+    owner: z.string().max(80).optional(),
+    /** Other names players search for, e.g. ["BG3"]. */
+    aka: z.array(z.string().min(1).max(40)).max(6).optional()
   })
   .strict();
 

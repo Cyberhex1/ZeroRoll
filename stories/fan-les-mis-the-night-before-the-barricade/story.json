@@ -1,0 +1,475 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-les-mis-the-night-before-the-barricade",
+    "title": "The Night Before the Barricade",
+    "category": "historical_adventure",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "Paris, June 1832. You set type for a living, and tonight the students in the back room of the Café Musain need a printer they can trust. By tomorrow the city will be at war with itself, and you will have to decide who you save.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Les Misérables",
+      "medium": "book",
+      "owner": "Victor Hugo (public domain)",
+      "aka": [
+        "Les Mis",
+        "Les Miserables"
+      ]
+    }
+  },
+  "world": "Paris, 4 to 6 June 1832, the June Rebellion. The Friends of the ABC, a society of republican students led by Enjolras, meet in the back room of the Café Musain and plan to rise at the funeral of General Lamarque. They will build a barricade in the narrow rue de la Chanvrerie around the Corinthe wine shop, run by the widow Hucheloup. The city will not rise with them; the army will come at dawn on the 6th and the barricade will fall. Among the volunteers is a tall stranger who is Inspector Javert, a police spy. The street boy Gavroche will try to collect cartridges from the dead in front of the barricade during the fighting. Nothing in the city is decided yet except that the barricade is doomed; who the player saves is up to them.",
+  "tone": "Romantic, tragic and human: candlelight, songs in the dark, cobblestones, gunpowder, courage and despair, Hugo's grand sympathy for the poor. Death is present but never graphic.",
+  "playerRole": "A young printer's apprentice in the Latin Quarter who sets type for anyone who pays, and has been quietly printing the students' pamphlets. You carry ink-black hands, a composing stick, a few sous, and a set of keys to the print shop. Your loyalties are yours to choose.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense, with a touch of Hugo's sweep: wide views of Paris, then close faces. Let the students argue, joke and hope. Keep history accurate. Never quote the novel or any musical's lyrics; write everything fresh. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 5,
+  "cast": [
+    {
+      "id": "enjolras",
+      "name": "Enjolras",
+      "appearance": "A young man of about twenty-two with pale, fine features like a marble statue, long blond hair, blue eyes, a dark coat buttoned to the throat and a red sash.",
+      "voice": "Grave, burning and precise. Speaks of the Republic like a lover and of himself never.",
+      "stance": "Respects the player's courage and will ask more of them than is fair."
+    },
+    {
+      "id": "grantaire",
+      "name": "Grantaire",
+      "appearance": "A rumpled young man with an unshaven, homely face, dark untidy hair, a stained waistcoat, and a bottle never far from his hand.",
+      "voice": "Witty, cynical and self-mocking, believes in nothing except, secretly, in Enjolras.",
+      "stance": "Treats the player as a fellow sceptic and will stay sober for them, once, if asked."
+    },
+    {
+      "id": "gavroche",
+      "name": "Gavroche",
+      "appearance": "A skinny street boy of about eleven in trousers far too big held up by one strap, a man's jacket with torn elbows, a battered cap, and bare, dirty feet.",
+      "voice": "Quick, cheeky Paris slang, invents songs and insults on the spot, fearless to the point of madness.",
+      "stance": "Adopts the player as an older sibling within an hour and expects them to keep up."
+    },
+    {
+      "id": "javert",
+      "name": "The tall stranger (Inspector Javert)",
+      "appearance": "A very tall man with a long, stern face, heavy sideburns, a low hat pulled down and a long grey greatcoat buttoned to the chin.",
+      "voice": "Few words, flat and cold. Asks practical questions about numbers, powder and exits.",
+      "stance": "A police spy pretending to volunteer. Unbending, but bound by his own sense of law and debt."
+    }
+  ],
+  "flags": {
+    "sworn": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has thrown in with the Friends of the ABC."
+    },
+    "at_corinthe": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has reached the Corinthe as the rising begins."
+    },
+    "gavroche_safe": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has kept Gavroche out of the worst danger."
+    },
+    "barricade_built": {
+      "type": "bool",
+      "initial": false,
+      "description": "the barricade on the rue de la Chanvrerie is up."
+    },
+    "javert_exposed": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has helped unmask the tall stranger as a police spy."
+    },
+    "javert_spared": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player argued for the spy's life and he knows it."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 helped carry the wounded out, 2 went after Gavroche in front of the barricade."
+    },
+    "dawn_choice": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has chosen where to be when the army comes."
+    }
+  },
+  "start": "musain",
+  "beats": [
+    {
+      "id": "musain",
+      "title": "The Back Room of the Musain",
+      "goal": [
+        {
+          "flag": "sworn",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night of 4 June 1832. The back room of the Café Musain, thick with pipe smoke: the Friends of the ABC argue over maps of Paris. Enjolras explains that at General Lamarque's funeral tomorrow, the people will rise. Grantaire heckles from a corner with his bottle. They need the player's press to run one last proclamation tonight, and someone who knows the back streets. Gavroche has sneaked in for the warmth. The scene ends when the player commits to the cause in their own way.",
+      "choices": [
+        {
+          "id": "print_it",
+          "label": "Promise to print the proclamation tonight",
+          "sets": [
+            {
+              "flag": "sworn",
+              "set": true
+            }
+          ],
+          "target": "funeral"
+        },
+        {
+          "id": "argue_grantaire",
+          "label": "Side with Grantaire's doubts, but stay anyway",
+          "sets": [
+            {
+              "flag": "sworn",
+              "set": true
+            }
+          ],
+          "target": "funeral"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "funeral"
+      ],
+      "isEnding": false,
+      "hint": "Enjolras looks straight at the player: 'Will you stand with us, or only print for us?'"
+    },
+    {
+      "id": "funeral",
+      "title": "General Lamarque's Funeral",
+      "goal": [
+        {
+          "flag": "at_corinthe",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "5 June, afternoon. The funeral procession crosses Paris in the rain: thousands of mourners, workers, students, foreign exiles. Near the Austerlitz bridge, dragoons charge, shots ring out, and the crowd breaks into a riot. The students run for the rue de la Chanvrerie. In the crush, Gavroche is right in front of the horses, laughing. The player can drag him clear or run with the students; either way they end up at the Corinthe.",
+      "choices": [
+        {
+          "id": "pull_gavroche",
+          "label": "Haul Gavroche out from under the dragoons",
+          "sets": [
+            {
+              "flag": "at_corinthe",
+              "set": true
+            },
+            {
+              "flag": "gavroche_safe",
+              "set": true
+            }
+          ],
+          "target": "corinthe"
+        },
+        {
+          "id": "run_students",
+          "label": "Run with the students toward the Corinthe",
+          "sets": [
+            {
+              "flag": "at_corinthe",
+              "set": true
+            }
+          ],
+          "target": "corinthe"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "corinthe"
+      ],
+      "isEnding": false,
+      "hint": "A dragoon's horse rears over the crowd. Gavroche is right beneath it, cheering."
+    },
+    {
+      "id": "corinthe",
+      "title": "Paving Stones and an Omnibus",
+      "goal": [
+        {
+          "flag": "barricade_built",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The rue de la Chanvrerie: the students tear up paving stones, overturn an omnibus, and pile furniture from the Corinthe into a barricade while the widow Hucheloup scolds them. A tall stranger in a grey greatcoat volunteers and asks careful questions about numbers, powder and how many guns they have. The player may notice something off about him (Gavroche certainly does). When the barricade is up the stranger can be unmasked as Inspector Javert of the police, if the player pushes.",
+      "choices": [
+        {
+          "id": "build_it",
+          "label": "Haul paving stones until the barricade stands",
+          "sets": [
+            {
+              "flag": "barricade_built",
+              "set": true
+            }
+          ],
+          "target": "night_watch"
+        },
+        {
+          "id": "expose_stranger",
+          "label": "Tell Enjolras the tall stranger is a spy",
+          "sets": [
+            {
+              "flag": "barricade_built",
+              "set": true
+            },
+            {
+              "flag": "javert_exposed",
+              "set": true
+            }
+          ],
+          "target": "night_watch"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "night_watch"
+      ],
+      "isEnding": false,
+      "hint": "The tall stranger is counting the guns under his breath."
+    },
+    {
+      "id": "night_watch",
+      "title": "The Night of the Fifth",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night on the barricade. The city has not risen; the students know they are alone. Candles in the Corinthe, a quiet song, Combeferre tending the wounded, Grantaire asleep drunk in the wine shop. If Javert was unmasked he is tied to a post inside and will be shot at the end; the player can argue for his life. Before dawn there are two things worth doing: carry the badly wounded out through a gap in the back alleys, or watch Gavroche, who is eyeing the dead soldiers' cartridge pouches in the street.",
+      "choices": [
+        {
+          "id": "spare_javert",
+          "label": "Ask Enjolras to spare the tied-up spy",
+          "sets": [
+            {
+              "flag": "javert_spared",
+              "set": true
+            }
+          ]
+        },
+        {
+          "id": "carry_wounded",
+          "label": "Carry the wounded out through the back alleys",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "the_wounded"
+        },
+        {
+          "id": "follow_gavroche",
+          "label": "Keep an eye on Gavroche and the cartridges",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "the_cartridges"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_wounded",
+        "the_cartridges"
+      ],
+      "isEnding": false,
+      "hint": "The candles are burning low. Gavroche is creeping toward the top of the barricade."
+    },
+    {
+      "id": "the_wounded",
+      "title": "Through the Back Alleys",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Before dawn the player and Combeferre carry two wounded students through the twisting alleys behind the Corinthe toward a doctor's house, dodging a National Guard patrol. It is slow, frightening, and successful if the player keeps their head. They return just as the drums begin.",
+      "choices": [
+        {
+          "id": "return_barricade",
+          "label": "Get back to the barricade before the drums stop",
+          "sets": [],
+          "target": "dawn"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "dawn"
+      ],
+      "isEnding": false,
+      "hint": "Far off, the army's drums begin."
+    },
+    {
+      "id": "the_cartridges",
+      "title": "Cartridges in the Street",
+      "goal": [
+        {
+          "flag": "gavroche_safe",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Dawn fighting has begun. Gavroche slips over the barricade with a basket to collect cartridges from the fallen soldiers, singing and mocking the troops while bullets strike the cobbles around him. The player can go out after him and drag him back, or take the basket from him and go instead. This is the moment that decides whether the boy lives.",
+      "choices": [
+        {
+          "id": "drag_back",
+          "label": "Go over the barricade and drag him back",
+          "sets": [
+            {
+              "flag": "gavroche_safe",
+              "set": true
+            }
+          ],
+          "target": "dawn"
+        },
+        {
+          "id": "take_basket",
+          "label": "Take the basket and send him inside",
+          "sets": [
+            {
+              "flag": "gavroche_safe",
+              "set": true
+            }
+          ],
+          "target": "dawn"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "dawn"
+      ],
+      "isEnding": false,
+      "hint": "A bullet knocks Gavroche's cap from his head. He laughs and keeps going."
+    },
+    {
+      "id": "dawn",
+      "title": "The Morning of the Sixth",
+      "goal": [
+        {
+          "flag": "dawn_choice",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "6 June. The army brings cannon. The barricade will fall within the hour, and everyone on it knows. Enjolras is calm. Grantaire wakes, and is sober. The player chooses where to be at the end: on the barricade with Enjolras; over the rooftops with Gavroche (only if they kept him safe); or walking out past the lines with the pass Javert offers in exchange for his life (only if they spared him).",
+      "choices": [
+        {
+          "id": "stand_end",
+          "label": "Stand on the barricade to the end",
+          "sets": [
+            {
+              "flag": "dawn_choice",
+              "set": true
+            }
+          ],
+          "target": "paris_remembers"
+        },
+        {
+          "id": "rooftops",
+          "label": "Take Gavroche over the rooftops",
+          "sets": [
+            {
+              "flag": "dawn_choice",
+              "set": true
+            }
+          ],
+          "target": "over_the_rooftops"
+        },
+        {
+          "id": "javert_pass",
+          "label": "Accept the inspector's word and walk out",
+          "sets": [
+            {
+              "flag": "dawn_choice",
+              "set": true
+            }
+          ],
+          "target": "the_inspectors_debt"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "paris_remembers",
+        "over_the_rooftops",
+        "the_inspectors_debt"
+      ],
+      "isEnding": false,
+      "hint": "The cannon is rolled into place at the end of the street."
+    },
+    {
+      "id": "paris_remembers",
+      "title": "Paris Remembers",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The barricade falls. The player fights beside Enjolras and Grantaire to the last, is struck down and wakes days later in a stranger's house, alive. Months on, the player sets the names of the dead in type, one by one, and prints them for anyone who will read. Tragic and proud, not graphic.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Paris Remembers"
+    },
+    {
+      "id": "over_the_rooftops",
+      "title": "Over the Rooftops",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "gavroche_safe",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The player and Gavroche go up through the Corinthe's attic and over the roofs of Paris as the cannon fires below. They hide among chimney pots until the shooting stops. Gavroche goes quiet for the first time, then makes a joke. Close on the two of them looking at the morning city: he is alive, and the player now has a little brother whether they like it or not.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Over the Rooftops"
+    },
+    {
+      "id": "the_inspectors_debt",
+      "title": "The Inspector's Debt",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "javert_exposed",
+          "is": true
+        },
+        {
+          "flag": "javert_spared",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Javert, freed because the player spoke for him, keeps his word with cold exactness: he walks the player past the soldiers and lets them go, then tells them he will arrest them the next time they meet. The player walks through a silent Paris while the drums sound behind them, carrying what they saw. Close on the strangeness of being owed something by the law.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Inspector's Debt"
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c8423b"
+    },
+    "particles": "ash"
+  }
+}

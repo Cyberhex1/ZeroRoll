@@ -13,6 +13,7 @@ import { storyInspiration } from '../setup/draft';
 import { addEntry } from '../memory/memoryStore';
 import type { Experience, LogMessage } from '../types';
 import { experienceMemory } from './memory';
+import { chapterTitle, pastBookRecord } from './chapters';
 
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
@@ -76,7 +77,7 @@ export async function continueToNextBook(exp: Experience, model: string): Promis
   });
   const now = new Date().toISOString();
   const memory = addEntry(experienceMemory(exp), `Book ${book - 1}: ${clip(bookRecap(exp).replace(/\n/g, ' '), 380)}`, exp.logs.length, 'state', true);
-  const divider: LogMessage = { id: `msg_${uid()}`, sender: 'system', text: `📖 Book ${book} begins. ${character.name} has rested and recovered.`, timestamp: now };
+  const divider: LogMessage = { id: `msg_${uid()}`, sender: 'system', text: `📖 Book ${book} begins. ${character.name} has rested and recovered.`, timestamp: now, marker: { kind: 'book', book, chapter: 1, ...(pkg.title ? { title: chapterTitle(pkg.title) ?? pkg.title } : {}) } };
   const chapterOne: LogMessage = {
     id: `msg_${uid()}`,
     sender: 'dm',
@@ -88,6 +89,9 @@ export async function continueToNextBook(exp: Experience, model: string): Promis
   return {
     ...exp,
     book,
+    bookTitle: pkg.title || undefined,
+    // The finished book keeps its roadmap for the chapter list; the new outline replaces it below.
+    pastBooks: [...(exp.pastBooks ?? []).filter((b) => b.book !== (exp.book ?? 1)), pastBookRecord(exp)],
     character,
     storyOutline: scenario.storyOutline ?? exp.storyOutline,
     description: scenario.storyBlurb || exp.description,

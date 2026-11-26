@@ -135,6 +135,28 @@ export interface LogMessage {
   actionType?: 'narrative' | 'combat' | 'skill_check' | 'rule_adjudication' | 'map_update';
   modelUsed?: string;
   suggestedActions?: string[];
+  /** A book or chapter start, drawn as a divider in the story (src/dnd/chapters.ts). */
+  marker?: StoryMarker;
+}
+
+/** Where a book or chapter begins in the log. Older saves have none; their markers are read from the text. */
+export interface StoryMarker {
+  kind: 'book' | 'chapter';
+  book: number;
+  chapter: number;
+  /** The roadmap's chapter title (or the book's title), without "Chapter N:". */
+  title?: string;
+}
+
+/** A finished book, kept so the chapter list can show it after the roadmap is replaced. */
+export interface PastBook {
+  book: number;
+  title?: string;
+  /** The book's whole roadmap, "Chapter N: Title" lines. */
+  chapters: string[];
+  /** How far the book got before it ended. */
+  reached: number;
+  ended?: 'story' | 'death' | null;
 }
 
 export interface MapToken {
@@ -277,6 +299,10 @@ export interface Experience {
   rulesMode?: 'full5e' | 'narrative';
   /** Which book of the campaign is being played (Book Two continues in the same save). */
   book?: number;
+  /** This book's own title (Book Two onwards); Book One uses the campaign title. */
+  bookTitle?: string;
+  /** Books already finished in this save, oldest first. Missing on saves from before the chapter list. */
+  pastBooks?: PastBook[];
   /** Set when the story concluded or the hero died; input is locked until the player continues. */
   concluded?: { reason: 'story' | 'death'; at: string } | null;
   /** 0.2: the Director's state (src/forge/director.ts). Missing on older campaigns; made on first use. */

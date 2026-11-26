@@ -34,6 +34,10 @@ describe('next book', () => {
     expect(next.memory!.entries[0]).toMatchObject({ pinned: true });
     expect(next.memory!.entries[0].text).toMatch(/^Book 1:/);
     expect(next.logs.slice(-1)[0]).toMatchObject({ sender: 'dm', text: 'Salt wind. Chapter One.', suggestedActions: ['Board the ship'] });
+    // The chapter list keeps the finished book's roadmap and finds where the new book starts.
+    expect(next.pastBooks).toEqual([{ book: 1, title: 'Saltmarsh', chapters: ['Docks', 'Marsh', 'Bell', 'Never reached'], reached: 3, ended: 'story' }]);
+    expect(next.bookTitle).toBe('T');
+    expect(next.logs.slice(-2)[0].marker).toMatchObject({ kind: 'book', book: 2, chapter: 1 });
   });
 
   it('writes the new book with the same story roll as a new campaign, hero kept', async () => {

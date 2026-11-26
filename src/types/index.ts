@@ -134,6 +134,8 @@ export interface LogMessage {
   actionType?: 'narrative' | 'combat' | 'skill_check' | 'rule_adjudication' | 'map_update';
   modelUsed?: string;
   suggestedActions?: string[];
+  /** Scene art painted for this Game Master message (src/art/sceneArt.ts), stored on this device. */
+  sceneArt?: { ref: string; model: string; reason: string };
 }
 
 export interface MapToken {

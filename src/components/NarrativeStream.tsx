@@ -37,6 +37,8 @@ interface NarrativeStreamProps {
   lockedReason?: string;
   /** Shown under lockedReason, e.g. a Continue to Book Two button. */
   lockedAction?: React.ReactNode;
+  /** Shown under a message's bubble (scene art under Game Master messages). */
+  renderAfterMessage?: (log: LogMessage, isLatestDm: boolean) => React.ReactNode;
 }
 
 export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
@@ -54,7 +56,8 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
   characterStats,
   checkModifierLabel,
   lockedReason,
-  lockedAction
+  lockedAction,
+  renderAfterMessage
 }) => {
   // Chips belong to the newest game master message only (S15).
   const lastDmIndex = logs.reduce((at, l, i) => (l.sender === 'dm' ? i : at), -1);
@@ -287,6 +290,8 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                     </div>
                   )}
                 </div>
+
+                {log.sender === 'dm' && renderAfterMessage?.(log, logIndex === lastDmIndex)}
 
                 {/* Suggested Action Chips (Hidden if pending check) */}
                 {!pendingCheck && !lockedReason && logIndex === lastDmIndex && log.suggestedActions && log.suggestedActions.length > 0 && (

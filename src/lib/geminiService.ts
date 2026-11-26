@@ -1,3 +1,4 @@
+import { refreshUsableImageModels } from '../art/sceneArt';
 import firebaseConfig from '../../firebase-applet-config.json';
 import { RULE_NEVER_CLIMAX, shapeById } from '../setup/storyShape';
 import { PortraitsOffError, base64ToBlob, freePortraitsAllowed, storePortraitBlob, storePortraitFromUrl } from './portraits';
@@ -616,6 +617,11 @@ export async function testProviderConnection(params: {
         skipped = normalizeGeminiModelName(model);
         model = usableModels[0];
       }
+      // Scene art: which image models this key can use (a text-only probe, no picture is painted).
+      // Never fails the connection test: image models need billing, and many keys have none.
+      try {
+        await refreshUsableImageModels(apiKey);
+      } catch (_) {}
       if (!usableModels.length) {
         throw new AIError('overloaded', `None of this key's models answered a test request right now (${r.failed.map((f) => `${f.model}: ${f.reason}`).join('; ')}). Try again in a minute.`, { provider: 'gemini' });
       }

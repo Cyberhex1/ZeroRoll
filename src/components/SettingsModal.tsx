@@ -17,6 +17,7 @@ import { BackupPanel } from './BackupPanel';
 import { SaveRecoveryPanel } from './SaveRecoveryPanel';
 import { PortraitSettingsPanel } from './PortraitSettingsPanel';
 import { ContentRatingPanel } from './ContentRatingPanel';
+import { SceneArtSettingsPanel } from '../art/ui/SceneArtSettingsPanel';
 import { KeySyncPanel } from './KeySyncPanel';
 import { isTauri } from '../lib/platform';
 
@@ -181,6 +182,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Section 3: Opt-in encrypted key sync */}
         <KeySyncPanel user={user} />
+        <SceneArtSettingsPanel />
         <PortraitSettingsPanel />
         <ContentRatingPanel />
 

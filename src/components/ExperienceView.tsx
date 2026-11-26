@@ -19,7 +19,7 @@ import { NarrativeStream } from './NarrativeStream';
 import { CharacterSheetPanel } from './CharacterSheetPanel';
 import { DiceRollModal } from './DiceRollModal';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
-import { activeLocalContext, executeActionTurn, generateAvatarAI, getLastModelUsedLabel, refereeAdjudicate } from '../lib/geminiService';
+import { activeLocalContext, executeActionTurn, generateAvatarAI, getActiveProvider, getLastModelUsedLabel, getProviderKey, refereeAdjudicate } from '../lib/geminiService';
 import { complete } from '../ai/router';
 import { applyDelta, applyWorld, chapterCount, gateAlerts, nextAlert, rulesModeOf } from '../dnd/applyTurn';
 import { leadAlert } from '../dnd/turnParser';
@@ -34,6 +34,8 @@ import { useDialog } from './ui/useDialog';
 import { turnDirection } from '../forge/turnContext';
 import { updateDirector } from '../forge/director';
 import { forgeDebug } from '../forge/debug';
+import { SceneReason, buildScenePrompt, getDailyCap, getSceneArtMode, getSceneArtModel, paintScene, picturesToday, sceneMoment, subscribeSceneArtSettings } from '../art/sceneArt';
+import { SceneArtJob, SceneArtSlot } from '../art/ui/SceneArtSlot';
 
 const ALERT_ICON: Record<string, string> = { chapter_transition: '📖', story_conclusion: '🏁', ambush: '⚔️', crisis: '🔥', twist: '🌀', opportunity: '✨', course_change: '🧭' };
 
@@ -96,6 +98,100 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       ? `${experience.character.name} has died. The story of this book is over.`
       : `Book ${experience.book ?? 1} has ended.`
     : undefined;
+
+  /* ------------------------------ scene art ------------------------------ */
+  const [artJobs, setArtJobs] = useState<Record<string, SceneArtJob>>({});
+  const [, setArtTick] = useState(0);
+  useEffect(() => subscribeSceneArtSettings(() => setArtTick((t) => t + 1)), []);
+  // The player turn of the last picture (painted or attempted), so key moments keep a gap.
+  const lastArtTurnRef = useRef<number | undefined>(undefined);
+  const openingTriedRef = useRef<string | null>(null);
+  const playerTurnsBefore = (logs: LogMessage[], index: number) => logs.slice(0, index).filter((l) => l.sender === 'player' && !l.text.startsWith(REFEREE_PREFIX)).length;
+  useEffect(() => {
+    const logs = experience.logs;
+    const i = logs.map((l) => !!l.sceneArt).lastIndexOf(true);
+    lastArtTurnRef.current = i >= 0 ? playerTurnsBefore(logs, i) : undefined;
+    // Only when the campaign changes; later turns update the ref as they paint.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [experience.id]);
+
+  const sceneArtReady = () => getActiveProvider() === 'gemini' && !!getProviderKey('gemini') && !!getSceneArtModel();
+
+  /** Paints the picture for one Game Master message and saves it on that message. */
+  const paintFor = async (msgId: string, reason: SceneReason) => {
+    const exp = latestExpRef.current;
+    const msg = exp.logs.find((l) => l.id === msgId);
+    if (!msg) return;
+    const model = getSceneArtModel();
+    const apiKey = getProviderKey('gemini');
+    if (getActiveProvider() !== 'gemini' || !apiKey || !model) {
+      setArtJobs((j) => ({ ...j, [msgId]: { status: 'error', reason, message: 'No Google image model is usable with this key. Open Settings, Scene art, and press Check image models.' } }));
+      return;
+    }
+    setArtJobs((j) => ({ ...j, [msgId]: { status: 'painting', reason } }));
+    try {
+      const art = await paintScene({
+        apiKey,
+        model,
+        reason,
+        prompt: buildScenePrompt({ category: exp.category, sceneText: msg.text, reason, location: exp.gameWorldState?.currentLocation, hero: exp.character })
+      });
+      const latest = latestExpRef.current;
+      if (latest.id === exp.id) {
+        onUpdateExperience({ ...latest, logs: latest.logs.map((l) => (l.id === msgId ? { ...l, sceneArt: art } : l)) });
+      }
+      setArtJobs((j) => {
+        const { [msgId]: _done, ...rest } = j;
+        return rest;
+      });
+    } catch (e) {
+      setArtJobs((j) => ({ ...j, [msgId]: { status: 'error', reason, message: e instanceof Error ? e.message : String(e) } }));
+    }
+  };
+
+  /** Key moments paint on their own, within the daily cap; over the cap the player is told. */
+  const autoPaint = (msgId: string, reason: SceneReason, turn: number) => {
+    lastArtTurnRef.current = turn;
+    if (picturesToday() >= getDailyCap()) {
+      setArtJobs((j) => ({ ...j, [msgId]: { status: 'error', reason, message: `today's limit of ${getDailyCap()} pictures is reached (Settings, Scene art). Retry paints this one anyway.` } }));
+      return;
+    }
+    void paintFor(msgId, reason);
+  };
+
+  // The opening scene of a new campaign.
+  useEffect(() => {
+    if (getSceneArtMode() !== 'key' || !sceneArtReady()) return;
+    if (openingTriedRef.current === experience.id) return;
+    const logs = experience.logs;
+    if (logs.some((l) => l.sender === 'player')) return;
+    const first = logs.find((l) => l.sender === 'dm');
+    if (!first || first.sceneArt) return;
+    openingTriedRef.current = experience.id;
+    autoPaint(first.id, 'opening', 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [experience.id, experience.logs.length]);
+
+  const renderSceneArt = (log: LogMessage, isLatestDm: boolean) => {
+    const mode = getSceneArtMode();
+    const job = artJobs[log.id];
+    if (mode === 'off' && !log.sceneArt && !job) return null;
+    const model = getSceneArtModel();
+    return (
+      <SceneArtSlot
+        art={log.sceneArt}
+        job={job}
+        canPaint={mode !== 'off' && isLatestDm && !isGenerating && model && sceneArtReady() ? { model } : null}
+        onPaint={() => void paintFor(log.id, job?.reason as SceneReason || 'asked')}
+        onDismissError={() =>
+          setArtJobs((j) => {
+            const { [log.id]: _gone, ...rest } = j;
+            return rest;
+          })
+        }
+      />
+    );
+  };
 
   const memoryMeter = React.useMemo(() => buildDndContext(experience, experience.logs, null, activeLocalContext()).meter, [experience]);
 
@@ -211,6 +307,18 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         director: updateDirector(finalExp, { text: dmMsg.text, check: !!data.requiredCheck, hpDelta: data.stateDelta?.hpDelta ?? 0 }, turnNumber, direction.note)
       };
       onUpdateExperience(afterTurn);
+      // Scene art for key moments, painted after the turn is on screen (never delays the reply).
+      if (getSceneArtMode() === 'key' && sceneArtReady()) {
+        const reason = sceneMoment({
+          turn: turnNumber,
+          lastArtTurn: lastArtTurnRef.current,
+          previousLocation: finalExp.gameWorldState?.currentLocation,
+          delta: data.stateDelta,
+          alerts,
+          transformed: !!data.avatarEvolution?.evolved
+        });
+        if (reason) autoPaint(dmMsg.id, reason, turnNumber);
+      }
       // A new portrait is drawn after the turn is on screen, so the reply never waits for it.
       if (data.avatarEvolution?.evolved) {
         void generateAvatarAI({
@@ -484,6 +592,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             characterStats={experience.character.stats}
             checkModifierLabel={pendingPlan ? `${pendingPlan.formula.replace(/^\S*d20(kh1|kl1)?/, '') || '+0'}: ${pendingPlan.breakdown}${experience.pendingCheck?.roll && mode === 'full5e' ? `, ${experience.pendingCheck.roll}` : ''}` : undefined}
             lockedReason={lockedReason}
+            renderAfterMessage={renderSceneArt}
             lockedAction={
               onStartBookTwo ? (
                 <button type="button" onClick={continueBook} disabled={continuing} className="px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-black font-semibold disabled:opacity-50">

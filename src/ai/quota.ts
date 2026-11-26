@@ -164,6 +164,8 @@ export function getGeminiUsageToday(now = Date.now()): Record<string, ModelUsage
  * The Flash aliases share one quota.
  */
 export function approxFreeDailyLimit(model: string): number | undefined {
+  // Image models have no free tier (scene art), whatever their name says.
+  if (/-image(-|$)|nano-banana/.test(model)) return undefined;
   if (/flash-lite/.test(model)) return 500;
   if (/^gemini-(flash-latest|3\.[5-9]-flash)$/.test(model)) return 20;
   return undefined;

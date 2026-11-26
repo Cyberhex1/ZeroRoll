@@ -537,16 +537,18 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
               </button>
             ))}
           </div>
+          {draft && (
           <button
             type="button"
-            disabled={locked || (!draft && pronounChoice === 'custom' && !customPronouns.trim())}
+            disabled={locked}
             onClick={rerollStory}
             className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-[11px] font-mono text-amber-300 flex items-center justify-center gap-1.5 transition disabled:opacity-50 font-semibold"
             title={aiOn ? 'A new story, with a hero and hero sheet to fit it' : 'The AI is off: picks another hand-written opener'}
           >
             <RefreshCw className={`w-3 h-3 ${busy === 'story' ? 'animate-spin' : ''}`} aria-hidden="true" />
-            {draft ? 'Reroll Story' : 'Roll Story'}
+            Reroll Story
           </button>
+          )}
         </div>
 
         {/* AI status for this screen */}

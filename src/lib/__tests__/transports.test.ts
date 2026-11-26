@@ -80,6 +80,7 @@ beforeEach(() => {
   localStorage.clear();
   calls.length = 0;
   resetAIStatus();
+  svc.resetSwapNotices();
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -453,8 +454,37 @@ describe('Gemini limits (2026-11-21)', () => {
     resetAIStatus();
     await run(svc.executeUniversalPrompt({ userPrompt: 'again' }));
     expect(calls.map((c) => modelOf(c.url))).toEqual(['gemini-3.5-flash-lite']);
-    // Skipped without a call, but the player is still told.
-    expect(getAIStatus().notice?.message).toMatch(/gemini-3\.8-flash was unavailable \(daily limit/);
+    // Skipped without a call. The swap is recorded, and the banner (already shown) is not raised again.
+    expect(svc.getLastCallMeta()).toMatchObject({ model: 'gemini-3.5-flash-lite', swappedFrom: 'gemini-3.8-flash' });
+    expect(getAIStatus().notice).toBeUndefined();
+    expect(svc.getLastModelUsedLabel()).toContain('gemini-3.5-flash-lite');
+  });
+
+  it('an overloaded model is skipped with its alias, then tried last for a few minutes, with one banner (2026-11-24)', async () => {
+    useProvider('gemini');
+    localStorage.setItem('zeroroll_gemini_usable_models', JSON.stringify({ models: ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'], checkedAt: Date.now() }));
+    svc.setProviderModel('gemini', 'gemini-flash-lite-latest');
+    route = (url) => (modelOf(url) === 'gemini-3.1-flash-lite' ? gemini('Hello') : { status: 503, body: errorBody('UNAVAILABLE This model is currently experiencing high demand.') });
+    expect(await run(svc.executeUniversalPrompt({ userPrompt: 'pitch', feature: 'Story pitch' }))).toBe('Hello');
+    // One retry on the alias, then straight past 3.5 Flash-Lite, which the alias runs on.
+    expect(calls.map((c) => modelOf(c.url))).toEqual(['gemini-flash-lite-latest', 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite']);
+    expect(getAIStatus().notice?.message).toMatch(/gemini-flash-lite-latest is busy at Google right now, so gemini-3\.1-flash-lite is answering instead/);
+
+    // The next call (the build) goes straight to the model that answers, and says nothing new.
+    calls.length = 0;
+    resetAIStatus();
+    await run(svc.executeUniversalPrompt({ userPrompt: 'build', feature: 'Story roll' }));
+    expect(calls.map((c) => modelOf(c.url))).toEqual(['gemini-3.1-flash-lite']);
+    expect(svc.getLastCallMeta()).toMatchObject({ model: 'gemini-3.1-flash-lite', swappedFrom: 'gemini-flash-lite-latest', swapReason: 'busy' });
+    expect(getAIStatus().notice).toBeUndefined();
+
+    // After the busy spell, the player's model is tried first again.
+    vi.advanceTimersByTime(6 * 60 * 1000);
+    calls.length = 0;
+    route = () => gemini('Back');
+    expect(await run(svc.executeUniversalPrompt({ userPrompt: 'later' }))).toBe('Back');
+    expect(calls.map((c) => modelOf(c.url))).toEqual(['gemini-flash-lite-latest']);
+    expect(svc.getLastCallMeta()?.swappedFrom).toBeUndefined();
   });
 
   it('when every model is out for the day, it says until when without calling Google', async () => {

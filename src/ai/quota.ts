@@ -116,6 +116,47 @@ export function clearModelsOut(): void {
   try {
     localStorage.removeItem(OUT_KEY);
   } catch (_) {}
+  clearModelsBusy();
+}
+
+/* ------------------------- models busy right now -------------------------- */
+
+const BUSY_KEY = 'zeroroll_gemini_busy';
+// Google's "high demand" 503s come in spells. After a model fails one, the next few minutes of
+// calls go straight to a model that answers instead of paying two failed requests and a backoff
+// on every call (seen on 3.5 Flash-Lite, 2026-11-24: 3 of 5 build calls in a row).
+export const MODEL_BUSY_MS = 5 * 60 * 1000;
+
+function readBusy(): Record<string, number> {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(BUSY_KEY) || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+/** Try `model` last for a few minutes: Google said it was overloaded. */
+export function markModelBusy(model: string, now = Date.now()): number {
+  const all = readBusy();
+  for (const [m, until] of Object.entries(all)) if (until <= now) delete all[m];
+  const until = now + MODEL_BUSY_MS;
+  all[model] = until;
+  try {
+    localStorage.setItem(BUSY_KEY, JSON.stringify(all));
+  } catch (_) {}
+  return until;
+}
+
+export function isModelBusy(model: string, now = Date.now()): boolean {
+  const until = readBusy()[model];
+  return typeof until === 'number' && until > now;
+}
+
+export function clearModelsBusy(): void {
+  try {
+    localStorage.removeItem(BUSY_KEY);
+  } catch (_) {}
 }
 
 /* -------------------------------- usage log -------------------------------- */

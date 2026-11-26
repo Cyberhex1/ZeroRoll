@@ -288,6 +288,8 @@ export interface CampaignInspiration {
   tropes: string[];
   /** The opener the campaign started from, if any. */
   openerId?: string;
+  /** This story's own voice and sensory details, written by the story roll (2026-11-26). */
+  style?: string;
   /** 0.2 only (removed 2026-11-26): what the old Story Forge drew. Kept so older saves load; nothing reads it. */
   forge?: ForgeRecord;
 }

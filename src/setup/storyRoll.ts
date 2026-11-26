@@ -71,7 +71,7 @@ export interface StoryCheck {
   checkModel?: string;
 }
 
-export type RolledStory = StoryPackage & { media: string[]; check: StoryCheck; prompt: string };
+export type RolledStory = StoryPackage & { media: string[]; style?: string; check: StoryCheck; prompt: string };
 
 /** The writer's prompt for an input (tests and the eval read it). */
 export function buildStoryPrompt(input: StoryRollInput): string {
@@ -203,7 +203,7 @@ export async function rollStory(input: StoryRollInput): Promise<RolledStory> {
     rememberRoll(input.category, 'premise', pkg.premise);
   }
   if (!fixed.name) rememberRoll(input.category, 'heroName', pkg.hero.name);
-  return { ...pkg, media: pickReferences(raw.references, media), check, prompt };
+  return { ...pkg, media: pickReferences(raw.references, media), style: storyStyle(raw.style), check, prompt };
 }
 
 /**
@@ -211,6 +211,15 @@ export async function rollStory(input: StoryRollInput): Promise<RolledStory> {
  * 2026-11-26). Play sends only these. A pick that is not one of the shown titles is dropped;
  * if none is left, the story keeps no references rather than all six.
  */
+export function storyStyle(v: unknown): string | undefined {
+  if (typeof v !== 'string') return undefined;
+  const t = v.replace(/\s+/g, ' ').trim();
+  return t ? t.slice(0, STYLE_MAX) : undefined;
+}
+
+/** The story's own voice and sensory details stay short: they go with every turn. */
+export const STYLE_MAX = 600;
+
 export function pickReferences(picks: unknown, shown: string[]): string[] {
   const key = (x: string) => x.toLowerCase().replace(/\s*\([^)]*\)\s*$/, '').replace(/[^a-z0-9]+/g, ' ').trim();
   const byKey = new Map(shown.map((m) => [key(m), m]));

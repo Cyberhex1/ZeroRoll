@@ -20,10 +20,13 @@ function clip(text: string, max: number): string {
 
 export function inspirationBlock(inspiration: CampaignInspiration): string {
   const lines: string[] = [];
-  if (inspiration.media.length) lines.push(`Tone references: ${inspiration.media.join('; ')}.`);
-  if (inspiration.tropes.length) lines.push(`Story seeds (starting situations, as examples):\n${inspiration.tropes.map((t) => `- ${t}`).join('\n')}`);
+  if (inspiration.style) lines.push(`This story's voice and feel: ${inspiration.style}`);
+  const borrowed: string[] = [];
+  if (inspiration.media.length) borrowed.push(`Tone references: ${inspiration.media.join('; ')}.`);
+  if (inspiration.tropes.length) borrowed.push(`Story seeds (starting situations, as examples):\n${inspiration.tropes.map((t) => `- ${t}`).join('\n')}`);
+  if (borrowed.length) lines.push(...borrowed, ANTI_COPY);
   if (!lines.length) return '';
-  return `=== CAMPAIGN INSPIRATION ===\n${lines.join('\n')}\n${ANTI_COPY}`;
+  return `=== CAMPAIGN INSPIRATION ===\n${lines.join('\n')}`;
 }
 
 /** The category's premise pattern: the shape of a good story start, not a plot. */

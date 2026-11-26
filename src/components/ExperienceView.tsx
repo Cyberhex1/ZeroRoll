@@ -21,7 +21,7 @@ import { DiceRollModal } from './DiceRollModal';
 import { rollDice, playAlertSound } from '../lib/diceRoller';
 import { activeLocalContext, executeActionTurn, generateAvatarAI, getLastModelUsedLabel, refereeAdjudicate } from '../lib/geminiService';
 import { complete } from '../ai/router';
-import { applyDelta, applyWorld, chapterCount, gateAlerts, nextAlert, rulesModeOf } from '../dnd/applyTurn';
+import { applyDelta, applyWorld, gateAlerts, nextAlert, rulesModeOf } from '../dnd/applyTurn';
 import { leadAlert } from '../dnd/turnParser';
 import { PortraitsOffError } from '../lib/portraits';
 import { RULES_MODES, checkOutcome, deathSave, naturalOf, planCheck, rollPlan } from '../dnd/rules';
@@ -34,6 +34,8 @@ import { useDialog } from './ui/useDialog';
 import { turnDirection } from '../forge/turnContext';
 import { updateDirector } from '../forge/director';
 import { forgeDebug } from '../forge/debug';
+import { chapterMarker, storyTimeline } from '../dnd/chapters';
+import { ChapterProgressButton, ChaptersDialog, streamDividers } from './ChapterProgress';
 
 const ALERT_ICON: Record<string, string> = { chapter_transition: '📖', story_conclusion: '🏁', ambush: '⚔️', crisis: '🔥', twist: '🌀', opportunity: '✨', course_change: '🧭' };
 
@@ -76,6 +78,14 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
   }, [isGenerating]);
 
   const [continuing, setContinuing] = useState(false);
+  const [chaptersOpen, setChaptersOpen] = useState(false);
+  const dividers = React.useMemo(() => streamDividers(experience), [experience]);
+  const chapterHeading = React.useMemo(() => {
+    const books = storyTimeline(experience);
+    const b = books[books.length - 1];
+    const c = b.chapters[b.at - 1];
+    return `${b.book > 1 ? `Book ${b.book} · ` : ''}Chapter ${b.at}${c?.title ? ` · ${c.title}` : ''}`;
+  }, [experience]);
   const endDialog = useDialog(() => handleDismissAlert(), { labelledBy: 'ending-title', active: experience.activeAlert?.type === 'story_conclusion' });
   const continueBook = async () => {
     if (!onStartBookTwo || continuing) return;
@@ -187,7 +197,16 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
       const now = new Date().toISOString();
       const ruleNotes: LogMessage[] = sheet.notes.map((text) => ({ id: `msg_${uid()}`, sender: 'system', text: `🎲 ${text}`, timestamp: now }));
       // Twists, ambushes and chapter titles stay in the log after the alert is dismissed (playtest D21).
-      const alertNotes: LogMessage[] = alerts.map((a) => ({ id: `msg_${uid()}`, sender: 'system', text: `${ALERT_ICON[a.type] ?? '⚡'} ${a.title}${a.subtitle ? `: ${a.subtitle}` : ''}`, timestamp: now }));
+      // A chapter change also marks where the new chapter starts, for the chapter list and the divider.
+      const movedTo = world.gameWorldState.currentChapter ?? 1;
+      const moved = movedTo !== (finalExp.gameWorldState.currentChapter ?? 1);
+      const alertNotes: LogMessage[] = alerts.map((a) => ({
+        id: `msg_${uid()}`,
+        sender: 'system',
+        text: `${ALERT_ICON[a.type] ?? '⚡'} ${a.title}${a.subtitle ? `: ${a.subtitle}` : ''}`,
+        timestamp: now,
+        ...(a.type === 'chapter_transition' && moved ? { marker: chapterMarker(finalExp, movedTo) } : {})
+      }));
       // Full 5e: dropping to 0 HP starts death saves, which take over the check slot.
       const deathCheck: PendingCheck | null = sheet.downed
         ? { skill: 'Death Saving Throw', dc: 10, reason: 'The hero is down at 0 HP.', kind: 'death_save' }
@@ -399,7 +418,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h2 className="text-xs sm:text-base font-bold truncate max-w-[180px] xs:max-w-[240px] sm:max-w-none" style={{ fontFamily: 'var(--sk-font-heading)', color: 'var(--sk-accent)' }}>
-                  {campaignTitle(experience.title)} <span className="text-amber-500/80 font-normal">| {(experience.book ?? 1) > 1 ? `Book ${experience.book}, ` : ''}Chapter {Math.min(chapterCount(experience), experience.gameWorldState.currentChapter || 1)} of {chapterCount(experience)}</span>
+                  {campaignTitle(experience.title)}
                 </h2>
                 <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-mono uppercase font-bold rounded bg-white/5 text-amber-400 border border-white/10 shrink-0">
                   {experience.category.replace('_', ' ')}
@@ -411,6 +430,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Book and chapter progress; opens the chapter list. */}
+        <ChapterProgressButton experience={experience} onOpen={() => setChaptersOpen(true)} />
 
         {/* Right Status & Mobile View Switcher Tabs */}
         <div className="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 border-t border-white/5 sm:border-t-0">
@@ -463,6 +485,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
             characterStats={experience.character.stats}
             checkModifierLabel={pendingPlan ? `${pendingPlan.formula.replace(/^\S*d20(kh1|kl1)?/, '') || '+0'}: ${pendingPlan.breakdown}${experience.pendingCheck?.roll && mode === 'full5e' ? `, ${experience.pendingCheck.roll}` : ''}` : undefined}
             lockedReason={lockedReason}
+            dividers={dividers}
+            chapterHeading={chapterHeading}
             lockedAction={
               onStartBookTwo ? (
                 <button type="button" onClick={continueBook} disabled={continuing} className="px-3 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-black font-semibold disabled:opacity-50">
@@ -517,6 +541,8 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
 
       </div>
 
+      {chaptersOpen && <ChaptersDialog experience={experience} onClose={() => setChaptersOpen(false)} />}
+
       {/* Dice Roll Modal */}
       {activeRoll && (
         <DiceRollModal
@@ -567,6 +593,16 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
                 className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-white/15 border border-white/20 text-slate-200 font-semibold transition"
               >
                 Start a New Experience
+              </button>
+
+              <button
+                onClick={() => {
+                  handleDismissAlert();
+                  setChaptersOpen(true);
+                }}
+                className="w-full py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-medium transition"
+              >
+                Look back at the chapters
               </button>
 
               <button

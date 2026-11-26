@@ -280,6 +280,7 @@ export function sceneMoment(input: {
 
 /** One look per category, on top of the game's anime base style. */
 const CATEGORY_LOOK: Record<ExperienceCategory, string> = {
+  dnd: 'classic tabletop fantasy anime, adventuring party gear, torchlit dungeons and taverns, heroic framing',
   fantasy: 'high-fantasy anime film, painterly backgrounds, warm magical light',
   adventure: 'adventure anime, bright cinematic skies, sense of motion and scale',
   historical_adventure: 'historical anime drama, period-accurate clothing and architecture, natural light',

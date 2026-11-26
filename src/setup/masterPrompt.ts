@@ -57,7 +57,7 @@ export function mediaExamples(category: ExperienceCategory, rand: () => number =
     .map((m) => `${m.title} (${m.medium})`);
 }
 
-const DM_LINE = 'You are the game master (DM) of a choose-your-own-adventure tabletop RPG, played one-on-one with a single player.';
+const DM_LINE = 'You are the dungeon master (DM) of a choose-your-own-adventure tabletop RPG, played one-on-one with a single player.';
 
 function storyKind(category: ExperienceCategory): string {
   const name = getContent(category).card.name;
@@ -109,7 +109,8 @@ const DM_FIELDS = `YOUR PRIVATE DM NOTES (the player never sees these; you will 
 - outline.chapters: 4 or 5 short chapter titles; the last one resolves the story.
 - outline.turningPoint: the big defining event the story builds to, as a full sentence, with its chapter ("Chapter 2: ...").
 - outline.storyShape: where the player joins the story, one of: ${STORY_SHAPES.map((s) => `"${s.id}" (${s.label.toLowerCase()})`).join(', ')}.
-- outline.majorConflicts (2), outline.secretsAndReveals (2), outline.potentialEndings (2 or 3).`;
+- outline.majorConflicts (2), outline.secretsAndReveals (2), outline.potentialEndings (2 or 3).
+- references: 1 to 3 of the works named at the top whose tone fits this story, copied exactly. You will get them back as tone references while you tell it.`;
 
 /**
  * Held back (ohnna, 2026-11-26): removed from the prompt to stop over-explaining. Add it to
@@ -123,7 +124,8 @@ function jsonShape(): string {
   "premise": "…",
   "outline": { "backstory": "…", "incitingIncident": "…", "keyNpcs": [{ "name": "…", "role": "…", "motivation": "…", "secret": "…", "move": "…" }], "fronts": [{ "name": "…", "agenda": "…", "portents": ["…", "…", "…"] }], "setPieces": ["…"], "chapters": ["…"], "turningPoint": "…", "storyShape": "…", "majorConflicts": ["…"], "secretsAndReveals": ["…"], "potentialEndings": ["…"] },
   "hero": { "name": "…", "roleClass": "…", "origin": "…", "appearance": "…" },
-  ${SHEET_EXAMPLE}
+  ${SHEET_EXAMPLE},
+  "references": ["…"]
 }`;
 }
 

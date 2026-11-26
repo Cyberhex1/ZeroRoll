@@ -12,10 +12,10 @@ import {
   applyClass, applyHeroPart, applyPackage, applyStoryEdit, choosePronouns, draftFromOpener, editSheet, inspirationWithSeed,
   keepAsIs, offlinePart, resetSheet, sheetForRole, toCharacterSheet, typeHeroField, typedAmong, REPLACES, validateDraft
 } from '../draft';
-import { buildHeroPartPrompt, buildStoryPrompt } from '../storyRoll';
+import { buildHeroPartPrompt, buildStoryPrompt, pickReferences } from '../storyRoll';
 import { buildCheckPrompt, buildFixPrompt } from '../masterPrompt';
 import { STORY_SHAPES, pickShape, shapeById } from '../storyShape';
-import { formatOutlineForPrompt } from '../../lib/geminiService';
+import { formatOutlineForPrompt, gmRoleLine, heroLine } from '../../lib/geminiService';
 import type { SetupDraft, StoryPackage } from '../types';
 
 const fantasy = getContent('fantasy');
@@ -395,5 +395,30 @@ describe('story patterns (ohnna, 2026-11-21)', () => {
     for (const id of CATEGORY_IDS) {
       for (const t of getContent(id).tropes) expect(t.premise).not.toMatch(/\b(unaware|oblivious|little do|too late)\b|first betrayer|on your list/i);
     }
+  });
+});
+
+describe('play prompts (ohnna, 2026-11-26)', () => {
+  it('keeps only the 1 to 3 shown titles the writer picked as tone references', () => {
+    const shown = ['One Piece (Manga/Anime)', 'The Goonies (Film)', 'Treasure Planet (Film)', 'Uncharted (Game)'];
+    expect(pickReferences(['the goonies', 'One Piece (Manga/Anime)', 'Made Up (Film)'], shown)).toEqual(['The Goonies (Film)', 'One Piece (Manga/Anime)']);
+    expect(pickReferences([...shown, 'The Goonies'], shown)).toHaveLength(3);
+    expect(pickReferences(undefined, shown)).toEqual([]);
+  });
+
+  it('asks the writer for references', () => {
+    const p = buildStoryPrompt({ category: 'adventure', pronouns: 'she/her', mode: 'fresh', media: ['The Goonies (Film)'] } as never);
+    expect(p).toMatch(/references: 1 to 3 of the works named at the top/);
+    expect(p).toContain('"references"');
+  });
+
+  it('casts the model as a dungeon master, naming 5e only for D&D', () => {
+    expect(gmRoleLine('dnd')).toMatch(/dungeon master.*D&D 5e/);
+    expect(gmRoleLine('horror')).toMatch(/^You are the dungeon master/);
+    expect(gmRoleLine('horror')).not.toMatch(/5e|D&D|master interactive author/);
+  });
+
+  it('reads the hero line as class, then origin', () => {
+    expect(heroLine({ name: 'Ada Vale', gender: 'she/her', level: 1, roleClass: "Ship's Rigger", raceOrigin: 'Harbor-born human' })).toBe("Ada Vale (she/her), a Level 1 Ship's Rigger, Harbor-born human");
   });
 });

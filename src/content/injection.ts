@@ -1,9 +1,8 @@
 /**
  * Injection policy: what part of the category corpus goes into which prompt.
  *
- * - Scenario generation and Chapter One get the full profile plus the campaign's inspiration.
- * - Action turns get a short style card (at most STYLE_CARD_MAX characters) plus the stored
- *   tone references, so the campaign keeps one voice from turn 1 to turn 100. No seeds.
+ * - Chapter One and every action turn get the campaign's 1 to 3 tone references (picked by the
+ *   story roll). No genre profile or style card in play since 2026-11-26 (ohnna).
  * - The Rules Referee gets nothing from the corpus.
  * - Media and trope picks are made once (pickInspiration) and stored on the Experience.
  */
@@ -73,12 +72,11 @@ export function styleCard(category: ExperienceCategory): string {
 }
 
 /**
- * Style card plus the campaign's tone references, for every action turn. The story seeds are
- * not sent: after Chapter One the game master follows the story's own outline, and seeds kept
- * pulling turns toward their own (often late) moments. The tone references are the seed-list
- * titles the story was written from (master prompt, 2026-11-26).
+ * The campaign's tone references, for every action turn (ohnna, 2026-11-26: the 1 to 3 titles
+ * the story roll picked). The static style card is no longer sent: the recent log already
+ * carries the story's voice. The story seeds are not sent either: after Chapter One the game
+ * master follows the story's own outline.
  */
-export function turnContextBlock(category: ExperienceCategory, inspiration?: CampaignInspiration, _opts: { turn?: number } = {}): string {
-  const insp = inspiration ? inspirationBlock({ ...inspiration, tropes: [] }) : '';
-  return insp ? `${styleCard(category)}\n\n${insp}` : styleCard(category);
+export function turnContextBlock(_category: ExperienceCategory, inspiration?: CampaignInspiration, _opts: { turn?: number } = {}): string {
+  return inspiration ? inspirationBlock({ ...inspiration, tropes: [] }) : '';
 }

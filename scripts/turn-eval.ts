@@ -102,7 +102,7 @@ async function play(start: Exp, director: boolean): Promise<{ run: Run; exp: Exp
         rulesMode: temp.rulesMode ?? 'narrative',
         storyOutline: temp.storyOutline,
         inspiration: temp.inspiration,
-        ...(director ? { director: { note: direction.note?.text, language: direction.language, names: direction.names, context: direction.context } } : {})
+        ...(director ? { director: { note: direction.note?.text, language: direction.language, context: direction.context } } : {})
       });
     } catch (e) {
       run.errors.push(`turn ${turnNumber}: ${e instanceof Error ? e.message : String(e)}`);

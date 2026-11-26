@@ -104,11 +104,12 @@ export function randomOpener(category: ExperienceCategory, notId?: string, rand:
  * the hero it showed is replaced.
  */
 /**
- * The campaign keeps the example titles its story was written from (master prompt): every
- * play turn sends them as tone references, so the story keeps one voice.
+ * The campaign keeps the 1 to 3 titles the writer picked as tone references (master prompt):
+ * every play turn sends them, so the story keeps one voice. A rolled story with no picks keeps
+ * none, rather than the category's random ones.
  */
 export function storyInspiration(base: CampaignInspiration, pkg: StoryPackage & { media?: string[] }, seed?: string): CampaignInspiration {
-  if (!pkg.media?.length) return base;
+  if (!pkg.media) return base;
   const { openerId } = base;
   return { media: pkg.media, tropes: seed ? [seed] : [], ...(openerId ? { openerId } : {}) };
 }

@@ -31,3 +31,11 @@ Real-output eval: `NODE_USE_ENV_PROXY=1 STORY_MODEL=gemini-4-carbon npx vite-nod
 ## Play: the DM sheet
 
 Every turn the game master gets the DM outline (roadmap), the CURRENT STATE sheet, the memory list, the rolling summary and the recent log. Since 2026-11-26 the memory worker (every 10 turns, `src/memory/summarizer.ts`) also rewrites a **DM sheet**: where the story stands against the plan, the people met and how they stand, open threads, and what has been revealed. It is sent with every turn after the summary.
+
+## Play prompts (ohnna's comments, 2026-11-26)
+
+- The model is "the dungeon master" (`gmRoleLine` in `src/lib/geminiService.ts`). Only the D&D category mentions D&D 5e.
+- The story roll picks 1 to 3 of the shown seed-list titles as `references` (`pickReferences` in `src/setup/storyRoll.ts`). They are stored as `inspiration.media`, and Chapter One and every turn send only those as tone references.
+- Chapter One no longer sends the genre profile, the premise pattern or "names on hand". Turns no longer send the style card or "New characters, if any, can take names like". The category profiles in `src/content/categories` are static, hand-written text, so they were the same on every roll.
+- Each play call is stateless: the model remembers nothing between turns, so the roadmap, CURRENT STATE, memory, summary and recent log are sent every turn. "Starting Circumstances" and "Immediate Goal" go to Chapter One only (`formatOutlineForPrompt(..., { opening: true })`).
+- The hero line reads "Name (pronouns), a Level 1 Class, Origin" (`heroLine`).

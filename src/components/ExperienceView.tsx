@@ -149,7 +149,7 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
         diceRoll,
         storyOutline: tempExp.storyOutline,
         inspiration: tempExp.inspiration,
-        director: { note: direction.note?.text, language: direction.language, names: direction.names, context: direction.context }
+        director: { note: direction.note?.text, language: direction.language, context: direction.context }
       });
 
       const dmMsg: LogMessage = {

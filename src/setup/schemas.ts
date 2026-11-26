@@ -82,7 +82,8 @@ export const STORY_SCHEMA = {
       required: ['backstory', 'incitingIncident', 'keyNpcs', 'fronts', 'setPieces', 'majorConflicts', 'secretsAndReveals', 'chapters', 'potentialEndings', 'storyShape', 'turningPoint']
     },
     hero: HERO_SCHEMA,
-    sheet: SHEET_SCHEMA
+    sheet: SHEET_SCHEMA,
+    references: LIST('1 to 3 of the works named in the prompt whose tone fits this story')
   },
-  required: ['title', 'premise', 'outline', 'hero', 'sheet']
+  required: ['title', 'premise', 'outline', 'hero', 'sheet', 'references']
 };

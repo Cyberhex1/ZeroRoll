@@ -203,7 +203,24 @@ export async function rollStory(input: StoryRollInput): Promise<RolledStory> {
     rememberRoll(input.category, 'premise', pkg.premise);
   }
   if (!fixed.name) rememberRoll(input.category, 'heroName', pkg.hero.name);
-  return { ...pkg, media, check, prompt };
+  return { ...pkg, media: pickReferences(raw.references, media), check, prompt };
+}
+
+/**
+ * The 1 to 3 shown titles the writer picked as this story's tone references (ohnna,
+ * 2026-11-26). Play sends only these. A pick that is not one of the shown titles is dropped;
+ * if none is left, the story keeps no references rather than all six.
+ */
+export function pickReferences(picks: unknown, shown: string[]): string[] {
+  const key = (x: string) => x.toLowerCase().replace(/\s*\([^)]*\)\s*$/, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const byKey = new Map(shown.map((m) => [key(m), m]));
+  const out: string[] = [];
+  for (const p of Array.isArray(picks) ? picks : []) {
+    const hit = typeof p === 'string' ? byKey.get(key(p)) : undefined;
+    if (hit && !out.includes(hit)) out.push(hit);
+  }
+  if (!out.length && typeof console !== 'undefined') console.info('[story] no tone references picked from', shown);
+  return out.slice(0, 3);
 }
 
 /* ------------------------------- hero parts -------------------------------- */

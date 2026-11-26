@@ -12,7 +12,7 @@ import {
   applyClass, applyHeroPart, applyPackage, applyStoryEdit, choosePronouns, draftFromOpener, editSheet, inspirationWithSeed,
   keepAsIs, offlinePart, resetSheet, sheetForRole, toCharacterSheet, typeHeroField, typedAmong, REPLACES, validateDraft
 } from '../draft';
-import { buildHeroPartPrompt, buildStoryPrompt, pickReferences } from '../storyRoll';
+import { buildHeroPartPrompt, buildStoryPrompt, pickReferences, storyStyle, STYLE_MAX } from '../storyRoll';
 import { buildCheckPrompt, buildFixPrompt } from '../masterPrompt';
 import { STORY_SHAPES, pickShape, shapeById } from '../storyShape';
 import { formatOutlineForPrompt, gmRoleLine, heroLine } from '../../lib/geminiService';
@@ -410,6 +410,18 @@ describe('play prompts (ohnna, 2026-11-26)', () => {
     const p = buildStoryPrompt({ category: 'adventure', pronouns: 'she/her', mode: 'fresh', media: ['The Goonies (Film)'] } as never);
     expect(p).toMatch(/references: 1 to 3 of the works named at the top/);
     expect(p).toContain('"references"');
+  });
+
+  it('asks the writer for the story\'s own voice and sends it in play', () => {
+    const p = buildStoryPrompt({ category: 'horror', pronouns: 'she/her', mode: 'fresh', media: ['The Ring (Film)'] } as never);
+    expect(p).toMatch(/- style: how this story should feel/);
+    expect(p).toContain('"style"');
+    expect(storyStyle('  Quiet,  wet dread.  ')).toBe('Quiet, wet dread.');
+    expect(storyStyle('')).toBeUndefined();
+    expect(storyStyle('x'.repeat(900))).toHaveLength(STYLE_MAX);
+    const block = turnContextBlock('horror', { media: ['The Ring (Film)'], tropes: [], style: 'Quiet, wet dread. Rain on tin; bleach; a phone that clicks.' });
+    expect(block).toContain("This story's voice and feel: Quiet, wet dread.");
+    expect(block.indexOf('voice and feel')).toBeLessThan(block.indexOf('Tone references'));
   });
 
   it('casts the model as a dungeon master, naming 5e only for D&D', () => {

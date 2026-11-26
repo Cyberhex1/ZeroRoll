@@ -28,7 +28,7 @@ import { inspirationBlock, patternBlock, turnContextBlock } from '../content/inj
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError } from './aiErrors';
 import { geminiBasicModel } from '../ai/taskModel';
-import { clearModelsOut } from '../ai/quota';
+import { clearModelsOut, MODEL_BUSY_MS } from '../ai/quota';
 import { reportAIFailure, reportAINotice, reportAISuccess, resetAIStatus } from './aiStatus';
 
 import {
@@ -477,13 +477,35 @@ export async function executeUniversalPrompt(options: UniversalPromptOptions): P
   reportAISuccess(getLastModelUsedLabel());
   const meta = lastCallMeta;
   const feature = options.feature || 'AI reply';
-  if (meta?.swappedFrom) {
-    reportAINotice(feature, `${meta.swappedFrom} was unavailable (${meta.swapReason || 'error'}), so ${meta.model} answered instead.`);
-  }
+  if (meta?.swappedFrom) reportSwap(feature, meta.swappedFrom, meta.model, meta.swapReason);
   if (meta?.truncated) {
     reportAINotice(feature, 'The reply was cut short by the model\'s length limit. Use Continue to pick up where it stopped.');
   }
   return text;
+}
+
+// The same swap is said once, not on every call: a busy model stays skipped for a few minutes,
+// and a pitch plus a build would otherwise raise the banner twice per roll (ohnna, 2026-11-24).
+let lastSwap: { key: string; at: number } | null = null;
+function reportSwap(feature: string, from: string, to: string, reason?: string): void {
+  const key = `${from}>${to}>${reason || ''}`;
+  const now = Date.now();
+  if (lastSwap && lastSwap.key === key && now - lastSwap.at < MODEL_BUSY_MS) {
+    console.info(`[AI] ${feature}: ${to} answered for ${from} (${reason || 'error'}), already reported.`);
+    return;
+  }
+  lastSwap = { key, at: now };
+  reportAINotice(
+    feature,
+    reason === 'busy'
+      ? `${from} is busy at Google right now, so ${to} is answering instead. Your model gets another try in a few minutes.`
+      : `${from} was unavailable (${reason || 'error'}), so ${to} answered instead.`
+  );
+}
+
+/** Test hook: forget which swap was last reported. */
+export function resetSwapNotices(): void {
+  lastSwap = null;
 }
 
 async function runProviderPrompt(cfg: ProviderCallConfig, options: UniversalPromptOptions): Promise<string> {

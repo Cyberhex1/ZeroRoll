@@ -17,6 +17,8 @@ import {
   StatBlock
 } from '../types';
 import { getCategoryIcon } from '../lib/categoryIcons';
+import { StoryDivider, type StreamDivider } from './ChapterProgress';
+import { markerOf } from '../dnd/chapters';
 
 interface NarrativeStreamProps {
   logs: LogMessage[];
@@ -39,6 +41,10 @@ interface NarrativeStreamProps {
   lockedAction?: React.ReactNode;
   /** Shown under a message's bubble (scene art under Game Master messages). */
   renderAfterMessage?: (log: LogMessage, isLatestDm: boolean) => React.ReactNode;
+  /** Book and chapter dividers, keyed by the log index they sit before (src/components/ChapterProgress.tsx). */
+  dividers?: Record<number, StreamDivider>;
+  /** "Chapter 3 · The Smuggler's Den", shown in the feed header. */
+  chapterHeading?: string;
 }
 
 export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
@@ -57,7 +63,9 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
   checkModifierLabel,
   lockedReason,
   lockedAction,
-  renderAfterMessage
+  renderAfterMessage,
+  dividers,
+  chapterHeading
 }) => {
   // Chips belong to the newest game master message only (S15).
   const lastDmIndex = logs.reduce((at, l, i) => (l.sender === 'dm' ? i : at), -1);
@@ -133,7 +141,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
             {getCategoryIcon(experienceCategory, "w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400")}
           </div>
           <div className="min-w-0">
-            <h3 className="text-xs font-serif font-bold text-amber-50 truncate">Narrative Experience Log</h3>
+            <h3 className="text-xs font-serif font-bold text-amber-50 truncate">{chapterHeading || 'Narrative Experience Log'}</h3>
             <p className="text-[8px] sm:text-[9px] text-slate-400 font-mono uppercase tracking-wider truncate">
               {experienceCategory ? `${experienceCategory.replace('_', ' ')} • Real-Time Engine` : 'AI Game Master • Real-Time Engine'}
             </p>
@@ -166,7 +174,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-red-600 text-white">
-                  Course-Changing Trigger
+                  {activeAlert.type === 'chapter_transition' ? 'New Chapter' : 'Course-Changing Trigger'}
                 </span>
                 <span className="text-xs font-serif font-bold text-amber-200">
                   {activeAlert.title}
@@ -201,10 +209,14 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
         {logs.map((log, logIndex) => {
           const isPlayer = log.sender === 'player';
           const isAdjudicator = log.sender === 'adjudicator';
+          const divider = dividers?.[logIndex];
+          // A book or chapter start note is drawn as the divider itself.
+          if (divider && markerOf(log)) return <StoryDivider key={log.id} d={divider} />;
 
           return (
+            <React.Fragment key={log.id}>
+            {divider && <StoryDivider d={divider} />}
             <div
-              key={log.id}
               className={`flex gap-2.5 ${isPlayer ? 'flex-row-reverse' : 'flex-row'}`}
             >
               {/* Avatar Icon */}
@@ -310,6 +322,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                 )}
               </div>
             </div>
+            </React.Fragment>
           );
         })}
 

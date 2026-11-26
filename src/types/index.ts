@@ -137,6 +137,28 @@ export interface LogMessage {
   suggestedActions?: string[];
   /** Scene art painted for this Game Master message (src/art/sceneArt.ts), stored on this device. */
   sceneArt?: { ref: string; model: string; reason: string };
+  /** A book or chapter start, drawn as a divider in the story (src/dnd/chapters.ts). */
+  marker?: StoryMarker;
+}
+
+/** Where a book or chapter begins in the log. Older saves have none; their markers are read from the text. */
+export interface StoryMarker {
+  kind: 'book' | 'chapter';
+  book: number;
+  chapter: number;
+  /** The roadmap's chapter title (or the book's title), without "Chapter N:". */
+  title?: string;
+}
+
+/** A finished book, kept so the chapter list can show it after the roadmap is replaced. */
+export interface PastBook {
+  book: number;
+  title?: string;
+  /** The book's whole roadmap, "Chapter N: Title" lines. */
+  chapters: string[];
+  /** How far the book got before it ended. */
+  reached: number;
+  ended?: 'story' | 'death' | null;
 }
 
 export interface MapToken {
@@ -279,6 +301,10 @@ export interface Experience {
   rulesMode?: 'full5e' | 'narrative';
   /** Which book of the campaign is being played (Book Two continues in the same save). */
   book?: number;
+  /** This book's own title (Book Two onwards); Book One uses the campaign title. */
+  bookTitle?: string;
+  /** Books already finished in this save, oldest first. Missing on saves from before the chapter list. */
+  pastBooks?: PastBook[];
   /** Set when the story concluded or the hero died; input is locked until the player continues. */
   concluded?: { reason: 'story' | 'death'; at: string } | null;
   /** 0.2: the Director's state (src/forge/director.ts). Missing on older campaigns; made on first use. */
@@ -290,6 +316,8 @@ export interface CampaignInspiration {
   tropes: string[];
   /** The opener the campaign started from, if any. */
   openerId?: string;
+  /** This story's own voice and sensory details, written by the story roll (2026-11-26). */
+  style?: string;
   /** 0.2 only (removed 2026-11-26): what the old Story Forge drew. Kept so older saves load; nothing reads it. */
   forge?: ForgeRecord;
 }

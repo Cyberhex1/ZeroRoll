@@ -108,15 +108,15 @@ export function randomOpener(category: ExperienceCategory, notId?: string, rand:
  * every play turn sends them, so the story keeps one voice. A rolled story with no picks keeps
  * none, rather than the category's random ones.
  */
-export function storyInspiration(base: CampaignInspiration, pkg: StoryPackage & { media?: string[] }, seed?: string): CampaignInspiration {
+export function storyInspiration(base: CampaignInspiration, pkg: StoryPackage & { media?: string[]; style?: string }, seed?: string): CampaignInspiration {
   if (!pkg.media) return base;
   const { openerId } = base;
-  return { media: pkg.media, tropes: seed ? [seed] : [], ...(openerId ? { openerId } : {}) };
+  return { media: pkg.media, tropes: seed ? [seed] : [], ...(openerId ? { openerId } : {}), ...(pkg.style ? { style: pkg.style } : {}) };
 }
 
 export function applyPackage(
   prev: SetupDraft | null,
-  pkg: StoryPackage & { media?: string[] },
+  pkg: StoryPackage & { media?: string[]; style?: string },
   opts: { category: ExperienceCategory; inspiration: CampaignInspiration; source: StorySource; seed?: string; keepName?: boolean; keepTitle?: boolean }
 ): SetupDraft {
   const keepName = !!(opts.keepName && prev);

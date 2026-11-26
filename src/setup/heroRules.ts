@@ -53,7 +53,7 @@ export function originRule(category: ExperienceCategory): string {
 
 /** The hero sheet: full 5e for the D&D category, narrative dice for every other one. */
 export function sheetRules(category: ExperienceCategory): string {
-  const abilities = `abilityScores: every score from 8 to 15, total cost at most ${POINT_BUY_BUDGET} (8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9)`;
+  const abilities = `abilityScores: every score from 8 to 15, total cost at most ${POINT_BUY_BUDGET}: 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9`;
   if (category === 'dnd') {
     return `HERO SHEET (D&D 5e, level 1):
 - ${abilities} (5e point buy).

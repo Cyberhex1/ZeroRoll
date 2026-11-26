@@ -99,6 +99,11 @@ describe('normalizing the story reply', () => {
     expect(() => normalizeStoryReply({}, { category: 'fantasy', pronouns: 'she/her' })).toThrow();
   });
 
+  it('capitalizes a name that starts lower-case, keeping particles', () => {
+    expect(fixName('claire Sutcliffe', 'horror', 'she/her')).toBe('Claire Sutcliffe');
+    expect(fixName('Alix ap Rhys', 'romantic', 'they/them')).toBe('Alix ap Rhys');
+  });
+
   it('swaps a name that does not fit the pronouns', () => {
     const name = fixName('Sebastian Fairfax', 'fantasy', 'she/her');
     expect(nameFitsPronouns(name, 'she/her')).toBe(true);

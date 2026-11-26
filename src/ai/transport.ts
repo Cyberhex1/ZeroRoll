@@ -504,7 +504,7 @@ async function callGeminiWithCascade(
       try {
         const reply = await callGeminiModel(
           apiKey, modelName, systemPrompt, messages, temperature, responseJson, thinking, maxTokens,
-          Math.min(timeoutMs, requestBudget(deadlineAt, 'gemini')), outer, schema
+          Math.min(timeoutMs, requestBudget(deadlineAt, 'gemini', timeoutMs)), outer, schema
         );
         return {
           ...reply,

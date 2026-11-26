@@ -63,7 +63,8 @@ export function cleanTitle(v: unknown): string {
  * gets a new given name from the category's lists, keeping a fresh surname.
  */
 export function fixName(v: unknown, category: ExperienceCategory, pronouns: string, familyId?: string): string {
-  const name = str(v, FIELD_LIMITS.heroName).replace(/^["']+|["']+$/g, '');
+  // Some replies start lower-case ("claire Sutcliffe"); particles like "ap" or "de" stay as written.
+  const name = str(v, FIELD_LIMITS.heroName).replace(/^["']+|["']+$/g, '').replace(/^\p{Ll}/u, (ch) => ch.toUpperCase());
   if (!name) return heroNameFor(category, pronouns, undefined, familyId);
   if (isFreshName(name) && nameFitsPronouns(name, pronouns)) return name;
   return heroNameFor(category, pronouns, name, familyId).slice(0, FIELD_LIMITS.heroName);

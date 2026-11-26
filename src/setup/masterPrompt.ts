@@ -19,8 +19,7 @@ import type { HeroDraft } from './types';
 import { OVERUSED_NAMES } from '../content/names';
 
 /**
- * Names and places AI models overuse. Shown to the story check only (the editor), never to the
- * writer: a list in the writer's prompt primes the very names it lists.
+ * Names and places AI models overuse, for the writer (writerOptions.nameList) and the story check.
  */
 export const AI_HABIT_PLACES = ['Oakhaven', 'Eldoria', 'Willowbrook', 'Silverbrook', 'Ravenswood', 'Riverbend', 'Stonehaven', 'Blackwood', 'Brightwater', 'Mistvale', 'Thornfield', 'Ashford'];
 
@@ -61,6 +60,17 @@ export function genreIntro(category: ExperienceCategory, media: string[]): strin
 
 Today your player chose to play ${article} ${name} story. ${GENRE_LINES[category]}
 ${media.length ? `Examples of this kind of story in books, film, TV and games: ${media.join('; ')}.\nDo NOT recreate these stories, and never borrow their characters, names, places or plots. Come up with your own.` : 'Come up with your own story.'} Try to be unique and creative while telling a great story.`;
+}
+
+/**
+ * Whether the writer also sees the overused-name list. On: with the list, Carbon's rolls that the
+ * check failed for AI names went from 10 of 15 to 2 of 15 (2026-11-26 evals, run3 vs run4).
+ * The eval can switch it off with NAMES_TO_WRITER=0.
+ */
+export const writerOptions = { nameList: true };
+
+function nameListLine(): string {
+  return writerOptions.nameList ? `\nNever use these names AI models overuse, for anyone or anywhere: ${[...OVERUSED_NAMES, ...AI_HABIT_PLACES].join(', ')}.` : '';
 }
 
 export const PLAIN_WRITING =
@@ -208,7 +218,7 @@ The hero uses ${pronouns} pronouns.`,
     recent.length
       ? `The player's last stories (any genre) were: ${recent.map((s) => `"${s.title}" (the hero was a ${s.hero})`).join('; ')}. Make this one clearly different: a different kind of hero and situation, and no title words from these.`
       : '',
-    PLAIN_WRITING,
+    PLAIN_WRITING + nameListLine(),
     `Reply with JSON only, in this shape:\n${jsonShape()}`
   ];
   return parts.filter(Boolean).join('\n\n');

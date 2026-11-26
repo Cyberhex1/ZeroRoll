@@ -36,6 +36,8 @@ if (process.env.USABLE) localStorage.setItem('zeroroll_gemini_usable_models', JS
 
 const { rollStory } = await import('../src/setup/storyRoll');
 const { CATEGORY_IDS, getContent } = await import('../src/content');
+const { writerOptions } = await import('../src/setup/masterPrompt');
+if (process.env.NAMES_TO_WRITER === '0') writerOptions.nameList = false;
 const { aiCallCount } = await import('../src/lib/geminiService');
 
 const args = process.argv.slice(2);

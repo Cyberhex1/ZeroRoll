@@ -81,7 +81,7 @@ export const STORY_SCHEMA = {
         storyShape: { type: 'STRING', enum: STORY_SHAPES.map((x) => x.id), description: 'Where the player joins the arc' },
         turningPoint: S('The defining event the story builds to, and the chapter where it lands')
       },
-      required: ['startingCircumstances', 'incitingIncident', 'immediateGoal', 'keyNpcs', 'fronts', 'setPieces', 'chapters', 'storyShape', 'turningPoint']
+      required: ['startingCircumstances', 'backstory', 'incitingIncident', 'immediateGoal', 'keyNpcs', 'fronts', 'setPieces', 'majorConflicts', 'secretsAndReveals', 'chapters', 'potentialEndings', 'storyShape', 'turningPoint']
     },
     openingActions: LIST('Three short first moves of different kinds'),
     hero: HERO_SCHEMA,

@@ -24,7 +24,7 @@ import { complete } from '../ai/router';
 import { applyDelta, applyWorld, chapterCount, gateAlerts, nextAlert, rulesModeOf } from '../dnd/applyTurn';
 import { leadAlert } from '../dnd/turnParser';
 import { PortraitsOffError } from '../lib/portraits';
-import { RULES_MODES, RulesMode, checkOutcome, deathSave, naturalOf, planCheck, rollPlan } from '../dnd/rules';
+import { RULES_MODES, checkOutcome, deathSave, naturalOf, planCheck, rollPlan } from '../dnd/rules';
 import { resolveSkin, skinVars } from '../story/skins';
 import { turnRecallScores } from '../memory/recallService';
 import { REFEREE_PREFIX, buildDndContext, dndTurns, experienceMemory, maybeSummarizeExperience, memoryFromTurn } from '../dnd/memory';
@@ -414,30 +414,9 @@ export const ExperienceView: React.FC<ExperienceViewProps> = ({
 
         {/* Right Status & Mobile View Switcher Tabs */}
         <div className="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 border-t border-white/5 sm:border-t-0">
-          <label className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-400">
-            Rules
-            <select
-              value={mode}
-              onChange={(e) => {
-                const next = e.target.value as RulesMode;
-                if (next === mode) return;
-                if (!window.confirm(`Switch this campaign to ${RULES_MODES[next].name}? ${RULES_MODES[next].blurb}`)) return;
-                const cur = latestExpRef.current;
-                onUpdateExperience({
-                  ...cur,
-                  rulesMode: next,
-                  character: next === 'full5e' ? { ...cur.character, xp: cur.character.xp ?? 0, gold: cur.character.gold ?? 0 } : { ...cur.character, deathSaves: undefined },
-                  pendingCheck: cur.pendingCheck?.kind === 'death_save' ? null : cur.pendingCheck
-                });
-              }}
-              className="bg-transparent text-slate-200 focus:outline-none"
-              aria-label="Rules mode for this campaign"
-            >
-              {(Object.keys(RULES_MODES) as RulesMode[]).map((m) => (
-                <option key={m} value={m} style={{ background: '#111' }}>{RULES_MODES[m].name}</option>
-              ))}
-            </select>
-          </label>
+          <span className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-slate-400" title={RULES_MODES[mode].blurb}>
+            Rules <span className="text-slate-200">{RULES_MODES[mode].name}</span>
+          </span>
 
           {/* Desktop/Mobile View Switcher Tabs */}
           <div className="w-full sm:w-auto grid grid-cols-2 sm:flex items-center gap-1 bg-[#0A0A0F] p-1 rounded-lg border border-white/10 lg:hidden">

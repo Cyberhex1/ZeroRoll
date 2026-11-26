@@ -1,5 +1,6 @@
 import type { ExperienceCategory } from '../../types';
 import type { CategoryContent } from '../types';
+import { dnd } from './dnd';
 import { fantasy } from './fantasy';
 import { adventure } from './adventure';
 import { historicalAdventure } from './historical_adventure';
@@ -18,6 +19,7 @@ import { realLife } from './real_life';
 
 /** Every category's content, in home-screen order. Adding a category without content fails the build. */
 export const CATEGORY_CONTENT = {
+  dnd: dnd,
   fantasy: fantasy,
   adventure: adventure,
   historical_adventure: historicalAdventure,

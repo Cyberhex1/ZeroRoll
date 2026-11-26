@@ -33,6 +33,8 @@ export interface StoryRollInput {
   category: ExperienceCategory;
   /** The pronouns in force, e.g. "she/her". */
   pronouns: string;
+  /** False when the player picked no pronouns (the hero gets a unisex name). */
+  pronounsChosen?: boolean;
   rulesMode: RulesMode;
   inspiration: CampaignInspiration;
   /**
@@ -80,6 +82,7 @@ function masterInput(input: StoryRollInput, media: string[]): MasterInput {
   return {
     category: input.category,
     pronouns: input.pronouns,
+    pronounsChosen: input.pronounsChosen,
     mode: input.mode,
     media,
     fixed: input.fixed,
@@ -213,11 +216,7 @@ export interface HeroPartContext {
   rulesMode: RulesMode;
   title: string;
   premise: string;
-  startingCircumstances?: string;
-  goal?: string;
   hero: HeroDraft;
-  /** The campaign's seed-list example titles, so a reroll reads the genre the same way. */
-  media?: string[];
   signal?: AbortSignal;
 }
 

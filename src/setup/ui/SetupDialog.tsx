@@ -20,7 +20,7 @@ import {
 } from '../../lib/geminiService';
 import { drawOpeners, getContent, markOpenersSeen, pickInspiration, Opener, OpenerDraw } from '../../content';
 import type { CampaignInspiration, CategoryInfo, CharacterSheet, DMStoryOutline, ExperienceCategory } from '../../types';
-import type { RulesMode } from '../../dnd/rules';
+import { RulesMode, rulesModeFor } from '../../dnd/rules';
 import {
   REPLACES,
   applyClass,
@@ -45,7 +45,7 @@ import { HeroPart, RolledStory, rollHeroPart, rollStory } from '../storyRoll';
 import { pickShape, shapeById } from '../storyShape';
 import type { PronounChoice, SetupDraft, TypedField } from '../types';
 import { StoryCard } from './StoryCard';
-import { HeroCard } from './HeroCard';
+import { HeroCard, PronounPicker } from './HeroCard';
 import { HeroSheetCard } from './HeroSheetCard';
 import { SeedsPanel } from './SeedsPanel';
 
@@ -81,14 +81,13 @@ interface FormError {
 }
 
 const PRONOUN_KEY = 'zeroroll_setup_pronouns';
-const RULES_KEY = 'zeroroll_rules_mode';
 
 function readPronouns(): { choice: PronounChoice; custom: string } {
   try {
     const v = JSON.parse(localStorage.getItem(PRONOUN_KEY) || 'null');
-    if (v && ['she/her', 'he/him', 'they/them', 'custom'].includes(v.choice)) return { choice: v.choice, custom: typeof v.custom === 'string' ? v.custom : '' };
+    if (v && ['any', 'she/her', 'he/him', 'they/them', 'custom'].includes(v.choice)) return { choice: v.choice, custom: typeof v.custom === 'string' ? v.custom : '' };
   } catch (_) {}
-  return { choice: 'she/her', custom: '' };
+  return { choice: 'any', custom: '' };
 }
 
 /** Whether AI calls can run: off (no key or Offline mode), untested (no model passed a probe), or ready. */
@@ -112,13 +111,8 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   const [pronounChoice, setPronounChoice] = useState<PronounChoice>(() => readPronouns().choice);
   const [customPronouns, setCustomPronouns] = useState(() => readPronouns().custom);
   const pronouns = resolvePronouns(pronounChoice, customPronouns);
-  const [rulesMode, setRulesModeState] = useState<RulesMode>(() => {
-    try {
-      return localStorage.getItem(RULES_KEY) === 'full5e' ? 'full5e' : 'narrative';
-    } catch (_) {
-      return 'narrative';
-    }
-  });
+  // The category sets the rules: full 5e for D&D, narrative dice everywhere else.
+  const rulesMode: RulesMode = rulesModeFor(catId);
   const [draft, setDraft] = useState<SetupDraft | null>(null);
   const [busy, setBusy] = useState<Busy | null>(null);
   const [error, setError] = useState<FormError | null>(null);
@@ -137,20 +131,13 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   draftRef.current = draft;
   const pronounsRef = useRef(pronouns);
   pronounsRef.current = pronouns;
+  const pronounsChosenRef = useRef(pronounChoice !== 'any');
+  pronounsChosenRef.current = pronounChoice !== 'any';
   const ctrlRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
 
   const locked = busy !== null;
   const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const setRulesMode = (m: RulesMode) => {
-    setRulesModeState(m);
-    try {
-      localStorage.setItem(RULES_KEY, m);
-    } catch (_) {
-      /* the choice still applies to this campaign */
-    }
-  };
 
   const savePronouns = (choice: PronounChoice, custom: string) => {
     try {
@@ -202,7 +189,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
       const shape = pickShape(shapeById(draftRef.current?.outline?.storyShape)?.id);
       const ok = await run(
         'story',
-        (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, rulesMode, inspiration, mode: 'fresh', seed, shape, signal }),
+        (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, pronounsChosen: pronounsChosenRef.current, rulesMode, inspiration, mode: 'fresh', seed, shape, signal }),
         (pkg: RolledStory) => {
           setDraft((prev) => applyPackage(prev, pkg, { category: catId, inspiration, source: 'ai', seed }));
         },
@@ -217,11 +204,11 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
     [catId, rulesMode, run, openerDraft]
   );
 
-  // Opening the menu rolls a story when the AI is ready; otherwise a hand-written opener.
+  // Opening the menu waits for the player to pick pronouns and roll (ohnna, 2026-11-26); with the
+  // AI off, a hand-written opener is shown instead.
   useEffect(() => {
     mountedRef.current = true;
-    if (readAIState() === 'ready') void rollFresh();
-    else setDraft(openerDraft());
+    if (readAIState() === 'off') setDraft(openerDraft());
     return () => {
       mountedRef.current = false;
       ctrlRef.current?.abort();
@@ -282,6 +269,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
         rollStory({
           category: catId,
           pronouns: pronounsRef.current,
+          pronounsChosen: pronounsChosenRef.current,
           rulesMode,
           inspiration: d.inspiration,
           mode: 'adapt',
@@ -322,10 +310,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
           rulesMode,
           title: d.title,
           premise: d.premise,
-          goal: d.outline?.immediateGoal,
           hero: d.hero,
-          startingCircumstances: d.outline?.startingCircumstances,
-          media: d.inspiration.media,
           signal
         }),
       (r) => setDraft((prev) => (!prev ? prev : part === 'roleClass' && r.roleClass && r.sheet ? applyClass(prev, r.roleClass, r.sheet) : applyHeroPart(prev, r))),
@@ -352,10 +337,11 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
         rollStory({
           category: catId,
           pronouns: pronounsRef.current,
+          pronounsChosen: pronounsChosenRef.current,
           rulesMode,
           inspiration: base.inspiration,
           mode: 'opener',
-          fixed: { title: o.title, premise: o.premise, name: base.hero.name, roleClass: o.hero.role, origin: o.hero.origin, actions: [...o.actions] },
+          fixed: { title: o.title, premise: o.premise, name: base.hero.name, roleClass: o.hero.role, origin: o.hero.origin },
           shape: shapeById(o.shape),
           turningPoint: o.turningPoint,
           signal
@@ -489,7 +475,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   const retryWait = error?.retryAt ? Math.max(0, Math.ceil((error.retryAt - Date.now()) / 1000)) : 0;
   const storyBusy = busy === 'story' || busy === 'adapt' || busy === 'opener';
   const initializeBlock = !draft
-    ? 'Waiting for a story'
+    ? 'Roll a story first'
     : storyEditing
       ? 'Save or cancel your story edit first'
       : draft.stale
@@ -553,13 +539,13 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
           </div>
           <button
             type="button"
-            disabled={locked || !draft}
+            disabled={locked || (!draft && pronounChoice === 'custom' && !customPronouns.trim())}
             onClick={rerollStory}
             className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-[11px] font-mono text-amber-300 flex items-center justify-center gap-1.5 transition disabled:opacity-50 font-semibold"
             title={aiOn ? 'A new story, with a hero and hero sheet to fit it' : 'The AI is off: picks another hand-written opener'}
           >
             <RefreshCw className={`w-3 h-3 ${busy === 'story' ? 'animate-spin' : ''}`} aria-hidden="true" />
-            Reroll Story
+            {draft ? 'Reroll Story' : 'Roll Story'}
           </button>
         </div>
 
@@ -602,13 +588,33 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
 
         {tab === 'setup' ? (
           !draft ? (
-            <div className="space-y-3" aria-busy="true">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="rounded-lg bg-[#0A0A0F] border border-white/10 p-4 space-y-2 animate-pulse">
-                  <div className="h-2.5 w-20 rounded bg-white/10" />
+            <div className="space-y-3" aria-busy={storyBusy}>
+              {/* Before the first roll only the pronouns and the roll are live (ohnna, 2026-11-26). */}
+              <section className="rounded-lg bg-[#0A0A0F] border border-amber-500/30 p-3 sm:p-3.5 space-y-3">
+                <PronounPicker
+                  choice={pronounChoice}
+                  custom={customPronouns}
+                  onPick={pickPronouns}
+                  onCustom={typeCustomPronouns}
+                  locked={locked}
+                  error={pronounChoice === 'custom' && !customPronouns.trim() ? 'Type the pronouns to use, or pick one of the options.' : undefined}
+                />
+                <p className="text-[11px] text-slate-400">Pick your hero's pronouns, then roll a story. With no preference, the hero gets a name that suits anyone.</p>
+                <button
+                  type="button"
+                  onClick={rerollStory}
+                  disabled={locked || (pronounChoice === 'custom' && !customPronouns.trim())}
+                  className="w-full sm:w-auto px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${busy === 'story' ? 'animate-spin' : ''}`} aria-hidden="true" />
+                  Roll story
+                </button>
+              </section>
+              {['The story', 'Hero', 'Hero sheet'].map((label) => (
+                <div key={label} aria-hidden="true" className={`rounded-lg bg-[#0A0A0F] border border-white/10 p-4 space-y-2 opacity-40 ${storyBusy ? 'animate-pulse' : ''}`}>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold font-mono">{label}</div>
                   <div className="h-3 w-3/4 rounded bg-white/10" />
                   <div className="h-3 w-full rounded bg-white/5" />
-                  <div className="h-3 w-5/6 rounded bg-white/5" />
                 </div>
               ))}
             </div>
@@ -655,7 +661,6 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
               <HeroSheetCard
                 draft={draft}
                 rulesMode={rulesMode}
-                onRulesMode={setRulesMode}
                 onChange={(sheet) => {
                   setTouched(true);
                   setDraft((prev) => (prev ? editSheet(prev, sheet) : prev));

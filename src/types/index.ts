@@ -2,6 +2,7 @@ import type { MemoryState } from '../memory/memoryStore';
 import type { DirectorState } from '../forge/director';
 
 export type ExperienceCategory =
+  | 'dnd'
   | 'fantasy'
   | 'adventure'
   | 'historical_adventure'

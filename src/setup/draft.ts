@@ -37,6 +37,7 @@ export const REPLACES = {
 } as const satisfies Record<string, readonly TypedField[]>;
 
 export function resolvePronouns(choice: PronounChoice, custom: string): string {
+  if (choice === 'any') return 'they/them';
   return choice === 'custom' ? custom.trim().slice(0, FIELD_LIMITS.pronouns) || 'they/them' : choice;
 }
 
@@ -128,7 +129,8 @@ export function applyPackage(
     title: keepTitle && prev ? prev.title : pkg.title,
     premise: pkg.premise,
     outline: pkg.outline,
-    actions: pkg.actions,
+    // The story roll has no opening actions (Chapter One writes them); an opener keeps its own.
+    actions: pkg.actions.length ? pkg.actions : opts.source === 'opener' && prev ? prev.actions : [],
     inspiration: storyInspiration(opts.inspiration, pkg, opts.seed),
     storySource: opts.source,
     builtIn: false,

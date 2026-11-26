@@ -9,8 +9,8 @@ import type { HeroSheetDraft, SetupDraft } from '../types';
 
 interface Props {
   draft: SetupDraft;
+  /** Set by the category: full 5e for D&D, narrative dice everywhere else. */
   rulesMode: RulesMode;
-  onRulesMode: (m: RulesMode) => void;
   onChange: (sheet: HeroSheetDraft) => void;
   onReset: () => void;
   locked: boolean;
@@ -21,7 +21,7 @@ const chip = 'px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] 
 const smallBtn = 'w-6 h-6 rounded border border-white/15 text-slate-200 flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed';
 const sameSheet = (a: HeroSheetDraft, b: HeroSheetDraft) => JSON.stringify(a) === JSON.stringify(b);
 
-export function HeroSheetCard({ draft, rulesMode, onRulesMode, onChange, onReset, locked }: Props) {
+export function HeroSheetCard({ draft, rulesMode, onChange, onReset, locked }: Props) {
   const [editing, setEditing] = useState(false);
   const [newGear, setNewGear] = useState('');
   const [newSpell, setNewSpell] = useState('');
@@ -70,20 +70,9 @@ export function HeroSheetCard({ draft, rulesMode, onRulesMode, onChange, onReset
         </button>
       </div>
 
-      <fieldset className="space-y-1" disabled={locked}>
-        <legend className="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-bold">Rules</legend>
-        <div className="flex flex-wrap gap-2 pt-1">
-          {(Object.keys(RULES_MODES) as RulesMode[]).map((m) => (
-            <label key={m} className={`flex items-start gap-1.5 rounded border px-2 py-1 cursor-pointer ${rulesMode === m ? 'border-amber-500/70 bg-amber-500/10' : 'border-white/10'}`}>
-              <input type="radio" name="rules-mode" value={m} checked={rulesMode === m} onChange={() => onRulesMode(m)} className="mt-0.5 accent-amber-500" />
-              <span>
-                <span className="block text-[11px] font-semibold text-slate-200">{RULES_MODES[m].name}</span>
-                <span className="block text-[10px] text-slate-400">{RULES_MODES[m].blurb}</span>
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <p className="text-[10px] text-slate-400">
+        <span className="uppercase tracking-wider text-slate-500 font-mono font-bold">Rules</span> <span className="text-slate-200 font-semibold">{RULES_MODES[rulesMode].name}</span> · {RULES_MODES[rulesMode].blurb}
+      </p>
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-mono">
         <span className="text-amber-400 font-bold">HP {maxHp}</span>

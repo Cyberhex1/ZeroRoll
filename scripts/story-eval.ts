@@ -43,7 +43,8 @@ const { aiCallCount } = await import('../src/lib/geminiService');
 const args = process.argv.slice(2);
 const per = /^\d+$/.test(args[0] ?? '') ? Number(args.shift()) : 1;
 const cats = (args.length ? args : [...CATEGORY_IDS]) as (typeof CATEGORY_IDS)[number][];
-const pronouns = ['she/her', 'he/him', 'they/them'];
+// The fourth slot is a player who chose no pronouns (unisex name).
+const pronouns: Array<[string, boolean]> = [['she/her', true], ['he/him', true], ['they/them', true], ['they/them', false]];
 const out = process.env.EVAL_OUT || 'story-eval.md';
 
 const rows: any[] = [];
@@ -51,11 +52,11 @@ const md: string[] = [`# Story roll eval (${new Date().toISOString()})`, '', `Wr
 let n = 0;
 for (const category of cats) {
   for (let i = 0; i < per; i++) {
-    const p = pronouns[n++ % pronouns.length];
+    const [p, chosen] = pronouns[n++ % pronouns.length];
     const calls0 = aiCallCount();
     const t0 = Date.now();
     try {
-      const pkg = await rollStory({ category, pronouns: p, rulesMode: 'narrative', inspiration: { media: [], tropes: [] }, mode: 'fresh' });
+      const pkg = await rollStory({ category, pronouns: p, pronounsChosen: chosen, rulesMode: 'narrative', inspiration: { media: [], tropes: [] }, mode: 'fresh' });
       const secs = Math.round((Date.now() - t0) / 1000);
       const o = pkg.outline;
       rows.push({ category, ok: true, secs, calls: aiCallCount() - calls0, pkg: { ...pkg, prompt: undefined } });
@@ -68,13 +69,10 @@ for (const category of cats) {
         '',
         `**The story:** ${pkg.premise}`,
         '',
-        `**Where you start:** ${o.startingCircumstances}`,
         '',
-        `**Your first goal:** ${o.immediateGoal}`,
         '',
-        `**Hero:** ${pkg.hero.name} (${p}), ${pkg.hero.roleClass}, ${pkg.hero.origin}. ${pkg.hero.appearance}`,
+        `**Hero:** ${pkg.hero.name} (${chosen ? p : `no pronouns chosen, so ${p}`}), ${pkg.hero.roleClass}, ${pkg.hero.origin}. ${pkg.hero.appearance}`,
         `**Gear:** ${pkg.sheet.gear.map((g) => g.name).join(', ')}${pkg.sheet.spells.length ? ` · **Spells:** ${pkg.sheet.spells.join(', ')}` : ''} · **Skills:** ${pkg.sheet.skills.join(', ')}`,
-        `**First moves:** ${pkg.actions.join(' | ')}`,
         '',
         `DM notes: people ${o.keyNpcs.map((k) => `${k.name} (${k.role})`).join(', ')}. Chapters: ${o.chapters.join(' / ')}. Turning point: ${o.turningPoint ?? '-'} (${o.storyShape ?? '-'})`,
         ''

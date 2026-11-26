@@ -10,7 +10,6 @@ import { campaignTitle } from '../lib/titles';
 import { uid } from '../lib/ids';
 import { heroNameFor } from '../content/procedural';
 import { isFreshName, nameFitsPronouns } from '../content/names';
-import { getCategoryFallbackActions } from '../content';
 import { fitPointBuy } from './pointBuy';
 import type { HeroSheetDraft, StoryPackage } from './types';
 import { StoryShapeId, shapeById } from './storyShape';
@@ -162,7 +161,7 @@ export function normalizeOutline(v: unknown, premise: string, shape?: StoryShape
     : [];
   const setPieces = strList(o.setPieces, 300, 6);
   return {
-    startingCircumstances: str(o.startingCircumstances, 600) || premise.slice(0, 600),
+    startingCircumstances: str(o.startingCircumstances, 600),
     backstory: str(o.backstory, 800),
     incitingIncident: str(o.incitingIncident, 600),
     immediateGoal: str(o.immediateGoal, 400),
@@ -184,7 +183,6 @@ export interface FixedParts {
   name?: string;
   roleClass?: string;
   origin?: string;
-  actions?: string[];
 }
 
 /**
@@ -205,14 +203,13 @@ export function normalizeStoryReply(raw: unknown, ctx: { category: ExperienceCat
   const name = fixed.name ?? fixName(heroRaw.name ?? heroRaw.heroName, ctx.category, ctx.pronouns, ctx.familyId);
   const appearance = str(heroRaw.appearance ?? heroRaw.physicalDescription, FIELD_LIMITS.description);
 
-  const actions = fixed.actions?.length ? fixed.actions.slice(0, 3) : strList(r.openingActions ?? r.suggestedActions, 160, 3);
-  const filled = actions.length >= 3 ? actions : [...actions, ...getCategoryFallbackActions(ctx.category, 3)].slice(0, 3);
+  // Opening actions come from Chapter One now (ohnna, 2026-11-26), not from the story roll.
 
   return {
     title,
     premise,
     outline: normalizeOutline(r.outline ?? r.storyOutline, premise, ctx.shape),
-    actions: filled,
+    actions: [],
     hero: { name, roleClass, origin, appearance },
     sheet: normalizeSheet(r.sheet ?? r, roleClass)
   };

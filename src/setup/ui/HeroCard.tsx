@@ -4,11 +4,12 @@ import { FIELD_LIMITS } from '../normalize';
 import type { HeroPart } from '../storyRoll';
 import type { PronounChoice, SetupDraft } from '../types';
 
-const PRONOUNS: Array<{ id: PronounChoice; label: string }> = [
+export const PRONOUNS: Array<{ id: PronounChoice; label: string }> = [
   { id: 'she/her', label: 'She / Her' },
   { id: 'he/him', label: 'He / Him' },
   { id: 'they/them', label: 'They / Them' },
-  { id: 'custom', label: 'Custom…' }
+  { id: 'custom', label: 'Custom…' },
+  { id: 'any', label: 'No preference' }
 ];
 
 interface Props {
@@ -37,6 +38,42 @@ function RollButton({ label, spinning, disabled, onClick, title }: { label: stri
 const inputCls = 'w-full bg-[#111118] border border-white/10 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-600/50 font-medium disabled:opacity-60';
 const labelCls = 'block text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold';
 
+/** The pronoun buttons, shared by the hero card and the setup screen before the first roll. */
+export function PronounPicker({ choice, custom, onPick, onCustom, locked, error }: { choice: PronounChoice; custom: string; onPick: (c: PronounChoice) => void; onCustom: (text: string) => void; locked: boolean; error?: string }) {
+  return (
+    <fieldset className="space-y-1.5" disabled={locked}>
+      <legend className={labelCls}>Pronouns</legend>
+      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+        {PRONOUNS.map((opt) => (
+          <button
+            key={opt.id}
+            type="button"
+            aria-pressed={choice === opt.id}
+            onClick={() => onPick(opt.id)}
+            className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition border disabled:opacity-60 ${
+              choice === opt.id ? 'bg-amber-600/30 text-amber-300 border-amber-500 font-bold' : 'bg-[#111118] text-slate-400 border-white/10 hover:text-slate-200'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+        {choice === 'custom' && (
+          <input
+            type="text"
+            value={custom}
+            onChange={(e) => onCustom(e.target.value)}
+            maxLength={FIELD_LIMITS.pronouns}
+            placeholder="e.g. she/they, ze/zir"
+            aria-label="Custom pronouns"
+            className="flex-1 min-w-[140px] bg-[#111118] border border-amber-500/50 rounded px-2.5 py-1 text-xs text-amber-200 focus:outline-none font-mono"
+          />
+        )}
+      </div>
+      {error && <p className="text-[10px] text-red-300">{error}</p>}
+    </fieldset>
+  );
+}
+
 export function HeroCard({ draft, pronounChoice, customPronouns, onPronouns, onCustomPronouns, onType, onRoll, rolling, locked, errors, portrait }: Props) {
   const field = (key: 'name' | 'roleClass' | 'origin', label: string, part: 'name' | 'roleClass' | 'origin', rollLabel: string, rollTitle: string, max: number, error?: string) => (
     <div>
@@ -56,36 +93,7 @@ export function HeroCard({ draft, pronounChoice, customPronouns, onPronouns, onC
         <h3 id="setup-hero-h" className="text-[10px] uppercase tracking-[0.2em] text-amber-400 font-bold font-mono">Hero</h3>
       </div>
 
-      <fieldset className="space-y-1.5" disabled={locked}>
-        <legend className={labelCls}>Pronouns</legend>
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          {PRONOUNS.map((opt) => (
-            <button
-              key={opt.id}
-              type="button"
-              aria-pressed={pronounChoice === opt.id}
-              onClick={() => onPronouns(opt.id)}
-              className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition border disabled:opacity-60 ${
-                pronounChoice === opt.id ? 'bg-amber-600/30 text-amber-300 border-amber-500 font-bold' : 'bg-[#111118] text-slate-400 border-white/10 hover:text-slate-200'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-          {pronounChoice === 'custom' && (
-            <input
-              type="text"
-              value={customPronouns}
-              onChange={(e) => onCustomPronouns(e.target.value)}
-              maxLength={FIELD_LIMITS.pronouns}
-              placeholder="e.g. she/they, ze/zir"
-              aria-label="Custom pronouns"
-              className="flex-1 min-w-[140px] bg-[#111118] border border-amber-500/50 rounded px-2.5 py-1 text-xs text-amber-200 focus:outline-none font-mono"
-            />
-          )}
-        </div>
-        {errors.pronouns && <p className="text-[10px] text-red-300">{errors.pronouns}</p>}
-      </fieldset>
+      <PronounPicker choice={pronounChoice} custom={customPronouns} onPick={onPronouns} onCustom={onCustomPronouns} locked={locked} error={errors.pronouns} />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {field('name', 'Name', 'name', 'Roll Name', 'A new name that fits your pronouns and this story', FIELD_LIMITS.heroName, errors.name)}

@@ -25,7 +25,7 @@ import { FixedParts, cleanTitle, fixName, normalizeSheet, normalizeStoryReply } 
 import type { StoryShape } from './storyShape';
 import type { HeroDraft, HeroSheetDraft, StoryPackage } from './types';
 import { S, SHEET_SCHEMA, STORY_SCHEMA } from './schemas';
-import { CHECK_SCHEMA, MasterInput, RerollField, buildCheckPrompt, buildFixPrompt, buildMasterPrompt, buildRerollPrompt, mediaExamples } from './masterPrompt';
+import { CHECK_SCHEMA, MasterInput, RerollField, buildCheckPrompt, buildFixPrompt, buildMasterPrompt, buildRerollPrompt, mediaExamples, rememberStory } from './masterPrompt';
 
 export { STORY_SCHEMA } from './schemas';
 
@@ -195,6 +195,7 @@ export async function rollStory(input: StoryRollInput): Promise<RolledStory> {
   if (input.mode === 'opener' && input.turningPoint) pkg.outline = { ...pkg.outline, turningPoint: input.turningPoint };
 
   if (input.mode === 'fresh') {
+    rememberStory({ title: pkg.title, hero: pkg.hero.roleClass.toLowerCase() });
     rememberRoll(input.category, 'title', pkg.title);
     rememberRoll(input.category, 'premise', pkg.premise);
   }

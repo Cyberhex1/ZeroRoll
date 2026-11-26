@@ -13,7 +13,6 @@
  */
 import type { ExperienceCategory } from '../types';
 import { getContent, shuffle } from '../content';
-import { recentRolls } from '../lib/rollFreshness';
 import { STORY_SHAPES, StoryShape } from './storyShape';
 import { CLASS_RULE, HERO_FIT, ORIGIN_RULE, SHEET_EXAMPLE, SHEET_RULES } from './heroRules';
 import type { HeroDraft } from './types';
@@ -104,6 +103,35 @@ function jsonShape(): string {
 }`;
 }
 
+/* ------------------------- recent stories (any genre) ------------------------- */
+
+const RECENT_KEY = 'zeroroll_recent_stories';
+const RECENT_KEEP = 6;
+
+export interface RecentStory {
+  title: string;
+  hero: string;
+}
+
+/** The player's last few rolled stories across every genre, newest first. */
+export function recentStories(): RecentStory[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+    return Array.isArray(v) ? v.filter((x) => x && typeof x.title === 'string' && typeof x.hero === 'string').slice(0, RECENT_KEEP) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function rememberStory(story: RecentStory): void {
+  try {
+    const list = [story, ...recentStories().filter((s) => s.title !== story.title)].slice(0, RECENT_KEEP);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+  } catch {
+    // private mode: no memory of recent stories
+  }
+}
+
 /* ---------------------------- the story roll ---------------------------- */
 
 export type MasterMode = 'fresh' | 'adapt' | 'opener' | 'sequel';
@@ -166,7 +194,7 @@ ${input.continuation ?? ''}`;
 export function buildMasterPrompt(input: MasterInput): string {
   const { category, pronouns, fixed = {} } = input;
   const kept = keptLines(fixed);
-  const recent = input.mode === 'fresh' ? recentRolls(category, 'title').slice(0, 4) : [];
+  const recent = input.mode === 'fresh' ? recentStories() : [];
   const parts = [
     genreIntro(category, input.media),
     modeBlock(input),
@@ -177,7 +205,9 @@ The hero uses ${pronouns} pronouns.`,
     DM_FIELDS,
     SHEET_RULES,
     HERO_FIT,
-    recent.length ? `Your last stories for this player in this genre were: ${recent.map((t) => `"${t}"`).join(', ')}. Write something different.` : '',
+    recent.length
+      ? `The player's last stories (any genre) were: ${recent.map((s) => `"${s.title}" (the hero was a ${s.hero})`).join('; ')}. Make this one clearly different: a different kind of hero and situation, and no title words from these.`
+      : '',
     PLAIN_WRITING,
     `Reply with JSON only, in this shape:\n${jsonShape()}`
   ];
@@ -239,9 +269,9 @@ Read both carefully and check two things:
 1. Did the writer follow the prompt? Every instruction, including the genre, not recreating the example stories, filling every field as described, keeping any fields marked as already filled in, and avoiding AI-sounding writing and typical AI names and places.
 2. Is it logical? Read the fields the way the player will. Do they all tell ONE story that makes sense: the same hero, place and moment in the premise, "where you start" and "your first goal"; a class, origin, looks, skills and gear that fit the hero the premise describes; DM notes and chapters that follow from the premise? Does anything contradict something else, or not make sense?
 
-For the AI-writing check: names and places AI models overuse include ${[...OVERUSED_NAMES, ...AI_HABIT_PLACES].join(', ')}, and anything that sounds like them. A story that uses one of these, or a phrase that reads like stock AI prose, does not pass.
+For the AI-writing check: names of people and places that AI models overuse include ${[...OVERUSED_NAMES, ...AI_HABIT_PLACES].join(', ')}, and names that sound like them. A person or place with one of these names, or a phrase that reads like stock AI prose, does not pass. The list is about names: an ordinary word such as "ash" or "cross" in a title or sentence is fine. A famous real person's name for an invented character is not fine.
 
-Only report real problems a reader would notice, not matters of taste. If there are none, pass.
+Do not report JSON formatting, missing optional fields (such as a gear item's "equipped" or "description"), gear quantities or skill spelling: the app checks and fixes those itself. Only report real problems a reader would notice, not matters of taste. If there are none, pass.
 
 === PROMPT ===
 ${writerPrompt}

@@ -41,10 +41,7 @@ import {
   typedAmong,
   validateDraft
 } from '../draft';
-import { HeroPart, newIdeas, rollHeroPart, rollStory } from '../storyRoll';
-import type { ForgedPackage } from '../../forge/forge';
-import type { Pitch } from '../../forge/pitch';
-import type { Spread } from '../../forge/spread';
+import { HeroPart, RolledStory, rollHeroPart, rollStory } from '../storyRoll';
 import { pickShape, shapeById } from '../storyShape';
 import type { PronounChoice, SetupDraft, TypedField } from '../types';
 import { StoryCard } from './StoryCard';
@@ -75,7 +72,7 @@ interface Props {
   icon: React.ReactNode;
 }
 
-type Busy = 'story' | 'adapt' | 'opener' | HeroPart | 'portrait' | 'pitches' | 'create';
+type Busy = 'story' | 'adapt' | 'opener' | HeroPart | 'portrait' | 'create';
 type AIState = 'ready' | 'off' | 'untested';
 interface FormError {
   text: string;
@@ -132,9 +129,6 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   const [touched, setTouched] = useState(false);
   const [openers, setOpeners] = useState<OpenerDraw[]>([]);
   const [seeds] = useState<string[]>(() => getContent(catId).tropes.map((t) => t.premise));
-  // 0.2: pitches the player can build (the unpicked ones from the last roll, or a "New ideas" draw). Not saved.
-  const [ideas, setIdeas] = useState<{ pitches: Pitch[]; spread: Spread; fromRoll: boolean } | null>(null);
-  const [seedsError, setSeedsError] = useState<string | null>(null);
   const [portraitError, setPortraitError] = useState<string | null>(null);
   const [portraitsOff, setPortraitsOff] = useState(false);
   const [, setTick] = useState(0);
@@ -209,9 +203,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
       const ok = await run(
         'story',
         (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, rulesMode, inspiration, mode: 'fresh', seed, shape, signal }),
-        (pkg: ForgedPackage) => {
-          // The unpicked pitches from this roll, for "More ideas from this roll" (not saved).
-          setIdeas(pkg.alternates?.length ? { pitches: pkg.alternates, spread: pkg.spread, fromRoll: true } : null);
+        (pkg: RolledStory) => {
           setDraft((prev) => applyPackage(prev, pkg, { category: catId, inspiration, source: 'ai', seed }));
         },
         { retry: () => void rollFresh(seed) }
@@ -332,7 +324,8 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
           premise: d.premise,
           goal: d.outline?.immediateGoal,
           hero: d.hero,
-          familyId: d.inspiration.forge?.family,
+          startingCircumstances: d.outline?.startingCircumstances,
+          media: d.inspiration.media,
           signal
         }),
       (r) => setDraft((prev) => (!prev ? prev : part === 'roleClass' && r.roleClass && r.sheet ? applyClass(prev, r.roleClass, r.sheet) : applyHeroPart(prev, r))),
@@ -399,35 +392,6 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
     setTouched(true);
     setTab('setup');
     void rollFresh(seed);
-  };
-
-  /** Four new pitches from a fresh draw of this genre's deck (one call). */
-  const drawNewIdeas = () => {
-    setSeedsError(null);
-    void run(
-      'pitches',
-      (signal) => newIdeas({ category: catId, pronouns: pronounsRef.current, signal }),
-      (data) => setIdeas({ ...data, fromRoll: false }),
-      { onError: (text) => setSeedsError(`New ideas failed: ${text}`) }
-    );
-  };
-
-  /** Builds a pitch on the spread it came from (one call), like a seed does. */
-  const pickIdea = (pitch: Pitch) => {
-    const from = ideas;
-    if (locked || !from || !confirmLoss(REPLACES.story)) return;
-    setTouched(true);
-    setTab('setup');
-    const inspiration = pickInspiration(catId);
-    void run(
-      'story',
-      (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, rulesMode, inspiration, mode: 'fresh', shape: from.spread.shape, spread: from.spread, pitch, signal }),
-      (pkg: ForgedPackage) => {
-        setIdeas((prev) => (prev ? { ...prev, pitches: prev.pitches.filter((p) => p !== pitch) } : prev));
-        setDraft((prev) => applyPackage(prev, pkg, { category: catId, inspiration, source: 'ai' }));
-      },
-      { retry: () => pickIdea(pitch) }
-    );
   };
 
   const drawPortrait = () => {
@@ -709,15 +673,9 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
             openerTotal={getContent(catId).openers.length}
             aiOn={aiOn}
             locked={locked}
-            regenerating={busy === 'pitches'}
-            error={seedsError}
-            ideas={ideas?.pitches ?? []}
-            ideasFromRoll={!!ideas?.fromRoll}
-            onIdea={pickIdea}
             onSeed={pickSeed}
             onOpener={pickOpener}
             onShowOthers={showOpeners}
-            onRegenerate={drawNewIdeas}
           />
         )}
 

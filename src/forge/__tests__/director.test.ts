@@ -3,7 +3,7 @@ import type { Experience } from '../../types';
 import { directorNote, ensureDirector, maxPortentStep, setPieceHit, updateDirector, hasDialogue } from '../director';
 import { freshLanguage, repeatedPhrases, overusedTics, repetitionRate } from '../language';
 import { turnDirection, leaksDirector } from '../turnContext';
-import { turnContextBlock, turnStyleCard, STYLE_CARD_MAX } from '../../content/injection';
+import { turnContextBlock } from '../../content/injection';
 
 const outline = {
   startingCircumstances: '', backstory: '', incitingIncident: '', immediateGoal: '', majorConflicts: [], secretsAndReveals: [], potentialEndings: [],
@@ -120,17 +120,11 @@ describe('fresh language', () => {
 });
 
 describe('turn context', () => {
-  it('a forged campaign gets a rotating palette card and one DNA line; old ones keep the tone titles', () => {
-    const t1 = turnStyleCard('mythology', 1, 'longships, sea-ice, mead and smoke, runes cut in wet wood');
-    const t2 = turnStyleCard('mythology', 2, 'longships, sea-ice, mead and smoke, runes cut in wet wood');
-    expect(t1).toContain('Details to draw on this turn:');
-    expect(t1).not.toBe(t2);
-    expect(t1.length).toBeLessThanOrEqual(STYLE_CARD_MAX);
+  it('every campaign gets the style card and its tone references', () => {
     const d = turnDirection(exp(), 3);
-    const forged = turnContextBlock('mythology', exp().inspiration, d.context);
-    expect(forged).toContain('Storytelling DNA (The Northman)');
-    expect(forged).not.toContain('Tone references');
-    expect(turnContextBlock('mythology', { media: ['The Odyssey (Epic)'], tropes: [] })).toContain('Tone references: The Odyssey');
+    const block = turnContextBlock('mythology', { media: ['The Odyssey (Epic)'], tropes: [] }, d.context);
+    expect(block).toContain('Tone references: The Odyssey');
+    expect(block.startsWith('STYLE (')).toBe(true);
     expect(d.names).toMatch(/^New characters, if any, can take names like: /);
     expect(d.names).not.toContain('Ingrid');
   });

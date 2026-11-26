@@ -24,7 +24,6 @@ export interface CategorySeedInfo {
 }
 import { getCategoryFallbackActions, getCategoryProfile, getContent, getOpenerById } from '../content';
 import { fullProfileBlock, patternBlock, turnContextBlock } from '../content/injection';
-import { forgeContextBlock } from '../forge/context';
 import { namesOnHandFrom, traditionsFor } from '../forge/names';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError } from './aiErrors';
@@ -1128,7 +1127,7 @@ OPENING BEAT (from the hand-written opener this campaign starts from; open on th
 /** A few names from the story family's traditions, not used in this story yet (0.2: no banned-name list). */
 function chapterOneNames(category: ExperienceCategory, inspiration: CampaignInspiration | undefined, outline: DMStoryOutline | undefined, heroName?: string): string[] {
   const used = [heroName ?? '', ...(outline?.keyNpcs ?? []).map((n) => n.name)].flatMap((n) => n.split(/\s+/));
-  const n = namesOnHandFrom(traditionsFor(category, inspiration?.forge?.family), { exclude: used, given: 3, family: 2 });
+  const n = namesOnHandFrom(traditionsFor(category), { exclude: used, given: 3, family: 2 });
   return [...n.given, ...n.family];
 }
 
@@ -1150,7 +1149,7 @@ export async function generateChapterOneAI(params: {
       const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
 When you introduce a new character, give them a name that fits the setting.${names.length ? ` Names on hand, if you need them: ${names.join(', ')}.` : ''}
 
-${forgeContextBlock(category, inspiration) ?? fullProfileBlock(category, inspiration, { seeds: !storyOutline })}
+${fullProfileBlock(category, inspiration, { seeds: !storyOutline })}
 
 STORY PREMISE:
 ${storyBlurb}
@@ -1160,7 +1159,7 @@ ${formatOutlineForPrompt(storyOutline, 'brief')}
 ` : ''}
 CREATIVE ASSIGNMENT:
 Write the very first scene (Chapter One, Scene 1) of this campaign. 
-Open in the premise's first moment and stay there: the hook is happening now. Ground the scene in two concrete details from the palette. Bring one key NPC on stage in person, with what they want visible in what they do. End on a moment of choice. ${RULE_NEVER_CLIMAX} Nothing from the outline's turning point or later chapters happens in this scene, and nothing hints at it in the narrator's voice.
+Open in the premise's first moment and stay there: the hook is happening now. Ground the scene in two concrete details of the place. Bring one key NPC on stage in person, with what they want visible in what they do. End on a moment of choice. ${RULE_NEVER_CLIMAX} Nothing from the outline's turning point or later chapters happens in this scene, and nothing hints at it in the narrator's voice.
 
 GAMEPLAY GM DIRECTIVES:
 - Address the player as "you". Keep the narrative in present tense.

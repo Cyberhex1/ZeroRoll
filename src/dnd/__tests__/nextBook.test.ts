@@ -41,7 +41,6 @@ describe('next book', () => {
     await continueToNextBook(exp, 'm');
     const input = rollStory.mock.calls[0][0];
     expect(input).toMatchObject({ mode: 'sequel', category: 'fantasy', fixed: { name: 'Rook', roleClass: 'Rogue', origin: 'Elf' } });
-    expect(input.shape?.id).toBeTruthy();
     expect(input.continuation).toMatch(/Start Book 2/);
   });
 });
@@ -57,11 +56,10 @@ describe('starting gear merge (PS7)', () => {
     expect(mergeInventoryAdditive(hero, defaults).map((i) => i.name)).toEqual(['Rapier', 'Leather Armor', 'Torch']);
   });
 
-  it('0.2: Book Two keeps the new forge record and resets the Director', async () => {
-    const forge = { v: 1, family: 'f', familyName: 'Fam', dna: ['a'], dnaTitles: ['A'], engine: 'heist' };
-    rollStory.mockResolvedValueOnce({ title: 'T2', premise: 'P2', outline: { chapters: ['One'] }, actions: [], hero: {}, sheet: {}, forge, spread: { primary: { title: 'A', medium: 'novel' } } } as any);
+  it('Book Two keeps the example titles it was written from and resets the Director', async () => {
+    rollStory.mockResolvedValueOnce({ title: 'T2', premise: 'P2', outline: { chapters: ['One'] }, actions: [], hero: {}, sheet: {}, media: ['A (novel)'] } as any);
     const next = await continueToNextBook({ ...exp, director: { v: 1 } } as any, 'm');
-    expect(next.inspiration?.forge).toEqual(forge);
+    expect(next.inspiration?.forge).toBeUndefined();
     expect(next.inspiration?.media).toEqual(['A (novel)']);
     expect(next.director).toBeUndefined();
     expect(rollStory.mock.calls.at(-1)?.[0].mode).toBe('sequel');

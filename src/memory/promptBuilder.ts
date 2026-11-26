@@ -51,7 +51,10 @@ export function buildPrompt(input: BuildInput): BuiltPrompt {
   const fixed = [input.system, ...input.sheets.filter(Boolean)].join('\n\n');
   const fixedTokens = estimateTokens(fixed);
 
-  const summaryBlock = input.memory.summary ? `STORY SO FAR (summary of earlier turns)\n${input.memory.summary}` : '';
+  const summaryBlock = [
+    input.memory.summary ? `STORY SO FAR (summary of earlier turns)\n${input.memory.summary}` : '',
+    input.memory.sheet ? `DM SHEET (your own running notes on this story; keep to them and to the roadmap)\n${input.memory.sheet}` : ''
+  ].filter(Boolean).join('\n\n');
   const summaryTokens = summaryBlock ? estimateTokens(summaryBlock) : 0;
 
   // Memory: pinned first (always), then unpinned newest first until the budget says stop.

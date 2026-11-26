@@ -1,5 +1,4 @@
 import type { MemoryState } from '../memory/memoryStore';
-import type { EngineId } from '../content/forge/types';
 import type { DirectorState } from '../forge/director';
 
 export type ExperienceCategory =
@@ -288,11 +287,11 @@ export interface CampaignInspiration {
   tropes: string[];
   /** The opener the campaign started from, if any. */
   openerId?: string;
-  /** 0.2: what the Story Forge drew for this story (src/forge). Older campaigns have none. */
+  /** 0.2 only (removed 2026-11-26): what the old Story Forge drew. Kept so older saves load; nothing reads it. */
   forge?: ForgeRecord;
 }
 
-/** 0.2: the Story Forge's draw for a story, kept on the campaign so later prompts stay in its voice. */
+/** 0.2's Story Forge record (the forge was removed 2026-11-26; older saves still carry it). */
 export interface ForgeRecord {
   v: 1;
   /** Story family id and name (src/content/forge/decks). */
@@ -301,7 +300,7 @@ export interface ForgeRecord {
   /** Primary then second influence: DNA card ids and titles. */
   dna: string[];
   dnaTitles: string[];
-  engine: EngineId;
+  engine: string;
   /** The offered hook and place (shown to the player as what the AI was given). */
   hook?: string;
   place?: string;

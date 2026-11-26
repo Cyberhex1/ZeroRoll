@@ -1,11 +1,9 @@
 /**
  * Everything the Director adds to one play turn (0.2, plan 4.8), all code, no extra calls:
- * the DIRECTOR NOTE, the FRESH LANGUAGE line, names on hand, and the forge lookups the turn's
- * style card uses (family palette, primary DNA).
+ * the DIRECTOR NOTE, the FRESH LANGUAGE line and names on hand.
  */
 import type { Experience } from '../types';
 import { getCategoryProfile } from '../content';
-import { forgeParts } from './context';
 import { DirectorNote, directorNote } from './director';
 import { freshLanguage } from './language';
 import { namesOnHandFrom, traditionsFor } from './names';
@@ -15,8 +13,8 @@ export interface TurnDirection {
   note: DirectorNote | null;
   language: string;
   names: string;
-  /** For turnContextBlock: the rotating palette and the DNA reminder (forged campaigns only). */
-  context: { turn: number; palette?: string; dna?: { title: string; dna: string } };
+  /** For turnContextBlock. */
+  context: { turn: number };
 }
 
 /** Words already used as names in this campaign (capitalized words in logs, outline and memory). */
@@ -34,7 +32,7 @@ function usedNames(exp: Experience): string[] {
 
 /** "New characters, if any, can take names like: A, B, C, D." or '' when the bank has none. */
 export function namesOnHand(exp: Experience, rand: () => number = Math.random): string {
-  const n = namesOnHandFrom(traditionsFor(exp.category, exp.inspiration?.forge?.family), { exclude: usedNames(exp), given: 3, family: 1, rand });
+  const n = namesOnHandFrom(traditionsFor(exp.category), { exclude: usedNames(exp), given: 3, family: 1, rand });
   const list = [...n.given, ...n.family];
   return list.length ? `New characters, if any, can take names like: ${list.join(', ')}.` : '';
 }
@@ -45,16 +43,14 @@ export function dmReplies(exp: Pick<Experience, 'logs'>): string[] {
 }
 
 export function turnDirection(exp: Experience, turn: number, opts: { director?: boolean; rand?: () => number } = {}): TurnDirection {
-  const forge = exp.inspiration?.forge;
-  const parts = forge ? forgeParts(exp.category, forge) : {};
   const profile = getCategoryProfile(exp.category);
-  const profileText = [profile.voice, profile.atmosphere, ...profile.sensoryMotifs, parts.family?.palette ?? ''].join(' \n ');
+  const profileText = [profile.voice, profile.atmosphere, ...profile.sensoryMotifs].join(' \n ');
   const note = opts.director === false ? null : directorNote(exp, turn);
   return {
     note,
     language: freshLanguage(dmReplies(exp), profileText),
     names: namesOnHand(exp, opts.rand),
-    context: { turn, ...(parts.family ? { palette: parts.family.palette } : {}), ...(parts.primary ? { dna: { title: parts.primary.title, dna: parts.primary.dna } } : {}) }
+    context: { turn }
   };
 }
 

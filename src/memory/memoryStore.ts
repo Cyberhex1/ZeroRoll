@@ -21,6 +21,12 @@ export interface MemoryState {
   summary: string;
   /** How many turns the summary covers. */
   summarizedThrough: number;
+  /**
+   * The DM sheet (2026-11-26): the game master's running notes, rewritten with each summary:
+   * where the story stands against its roadmap, the people met and how they stand, open
+   * threads and promises, and what has been revealed. Sent with every turn. Older saves have none.
+   */
+  sheet?: string;
 }
 
 export const MERGE_THRESHOLD = 60;
@@ -73,8 +79,8 @@ export function dismissPending(m: MemoryState, id: string): MemoryState {
   return { ...m, pending: m.pending.filter((e) => e.id !== id) };
 }
 
-export function setSummary(m: MemoryState, summary: string, through?: number): MemoryState {
-  return { ...m, summary: summary.trim(), summarizedThrough: through ?? m.summarizedThrough };
+export function setSummary(m: MemoryState, summary: string, through?: number, sheet?: string): MemoryState {
+  return { ...m, summary: summary.trim(), summarizedThrough: through ?? m.summarizedThrough, ...(sheet?.trim() ? { sheet: sheet.trim() } : {}) };
 }
 
 /** True once the list is long enough that a merge pass is worth offering. */

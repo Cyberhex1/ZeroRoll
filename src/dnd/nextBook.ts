@@ -7,9 +7,8 @@
 import { uid } from '../lib/ids';
 import { generateChapterOneAI } from '../lib/geminiService';
 import { rollStory } from '../setup/storyRoll';
-import { pickShape } from '../setup/storyShape';
 import { pickInspiration } from '../content';
-import { forgedInspiration } from '../setup/draft';
+import { storyInspiration } from '../setup/draft';
 import { addEntry } from '../memory/memoryStore';
 import type { Experience, LogMessage } from '../types';
 import { experienceMemory } from './memory';
@@ -58,11 +57,10 @@ export async function continueToNextBook(exp: Experience, model: string): Promis
     inspiration: baseInspiration,
     mode: 'sequel',
     continuation: nextBookPrompt(exp),
-    shape: pickShape(),
     fixed: { name: exp.character.name, roleClass: exp.character.roleClass, origin: exp.character.raceOrigin }
   });
-  // 0.2: the new book keeps the story family and main influence (sequel spread) with a new draw for the rest.
-  const inspiration = forgedInspiration(baseInspiration, pkg);
+  // The new book keeps the campaign's example titles (rollStory reuses them for a sequel).
+  const inspiration = storyInspiration(baseInspiration, pkg);
   const scenario = { storyBlurb: pkg.premise, storyOutline: pkg.outline, suggestedActions: pkg.actions };
   // Between books the hero recovers (S12: HP 0 never carries into a new book).
   // Conditions end with the rest too (playtest D22).

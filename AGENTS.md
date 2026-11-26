@@ -108,7 +108,7 @@ Do not collapse everything into one enormous prompt if the existing architecture
 
 The AI should receive enough context to understand the material without repeatedly sending unnecessary information.
 
-Since 0.2, D&D story seed material lives in the Story Forge decks (`src/content/forge/decks/`) as story families, DNA cards from each category's source works, engines, hooks, places, complications and set-pieces. Code draws the spread; the AI writes from it. See `docs/story-forge.md`.
+Since 2026-11-26, D&D story rolls use one master prompt per category (`src/setup/masterPrompt.ts`): the genre, a few example titles from the category's seed list (its `media`), and the setup screen's fields to fill. A second AI call (the story check) reads that prompt and the reply and says whether it followed the prompt and makes sense; the writer gets one rewrite when it does not. The 0.2 Story Forge decks, pitches and code gates were removed because they kept producing incoherent stories. See `docs/master-prompt.md`.
 
 ---
 

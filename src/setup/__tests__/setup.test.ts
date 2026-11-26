@@ -265,7 +265,7 @@ describe('where the player joins the story', () => {
     expect(p).toContain("the seed's situation is the turning point");
     expect(p).toContain('"storyShape": "before"');
     expect(p).toContain('Only what the hero knows now');
-    expect(p).toMatch(/End with one question about/);
+    expect(p).toMatch(/End with one question: a real choice/);
   });
 
   it("the roll's shape wins over the reply's, and the turning point is kept", () => {

@@ -30,7 +30,7 @@ Score 1-5 for each:
 List every contradiction or non sequitur you find (empty list if none).
 Reply with JSON only: {"coherent":n,"consistent":n,"stakes":n,"clear":n,"problems":["…"]}`;
 const tot = { coherent: 0, consistent: 0, stakes: 0, clear: 0 }; let n = 0; let bad = 0;
-for (const r of rows.filter((x: any) => x.ok)) {
+const judgeOne = async (r: any) => {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: PROMPT(r) }] }], generationConfig: { temperature: 0, responseMimeType: 'application/json' } }) });
   const j: any = await res.json();
   const txt = j?.candidates?.[0]?.content?.parts?.map((p: any) => p.text ?? '').join('') ?? '';
@@ -42,7 +42,11 @@ for (const r of rows.filter((x: any) => x.ok)) {
     if (min <= 2) bad++;
     console.log(`${r.category.padEnd(20)} c${v.coherent} k${v.consistent} s${v.stakes} l${v.clear}  ${r.title}${v.problems?.length ? `\n    - ${v.problems.join('\n    - ')}` : ''}`);
   } catch { console.log(`judge failed for ${r.title}: ${JSON.stringify(j).slice(0, 200)}`); }
-}
+};
+// JUDGE_CONCURRENCY (default 6): slow judges like gemini-4-neon take most of a minute each.
+const ok = rows.filter((x: any) => x.ok);
+const conc = Number(process.env.JUDGE_CONCURRENCY || 6);
+for (let i = 0; i < ok.length; i += conc) await Promise.all(ok.slice(i, i + conc).map(judgeOne));
 const avg = (k: keyof typeof tot) => (tot[k] / Math.max(n, 1)).toFixed(2);
 console.log(`\nJUDGED ${n}: coherent ${avg('coherent')} consistent ${avg('consistent')} stakes ${avg('stakes')} clear ${avg('clear')} | cards with any score <= 2: ${bad}`);
 process.exit(0);

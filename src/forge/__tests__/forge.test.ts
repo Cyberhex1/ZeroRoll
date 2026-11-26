@@ -495,20 +495,27 @@ describe('coherent rolls (ohnna, 2026-11-25)', () => {
     expect(p).not.toContain('built around the second influence');
     const b = buildPrompt({ mode: 'fresh', spread: s, pronouns: 'she/her' });
     expect(b).toContain('SAME-MOMENT CHECK');
-    expect(b).toMatch(/each one risks or costs something/);
+    expect(b).toMatch(/Each answer risks or costs something/);
   });
 });
 
 describe('continuity read (ohnna, 2026-11-25)', () => {
-  it('runs once per roll and applies only the fields it fixed', async () => {
+  it('applies the fields it fixed and reads a fixed card once more', async () => {
     replies = [pitchReply, buildReply()];
     checkReplies = [{ problems: ['"Where you start" is a different scene'], startingCircumstances: 'You run the ferry at the bell-ringer\'s steps, waiting for the last crossing.' }];
     const pkg = await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'fresh', rand: () => 0.4 });
-    expect(checks).toHaveLength(1);
+    expect(checks).toHaveLength(2);
     expect(checks[0].userPrompt).toContain(GOOD_PREMISE);
+    expect(checks[1].userPrompt).toContain('waiting for the last crossing');
     expect(pkg.outline.startingCircumstances).toContain('waiting for the last crossing');
     expect(pkg.premise).toBe(GOOD_PREMISE);
     expect(pkg.stats.continuityFixed).toEqual(['startingCircumstances']);
+  });
+
+  it('a card that passes is read once', async () => {
+    replies = [pitchReply, buildReply()];
+    await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'fresh', rand: () => 0.4 });
+    expect(checks).toHaveLength(1);
   });
 
   it('a failed read keeps the card', async () => {
@@ -524,5 +531,18 @@ describe('continuity read (ohnna, 2026-11-25)', () => {
     checkReplies = [{ problems: ['x'], premise: 'A completely different premise that the model wrote instead of the one the player typed, long enough to count as a premise for the check.' }];
     const pkg = await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'adapt', fixed: { premise: mine }, rand: () => 0.4 });
     expect(pkg.premise).toBe(mine);
+  });
+});
+
+describe('continuity read output cleaning', () => {
+  it('drops labels and draft marks, keeps a normal title', async () => {
+    const { parseContinuity } = await import('../continuity');
+    const card = { title: 'Old', premise: 'p', startingCircumstances: 's', immediateGoal: 'g', roleClass: 'r', origin: 'o' };
+    const a = parseContinuity({ problems: ['x'], title: 'The Comb Below', startingCircumstances: 'Where you start: Where you start: You row the ferry.' }, card);
+    expect(a.fixed.title).toBe('The Comb Below');
+    expect(a.fixed.startingCircumstances).toBe('You row the ferry.');
+    for (const bad of ['Sixty-Second Lockdown [Mercy] (Revised)', 'Crayon Box Summit<a></a>', 'Ramp_CLEAN_WAIT', 'Iron Collar途']) {
+      expect(parseContinuity({ problems: ['x'], title: bad }, card).fixed.title).toBeUndefined();
+    }
   });
 });

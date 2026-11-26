@@ -195,29 +195,35 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
   const continuityFixed: string[] = [];
   if (CONTINUITY_STAGE && !input.noContinuity) {
     try {
-      const card = { title: pkg.title, premise: pkg.premise, startingCircumstances: pkg.outline.startingCircumstances, immediateGoal: pkg.outline.immediateGoal ?? '', roleClass: pkg.hero.roleClass, origin: pkg.hero.origin };
-      const res = await checkContinuity(card, { category, turningPoint: pkg.outline.turningPoint, signature: deckFor(category).signature, signal: input.signal });
-      continuity = res.problems;
-      const f = res.fixed;
-      if (f.premise && !fixed.premise) {
-        const after = gatePremise(f.premise, gateCtx);
-        if (after.length <= gateAfter.length) {
-          pkg = { ...pkg, premise: f.premise };
-          gateAfter = after;
-          continuityFixed.push('premise');
+      // Up to two reads: a card the first read rewrote is read again, since a fix can leave
+      // a new seam (2026-11-25: a rewritten premise kept a goal about a severed finger).
+      for (let round = 0; round < 2; round++) {
+        const card = { title: pkg.title, premise: pkg.premise, startingCircumstances: pkg.outline.startingCircumstances, immediateGoal: pkg.outline.immediateGoal ?? '', roleClass: pkg.hero.roleClass, origin: pkg.hero.origin };
+        const res = await checkContinuity(card, { category, turningPoint: pkg.outline.turningPoint, signature: deckFor(category).signature, signal: input.signal });
+        if (round === 0) continuity = res.problems;
+        else if (res.problems.length) continuity = [...continuity, ...res.problems.map((p) => `(second read) ${p}`)];
+        const f = res.fixed;
+        if (!res.problems.length || !Object.keys(f).length) break;
+        if (f.premise && !fixed.premise) {
+          const after = gatePremise(f.premise, gateCtx);
+          if (after.length <= gateAfter.length) {
+            pkg = { ...pkg, premise: f.premise };
+            gateAfter = after;
+            continuityFixed.push('premise');
+          }
         }
+        if (f.title && !fixed.title && !titleTics(f.title).length) {
+          pkg = { ...pkg, title: cleanTitle(f.title) };
+          continuityFixed.push('title');
+        }
+        const outline = { ...pkg.outline };
+        if (f.startingCircumstances) { outline.startingCircumstances = f.startingCircumstances; continuityFixed.push('startingCircumstances'); }
+        if (f.immediateGoal) { outline.immediateGoal = f.immediateGoal; continuityFixed.push('immediateGoal'); }
+        const hero = { ...pkg.hero };
+        if (f.roleClass && !fixed.roleClass) { hero.roleClass = f.roleClass; continuityFixed.push('roleClass'); }
+        if (f.origin && !fixed.origin) { hero.origin = f.origin; continuityFixed.push('origin'); }
+        pkg = { ...pkg, outline, hero };
       }
-      if (f.title && !fixed.title && !titleTics(f.title).length) {
-        pkg = { ...pkg, title: cleanTitle(f.title) };
-        continuityFixed.push('title');
-      }
-      const outline = { ...pkg.outline };
-      if (f.startingCircumstances) { outline.startingCircumstances = f.startingCircumstances; continuityFixed.push('startingCircumstances'); }
-      if (f.immediateGoal) { outline.immediateGoal = f.immediateGoal; continuityFixed.push('immediateGoal'); }
-      const hero = { ...pkg.hero };
-      if (f.roleClass && !fixed.roleClass) { hero.roleClass = f.roleClass; continuityFixed.push('roleClass'); }
-      if (f.origin && !fixed.origin) { hero.origin = f.origin; continuityFixed.push('origin'); }
-      pkg = { ...pkg, outline, hero };
     } catch (err) {
       if (isCancel(err)) throw err;
       console.info(`[forge] continuity read skipped: ${err instanceof Error ? err.message : String(err)}`);

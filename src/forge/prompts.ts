@@ -67,9 +67,9 @@ export const ONE_STORY =
 export const CRAFT = `WHAT MAKES A GREAT OPENING HERE
 - A specific person with a want they would fight for and a flaw or fear that will cost them. A job, if they have one, is texture, not the story.
 - A place that feels real and lived-in, with one concrete detail that could only exist in this story.
+- One element the player would not guess from the genre name, in the genre's own tone. It grows out of this situation; it is never a second situation bolted on.
 - The hook is happening NOW, in the first scene: an arrival, a discovery, an offer, a theft, a summons, a body, a door. Something the player can grab with both hands.
 - The defining event of the story (the turning point) is still ahead. The hook opens the door; the turning point is what waits behind it.
-- One element the player would not guess from the genre name, in the genre's own tone. It grows out of this situation; it is never a second situation bolted on.
 - Tell it from inside the hero: only what they know, see and want. Other people's secrets stay hidden.`;
 
 export const PITCH_SCHEMA = {
@@ -203,10 +203,12 @@ ${s.hookIsSeed && mode === 'fresh' ? "If this shape starts before the seed's sit
   if (!outlineOnly) {
     parts.push(`PREMISE (the only part the player reads before playing)
 - 3 or 4 sentences, to the player as "you", present tense, about 70 to 100 words.
-- First sentence: ${s.opening.replace(/^Open with/, 'open with').replace(/\.$/, '')}, already inside the hook's scene (same place, same moment). Never open in one scene and cut to another. If that opening cannot work there, open on the hook itself.
+- Open inside the hook's scene (same place, same moment); never open in one scene and cut to another. An opening idea, only if the detail it brings is part of the hook itself: ${s.opening.replace(/^Open with/, 'open with').replace(/\.$/, '')}.
 - One scene: the hero, where they are, and the hook happening to them. Name at most two other people or objects, and only ones that matter to the hook.
 - Only what the hero knows now. The turning point, the complication and every secret stay in the outline.
-- End with one question about ${s.closing}. Both answers come straight out of the scene above, and each one risks or costs something the premise has shown the hero cares about.`, '');
+- Every concrete detail (an object, a sign, a sound, a person, a timer) is part of the hook or the choice, and the premise says why it matters. Cut any detail that is only colour or that the rest of the card never uses.
+- Physical sense: where each person and object is, and what has already happened, agrees from sentence to sentence.
+- End with one question: a real choice between two things the hero could do right now about the hook, built only from people and things already in the premise. Each answer risks or costs something the premise has shown the hero cares about. Shape idea, if it fits: ${s.closing}.`, '');
   }
 
   parts.push(`OUTLINE (game master only; the player never reads it, so put the full plan here)

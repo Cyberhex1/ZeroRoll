@@ -233,6 +233,8 @@ function modelForTask(provider: AIProviderId, tier?: 'basic' | 'story' | 'check'
     const writer = story && (!usable || usable.includes(story)) ? story : getProviderModel('gemini');
     if (tier === 'story') return writer;
     // A fast, careful reader: proven to catch what Lite misses, and quicker than a flagship.
+    // A fast, careful reader. (A flagship reading its own card was no better on real rolls and
+    // left draft marks like "(Revised)" in titles.)
     if (tier === 'check') return CHECK_MODELS.find((m) => usable?.includes(m)) ?? writer;
   }
   return getProviderModel(provider);

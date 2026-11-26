@@ -40,15 +40,15 @@ origin: ${card.origin}
 SECRET (never reveal or hint at it; for your reference only): ${ctx.turningPoint ?? '(none)'}
 
 CHECK EACH OF THESE
-1. One situation: every person, place and object belongs to the same scene and world. Nothing reads as if stitched in from another story; nothing appears from nowhere (a person, object or event named without being set up).
+1. One situation: every person, place and object belongs to the same scene and world. Nothing reads as if stitched in from another story; nothing appears from nowhere (a person, object or event named without being set up). Every concrete detail (a sign, a timer, a sound, an object) is explained and matters to the hook or the choice; a detail that is mentioned and then dropped is a problem.
 2. Same moment: "Where you start" is the hero's life as the premise's scene begins (same place, same time, same objects, same people). "Your first goal" follows from the premise, is true whichever way the closing question is answered, and adds nothing the premise has not set up.
 3. Physical sense: where everyone stands, what is open or shut, lit or dark, alive or dead, said or unsaid, agrees from sentence to sentence. Times of day, numbers and names agree.
-4. Stakes: the premise ends on one question whose answers are real, different choices, each risking or costing something the card has shown the hero cares about.
+4. Stakes: the premise ends on one question whose answers are real, different choices the hero can make right now, built from people and things already in the premise, each risking or costing something the card has shown the hero cares about. Relationships the choice depends on (who someone is to the hero, what they want) are stated.
 5. Fit: the title names something that is actually in the premise; roleClass and origin match the person the premise describes; the story clearly belongs to ${c.name}.
 
 If everything passes, reply {"problems": []}.
-If anything fails, list each problem in one short line, and return corrected versions of ONLY the fields that need changing. Every problem you list must be fixed by a field you return (fix the field that is wrong: a title that names something absent gets a new title; a goal that adds something new gets a new goal). Field values are plain text: no labels like "Where you start:". Keep the same hero, place, hook and genre; change as little as possible. The premise stays 3 or 4 sentences, second person ("you"), present tense, about 70 to 100 words, ending on one question. Do not add a second situation to fix a first one: cut instead.
-Reply with JSON only: {"problems": ["…"], "title": "…", "premise": "…", "startingCircumstances": "…", "immediateGoal": "…", "roleClass": "…", "origin": "…"} (leave out every field you did not change).`;
+If anything fails, list each problem in one short line, then return the WHOLE corrected card: all six fields, rewritten together so they agree with each other (a fix to one field often needs the others to change too). Keep the same hero, place, hook and genre, and keep every sentence that was fine. The premise stays 3 or 4 sentences, second person ("you"), present tense, about 70 to 100 words, ending on one question. Do not add a second situation to fix a first one: cut instead. Field values are plain text: no labels like "Where you start:".
+Reply with JSON only: {"problems": ["…"], "title": "…", "premise": "…", "startingCircumstances": "…", "immediateGoal": "…", "roleClass": "…", "origin": "…"}`;
 }
 
 const SCHEMA = {
@@ -66,7 +66,7 @@ function unlabel(v: string): string {
   while (LABEL.test(out)) out = out.replace(LABEL, '');
   return out.trim();
 }
-const titleOk = (t: string) => t.split(/\s+/).length <= 6 && !/[\u3000-\u9fff]/.test(t);
+const titleOk = (t: string) => t.split(/\s+/).length <= 6 && !/[\u3000-\u9fff_<>[\](){}]|\b[A-Z]{3,}\b/.test(t) && !/\b(revised|draft)\b/i.test(t);
 
 export function parseContinuity(raw: unknown, card: StoryCard): ContinuityResult {
   const r = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};

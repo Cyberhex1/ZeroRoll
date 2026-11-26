@@ -53,10 +53,11 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
   const start = o?.startingCircumstances && o.startingCircumstances.trim() !== draft.premise.trim() ? o.startingCircumstances : '';
   const goal = o?.immediateGoal || '';
   const joinAt = shapeById(o?.storyShape)?.label;
-  // What the AI was shown: the genre's example titles from its seed list (never to copy).
+  const feel = draft.inspiration.style || '';
+  // What steers the telling: the seed, and the 1 to 3 seed-list titles the AI picked as tone references (never to copy).
   const steering = [
     ...draft.inspiration.tropes.filter((t) => t !== draft.seed).map((t) => ({ kind: 'Seed', text: t })),
-    ...draft.inspiration.media.map((m) => ({ kind: 'Example', text: m }))
+    ...draft.inspiration.media.map((m) => ({ kind: 'Tone', text: m }))
   ];
 
   return (
@@ -138,7 +139,7 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
             </button>
           </div>
           <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-line">{draft.premise}</p>
-          {(start || goal || joinAt) && (
+          {(start || goal || joinAt || feel) && (
             <dl className="grid gap-1.5 text-[11px]">
               {joinAt && (
                 <div>
@@ -158,6 +159,12 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
                   <dd className="inline text-slate-300">{goal}</dd>
                 </div>
               )}
+              {feel && (
+                <div>
+                  <dt className="inline text-slate-500 font-semibold">Voice and feel: </dt>
+                  <dd className="inline text-slate-300">{feel}</dd>
+                </div>
+              )}
             </dl>
           )}
           {draft.seed && (
@@ -168,7 +175,7 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
           )}
           {steering.length > 0 && (
             <details className="text-[11px] group">
-              <summary className="cursor-pointer text-slate-500 hover:text-slate-300 select-none">Example stories the AI was shown (never copied)</summary>
+              <summary className="cursor-pointer text-slate-500 hover:text-slate-300 select-none">Tone references for this story (never copied)</summary>
               <ul className="mt-1.5 flex flex-wrap gap-1.5">
                 {steering.map((s, i) => (
                   <li key={i} className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">

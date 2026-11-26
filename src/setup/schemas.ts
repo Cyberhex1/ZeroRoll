@@ -83,7 +83,8 @@ export const STORY_SCHEMA = {
     },
     hero: HERO_SCHEMA,
     sheet: SHEET_SCHEMA,
-    references: LIST('1 to 3 of the works named in the prompt whose tone fits this story')
+    references: LIST('1 to 3 of the works named in the prompt whose tone fits this story'),
+    style: S('How this story should feel when told: its voice, then three concrete sensory details of its world')
   },
-  required: ['title', 'premise', 'outline', 'hero', 'sheet', 'references']
+  required: ['title', 'premise', 'outline', 'hero', 'sheet', 'references', 'style']
 };

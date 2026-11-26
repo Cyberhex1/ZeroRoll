@@ -59,6 +59,7 @@ import {
 } from './types';
 import { DEFAULT_GEMINI_MODEL, usableGeminiModelOptions } from './lib/modelsConfig';
 import { CATEGORIES_DATA, getCategoryDefaultInventory, getCategoryFallbackActions, pickInspiration } from './content';
+import { rulesModeFor } from './dnd/rules';
 import { createVariedInitialMap } from './lib/experienceHelpers';
 import { audioManager } from './audio/manager';
 
@@ -461,7 +462,7 @@ export default function App() {
       mapData: initialMap,
       storyOutline: finalStoryOutline,
       inspiration: inspiration ?? pickInspiration(category),
-      rulesMode: rulesMode ?? 'narrative',
+      rulesMode: rulesMode ?? rulesModeFor(category),
       book: 1,
       pendingCheck: null,
       activeAlert: null

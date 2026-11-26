@@ -7,7 +7,8 @@
  */
 import type { CampaignInspiration, DMStoryOutline, ExperienceCategory, InventoryItem, StatBlock } from '../types';
 
-export type PronounChoice = 'she/her' | 'he/him' | 'they/them' | 'custom';
+/** 'any': the player chose none, so the hero gets a unisex name and they/them. */
+export type PronounChoice = 'any' | 'she/her' | 'he/him' | 'they/them' | 'custom';
 
 /** The editable part of the hero sheet. HP and AC are worked out from these, never typed. */
 export interface HeroSheetDraft {

@@ -4,8 +4,8 @@ import type { CategoryContent } from '../types';
 export const fantasy = {
   "card": {
     "name": "Fantasy",
-    "tagline": "D&D 5e Sagas, Dragon Seals & Ancient Catacombs",
-    "description": "Venture through mystical realms drawn from classic D&D campaigns and iconic fantasy literature: cracked dragon seals, ancient crypts, mysterious tavern quest-givers, and wild magic.",
+    "tagline": "Epic Sagas, Dragon Seals & Ancient Catacombs",
+    "description": "Venture through mystical realms drawn from iconic fantasy books, films and games: cracked dragon seals, ancient crypts, mysterious tavern quest-givers, and wild magic.",
     "iconName": "Wand2",
     "gradient": "from-amber-600/30 via-purple-900/40 to-slate-950",
     "accentColor": "#f59e0b",
@@ -110,20 +110,8 @@ export const fantasy = {
       "medium": "Books/Films"
     },
     {
-      "title": "Dungeons & Dragons: Honor Among Thieves",
-      "medium": "Film"
-    },
-    {
-      "title": "Baldur's Gate 3",
-      "medium": "Game"
-    },
-    {
       "title": "The Witcher",
       "medium": "Books/Games"
-    },
-    {
-      "title": "Critical Role",
-      "medium": "Web Series"
     },
     {
       "title": "A Song of Ice and Fire / Game of Thrones",
@@ -150,10 +138,6 @@ export const fantasy = {
       "medium": "Game"
     },
     {
-      "title": "Divinity: Original Sin 2",
-      "medium": "Game"
-    },
-    {
       "title": "Malazan Book of the Fallen",
       "medium": "Book Series"
     },
@@ -162,15 +146,7 @@ export const fantasy = {
       "medium": "Book Series"
     },
     {
-      "title": "The Legend of Vox Machina",
-      "medium": "TV Show"
-    },
-    {
       "title": "World of Warcraft",
-      "medium": "Game"
-    },
-    {
-      "title": "Neverwinter Nights",
       "medium": "Game"
     },
     {

@@ -14,6 +14,14 @@ export const RULES_MODES: Record<RulesMode, { name: string; blurb: string }> = {
   narrative: { name: 'Narrative dice', blurb: 'A d20 plus your ability modifier against a DC. HP and conditions, nothing else.' }
 };
 
+/**
+ * The rules each category plays by (ohnna, 2026-11-26): only the D&D category uses full 5e;
+ * every other category uses narrative dice. Not a player setting any more.
+ */
+export function rulesModeFor(category: string): RulesMode {
+  return category === 'dnd' ? 'full5e' : 'narrative';
+}
+
 export const ABILITIES: Ability[] = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 
 export const abilityMod = (score: number) => Math.floor(((Number.isFinite(score) ? score : 10) - 10) / 2);

@@ -549,7 +549,6 @@ describe('0.2 migration', () => {
     };
     const direction = turnDirection(old, 1);
     expect(direction.context.turn).toBe(1);
-    expect(direction.context.dna).toBeUndefined();
     useProvider('openai');
     route = () => openai('The handle turns, cold as a coin.\n---OPTIONS---\n[1] Go in\n[2] Wait\n[3] Call out');
     const r = await run(
@@ -562,7 +561,7 @@ describe('0.2 migration', () => {
         rulesMode: 'narrative',
         storyOutline: old.storyOutline,
         inspiration: old.inspiration,
-        director: { note: direction.note?.text, language: direction.language, names: direction.names, context: direction.context }
+        director: { note: direction.note?.text, language: direction.language, context: direction.context }
       })
     );
     expect(r.text).toContain('The handle turns');

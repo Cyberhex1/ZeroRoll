@@ -5,6 +5,7 @@ import { clickable } from './ui/a11y';
 import React, { useState, lazy, Suspense } from 'react';
 import {
   Wand2,
+  Swords,
   Compass,
   ShieldAlert,
   Ghost,
@@ -64,6 +65,7 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
   const getCategoryIcon = (iconName: string) => {
     switch (iconName) {
+      case 'Swords': return <Swords className="w-6 h-6" />;
       case 'Wand2': return <Wand2 className="w-6 h-6" />;
       case 'Compass': return <Compass className="w-6 h-6" />;
       case 'ShieldAlert': return <ShieldAlert className="w-6 h-6" />;

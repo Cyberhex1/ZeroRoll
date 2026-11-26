@@ -23,9 +23,7 @@ export interface CategorySeedInfo {
   prompts: string[];
 }
 import { getCategoryFallbackActions, getCategoryProfile, getContent, getOpenerById } from '../content';
-import { fullProfileBlock, patternBlock, turnContextBlock } from '../content/injection';
-import { forgeContextBlock } from '../forge/context';
-import { namesOnHandFrom, traditionsFor } from '../forge/names';
+import { inspirationBlock, patternBlock, turnContextBlock } from '../content/injection';
 import { AIProviderId, AI_PROVIDERS, DEFAULT_AI_PROVIDER } from './providersConfig';
 import { AIError, classifyAIError, describeAIError } from './aiErrors';
 import { geminiBasicModel } from '../ai/taskModel';
@@ -707,16 +705,18 @@ export async function testProviderConnection(params: {
  * from a seed or a typed premise have a partial outline; missing fields used to reach
  * the model as the word "undefined" (SL4). Returns '' when nothing is usable.
  */
-export function formatOutlineForPrompt(outline: Partial<DMStoryOutline> | undefined | null, detail: 'full' | 'brief'): string {
+export function formatOutlineForPrompt(outline: Partial<DMStoryOutline> | undefined | null, detail: 'full' | 'brief', opts: { opening?: boolean } = {}): string {
   if (!outline) return '';
   const text = (v: unknown) => (typeof v === 'string' && v.trim() && v.trim() !== 'undefined' ? v.trim() : '');
   const list = (v: unknown) => (Array.isArray(v) ? v.map((x) => (typeof x === 'string' ? x.trim() : '')).filter(Boolean) : []);
   const lines: string[] = [];
   const add = (label: string, value: string) => { if (value) lines.push(`- ${label}: ${value}`); };
-  add('Starting Circumstances', text(outline.startingCircumstances));
+  // Where the story starts and the first goal matter only to Chapter One; after it they are
+  // past, and the log and CURRENT STATE say where the hero is (ohnna, 2026-11-26).
+  if (opts.opening) add('Starting Circumstances', text(outline.startingCircumstances));
   add('Backstory', text(outline.backstory));
   add('Inciting Incident', text(outline.incitingIncident));
-  add('Immediate Goal', text(outline.immediateGoal));
+  if (opts.opening) add('Immediate Goal', text(outline.immediateGoal));
   const npcs = Array.isArray(outline.keyNpcs) ? outline.keyNpcs.filter((n) => n && text(n.name)) : [];
   add('Key NPCs', npcs.map((n) => detail === 'full'
     ? `${text(n.name)} (${[text(n.role), text(n.motivation) && `Wants: ${text(n.motivation)}`, text(n.secret) && `Secret: ${text(n.secret)}`, text(n.move) && `Next move: ${text(n.move)}`].filter(Boolean).join(', ')})`
@@ -829,10 +829,9 @@ export async function executeActionTurn(params: {
   /** 'referee' is the free-text Rules Referee: no genre corpus and no outline (injection policy). */
   purpose?: 'turn' | 'referee';
   /**
-   * 0.2 Director (src/forge/turnContext.ts): this turn's note, fresh-language line, names on hand
-   * and style-card lookups. Sent in the player message, so they read as "this turn". Ignored by the referee.
+   * 0.2 Director (src/forge/turnContext.ts): this turn's note and fresh-language line. Sent in the player message, so they read as "this turn". Ignored by the referee.
    */
-  director?: { note?: string; language?: string; names?: string; context?: { turn: number; palette?: string; dna?: { title: string; dna: string } } };
+  director?: { note?: string; language?: string; context?: { turn: number; palette?: string; dna?: { title: string; dna: string } } };
 }): Promise<ActionTurnResult> {
   const { contents, category, model, systemInstruction, characterState, diceRoll, inspiration, purpose = 'turn' } = params;
   const isReferee = purpose === 'referee';
@@ -849,11 +848,9 @@ export async function executeActionTurn(params: {
       // context regardless of whether the user wrote a custom system
       // prompt or not.
       const localCtx = activeLocalContext();
-      const fullPrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
+      const fullPrompt = `${gmRoleLine(category)}
 When you introduce a new character, give them a name that fits the setting.
-
-${narrativeCorpus}
-
+${narrativeCorpus ? `\n${narrativeCorpus}\n` : ''}
 ${formatOutlineForPrompt(storyOutline, 'full') ? `DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference - NOT a rigid script):
 ${formatOutlineForPrompt(storyOutline, 'full')}
 
@@ -864,9 +861,9 @@ ROADMAP GM PRINCIPLES:
 GAMEPLAY GM DIRECTIVES:
 - Address the player as "you". Keep the narrative in present tense.
 - The CURRENT STATE, MEMORY and STORY SO FAR blocks in the player message are true. Never contradict them: the hero only uses items in their inventory, conditions stay until removed, and a hero at 0 HP is down until healed or stabilized.
-- Faithfully reflect the category's narrative profile: voice, atmospheric sensory details, scene architecture, and dramatic pacing.
-- The player's actions, choices, and premise are authoritative. Ground your storytelling craft and encounter emergence in the category profile without overriding the player's choices.
-- PACING: Follow the story's own outline and its storyShape, chapter by chapter, in the category's voice. Never rush to the climax, whatever the genre: the turning point and the payoff happen in their own chapters, on screen, and the player lives through what leads up to them. Let the player immerse in the place and the conversations.
+- Keep the voice the story has had so far.
+- The player's actions, choices, and premise are authoritative.
+- PACING: Follow the story's own outline and its storyShape, chapter by chapter. Never rush to the climax, whatever the genre: the turning point and the payoff happen in their own chapters, on screen, and the player lives through what leads up to them. Let the player immerse in the place and the conversations.
 - CHAPTER PROGRESSION: When the current chapter concludes and the story organically transitions to the next chapter of the roadmap, you MUST output a COURSE_TRIGGER with type "chapter_transition".
 - STORY CONCLUSION: When the final chapter resolves and the overarching plot is fully complete, you MUST output a COURSE_TRIGGER with type "story_conclusion".
 - React dynamically to player rolls and decisions, maintaining excitement, atmosphere, and authentic stakes without accelerating the timeline prematurely.
@@ -902,7 +899,7 @@ SUBTITLE: <Warning sentence>
 DESCRIPTION: <Details>
 ---END_TRIGGER---
 
-If a D&D check is required:
+If a check is required:
 ---CHECK_REQUIRED---
 SKILL: <Skill Name>
 STAT: <str | dex | con | int | wis | cha>
@@ -925,8 +922,8 @@ At the end, provide 3 suggested actions formatted as:
         : basePrompt;
 
       const stateSheet = isReferee ? '' : [currentStateBlock(characterState, params.world, storyOutline), rulesLine(params.rulesMode ?? 'narrative')].filter(Boolean).join('\n');
-      // Local models get the note only (their prompt is short); cloud models get all three lines.
-      const directorBlock = director ? (localCtx ? [director.note] : [director.note, director.language, director.names]).filter(Boolean).join('\n') : '';
+      // Local models get the note only (their prompt is short); cloud models also get the fresh-language line.
+      const directorBlock = director ? (localCtx ? [director.note] : [director.note, director.language]).filter(Boolean).join('\n') : '';
       const userMessage = `${stateSheet ? `${stateSheet}\n\n` : ''}${directorBlock ? `${directorBlock}\n\n` : ''}${/Recent Story Log:/.test(contents) || isReferee ? contents : `Recent Story Log:\n${contents}`}
 
 ${diceRoll ? `[PLAYER ROLLED ${diceRoll.formula} = ${diceRoll.total} (${diceRoll.isNat20 ? 'NATURAL 20 CRITICAL SUCCESS!' : diceRoll.isNat1 ? 'NATURAL 1 CRITICAL FUMBLE!' : 'Roll result'})]` : ''}${localCtx && !isReferee ? `\n\n${LOCAL_TURN_REMINDER}` : ''}`;
@@ -1147,11 +1144,20 @@ OPENING BEAT (from the hand-written opener this campaign starts from; open on th
 `;
 }
 
-/** A few names from the story family's traditions, not used in this story yet (0.2: no banned-name list). */
-function chapterOneNames(category: ExperienceCategory, inspiration: CampaignInspiration | undefined, outline: DMStoryOutline | undefined, heroName?: string): string[] {
-  const used = [heroName ?? '', ...(outline?.keyNpcs ?? []).map((n) => n.name)].flatMap((n) => n.split(/\s+/));
-  const n = namesOnHandFrom(traditionsFor(category, inspiration?.forge?.family), { exclude: used, given: 3, family: 2 });
-  return [...n.given, ...n.family];
+/**
+ * Who the model is in play (ohnna, 2026-11-26): a dungeon master. Only the D&D category names
+ * 5e; every other category plays with narrative dice (rulesModeFor).
+ */
+export function gmRoleLine(category: ExperienceCategory): string {
+  return category === 'dnd'
+    ? 'You are the dungeon master of a one-on-one Dungeons & Dragons game, played by D&D 5e rules and told as a choose-your-own-adventure story.'
+    : `You are the dungeon master of a one-on-one choose-your-own-adventure story in the "${getCategoryProfile(category).name}" genre.`;
+}
+
+/** A play prompt's character line: "Name (pronouns), a Level 1 Class, Origin." */
+export function heroLine(c: { name?: string; gender?: string; level?: number; roleClass?: string; raceOrigin?: string } | undefined): string {
+  const role = c?.roleClass || 'Adventurer';
+  return `${c?.name || 'Hero'} (${c?.gender || 'they/them'}), a Level ${c?.level || 1} ${role}${c?.raceOrigin ? `, ${c.raceOrigin}` : ''}`;
 }
 
 export async function generateChapterOneAI(params: {
@@ -1168,25 +1174,23 @@ export async function generateChapterOneAI(params: {
 
   if (hasKey) {
     try {
-      const names = chapterOneNames(category, inspiration, storyOutline, characterState?.name);
-      const basePrompt = `You are a master interactive author writing a deeply immersive Choose-Your-Own-Adventure novel in the "${category}" genre with D&D 5e mechanics.
-When you introduce a new character, give them a name that fits the setting.${names.length ? ` Names on hand, if you need them: ${names.join(', ')}.` : ''}
-
-${forgeContextBlock(category, inspiration) ?? fullProfileBlock(category, inspiration, { seeds: !storyOutline })}
-
+      // Tone references (the 1 to 3 the story roll picked); the story seeds only when there is no outline.
+      const refs = inspiration ? inspirationBlock(storyOutline ? { ...inspiration, tropes: [] } : inspiration) : '';
+      const basePrompt = `${gmRoleLine(category)}
+When you introduce a new character, give them a name that fits the setting.
+${refs ? `\n${refs}\n` : ''}
 STORY PREMISE:
 ${storyBlurb}
-${openerBeat(inspiration)}${formatOutlineForPrompt(storyOutline, 'brief') ? `
+${openerBeat(inspiration)}${formatOutlineForPrompt(storyOutline, 'brief', { opening: true }) ? `
 DM STORY ROADMAP & INTERNAL OUTLINE (Dynamic Reference):
-${formatOutlineForPrompt(storyOutline, 'brief')}
+${formatOutlineForPrompt(storyOutline, 'brief', { opening: true })}
 ` : ''}
 CREATIVE ASSIGNMENT:
 Write the very first scene (Chapter One, Scene 1) of this campaign. 
-Open in the premise's first moment and stay there: the hook is happening now. Ground the scene in two concrete details from the palette. Bring one key NPC on stage in person, with what they want visible in what they do. End on a moment of choice. ${RULE_NEVER_CLIMAX} Nothing from the outline's turning point or later chapters happens in this scene, and nothing hints at it in the narrator's voice.
+Open in the premise's first moment and stay there: the hook is happening now. Ground the scene in two concrete details of the place. Bring one key NPC on stage in person, with what they want visible in what they do. End on a moment of choice. ${RULE_NEVER_CLIMAX} Nothing from the outline's turning point or later chapters happens in this scene, and nothing hints at it in the narrator's voice.
 
 GAMEPLAY GM DIRECTIVES:
 - Address the player as "you". Keep the narrative in present tense.
-- Faithfully reflect the category's voice.
 
 At the end, provide 3 suggested actions of different kinds (one says something to someone, one does something, one looks into something), formatted as:
 ---OPTIONS---
@@ -1194,7 +1198,7 @@ At the end, provide 3 suggested actions of different kinds (one says something t
 [2] Action 2
 [3] Action 3`;
 
-      const userMessage = `Character: ${characterState?.name || 'Hero'} (Gender/Pronouns: ${characterState?.gender || 'they/them'}), a Level ${characterState?.level || 1} ${characterState?.raceOrigin || 'Human'} ${characterState?.roleClass || 'Adventurer'}.
+      const userMessage = `Character: ${heroLine(characterState)}.
 Begin the story.`;
 
       let text = await executeUniversalPrompt({

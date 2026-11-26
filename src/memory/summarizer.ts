@@ -27,18 +27,20 @@ export function shouldSummarize(memory: MemoryState, turnCount: number): boolean
 
 const SYSTEM = [
   'You keep the memory of an interactive story so the narrator never forgets what happened.',
-  'Reply with JSON only: {"summary": "...", "facts": ["...", "..."]}.',
+  'Reply with JSON only: {"summary": "...", "facts": ["...", "..."], "sheet": "..."}.',
   '- summary: 300 to 600 words, past tense, covering the previous summary plus the new turns. Keep names, places, promises, items, injuries, relationships and unresolved threads. Drop moment-to-moment description.',
-  '- facts: up to 8 short standalone facts that must stay true later (who someone is, what the player owns or owes, what was revealed). Do not repeat facts already listed.'
+  '- facts: up to 8 short standalone facts that must stay true later (who someone is, what the player owns or owes, what was revealed). Do not repeat facts already listed.',
+  '- sheet: the DM sheet, the game master\'s own running notes for telling the rest of the story well, 150 to 300 words, rewritten from the previous sheet and the new turns. Present tense, short lines under these headings: WHERE THE STORY IS (the chapter, what has happened against the plan, what is still ahead); PEOPLE (everyone the hero has met: where they are, how they feel about the hero, what they want now); OPEN THREADS (promises, debts, unanswered questions, dangers on the way); REVEALED SO FAR (secrets the hero now knows; never list ones still hidden).'
 ].join('\n');
 
-export function summaryRequest(previous: string, turns: Turn[], knownFacts: string[]): ChatMessage[] {
+export function summaryRequest(previous: string, turns: Turn[], knownFacts: string[], sheet?: string): ChatMessage[] {
   const log = turns.map((t) => `${t.role === 'user' ? 'PLAYER' : 'NARRATOR'}: ${t.content}`).join('\n\n');
   return [
     {
       role: 'user',
       content: [
         `PREVIOUS SUMMARY\n${previous || '(none yet)'}`,
+        ...(sheet !== undefined ? [`PREVIOUS DM SHEET\n${sheet || '(none yet)'}`] : []),
         `FACTS ALREADY KNOWN\n${knownFacts.length ? knownFacts.map((f) => `- ${f}`).join('\n') : '(none)'}`,
         `NEW TURNS\n${log}`
       ].join('\n\n')
@@ -46,14 +48,15 @@ export function summaryRequest(previous: string, turns: Turn[], knownFacts: stri
   ];
 }
 
-export function parseSummary(text: string): { summary: string; facts: string[] } | null {
+export function parseSummary(text: string): { summary: string; facts: string[]; sheet?: string } | null {
   const raw = text.match(/\{[\s\S]*\}/)?.[0];
   if (!raw) return parseMarkdownSummary(text);
   try {
     const v = JSON.parse(raw.replace(/,\s*([}\]])/g, '$1'));
     if (typeof v.summary !== 'string' || !v.summary.trim()) return null;
     const facts = Array.isArray(v.facts) ? v.facts.filter((f: unknown): f is string => typeof f === 'string' && f.trim().length > 3).slice(0, 8) : [];
-    return { summary: v.summary.trim(), facts };
+    const sheet = typeof v.sheet === 'string' && v.sheet.trim() ? v.sheet.trim().slice(0, 3000) : typeof v.sheet === 'object' && v.sheet ? JSON.stringify(v.sheet).slice(0, 3000) : undefined;
+    return { summary: v.summary.trim(), facts, ...(sheet ? { sheet } : {}) };
   } catch (_) {
     return null;
   }
@@ -85,17 +88,17 @@ export async function summarize(memory: MemoryState, turns: Turn[], complete: Co
   const end = Math.max(0, turns.length - RECENT_WINDOW);
   const fresh = turns.slice(memory.summarizedThrough, end);
   if (!fresh.length) return { memory, ok: true };
-  const reply = await complete(summaryRequest(memory.summary, fresh, memory.entries.map((e) => e.text)), 'basic', {
+  const reply = await complete(summaryRequest(memory.summary, fresh, memory.entries.map((e) => e.text), memory.sheet ?? ''), 'basic', {
     system: SYSTEM,
     json: true,
     temperature: 0.3,
-    maxTokens: 1400,
+    maxTokens: 2400,
     signal: opts.signal,
     feature: 'Story memory'
   });
   const parsed = parseSummary(reply.text);
   if (!parsed) return { memory, ok: false };
-  return { memory: propose(setSummary(memory, parsed.summary, end), parsed.facts, end), ok: true };
+  return { memory: propose(setSummary(memory, parsed.summary, end, parsed.sheet), parsed.facts, end), ok: true };
 }
 
 const MERGE_SYSTEM = [
@@ -136,5 +139,5 @@ export function summaryPatch(before: MemoryState, after: MemoryState): (current:
   return (cur) =>
     cur.summarizedThrough >= after.summarizedThrough
       ? cur
-      : { ...cur, summary: after.summary, summarizedThrough: after.summarizedThrough, pending: [...cur.pending, ...added] };
+      : { ...cur, summary: after.summary, summarizedThrough: after.summarizedThrough, ...(after.sheet ? { sheet: after.sheet } : {}), pending: [...cur.pending, ...added] };
 }

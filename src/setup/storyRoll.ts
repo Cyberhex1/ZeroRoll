@@ -1,35 +1,31 @@
 /**
- * The setup menu's AI calls.
+ * The setup menu's AI calls (master prompt, ohnna 2026-11-26; see src/setup/masterPrompt.ts).
  *
- * - rollStory: the story and everything that depends on it (title, outline, opening moves,
- *   hero, hero sheet). 0.2: it runs the Story Forge (src/forge/forge.ts): a spread drawn from
- *   the category's deck, four pitches, one build, the gate and at most one repair. Used for
- *   Reroll Story, a picked story seed or pitch, the player's own story (adapt), a hand-written
- *   opener (built out around it) and Book Two (sequel).
+ * - rollStory: the story and everything on the sheet that depends on it, from one prompt that
+ *   holds only the genre (with a few seed-list titles as examples) and the fields to fill.
+ *   A second call, the story check, reads that prompt and reply and says whether the reply
+ *   followed the prompt and makes sense; when it does not, the writer gets one more try with
+ *   the problems it named. Used for Reroll Story, a picked story seed, the player's own story
+ *   (adapt), a hand-written opener (built out) and Book Two (sequel).
  * - rollHeroPart: one small call for a title, name, class (with its sheet) or origin, written
  *   for the story as it stands.
  *
- * Failures throw a player-facing Error and change nothing; there is no silent stand-in.
- * Replies are structured (a Gemini response schema, JSON mode elsewhere), then checked in code.
+ * Failures throw a player-facing Error and change nothing; there is no silent stand-in. A story
+ * check that cannot run says so on the status line and keeps the story.
  */
-import type { CampaignInspiration, ExperienceCategory, ForgeRecord } from '../types';
+import type { CampaignInspiration, ExperienceCategory } from '../types';
 import type { RulesMode } from '../dnd/rules';
-import { styleCard } from '../content/injection';
-import { freshnessLines, rememberRoll } from '../lib/rollFreshness';
-import { executeJsonPrompt, getActiveProvider, reportFeatureFailure } from '../lib/geminiService';
+import { rememberRoll } from '../lib/rollFreshness';
+import { executeJsonPrompt, getActiveProvider, getLastModelUsedLabel, reportFeatureFailure } from '../lib/geminiService';
 import { AIError, classifyAIError } from '../lib/aiErrors';
+import { reportAINotice } from '../lib/aiStatus';
 import { AI_PROVIDERS } from '../lib/providersConfig';
 import { parseRetryDelayMs } from '../ai/transport';
-import { FixedParts, cleanTitle, fixName, normalizeSheet } from './normalize';
+import { FixedParts, cleanTitle, fixName, normalizeSheet, normalizeStoryReply } from './normalize';
 import type { StoryShape } from './storyShape';
-import type { HeroDraft, HeroSheetDraft } from './types';
-import { CLASS_RULE, HERO_FIT, ORIGIN_RULE, SHEET_EXAMPLE, SHEET_RULES } from './heroRules';
-import { S, SHEET_SCHEMA } from './schemas';
-import { ForgedPackage, forgeStory } from '../forge/forge';
-import { drawSpread, Spread } from '../forge/spread';
-import { Pitch, pitchStories } from '../forge/pitch';
-import { namesOnHandFrom, traditionsFor } from '../forge/names';
-import { buildPrompt } from '../forge/prompts';
+import type { HeroDraft, HeroSheetDraft, StoryPackage } from './types';
+import { S, SHEET_SCHEMA, STORY_SCHEMA } from './schemas';
+import { CHECK_SCHEMA, MasterInput, RerollField, buildCheckPrompt, buildFixPrompt, buildMasterPrompt, buildRerollPrompt, mediaExamples, rememberStory } from './masterPrompt';
 
 export { STORY_SCHEMA } from './schemas';
 
@@ -37,42 +33,64 @@ export interface StoryRollInput {
   category: ExperienceCategory;
   /** The pronouns in force, e.g. "she/her". */
   pronouns: string;
+  /** False when the player picked no pronouns (the hero gets a unisex name). */
+  pronounsChosen?: boolean;
   rulesMode: RulesMode;
   inspiration: CampaignInspiration;
   /**
-   * fresh: a new story (optionally from a story seed or a picked pitch). adapt: the player's own
-   * story, kept word for word, with the rest rebuilt around it. opener: a hand-written opener,
-   * built out. sequel: the next book of a campaign, from its recap (src/dnd/nextBook.ts).
+   * fresh: a new story (optionally from a story seed). adapt: the player's own story, kept word
+   * for word, with the rest rebuilt around it. opener: a hand-written opener, built out.
+   * sequel: the next book of a campaign, from its recap (src/dnd/nextBook.ts).
    */
   mode: 'fresh' | 'adapt' | 'opener' | 'sequel';
   /** sequel only (Book Two and later): what happened so far and who the hero is now. */
   continuation?: string;
   /** fresh only: the story seed the player picked. */
   seed?: string;
-  /** fresh: where the player joins (used when the story family allows it). opener: the opener's own shape. */
+  /** opener only: the opener's own shape and turning point, kept as written. */
   shape?: StoryShape;
-  /** opener only: the opener's turning point, kept as written. */
   turningPoint?: string;
   fixed?: FixedParts;
   signal?: AbortSignal;
-  /** sequel: the previous book's forge record (keeps its family and primary influence). */
-  previous?: ForgeRecord;
-  /** "More ideas": build this pitch from the spread it came from (no pitch call). */
-  spread?: Spread;
-  pitch?: Pitch;
-  /** The eval's pitch-off arm. */
-  noPitch?: boolean;
-  noContinuity?: boolean;
+  /** Testing and the eval: skip the story check. */
+  noCheck?: boolean;
+  /** Testing: the seed-list titles to show (else a fresh handful). */
+  media?: string[];
 }
 
-/**
- * The build prompt for an input, with a freshly drawn spread (tests and the eval read it).
- * rollStory draws its own spread inside the forge.
- */
-export function buildStoryPrompt(input: StoryRollInput & { rand?: () => number }): string {
-  const spread = input.spread ?? drawSpread(input.category, { rand: input.rand, shape: input.shape, seed: input.mode === 'fresh' ? input.seed : undefined, pronouns: input.pronouns });
-  const chooseShape = input.mode === 'adapt' || (input.mode === 'opener' && !input.shape);
-  return buildPrompt({ mode: input.mode, spread, pitch: input.pitch, pronouns: input.pronouns, fixed: input.fixed, continuation: input.continuation, turningPoint: input.turningPoint, chooseShape });
+/** What the story check found, for the debug log and the eval. */
+export interface StoryCheck {
+  ran: boolean;
+  pass?: boolean;
+  problems: string[];
+  /** True when the writer rewrote the story after the check. */
+  rewritten: boolean;
+  /** Why the check could not run. */
+  error?: string;
+  writerModel?: string;
+  checkModel?: string;
+}
+
+export type RolledStory = StoryPackage & { media: string[]; style?: string; check: StoryCheck; prompt: string };
+
+/** The writer's prompt for an input (tests and the eval read it). */
+export function buildStoryPrompt(input: StoryRollInput): string {
+  return buildMasterPrompt(masterInput(input, input.media ?? mediaExamples(input.category)));
+}
+
+function masterInput(input: StoryRollInput, media: string[]): MasterInput {
+  return {
+    category: input.category,
+    pronouns: input.pronouns,
+    pronounsChosen: input.pronounsChosen,
+    mode: input.mode,
+    media,
+    fixed: input.fixed,
+    seed: input.mode === 'fresh' ? input.seed : undefined,
+    continuation: input.continuation,
+    shape: input.mode === 'opener' ? input.shape : undefined,
+    turningPoint: input.turningPoint
+  };
 }
 
 /** A player-facing message for a failed setup call; a quota error says how long to wait. */
@@ -96,46 +114,127 @@ export function setupFailure(err: unknown, feature: string): Error & { retryAfte
   return out;
 }
 
-/** The story and everything that depends on it, through the Story Forge. */
-export async function rollStory(input: StoryRollInput): Promise<ForgedPackage> {
+function isCancel(err: unknown): boolean {
+  return (err instanceof AIError && err.kind === 'cancelled') || (err instanceof Error && err.name === 'AbortError');
+}
+
+const hasStory = (fixed: FixedParts) => (v: any) =>
+  !!v && typeof v === 'object' && !!(fixed.premise || (typeof v.premise === 'string' && v.premise.trim())) && !!(fixed.title || (typeof v.title === 'string' && v.title.trim())) && typeof v.hero === 'object';
+
+/** The story and everything that depends on it: the writer, the story check, and at most one rewrite. */
+export async function rollStory(input: StoryRollInput): Promise<RolledStory> {
+  const fixed = input.fixed ?? {};
+  const media = input.media ?? (input.mode === 'sequel' && input.inspiration?.media?.length ? input.inspiration.media : mediaExamples(input.category));
+  const prompt = buildMasterPrompt(masterInput(input, media));
+  const write = (userPrompt: string) =>
+    executeJsonPrompt<Record<string, unknown>>(
+      {
+        userPrompt,
+        temperature: input.mode === 'fresh' ? 1 : 0.85,
+        thinking: 'low',
+        tier: 'story',
+        // A full story is about 1,600 tokens; the cap stops a runaway reply early.
+        maxTokens: 4096,
+        schema: STORY_SCHEMA,
+        signal: input.signal,
+        feature: 'Story roll'
+      },
+      hasStory(fixed)
+    );
+
+  let raw: Record<string, unknown>;
+  const check: StoryCheck = { ran: false, problems: [], rewritten: false };
   try {
-    return await forgeStory({
-      category: input.category,
-      pronouns: input.pronouns,
-      mode: input.mode,
-      continuation: input.continuation,
-      seed: input.seed,
-      shape: input.shape,
-      turningPoint: input.turningPoint,
-      fixed: input.fixed,
-      signal: input.signal,
-      previous: input.previous ?? input.inspiration?.forge,
-      spread: input.spread,
-      pitch: input.pitch,
-      noPitch: input.noPitch,
-      noContinuity: input.noContinuity
-    });
+    raw = await write(prompt);
+    check.writerModel = getLastModelUsedLabel();
   } catch (err) {
     throw setupFailure(err, 'Story roll');
   }
+
+  if (!input.noCheck) {
+    try {
+      const verdict = await executeJsonPrompt<{ pass: boolean; problems: string[] }>(
+        {
+          userPrompt: buildCheckPrompt(prompt, raw),
+          temperature: 0.2,
+          thinking: 'low',
+          tier: 'check',
+          maxTokens: 2048,
+          schema: CHECK_SCHEMA,
+          signal: input.signal,
+          feature: 'Story check'
+        },
+        (v) => !!v && typeof v === 'object' && typeof v.pass === 'boolean'
+      );
+      check.ran = true;
+      check.checkModel = getLastModelUsedLabel();
+      check.problems = Array.isArray(verdict.problems) ? verdict.problems.map((p) => String(p).trim()).filter(Boolean).slice(0, 8) : [];
+      check.pass = verdict.pass;
+      if (!check.pass && !check.problems.length) check.problems = ['The editor did not pass the story but named no problem.'];
+    } catch (err) {
+      if (isCancel(err)) throw setupFailure(err, 'Story roll');
+      check.error = err instanceof Error ? err.message : String(err);
+      reportAINotice('Story check', `The story check could not run (${check.error}), so this story was not double-checked.`);
+    }
+    if (check.ran && !check.pass) {
+      try {
+        raw = await write(buildFixPrompt(prompt, raw, check.problems));
+        check.rewritten = true;
+      } catch (err) {
+        // The first draft is a real AI story; keep it, and say the fix did not run.
+        if (isCancel(err)) throw setupFailure(err, 'Story roll');
+        reportAINotice('Story check', `The story check found problems but the rewrite failed (${err instanceof Error ? err.message : String(err)}). Reroll the story if it does not make sense.`);
+      }
+    }
+  }
+  if (typeof console !== 'undefined') console.info('[story] check', check);
+
+  let pkg: StoryPackage;
+  try {
+    pkg = normalizeStoryReply(raw, { category: input.category, pronouns: input.pronouns, fixed, shape: input.mode === 'opener' ? input.shape?.id : undefined });
+  } catch (err) {
+    throw setupFailure(err, 'Story roll');
+  }
+  if (input.mode === 'opener' && input.turningPoint) pkg.outline = { ...pkg.outline, turningPoint: input.turningPoint };
+
+  if (input.mode === 'fresh') {
+    rememberStory({ title: pkg.title, hero: pkg.hero.roleClass.toLowerCase() });
+    rememberRoll(input.category, 'title', pkg.title);
+    rememberRoll(input.category, 'premise', pkg.premise);
+  }
+  if (!fixed.name) rememberRoll(input.category, 'heroName', pkg.hero.name);
+  return { ...pkg, media: pickReferences(raw.references, media), style: storyStyle(raw.style), check, prompt };
 }
 
 /**
- * "New ideas" on the Seeds tab (0.2, plan 4.10): a fresh draw of the genre's deck and one pitch
- * call. Picking one builds it on the same spread (one more call).
+ * The 1 to 3 shown titles the writer picked as this story's tone references (ohnna,
+ * 2026-11-26). Play sends only these. A pick that is not one of the shown titles is dropped;
+ * if none is left, the story keeps no references rather than all six.
  */
-export async function newIdeas(input: { category: ExperienceCategory; pronouns: string; signal?: AbortSignal }): Promise<{ pitches: Pitch[]; spread: Spread }> {
-  try {
-    const spread = drawSpread(input.category, { pronouns: input.pronouns });
-    return { pitches: await pitchStories(spread, input.signal), spread };
-  } catch (err) {
-    throw setupFailure(err, 'Story pitch');
+export function storyStyle(v: unknown): string | undefined {
+  if (typeof v !== 'string') return undefined;
+  const t = v.replace(/\s+/g, ' ').trim();
+  return t ? t.slice(0, STYLE_MAX) : undefined;
+}
+
+/** The story's own voice and sensory details stay short: they go with every turn. */
+export const STYLE_MAX = 600;
+
+export function pickReferences(picks: unknown, shown: string[]): string[] {
+  const key = (x: string) => x.toLowerCase().replace(/\s*\([^)]*\)\s*$/, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const byKey = new Map(shown.map((m) => [key(m), m]));
+  const out: string[] = [];
+  for (const p of Array.isArray(picks) ? picks : []) {
+    const hit = typeof p === 'string' ? byKey.get(key(p)) : undefined;
+    if (hit && !out.includes(hit)) out.push(hit);
   }
+  if (!out.length && typeof console !== 'undefined') console.info('[story] no tone references picked from', shown);
+  return out.slice(0, 3);
 }
 
 /* ------------------------------- hero parts -------------------------------- */
 
-export type HeroPart = 'title' | 'name' | 'roleClass' | 'origin';
+export type HeroPart = RerollField;
 
 export interface HeroPartContext {
   category: ExperienceCategory;
@@ -143,10 +242,7 @@ export interface HeroPartContext {
   rulesMode: RulesMode;
   title: string;
   premise: string;
-  goal?: string;
   hero: HeroDraft;
-  /** 0.2: the story family (from the forge record), for names from its traditions. */
-  familyId?: string;
   signal?: AbortSignal;
 }
 
@@ -166,33 +262,8 @@ const PART_SCHEMAS: Record<HeroPart, Record<string, unknown>> = {
   roleClass: { type: 'OBJECT', properties: { roleClass: S(), sheet: SHEET_SCHEMA }, required: ['roleClass', 'sheet'] }
 };
 
-const PART_ASKS: Record<HeroPart, (ctx: HeroPartContext) => string> = {
-  title: (ctx) => `Write a new title for this story (not "${ctx.title}"). Evocative, no chapter number.\nReply as JSON: { "title": "…" }`,
-  name: (ctx) => {
-    const n = namesOnHandFrom(traditionsFor(ctx.category, ctx.familyId), { pronouns: ctx.pronouns, exclude: ctx.hero.name.split(/\s+/) });
-    const onHand = [...n.given, ...n.family];
-    return `Give the hero a new first and last name (not "${ctx.hero.name}") that suits the pronouns ${ctx.pronouns} and this story's setting.${onHand.length ? ` Names that fit, if you want them: ${onHand.join(', ')}.` : ''}\nReply as JSON: { "name": "…" }`;
-  },
-  origin: (ctx) => `Give the hero a new origin (not "${ctx.hero.origin}"). ${ORIGIN_RULE} Then new looks to match (one or two sentences: build, face, what they wear or carry).\nReply as JSON: { "origin": "…", "appearance": "…" }`,
-  roleClass: (ctx) => `Give the hero a new class (not "${ctx.hero.roleClass}") that still fits the premise, and the hero sheet that goes with it. ${CLASS_RULE}\n\n${SHEET_RULES}\n\n${HERO_FIT}\n\nReply as JSON: { "roleClass": "…", ${SHEET_EXAMPLE} }`
-};
-
 export function buildHeroPartPrompt(part: HeroPart, ctx: HeroPartContext): string {
-  const freshness = part === 'name' ? freshnessLines(ctx.category, ['heroName']) : part === 'title' ? freshnessLines(ctx.category, ['title']) : [];
-  return `You are helping a player set up a tabletop RPG campaign. Whatever you write must fit the story below.
-
-${styleCard(ctx.category)}
-
-THE STORY
-Title: ${ctx.title}
-Premise: ${ctx.premise.slice(0, 1200)}
-${ctx.goal ? `First goal: ${ctx.goal}\n` : ''}
-THE HERO NOW
-Name: ${ctx.hero.name} (pronouns ${ctx.pronouns})
-Class: ${ctx.hero.roleClass}
-Origin: ${ctx.hero.origin}
-
-${PART_ASKS[part](ctx)}${freshness.length ? `\n\n${freshness.join('\n')}` : ''}`;
+  return buildRerollPrompt(part, ctx);
 }
 
 /** One small call for a title, name, class (with its sheet) or origin (with looks). */
@@ -219,7 +290,7 @@ export async function rollHeroPart(part: HeroPart, ctx: HeroPartContext): Promis
       return { title };
     }
     if (part === 'name') {
-      const name = fixName(raw.name, ctx.category, ctx.pronouns, ctx.familyId);
+      const name = fixName(raw.name, ctx.category, ctx.pronouns);
       rememberRoll(ctx.category, 'heroName', name);
       return { name };
     }

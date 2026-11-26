@@ -216,6 +216,7 @@ export const FAMILY_TRADITIONS: Record<string, TraditionId[]> = {
 
 /** For rolls without a family (adapt, opener, old campaigns): the traditions a category uses. */
 export const CATEGORY_TRADITIONS: Record<ExperienceCategory, TraditionId[]> = {
+  dnd: ['medieval', 'invented', 'celtic', 'norse', 'english'],
   fantasy: ['medieval', 'invented', 'celtic', 'slavic'],
   adventure: ['english', 'iberian', 'french', 'us_contemporary'],
   historical_adventure: ['japanese', 'italian', 'roman', 'chinese', 'french'],

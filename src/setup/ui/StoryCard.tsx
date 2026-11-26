@@ -4,7 +4,6 @@ import { InfoTip } from './InfoTip';
 import { FIELD_LIMITS } from '../normalize';
 import { shapeById } from '../storyShape';
 import type { SetupDraft } from '../types';
-import { forgeDisclosure } from '../../forge/context';
 
 const SOURCE_LABEL = (d: SetupDraft): string =>
   d.storySource === 'player' ? 'Your story' : d.storySource === 'ai' ? (d.seed ? 'Written by the AI from your seed' : 'Written by the AI') : d.builtIn ? 'Hand-written opener' : 'Opener, built out by the AI';
@@ -54,8 +53,9 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
   const start = o?.startingCircumstances && o.startingCircumstances.trim() !== draft.premise.trim() ? o.startingCircumstances : '';
   const goal = o?.immediateGoal || '';
   const joinAt = shapeById(o?.storyShape)?.label;
-  const forged = forgeDisclosure(draft.category, draft.inspiration.forge);
-  const steering = forged ? forged.items : [
+  const feel = draft.inspiration.style || '';
+  // What steers the telling: the seed, and the 1 to 3 seed-list titles the AI picked as tone references (never to copy).
+  const steering = [
     ...draft.inspiration.tropes.filter((t) => t !== draft.seed).map((t) => ({ kind: 'Seed', text: t })),
     ...draft.inspiration.media.map((m) => ({ kind: 'Tone', text: m }))
   ];
@@ -138,9 +138,8 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
               Roll Title
             </button>
           </div>
-          {forged?.line && <p className="text-[11px] text-slate-500 -mt-1.5">{forged.line}</p>}
           <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-line">{draft.premise}</p>
-          {(start || goal || joinAt) && (
+          {(start || goal || joinAt || feel) && (
             <dl className="grid gap-1.5 text-[11px]">
               {joinAt && (
                 <div>
@@ -160,6 +159,12 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
                   <dd className="inline text-slate-300">{goal}</dd>
                 </div>
               )}
+              {feel && (
+                <div>
+                  <dt className="inline text-slate-500 font-semibold">Voice and feel: </dt>
+                  <dd className="inline text-slate-300">{feel}</dd>
+                </div>
+              )}
             </dl>
           )}
           {draft.seed && (
@@ -170,7 +175,7 @@ export function StoryCard({ draft, aiOn, locked, rollingTitle, onRollTitle, onSa
           )}
           {steering.length > 0 && (
             <details className="text-[11px] group">
-              <summary className="cursor-pointer text-slate-500 hover:text-slate-300 select-none">What the AI was given for tone and ideas</summary>
+              <summary className="cursor-pointer text-slate-500 hover:text-slate-300 select-none">Tone references for this story (never copied)</summary>
               <ul className="mt-1.5 flex flex-wrap gap-1.5">
                 {steering.map((s, i) => (
                   <li key={i} className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300">

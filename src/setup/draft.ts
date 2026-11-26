@@ -3,7 +3,7 @@
  * through these functions, so every rule (what a reroll replaces, when a name changes, what
  * the campaign starts with) is testable without the UI.
  */
-import type { CampaignInspiration, CategoryInfo, CharacterSheet, DMStoryOutline, ExperienceCategory, ForgeRecord, StatBlock } from '../types';
+import type { CampaignInspiration, CategoryInfo, CharacterSheet, DMStoryOutline, ExperienceCategory, StatBlock } from '../types';
 import type { Opener } from '../content/types';
 import { gearToInventory, getContent, pickInspiration } from '../content';
 import { heroNameFor } from '../content/procedural';
@@ -37,6 +37,7 @@ export const REPLACES = {
 } as const satisfies Record<string, readonly TypedField[]>;
 
 export function resolvePronouns(choice: PronounChoice, custom: string): string {
+  if (choice === 'any') return 'they/them';
   return choice === 'custom' ? custom.trim().slice(0, FIELD_LIMITS.pronouns) || 'they/them' : choice;
 }
 
@@ -103,19 +104,19 @@ export function randomOpener(category: ExperienceCategory, notId?: string, rand:
  * the hero it showed is replaced.
  */
 /**
- * 0.2: a forged story carries what it was made from. The campaign keeps that record, and its
- * tone references become the two influences the story was actually built on.
+ * The campaign keeps the 1 to 3 titles the writer picked as tone references (master prompt):
+ * every play turn sends them, so the story keeps one voice. A rolled story with no picks keeps
+ * none, rather than the category's random ones.
  */
-export function forgedInspiration(base: CampaignInspiration, pkg: StoryPackage & { forge?: ForgeRecord; spread?: { primary: { title: string; medium: string }; spice?: { title: string; medium: string } } }, seed?: string): CampaignInspiration {
-  if (!pkg.forge) return base;
-  const media = pkg.spread ? [pkg.spread.primary, ...(pkg.spread.spice ? [pkg.spread.spice] : [])].map((d) => `${d.title} (${d.medium})`) : pkg.forge.dnaTitles;
+export function storyInspiration(base: CampaignInspiration, pkg: StoryPackage & { media?: string[]; style?: string }, seed?: string): CampaignInspiration {
+  if (!pkg.media) return base;
   const { openerId } = base;
-  return { media, tropes: seed ? [seed] : [], ...(openerId ? { openerId } : {}), forge: pkg.forge };
+  return { media: pkg.media, tropes: seed ? [seed] : [], ...(openerId ? { openerId } : {}), ...(pkg.style ? { style: pkg.style } : {}) };
 }
 
 export function applyPackage(
   prev: SetupDraft | null,
-  pkg: StoryPackage & { forge?: ForgeRecord },
+  pkg: StoryPackage & { media?: string[]; style?: string },
   opts: { category: ExperienceCategory; inspiration: CampaignInspiration; source: StorySource; seed?: string; keepName?: boolean; keepTitle?: boolean }
 ): SetupDraft {
   const keepName = !!(opts.keepName && prev);
@@ -129,8 +130,9 @@ export function applyPackage(
     title: keepTitle && prev ? prev.title : pkg.title,
     premise: pkg.premise,
     outline: pkg.outline,
-    actions: pkg.actions,
-    inspiration: forgedInspiration(opts.inspiration, pkg, opts.seed),
+    // The story roll has no opening actions (Chapter One writes them); an opener keeps its own.
+    actions: pkg.actions.length ? pkg.actions : opts.source === 'opener' && prev ? prev.actions : [],
+    inspiration: storyInspiration(opts.inspiration, pkg, opts.seed),
     storySource: opts.source,
     builtIn: false,
     seed: opts.seed,

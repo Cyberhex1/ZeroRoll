@@ -3,8 +3,10 @@
  * Word 4-grams that appear in 2 or more of the last 4 replies, plus any 5-gram copied verbatim
  * from the category profile or the family palette, plus worn tic words used twice or more.
  */
-import { TIC_WORDS } from './gate';
 import { STOPWORDS, ngrams, tokens } from './words';
+
+/** Worn words the game master leans on; one use is fine, two is a habit. */
+export const TIC_WORDS = ['ledger', 'rhythmic', 'ozone', 'hum', 'humming', 'trembling', 'tapestry', 'testament', 'palpable', 'whispers of', 'a sense of', 'sweaty palm'];
 
 export const LANGUAGE_WINDOW = 4;
 export const LANGUAGE_MAX = 6;

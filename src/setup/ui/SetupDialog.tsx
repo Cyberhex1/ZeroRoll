@@ -20,7 +20,7 @@ import {
 } from '../../lib/geminiService';
 import { drawOpeners, getContent, markOpenersSeen, pickInspiration, Opener, OpenerDraw } from '../../content';
 import type { CampaignInspiration, CategoryInfo, CharacterSheet, DMStoryOutline, ExperienceCategory } from '../../types';
-import type { RulesMode } from '../../dnd/rules';
+import { RulesMode, rulesModeFor } from '../../dnd/rules';
 import {
   REPLACES,
   applyClass,
@@ -41,14 +41,11 @@ import {
   typedAmong,
   validateDraft
 } from '../draft';
-import { HeroPart, newIdeas, rollHeroPart, rollStory } from '../storyRoll';
-import type { ForgedPackage } from '../../forge/forge';
-import type { Pitch } from '../../forge/pitch';
-import type { Spread } from '../../forge/spread';
+import { HeroPart, RolledStory, rollHeroPart, rollStory } from '../storyRoll';
 import { pickShape, shapeById } from '../storyShape';
 import type { PronounChoice, SetupDraft, TypedField } from '../types';
 import { StoryCard } from './StoryCard';
-import { HeroCard } from './HeroCard';
+import { HeroCard, PronounPicker } from './HeroCard';
 import { HeroSheetCard } from './HeroSheetCard';
 import { SeedsPanel } from './SeedsPanel';
 
@@ -75,7 +72,7 @@ interface Props {
   icon: React.ReactNode;
 }
 
-type Busy = 'story' | 'adapt' | 'opener' | HeroPart | 'portrait' | 'pitches' | 'create';
+type Busy = 'story' | 'adapt' | 'opener' | HeroPart | 'portrait' | 'create';
 type AIState = 'ready' | 'off' | 'untested';
 interface FormError {
   text: string;
@@ -84,14 +81,13 @@ interface FormError {
 }
 
 const PRONOUN_KEY = 'zeroroll_setup_pronouns';
-const RULES_KEY = 'zeroroll_rules_mode';
 
 function readPronouns(): { choice: PronounChoice; custom: string } {
   try {
     const v = JSON.parse(localStorage.getItem(PRONOUN_KEY) || 'null');
-    if (v && ['she/her', 'he/him', 'they/them', 'custom'].includes(v.choice)) return { choice: v.choice, custom: typeof v.custom === 'string' ? v.custom : '' };
+    if (v && ['any', 'she/her', 'he/him', 'they/them', 'custom'].includes(v.choice)) return { choice: v.choice, custom: typeof v.custom === 'string' ? v.custom : '' };
   } catch (_) {}
-  return { choice: 'she/her', custom: '' };
+  return { choice: 'any', custom: '' };
 }
 
 /** Whether AI calls can run: off (no key or Offline mode), untested (no model passed a probe), or ready. */
@@ -115,13 +111,8 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   const [pronounChoice, setPronounChoice] = useState<PronounChoice>(() => readPronouns().choice);
   const [customPronouns, setCustomPronouns] = useState(() => readPronouns().custom);
   const pronouns = resolvePronouns(pronounChoice, customPronouns);
-  const [rulesMode, setRulesModeState] = useState<RulesMode>(() => {
-    try {
-      return localStorage.getItem(RULES_KEY) === 'full5e' ? 'full5e' : 'narrative';
-    } catch (_) {
-      return 'narrative';
-    }
-  });
+  // The category sets the rules: full 5e for D&D, narrative dice everywhere else.
+  const rulesMode: RulesMode = rulesModeFor(catId);
   const [draft, setDraft] = useState<SetupDraft | null>(null);
   const [busy, setBusy] = useState<Busy | null>(null);
   const [error, setError] = useState<FormError | null>(null);
@@ -132,9 +123,6 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   const [touched, setTouched] = useState(false);
   const [openers, setOpeners] = useState<OpenerDraw[]>([]);
   const [seeds] = useState<string[]>(() => getContent(catId).tropes.map((t) => t.premise));
-  // 0.2: pitches the player can build (the unpicked ones from the last roll, or a "New ideas" draw). Not saved.
-  const [ideas, setIdeas] = useState<{ pitches: Pitch[]; spread: Spread; fromRoll: boolean } | null>(null);
-  const [seedsError, setSeedsError] = useState<string | null>(null);
   const [portraitError, setPortraitError] = useState<string | null>(null);
   const [portraitsOff, setPortraitsOff] = useState(false);
   const [, setTick] = useState(0);
@@ -143,20 +131,13 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   draftRef.current = draft;
   const pronounsRef = useRef(pronouns);
   pronounsRef.current = pronouns;
+  const pronounsChosenRef = useRef(pronounChoice !== 'any');
+  pronounsChosenRef.current = pronounChoice !== 'any';
   const ctrlRef = useRef<AbortController | null>(null);
   const mountedRef = useRef(true);
 
   const locked = busy !== null;
   const scrollRef = useRef<HTMLDivElement | null>(null);
-
-  const setRulesMode = (m: RulesMode) => {
-    setRulesModeState(m);
-    try {
-      localStorage.setItem(RULES_KEY, m);
-    } catch (_) {
-      /* the choice still applies to this campaign */
-    }
-  };
 
   const savePronouns = (choice: PronounChoice, custom: string) => {
     try {
@@ -208,10 +189,8 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
       const shape = pickShape(shapeById(draftRef.current?.outline?.storyShape)?.id);
       const ok = await run(
         'story',
-        (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, rulesMode, inspiration, mode: 'fresh', seed, shape, signal }),
-        (pkg: ForgedPackage) => {
-          // The unpicked pitches from this roll, for "More ideas from this roll" (not saved).
-          setIdeas(pkg.alternates?.length ? { pitches: pkg.alternates, spread: pkg.spread, fromRoll: true } : null);
+        (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, pronounsChosen: pronounsChosenRef.current, rulesMode, inspiration, mode: 'fresh', seed, shape, signal }),
+        (pkg: RolledStory) => {
           setDraft((prev) => applyPackage(prev, pkg, { category: catId, inspiration, source: 'ai', seed }));
         },
         { retry: () => void rollFresh(seed) }
@@ -225,11 +204,11 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
     [catId, rulesMode, run, openerDraft]
   );
 
-  // Opening the menu rolls a story when the AI is ready; otherwise a hand-written opener.
+  // Opening the menu waits for the player to pick pronouns and roll (ohnna, 2026-11-26); with the
+  // AI off, a hand-written opener is shown instead.
   useEffect(() => {
     mountedRef.current = true;
-    if (readAIState() === 'ready') void rollFresh();
-    else setDraft(openerDraft());
+    if (readAIState() === 'off') setDraft(openerDraft());
     return () => {
       mountedRef.current = false;
       ctrlRef.current?.abort();
@@ -290,6 +269,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
         rollStory({
           category: catId,
           pronouns: pronounsRef.current,
+          pronounsChosen: pronounsChosenRef.current,
           rulesMode,
           inspiration: d.inspiration,
           mode: 'adapt',
@@ -330,9 +310,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
           rulesMode,
           title: d.title,
           premise: d.premise,
-          goal: d.outline?.immediateGoal,
           hero: d.hero,
-          familyId: d.inspiration.forge?.family,
           signal
         }),
       (r) => setDraft((prev) => (!prev ? prev : part === 'roleClass' && r.roleClass && r.sheet ? applyClass(prev, r.roleClass, r.sheet) : applyHeroPart(prev, r))),
@@ -359,10 +337,11 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
         rollStory({
           category: catId,
           pronouns: pronounsRef.current,
+          pronounsChosen: pronounsChosenRef.current,
           rulesMode,
           inspiration: base.inspiration,
           mode: 'opener',
-          fixed: { title: o.title, premise: o.premise, name: base.hero.name, roleClass: o.hero.role, origin: o.hero.origin, actions: [...o.actions] },
+          fixed: { title: o.title, premise: o.premise, name: base.hero.name, roleClass: o.hero.role, origin: o.hero.origin },
           shape: shapeById(o.shape),
           turningPoint: o.turningPoint,
           signal
@@ -399,35 +378,6 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
     setTouched(true);
     setTab('setup');
     void rollFresh(seed);
-  };
-
-  /** Four new pitches from a fresh draw of this genre's deck (one call). */
-  const drawNewIdeas = () => {
-    setSeedsError(null);
-    void run(
-      'pitches',
-      (signal) => newIdeas({ category: catId, pronouns: pronounsRef.current, signal }),
-      (data) => setIdeas({ ...data, fromRoll: false }),
-      { onError: (text) => setSeedsError(`New ideas failed: ${text}`) }
-    );
-  };
-
-  /** Builds a pitch on the spread it came from (one call), like a seed does. */
-  const pickIdea = (pitch: Pitch) => {
-    const from = ideas;
-    if (locked || !from || !confirmLoss(REPLACES.story)) return;
-    setTouched(true);
-    setTab('setup');
-    const inspiration = pickInspiration(catId);
-    void run(
-      'story',
-      (signal) => rollStory({ category: catId, pronouns: pronounsRef.current, rulesMode, inspiration, mode: 'fresh', shape: from.spread.shape, spread: from.spread, pitch, signal }),
-      (pkg: ForgedPackage) => {
-        setIdeas((prev) => (prev ? { ...prev, pitches: prev.pitches.filter((p) => p !== pitch) } : prev));
-        setDraft((prev) => applyPackage(prev, pkg, { category: catId, inspiration, source: 'ai' }));
-      },
-      { retry: () => pickIdea(pitch) }
-    );
   };
 
   const drawPortrait = () => {
@@ -525,7 +475,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
   const retryWait = error?.retryAt ? Math.max(0, Math.ceil((error.retryAt - Date.now()) / 1000)) : 0;
   const storyBusy = busy === 'story' || busy === 'adapt' || busy === 'opener';
   const initializeBlock = !draft
-    ? 'Waiting for a story'
+    ? 'Roll a story first'
     : storyEditing
       ? 'Save or cancel your story edit first'
       : draft.stale
@@ -587,9 +537,10 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
               </button>
             ))}
           </div>
+          {draft && (
           <button
             type="button"
-            disabled={locked || !draft}
+            disabled={locked}
             onClick={rerollStory}
             className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-[11px] font-mono text-amber-300 flex items-center justify-center gap-1.5 transition disabled:opacity-50 font-semibold"
             title={aiOn ? 'A new story, with a hero and hero sheet to fit it' : 'The AI is off: picks another hand-written opener'}
@@ -597,6 +548,7 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
             <RefreshCw className={`w-3 h-3 ${busy === 'story' ? 'animate-spin' : ''}`} aria-hidden="true" />
             Reroll Story
           </button>
+          )}
         </div>
 
         {/* AI status for this screen */}
@@ -638,13 +590,33 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
 
         {tab === 'setup' ? (
           !draft ? (
-            <div className="space-y-3" aria-busy="true">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="rounded-lg bg-[#0A0A0F] border border-white/10 p-4 space-y-2 animate-pulse">
-                  <div className="h-2.5 w-20 rounded bg-white/10" />
+            <div className="space-y-3" aria-busy={storyBusy}>
+              {/* Before the first roll only the pronouns and the roll are live (ohnna, 2026-11-26). */}
+              <section className="rounded-lg bg-[#0A0A0F] border border-amber-500/30 p-3 sm:p-3.5 space-y-3">
+                <PronounPicker
+                  choice={pronounChoice}
+                  custom={customPronouns}
+                  onPick={pickPronouns}
+                  onCustom={typeCustomPronouns}
+                  locked={locked}
+                  error={pronounChoice === 'custom' && !customPronouns.trim() ? 'Type the pronouns to use, or pick one of the options.' : undefined}
+                />
+                <p className="text-[11px] text-slate-400">Pick your hero's pronouns, then roll a story. With no preference, the hero gets a name that suits anyone.</p>
+                <button
+                  type="button"
+                  onClick={rerollStory}
+                  disabled={locked || (pronounChoice === 'custom' && !customPronouns.trim())}
+                  className="w-full sm:w-auto px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${busy === 'story' ? 'animate-spin' : ''}`} aria-hidden="true" />
+                  Roll story
+                </button>
+              </section>
+              {['The story', 'Hero', 'Hero sheet'].map((label) => (
+                <div key={label} aria-hidden="true" className={`rounded-lg bg-[#0A0A0F] border border-white/10 p-4 space-y-2 opacity-40 ${storyBusy ? 'animate-pulse' : ''}`}>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold font-mono">{label}</div>
                   <div className="h-3 w-3/4 rounded bg-white/10" />
                   <div className="h-3 w-full rounded bg-white/5" />
-                  <div className="h-3 w-5/6 rounded bg-white/5" />
                 </div>
               ))}
             </div>
@@ -691,7 +663,6 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
               <HeroSheetCard
                 draft={draft}
                 rulesMode={rulesMode}
-                onRulesMode={setRulesMode}
                 onChange={(sheet) => {
                   setTouched(true);
                   setDraft((prev) => (prev ? editSheet(prev, sheet) : prev));
@@ -709,15 +680,9 @@ export function SetupDialog({ category, selectedModel, onClose, onCreate, onOpen
             openerTotal={getContent(catId).openers.length}
             aiOn={aiOn}
             locked={locked}
-            regenerating={busy === 'pitches'}
-            error={seedsError}
-            ideas={ideas?.pitches ?? []}
-            ideasFromRoll={!!ideas?.fromRoll}
-            onIdea={pickIdea}
             onSeed={pickSeed}
             onOpener={pickOpener}
             onShowOthers={showOpeners}
-            onRegenerate={drawNewIdeas}
           />
         )}
 

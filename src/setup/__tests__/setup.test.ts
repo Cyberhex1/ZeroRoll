@@ -3,7 +3,7 @@ import type { StatBlock } from '../../types';
 import { CATEGORY_IDS, getContent } from '../../content';
 import { turnContextBlock } from '../../content/injection';
 import { nameFitsPronouns } from '../../content/names';
-import { SKILLS, castsSpells } from '../../dnd/rules';
+import { SKILLS, castsSpells, rulesModeFor } from '../../dnd/rules';
 import {
   POINT_BUY_BUDGET, STANDARD_ARRAY, canRaise, fitPointBuy, isLegalPointBuy, lower, pointsLeft, pointsSpent, raise, roleSpread
 } from '../pointBuy';
@@ -12,9 +12,10 @@ import {
   applyClass, applyHeroPart, applyPackage, applyStoryEdit, choosePronouns, draftFromOpener, editSheet, inspirationWithSeed,
   keepAsIs, offlinePart, resetSheet, sheetForRole, toCharacterSheet, typeHeroField, typedAmong, REPLACES, validateDraft
 } from '../draft';
-import { buildStoryPrompt } from '../storyRoll';
+import { buildHeroPartPrompt, buildStoryPrompt, pickReferences, storyStyle, STYLE_MAX } from '../storyRoll';
+import { buildCheckPrompt, buildFixPrompt } from '../masterPrompt';
 import { STORY_SHAPES, pickShape, shapeById } from '../storyShape';
-import { formatOutlineForPrompt } from '../../lib/geminiService';
+import { formatOutlineForPrompt, gmRoleLine, heroLine } from '../../lib/geminiService';
 import type { SetupDraft, StoryPackage } from '../types';
 
 const fantasy = getContent('fantasy');
@@ -70,11 +71,10 @@ describe('point buy', () => {
 });
 
 describe('normalizing the story reply', () => {
-  it('cleans the title, fills three moves, matches real skills and dedupes gear', () => {
+  it('cleans the title, matches real skills and dedupes gear; opening moves come from Chapter One', () => {
     const pkg = normalizeStoryReply(reply(), { category: 'fantasy', pronouns: 'she/her' });
     expect(pkg.title).toBe('The Salt Crown');
-    expect(pkg.actions).toHaveLength(3);
-    expect(pkg.actions.slice(0, 2)).toEqual(['Hide the crown', 'Bribe a guard']);
+    expect(pkg.actions).toEqual([]);
     expect(pkg.sheet.skills).toHaveLength(SKILL_PICKS);
     expect(pkg.sheet.skills.slice(0, 3)).toEqual(['stealth', 'sleight of hand', 'perception']);
     for (const s of pkg.sheet.skills) expect(s in SKILLS).toBe(true);
@@ -87,15 +87,20 @@ describe('normalizing the story reply', () => {
     const pkg = normalizeStoryReply(reply(), {
       category: 'fantasy',
       pronouns: 'he/him',
-      fixed: { title: 'My Title', premise: 'You are my story.', name: 'Kept Name', roleClass: 'Bard', actions: ['a', 'b', 'c'] }
+      fixed: { title: 'My Title', premise: 'You are my story.', name: 'Kept Name', roleClass: 'Bard' }
     });
-    expect(pkg).toMatchObject({ title: 'My Title', premise: 'You are my story.', actions: ['a', 'b', 'c'] });
+    expect(pkg).toMatchObject({ title: 'My Title', premise: 'You are my story.' });
     expect(pkg.hero).toMatchObject({ name: 'Kept Name', roleClass: 'Bard', origin: 'Tidefolk' });
   });
 
   it('throws when there is no story or title', () => {
     expect(() => normalizeStoryReply({ title: 'X' }, { category: 'fantasy', pronouns: 'she/her' })).toThrow();
     expect(() => normalizeStoryReply({}, { category: 'fantasy', pronouns: 'she/her' })).toThrow();
+  });
+
+  it('capitalizes a name that starts lower-case, keeping particles', () => {
+    expect(fixName('claire Sutcliffe', 'horror', 'she/her')).toBe('Claire Sutcliffe');
+    expect(fixName('Alix ap Rhys', 'romantic', 'they/them')).toBe('Alix ap Rhys');
   });
 
   it('swaps a name that does not fit the pronouns', () => {
@@ -214,36 +219,97 @@ describe('setup draft rules', () => {
   });
 });
 
-describe('story prompt', () => {
+describe('master prompt (ohnna, 2026-11-26)', () => {
   const base = { category: 'fantasy' as const, pronouns: 'she/her', rulesMode: 'narrative' as const, inspiration: insp };
+  const media = ['Treasure Island (Book)', 'The Goonies (Film)'];
 
-  it('a seed roll puts the seed at the core of the story', () => {
-    const p = buildStoryPrompt({ ...base, mode: 'fresh', seed: 'A cursed bell rings at noon' });
-    expect(p).toContain("THE PLAYER'S CHOSEN STORY SEED");
-    expect(p).toContain('A cursed bell rings at noon');
-    expect(p).toContain('Pronouns she/her');
-    // The hero must be the person the premise describes (a job is not an origin), with examples from many genres.
-    expect(p).toContain('HERO FIT');
-    expect(p).toContain('a tomb painter is a tomb painter, not a rogue');
-    expect(p).toContain('Never a job or rank');
-    expect(p).toContain('not a hidden blade');
-    // 0.2: no Revenge bookkeeper examples, no stock closing question, no banned-name list.
-    expect(p).not.toMatch(/clerk|ledger|bookkeep|head down|how long can you/i);
-    expect(p).not.toContain('Vance');
+  it('a story roll sends only the genre, seed-list examples and the fields to fill', () => {
+    const p = buildStoryPrompt({ ...base, category: 'adventure', mode: 'fresh', media });
+    expect(p).toContain('Today your player chose to play an Adventure story.');
+    expect(p).toContain('pirate crews; space rogues');
+    expect(p).toContain('Treasure Island (Book); The Goonies (Film).');
+    expect(p).toContain('They are not a limit or a menu: you are expected to come up with an original story of your own');
+    expect(p).toContain('the next step is telling the story with them');
+    for (const field of ['title: the story\'s title, one to five words', 'premise ("The story")', '"about" text', 'hero.name', 'hero.roleClass', 'hero.origin', 'hero.appearance', 'outline.keyNpcs', 'outline.chapters', 'outline.turningPoint']) {
+      expect(p).toContain(field);
+    }
+    // ohnna's comments: these fields and lines are gone from the roll.
+    for (const gone of ['startingCircumstances', 'immediateGoal', 'openingActions', 'The player starts BEFORE', 'HERO FIT', 'tomb painter']) expect(p).not.toContain(gone);
+    expect(p).toContain('The hero uses she/her pronouns.');
+    expect(p).toContain('Avoid the names and places AI models reach for');
+    // No card machinery left.
+    expect(p).not.toMatch(/Story family|Storytelling DNA|plot engine|OPTIONAL CARDS|pitch/i);
   });
 
-  it("an adapt roll keeps the player's words and the name", () => {
-    const p = buildStoryPrompt({ ...base, mode: 'adapt', fixed: { premise: 'You run a tavern on a dragon.', name: 'Kept Name', title: 'Mine' } });
-    expect(p).toContain('THE PLAYER WROTE THIS STORY');
+  it('a seed roll builds from the seed', () => {
+    const p = buildStoryPrompt({ ...base, mode: 'fresh', seed: 'A cursed bell rings at noon', media });
+    expect(p).toContain('THE PLAYER PICKED THIS STORY IDEA');
+    expect(p).toContain('A cursed bell rings at noon');
+    expect(p).toContain('HERO SHEET');
+  });
+
+  it("an adapt roll keeps the player's words, title and name", () => {
+    const p = buildStoryPrompt({ ...base, mode: 'adapt', media, fixed: { premise: 'You run a tavern on a dragon.', name: 'Kept Name', title: 'Mine' } });
+    expect(p).toContain('THE PLAYER WROTE THEIR OWN STORY');
+    expect(p).toContain('ALREADY FILLED IN');
     expect(p).toContain('You run a tavern on a dragon.');
-    expect(p).toContain('keep "Kept Name" exactly');
-    expect(p).toContain('Keep the title "Mine"');
+    expect(p).toContain('- hero.name: "Kept Name"');
+    expect(p).toContain('- title: "Mine"');
   });
 
   it('an opener roll keeps its premise and moves', () => {
-    const p = buildStoryPrompt({ ...base, mode: 'opener', fixed: { title: opener.title, premise: opener.premise, actions: opener.actions } });
+    const p = buildStoryPrompt({ ...base, mode: 'opener', media, fixed: { title: opener.title, premise: opener.premise } });
     expect(p).toContain('HAND-WRITTEN OPENER');
     expect(p).toContain(opener.premise);
+  });
+
+  it('no pronouns chosen: the hero gets a unisex name', () => {
+    const p = buildStoryPrompt({ ...base, pronouns: 'they/them', pronounsChosen: false, mode: 'fresh', media });
+    expect(p).toContain('did not choose pronouns: give the hero a unisex name');
+  });
+
+  it('only the D&D category gets the full 5e sheet; the others get narrative dice and their own examples', () => {
+    const dnd = buildStoryPrompt({ ...base, category: 'dnd', mode: 'fresh', media });
+    expect(dnd).toContain('HERO SHEET (D&D 5e, level 1)');
+    expect(dnd).toContain('their D&D class');
+    const life = buildStoryPrompt({ ...base, category: 'real_life', mode: 'fresh', media });
+    expect(life).not.toContain('D&D');
+    expect(life).toContain('spells: an empty list.');
+    expect(life).toContain('"Wedding DJ"');
+    expect(rulesModeFor('dnd')).toBe('full5e');
+    for (const id of CATEGORY_IDS.filter((c) => c !== 'dnd')) expect(rulesModeFor(id)).toBe('narrative');
+  });
+
+  it('every category has its own genre line and examples from its seed list', () => {
+    for (const id of CATEGORY_IDS) {
+      const p = buildStoryPrompt({ ...base, category: id, mode: 'fresh' });
+      expect(p).toContain(`${getContent(id).card.name} story.`);
+      const titles = getContent(id).media.map((m) => m.title);
+      expect(titles.some((t) => p.includes(t))).toBe(true);
+    }
+  });
+
+  it('a field reroll asks for that field only, keeping to the story', () => {
+    const ctx = { category: 'fantasy' as const, pronouns: 'he/him', rulesMode: 'narrative' as const, title: 'The Salt Crown', premise: 'You wake in the brine pits.', hero: { name: 'Odo Brine', roleClass: 'Salt Miner', origin: 'Pit-born human', appearance: '' }, media };
+    const p = buildHeroPartPrompt('name', ctx);
+    expect(p).toContain('Change ONLY the hero\'s name');
+    expect(p).toContain('THE STORY AS IT STANDS');
+    expect(p).toContain('You wake in the brine pits.');
+    expect(p).toContain('the pronouns he/him');
+    expect(p).toContain('cohesive with the story below');
+    expect(p).not.toContain('Treasure Island');
+    expect(buildHeroPartPrompt('roleClass', ctx)).toContain('HERO SHEET');
+  });
+
+  it('the story check reads the prompt and the reply, and the fix carries the problems', () => {
+    const c = buildCheckPrompt('THE PROMPT TEXT', { title: 'T' });
+    expect(c).toContain('=== PROMPT ===\nTHE PROMPT TEXT');
+    expect(c).toContain('"title": "T"');
+    expect(c).toMatch(/Did the writer follow the prompt\?/);
+    expect(c).toMatch(/Is it logical\?/);
+    const f = buildFixPrompt('THE PROMPT TEXT', { title: 'T' }, ['premise: the hero is in two places']);
+    expect(f).toContain('- premise: the hero is in two places');
+    expect(f.startsWith('THE PROMPT TEXT')).toBe(true);
   });
 });
 
@@ -257,15 +323,10 @@ describe('where the player joins the story', () => {
     for (const s of STORY_SHAPES) for (let i = 0; i < 20; i++) expect(pickShape(s.id, () => i / 20).id).not.toBe(s.id);
   });
 
-  it('a fresh roll is told its shape and never to start at the climax', () => {
-    const shape = shapeById('before')!;
-    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape, seed: 'Your family estate burns' });
-    expect(p).toContain(shape.brief);
-    expect(p).toContain('Never drop the player at the climax');
-    expect(p).toContain("the seed's situation is the turning point");
-    expect(p).toContain('"storyShape": "before"');
-    expect(p).toContain('Only what the hero knows now');
-    expect(p).toMatch(/End with one question: a real choice/);
+  it('a story roll lists the shapes (the start-before line is held back, ohnna 2026-11-26)', () => {
+    const p = buildStoryPrompt({ ...base, mode: 'fresh', media: ['X (Film)'] });
+    expect(p).not.toContain('The player starts BEFORE the turning point');
+    for (const s of STORY_SHAPES) expect(p).toContain(`"${s.id}"`);
   });
 
   it("the roll's shape wins over the reply's, and the turning point is kept", () => {
@@ -301,8 +362,8 @@ describe('hand-written openers', () => {
   it('an opener puts its shape and turning point in the outline, and its build-out is told them', () => {
     const o = getContent('revenge').openers.find((x) => x.id === 'seed_rev_02')!;
     expect(draftFromOpener('revenge', o, 'she/her', insp).outline).toMatchObject({ storyShape: 'before', turningPoint: o.turningPoint });
-    const p = buildStoryPrompt({ ...base, mode: 'opener', shape: shapeById(o.shape), turningPoint: o.turningPoint, fixed: { title: o.title, premise: o.premise, actions: o.actions } });
-    expect(p).toContain('storyShape "before"');
+    const p = buildStoryPrompt({ ...base, mode: 'opener', shape: shapeById(o.shape), turningPoint: o.turningPoint, fixed: { title: o.title, premise: o.premise } });
+    expect(p).toContain('joins the story at "before"');
     expect(p).toContain(o.turningPoint!);
     expect(p).not.toContain('EXAMPLE OPENERS');
   });
@@ -317,21 +378,11 @@ describe('hand-written openers', () => {
 describe('story patterns (ohnna, 2026-11-21)', () => {
   const base = { category: 'revenge' as const, pronouns: 'she/her', rulesMode: 'narrative' as const, inspiration: { media: ['A'], tropes: ['B'] } };
 
-  it('every roll carries a story family from the deck, the DNA of a source work, and no spark seed', () => {
-    const p = buildStoryPrompt({ ...base, mode: 'fresh', shape: STORY_SHAPES[0], rand: () => 0 });
-    expect(p).toMatch(/Story family: [^.]+\. The hero is usually/);
-    expect(p).toMatch(/Storytelling DNA of /);
-    expect(p).toContain("plot engine for the middle chapters");
-    expect(p).not.toContain('PREMISE PATTERN');
-    expect(p).not.toContain('Spark for this roll');
-  });
-
-  it('a sequel keeps the hero and is not offered a new hook', () => {
-    const p = buildStoryPrompt({ ...base, mode: 'sequel', shape: STORY_SHAPES[1], continuation: 'Start Book 2 of this campaign.', fixed: { name: 'Odile Marchetti', roleClass: 'Harbor Pilot', origin: 'Harbor-born human' } });
+  it('a sequel keeps the hero', () => {
+    const p = buildStoryPrompt({ ...base, mode: 'sequel', continuation: 'Start Book 2 of this campaign.', fixed: { name: 'Odile Marchetti', roleClass: 'Harbor Pilot', origin: 'Harbor-born human' } });
     expect(p).toMatch(/NEXT BOOK[\s\S]*Start Book 2/);
-    expect(p).toContain('Only what the hero knows now');
-    expect(p).toContain('keep "Odile Marchetti" exactly');
-    expect(p).not.toContain("The hook (use it");
+    expect(p).toContain('- hero.name: "Odile Marchetti"');
+    expect(p).toContain('- hero.roleClass: "Harbor Pilot"');
   });
 
   it('game-master turns get no story seeds', () => {
@@ -344,5 +395,42 @@ describe('story patterns (ohnna, 2026-11-21)', () => {
     for (const id of CATEGORY_IDS) {
       for (const t of getContent(id).tropes) expect(t.premise).not.toMatch(/\b(unaware|oblivious|little do|too late)\b|first betrayer|on your list/i);
     }
+  });
+});
+
+describe('play prompts (ohnna, 2026-11-26)', () => {
+  it('keeps only the 1 to 3 shown titles the writer picked as tone references', () => {
+    const shown = ['One Piece (Manga/Anime)', 'The Goonies (Film)', 'Treasure Planet (Film)', 'Uncharted (Game)'];
+    expect(pickReferences(['the goonies', 'One Piece (Manga/Anime)', 'Made Up (Film)'], shown)).toEqual(['The Goonies (Film)', 'One Piece (Manga/Anime)']);
+    expect(pickReferences([...shown, 'The Goonies'], shown)).toHaveLength(3);
+    expect(pickReferences(undefined, shown)).toEqual([]);
+  });
+
+  it('asks the writer for references', () => {
+    const p = buildStoryPrompt({ category: 'adventure', pronouns: 'she/her', mode: 'fresh', media: ['The Goonies (Film)'] } as never);
+    expect(p).toMatch(/references: 1 to 3 of the works named at the top/);
+    expect(p).toContain('"references"');
+  });
+
+  it('asks the writer for the story\'s own voice and sends it in play', () => {
+    const p = buildStoryPrompt({ category: 'horror', pronouns: 'she/her', mode: 'fresh', media: ['The Ring (Film)'] } as never);
+    expect(p).toMatch(/- style: how this story should feel/);
+    expect(p).toContain('"style"');
+    expect(storyStyle('  Quiet,  wet dread.  ')).toBe('Quiet, wet dread.');
+    expect(storyStyle('')).toBeUndefined();
+    expect(storyStyle('x'.repeat(900))).toHaveLength(STYLE_MAX);
+    const block = turnContextBlock('horror', { media: ['The Ring (Film)'], tropes: [], style: 'Quiet, wet dread. Rain on tin; bleach; a phone that clicks.' });
+    expect(block).toContain("This story's voice and feel: Quiet, wet dread.");
+    expect(block.indexOf('voice and feel')).toBeLessThan(block.indexOf('Tone references'));
+  });
+
+  it('casts the model as a dungeon master, naming 5e only for D&D', () => {
+    expect(gmRoleLine('dnd')).toMatch(/dungeon master.*D&D 5e/);
+    expect(gmRoleLine('horror')).toMatch(/^You are the dungeon master/);
+    expect(gmRoleLine('horror')).not.toMatch(/5e|D&D|master interactive author/);
+  });
+
+  it('reads the hero line as class, then origin', () => {
+    expect(heroLine({ name: 'Ada Vale', gender: 'she/her', level: 1, roleClass: "Ship's Rigger", raceOrigin: 'Harbor-born human' })).toBe("Ada Vale (she/her), a Level 1 Ship's Rigger, Harbor-born human");
   });
 });

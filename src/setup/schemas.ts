@@ -48,14 +48,12 @@ export const STORY_SCHEMA = {
   type: 'OBJECT',
   properties: {
     title: S(),
-    premise: S('3 or 4 sentences to the player as you; only what the hero knows; ends on a question'),
+    premise: S('The story\'s "about" blurb, like one for a book, film or game'),
     outline: {
       type: 'OBJECT',
       properties: {
-        startingCircumstances: S('Shown as "Where you start": who you are and how your life stands as the premise scene begins. Same time and place as the premise; never an earlier scene'),
         backstory: S(),
         incitingIncident: S(),
-        immediateGoal: S('Shown as "Your first goal": what you want in the first scene, true whichever way the premise question is answered; nothing the premise has not set up'),
         keyNpcs: {
           type: 'ARRAY',
           items: {
@@ -81,11 +79,11 @@ export const STORY_SCHEMA = {
         storyShape: { type: 'STRING', enum: STORY_SHAPES.map((x) => x.id), description: 'Where the player joins the arc' },
         turningPoint: S('The defining event the story builds to, and the chapter where it lands')
       },
-      required: ['startingCircumstances', 'backstory', 'incitingIncident', 'immediateGoal', 'keyNpcs', 'fronts', 'setPieces', 'majorConflicts', 'secretsAndReveals', 'chapters', 'potentialEndings', 'storyShape', 'turningPoint']
+      required: ['backstory', 'incitingIncident', 'keyNpcs', 'fronts', 'setPieces', 'majorConflicts', 'secretsAndReveals', 'chapters', 'potentialEndings', 'storyShape', 'turningPoint']
     },
-    openingActions: LIST('Three short first moves of different kinds'),
     hero: HERO_SCHEMA,
-    sheet: SHEET_SCHEMA
+    sheet: SHEET_SCHEMA,
+    references: LIST('1 to 3 of the works named in the prompt whose tone fits this story')
   },
-  required: ['title', 'premise', 'outline', 'openingActions', 'hero', 'sheet']
+  required: ['title', 'premise', 'outline', 'hero', 'sheet', 'references']
 };

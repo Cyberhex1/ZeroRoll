@@ -123,6 +123,14 @@ describe('outline in prompts (SL4)', () => {
     } as any, 'full');
     expect(out).toContain('Mira (Fence, Wants: Debt, Secret: Informant)');
     expect(out).toContain('Chapter Progression: One | Two');
-    expect(out.split('\n')).toHaveLength(8);
+    expect(out.split('\n')).toHaveLength(6);
+    expect(out).not.toContain('Starting Circumstances');
+  });
+
+  it('sends where the story starts and the first goal only to Chapter One', () => {
+    const o = { startingCircumstances: 'On the dock', immediateGoal: 'Find the key', backstory: 'B' } as any;
+    expect(formatOutlineForPrompt(o, 'brief', { opening: true })).toContain('Starting Circumstances: On the dock');
+    expect(formatOutlineForPrompt(o, 'brief', { opening: true })).toContain('Immediate Goal: Find the key');
+    expect(formatOutlineForPrompt(o, 'full')).toBe('- Backstory: B');
   });
 });

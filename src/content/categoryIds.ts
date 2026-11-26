@@ -2,7 +2,7 @@ import type { ExperienceCategory } from '../types';
 
 /** The categories in home-screen order. */
 export const CATEGORY_IDS = [
-  'fantasy', 'adventure', 'historical_adventure', 'horror', 'cozy_ghibli', 'romantic', 'revenge', 'apocalypse',
+  'dnd', 'fantasy', 'adventure', 'historical_adventure', 'horror', 'cozy_ghibli', 'romantic', 'revenge', 'apocalypse',
   'zombie', 'cosmic_horror', 'psychedelic_trip', 'tiktok_drama', 'ancient_greek', 'mythology', 'real_life'
 ] as const satisfies readonly ExperienceCategory[];
 

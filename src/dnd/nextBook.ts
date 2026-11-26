@@ -4,6 +4,7 @@
  * "sequel", with the same story rules and premise pattern as a new campaign) writes a new arc
  * from that recap and the hero as they stand, and a Chapter One scene opens the new book.
  */
+import { rulesModeFor } from './rules';
 import { uid } from '../lib/ids';
 import { generateChapterOneAI } from '../lib/geminiService';
 import { rollStory } from '../setup/storyRoll';
@@ -53,7 +54,7 @@ export async function continueToNextBook(exp: Experience, model: string): Promis
   const pkg = await rollStory({
     category: exp.category,
     pronouns: exp.character.gender || 'they/them',
-    rulesMode: exp.rulesMode ?? 'narrative',
+    rulesMode: rulesModeFor(exp.category),
     inspiration: baseInspiration,
     mode: 'sequel',
     continuation: nextBookPrompt(exp),

@@ -120,13 +120,12 @@ describe('fresh language', () => {
 });
 
 describe('turn context', () => {
-  it('every campaign gets the style card and its tone references', () => {
+  it('every campaign gets its tone references, with no style card or names on hand', () => {
     const d = turnDirection(exp(), 3);
     const block = turnContextBlock('mythology', { media: ['The Odyssey (Epic)'], tropes: [] }, d.context);
     expect(block).toContain('Tone references: The Odyssey');
-    expect(block.startsWith('STYLE (')).toBe(true);
-    expect(d.names).toMatch(/^New characters, if any, can take names like: /);
-    expect(d.names).not.toContain('Ingrid');
+    expect(block).not.toContain('STYLE (');
+    expect(d).not.toHaveProperty('names');
   });
 
   it('spots a reply that leaks the machinery', () => {

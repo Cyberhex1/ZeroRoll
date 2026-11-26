@@ -35,6 +35,7 @@ export const ANIME_SKIN: Skin = {
 };
 
 export const CATEGORY_SKINS: Record<ExperienceCategory, Skin> = {
+  dnd: { palette: P('#140c0c', '#1f1414', '#e0533d', '#f0e6dc', '#ab9a8e', '#45190f', '#1c1212'), fonts: { heading: 'display', body: 'serif' }, bubble: 'scroll', pattern: 'grain', particles: 'embers' },
   fantasy: { palette: P('#120f1a', '#1c1728', '#e0a84f', '#ece4d4', '#a89c88', '#3a2b14', '#1b1626'), fonts: { heading: 'display', body: 'serif' }, bubble: 'scroll', pattern: 'stars', particles: 'motes' },
   adventure: { palette: P('#0f1712', '#17221b', '#7fc77a', '#e6efe4', '#98ab95', '#23402a', '#162019'), fonts: { heading: 'display', body: 'sans' }, bubble: 'rounded', pattern: 'grid', particles: 'none' },
   historical_adventure: { palette: P('#17130e', '#221c14', '#c9a464', '#eee4cf', '#a8977a', '#3d301c', '#211b13'), fonts: { heading: 'serif', body: 'serif' }, bubble: 'scroll', pattern: 'grain', particles: 'none' },

@@ -531,7 +531,7 @@ describe('0.2 migration', () => {
         rulesMode: 'narrative',
         storyOutline: old.storyOutline,
         inspiration: old.inspiration,
-        director: { note: direction.note?.text, language: direction.language, names: direction.names, context: direction.context }
+        director: { note: direction.note?.text, language: direction.language, context: direction.context }
       })
     );
     expect(r.text).toContain('The handle turns');

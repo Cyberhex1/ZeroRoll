@@ -15,7 +15,8 @@ import {
   Landmark, 
   Zap, 
   Briefcase,
-  Bot
+  Bot,
+  Swords
 } from 'lucide-react';
 import { CATEGORIES_DATA } from '../content';
 
@@ -30,6 +31,9 @@ export function getCategoryIcon(categoryOrIconName?: string, className: string =
   const iconKey = cat ? cat.iconName : categoryOrIconName;
 
   switch (iconKey) {
+    case 'Swords':
+    case 'dnd':
+      return <Swords className={className} />;
     case 'Wand2':
     case 'fantasy':
       return <Wand2 className={className} />;

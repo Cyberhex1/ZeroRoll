@@ -47,7 +47,7 @@ export function currentStateBlock(c: Partial<CharacterSheet> | undefined, world?
   const items = (c.inventory ?? []).map((i) => `${i.name}${i.quantity > 1 ? ` x${i.quantity}` : ''}${i.isEquipped ? ' (equipped)' : ''}`);
   const lines = [
     'CURRENT STATE (true right now; do not contradict it)',
-    `Hero: ${c.name || 'Hero'} (${c.gender || 'they/them'}), level ${n(c.level, 1)} ${c.raceOrigin || 'Human'} ${c.roleClass || 'Adventurer'}`,
+    `Hero: ${c.name || 'Hero'} (${c.gender || 'they/them'}), level ${n(c.level, 1)} ${c.roleClass || 'Adventurer'}${c.raceOrigin ? `, ${c.raceOrigin}` : ''}`,
     `HP: ${hp}/${maxHp}${c.tempHp ? ` (+${c.tempHp} temporary)` : ''}${hp <= 0 ? ' (down: unconscious or dying)' : ''}. AC ${n(c.armorClass, 10)}.`,
     s ? `Abilities: STR ${s.str} (${mod(s.str)}), DEX ${s.dex} (${mod(s.dex)}), CON ${s.con} (${mod(s.con)}), INT ${s.int} (${mod(s.int)}), WIS ${s.wis} (${mod(s.wis)}), CHA ${s.cha} (${mod(s.cha)})` : '',
     `Inventory: ${items.length ? items.join(', ') : 'nothing'}`,
@@ -102,7 +102,9 @@ export function buildDndContext(exp: Experience, logs: LogMessage[] = exp.logs, 
     ...dndContextBudget(localContext),
     recallScores
   });
-  const context = built.system.slice(sheet.length).trim();
+  // The builder joins '' (no system text) and the sheet with a blank line, so cut after the sheet itself.
+  const at = built.system.indexOf(sheet);
+  const context = (at >= 0 ? built.system.slice(at + sheet.length) : built.system).trim();
   const log = built.messages.map((m: ChatMessage) => `${m.role === 'user' ? 'PLAYER' : 'DM'}: ${m.content}`).join('\n');
   const omitted = built.meter.droppedTurns ? `[${built.meter.droppedTurns} earlier messages are covered by the memory and summary above]\n` : '';
   return { contents: [context, `Recent Story Log:\n${omitted}${log}`].filter(Boolean).join('\n\n'), meter: built.meter };

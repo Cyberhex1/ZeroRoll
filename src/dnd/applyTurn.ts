@@ -5,9 +5,10 @@
  */
 import { uid } from '../lib/ids';
 import type { CharacterSheet, CourseChangeAlert, Experience, InventoryItem, StateDelta } from '../types';
-import { RulesMode, gainXp } from './rules';
+import { RulesMode, gainXp, rulesModeFor } from './rules';
 
-export const rulesModeOf = (exp: Pick<Experience, 'rulesMode'>): RulesMode => exp.rulesMode ?? 'narrative';
+/** The category decides the rules; a save's stored mode from before 2026-11-26 is ignored. */
+export const rulesModeOf = (exp: Pick<Experience, 'category'>): RulesMode => rulesModeFor(exp.category);
 
 /** "Healing Potion x2", "2 Healing Potions", "Healing Potion (3)" → name and count. */
 export function itemCount(raw: string): { name: string; qty: number; explicit: boolean } {

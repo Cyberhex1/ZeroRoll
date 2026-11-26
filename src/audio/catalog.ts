@@ -66,6 +66,17 @@ export const HOME_TRACK: MusicTrack = {
  * purple AI template; music should reinforce the category's identity).
  */
 export const CATEGORY_TRACKS: Record<ExperienceCategory, MusicTrack> = {
+  // D&D shares the fantasy track (same file, so a self-hosted music folder needs nothing new).
+  dnd: {
+    key: 'fantasy',
+    label: 'High Fantasy',
+    mood: 'Lush strings, harp arpeggios, distant choirs',
+    url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_a0e92b3b3c.mp3',
+    approxLoopSeconds: 75,
+    source: 'Pixabay Audio',
+    license: 'Pixabay Content License',
+    licenseUrl: 'https://pixabay.com/service/license/'
+  },
   fantasy: {
     key: 'fantasy',
     label: 'High Fantasy',

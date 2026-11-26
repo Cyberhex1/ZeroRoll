@@ -7,6 +7,7 @@ import {
   imageProbeCandidates,
   isImageModel,
   pictureCostLabel,
+  SPEND_CAP,
   sceneMoment,
   setSceneArtModel,
   setUsableImageModels
@@ -86,5 +87,12 @@ describe('image models', () => {
     expect(pictureCostLabel('gemini-3-pro-image')).toBe('about 13¢');
     expect(approxFreeDailyLimit('gemini-3.1-flash-lite-image')).toBeUndefined();
     expect(approxFreeDailyLimit('gemini-3.5-flash-lite')).toBe(500);
+  });
+});
+
+describe('spend cap', () => {
+  it('recognises the spend-cap 429 so it is not shown as a short rate limit', () => {
+    expect(SPEND_CAP.test('Your project has exceeded its monthly spending cap. Please go to AI Studio')).toBe(true);
+    expect(SPEND_CAP.test('Resource has been exhausted (e.g. check quota).')).toBe(false);
   });
 });

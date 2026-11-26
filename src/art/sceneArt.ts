@@ -188,6 +188,9 @@ export async function listImageModels(apiKey: string): Promise<string[]> {
     .filter(isImageModel);
 }
 
+/** Google's answer when the project's monthly spend cap (AI Studio) is used up: a 429 that never resets by waiting. */
+export const SPEND_CAP = /spending cap|spend cap/i;
+
 /** A one-word TEXT request to an image model: costs a few tokens, not a picture. */
 export async function probeImageModel(apiKey: string, model: string): Promise<{ model: string; ok: boolean; reason?: string }> {
   try {
@@ -209,6 +212,7 @@ export async function probeImageModel(apiKey: string, model: string): Promise<{ 
     if (res.status === 429) {
       // Image models have no free tier: a free key gets "limit: 0". Any other 429 resets.
       const body = await res.text();
+      if (SPEND_CAP.test(body)) return { model, ok: false, reason: 'the Google project\'s monthly spending cap is reached' };
       if (/limit:\s*0\b|free_tier/i.test(body)) return { model, ok: false, reason: 'needs a key with billing turned on' };
       return { model, ok: true, reason: 'rate-limited right now' };
     }
@@ -418,6 +422,7 @@ export async function paintScene(params: { apiKey: string; model: string; prompt
     data = JSON.parse(body);
   } catch (e) {
     if (e instanceof AIError) {
+      if (SPEND_CAP.test(e.message)) throw new SceneArtError('Your Google project\'s monthly spending cap is reached, so it cannot paint. Raise the cap at ai.studio/spend.');
       if (e.kind === 'quota' && /limit:\s*0|free/i.test(e.message)) throw new SceneArtError('This key cannot paint pictures: Google\'s image models need a key with billing turned on.');
       if (e.kind === 'quota') throw new SceneArtError('The image model is rate-limited right now. Try again in a minute.');
       if (e.kind === 'overloaded') throw new SceneArtError('Google\'s image model is busy right now. Try again in a minute.');

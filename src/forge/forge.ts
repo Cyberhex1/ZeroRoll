@@ -23,9 +23,14 @@ import { repairPremise } from './repair';
 import { fixNpcNames, traditionsFor } from './names';
 import { recent } from './recent';
 import { forgeDebug } from './debug';
+import { checkContinuity } from './continuity';
+import { deckFor } from './spread';
 
 /** Plan section 3: the pitch stage can be switched off if Phase D's measurement shows no gain. */
 export const PITCH_STAGE = true;
+
+/** The continuity read (2026-11-25): one extra call per roll that fixes contradictions. */
+export const CONTINUITY_STAGE = true;
 
 export interface ForgeInput {
   category: ExperienceCategory;
@@ -44,6 +49,8 @@ export interface ForgeInput {
   pitch?: Pitch;
   /** Testing and the eval: skip the pitch stage. */
   noPitch?: boolean;
+  /** Testing and the eval: skip the continuity read. */
+  noContinuity?: boolean;
   rand?: () => number;
 }
 
@@ -54,6 +61,9 @@ export interface ForgeStats {
   gateAfter: GateFailure[];
   pitches: Pitch[];
   chosenIndex: number;
+  /** What the continuity read found (empty when it passed or was skipped). */
+  continuity?: string[];
+  continuityFixed?: string[];
 }
 
 export type ForgedPackage = StoryPackage & { forge: ForgeRecord; alternates: Pitch[]; spread: Spread; stats: ForgeStats };
@@ -125,6 +135,7 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
       userPrompt: buildPrompt({ mode, spread, pitch, pronouns, fixed, continuation: input.continuation, turningPoint: input.turningPoint, chooseShape }),
       temperature: mode === 'fresh' ? 0.95 : 0.85,
       thinking: 'low',
+      tier: 'story',
       // A full story package is about 1,600 tokens; the cap stops a runaway reply early.
       maxTokens: 4096,
       schema: STORY_SCHEMA,
@@ -178,9 +189,49 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
       console.info(`[forge] repair skipped: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
-  forgeDebug({ spread, pitches, chosenIndex, gateBefore, gateAfter });
+  // 5. Continuity read: one call that reads the card as the player will and fixes what
+  // contradicts itself. Never touches what the player typed. A failed call keeps the card.
+  let continuity: string[] = [];
+  const continuityFixed: string[] = [];
+  if (CONTINUITY_STAGE && !input.noContinuity) {
+    try {
+      // Up to two reads: a card the first read rewrote is read again, since a fix can leave
+      // a new seam (2026-11-25: a rewritten premise kept a goal about a severed finger).
+      for (let round = 0; round < 2; round++) {
+        const card = { title: pkg.title, premise: pkg.premise, startingCircumstances: pkg.outline.startingCircumstances, immediateGoal: pkg.outline.immediateGoal ?? '', roleClass: pkg.hero.roleClass, origin: pkg.hero.origin };
+        const res = await checkContinuity(card, { category, turningPoint: pkg.outline.turningPoint, signature: deckFor(category).signature, signal: input.signal });
+        if (round === 0) continuity = res.problems;
+        else if (res.problems.length) continuity = [...continuity, ...res.problems.map((p) => `(second read) ${p}`)];
+        const f = res.fixed;
+        if (!res.problems.length || !Object.keys(f).length) break;
+        if (f.premise && !fixed.premise) {
+          const after = gatePremise(f.premise, gateCtx);
+          if (after.length <= gateAfter.length) {
+            pkg = { ...pkg, premise: f.premise };
+            gateAfter = after;
+            continuityFixed.push('premise');
+          }
+        }
+        if (f.title && !fixed.title && !titleTics(f.title).length) {
+          pkg = { ...pkg, title: cleanTitle(f.title) };
+          continuityFixed.push('title');
+        }
+        const outline = { ...pkg.outline };
+        if (f.startingCircumstances) { outline.startingCircumstances = f.startingCircumstances; continuityFixed.push('startingCircumstances'); }
+        if (f.immediateGoal) { outline.immediateGoal = f.immediateGoal; continuityFixed.push('immediateGoal'); }
+        const hero = { ...pkg.hero };
+        if (f.roleClass && !fixed.roleClass) { hero.roleClass = f.roleClass; continuityFixed.push('roleClass'); }
+        if (f.origin && !fixed.origin) { hero.origin = f.origin; continuityFixed.push('origin'); }
+        pkg = { ...pkg, outline, hero };
+      }
+    } catch (err) {
+      if (isCancel(err)) throw err;
+      console.info(`[forge] continuity read skipped: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+  forgeDebug({ spread, pitches, chosenIndex, gateBefore, gateAfter, continuity, continuityFixed });
 
-  // 5. Remember what was drawn and rolled (only now that the build worked).
+  // 6. Remember what was drawn and rolled (only now that the build worked).
   rememberSpread(spread, { premise: fixed.premise ? undefined : pkg.premise, npcNames: (pkg.outline.keyNpcs ?? []).map((n) => n.name) });
   if (mode === 'fresh') {
     rememberRoll(category, 'title', pkg.title);
@@ -200,7 +251,7 @@ export async function forgeStory(input: ForgeInput): Promise<ForgedPackage> {
     ...(pitch ? { pitchTitle: pitch.title } : {}),
     gate: { before: gateBefore.map((f) => f.kind), after: gateAfter.map((f) => f.kind) }
   };
-  return { ...pkg, forge, alternates, spread, stats: { pitchSkipped, repaired, gateBefore, gateAfter, pitches, chosenIndex } };
+  return { ...pkg, forge, alternates, spread, stats: { pitchSkipped, repaired, gateBefore, gateAfter, pitches, chosenIndex, continuity, continuityFixed } };
 }
 
 export { shapeById };

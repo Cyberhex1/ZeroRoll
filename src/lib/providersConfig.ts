@@ -99,22 +99,28 @@ export const AI_PROVIDERS: Record<AIProviderId, AIProviderConfig> = {
         description: 'Older Flash-Lite. A spare when 3.5 Flash-Lite is busy.'
       },
       {
-        id: 'gemini-4-hydrogen',
-        name: 'Gemini 4 Hydrogen',
-        badge: 'New',
-        description: 'Gemini 4 everyday model (November 2026). Shown only if your key can use it.'
+        id: 'gemini-4-carbon',
+        name: 'Gemini 4 Carbon',
+        badge: 'Flagship',
+        description: "Google's strongest Gemini 4 model. Slowest, and needs a paid key. Shown only if your key can use it."
+      },
+      {
+        id: 'gemini-4-neon',
+        name: 'Gemini 4 Neon',
+        badge: 'Flagship',
+        description: 'Gemini 4 model for hard reasoning, close to Carbon and about twice as fast. Needs a paid key. Shown only if your key can use it.'
       },
       {
         id: 'gemini-4-argon',
         name: 'Gemini 4 Argon',
-        badge: 'Paid key',
-        description: 'Gemini 4 flagship reasoning model. Needs a paid (billing-enabled) key.'
+        badge: 'Flagship',
+        description: 'The first Gemini 4 model, an efficient reasoner. Needs a paid key. Shown only if your key can use it.'
       },
       {
-        id: 'gemini-4-carbon',
-        name: 'Gemini 4 Carbon',
-        badge: 'Paid key',
-        description: 'Most powerful Gemini 4 model, for very long or complex campaigns. Needs a paid key.'
+        id: 'gemini-4-hydrogen',
+        name: 'Gemini 4 Hydrogen',
+        badge: 'Fast',
+        description: 'Gemini 4 everyday model: the fastest Gemini 4, and the only one with a free tier. Shown only if your key can use it.'
       },
       {
         id: 'gemini-3.1-pro-preview',

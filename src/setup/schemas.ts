@@ -52,10 +52,10 @@ export const STORY_SCHEMA = {
     outline: {
       type: 'OBJECT',
       properties: {
-        startingCircumstances: S(),
+        startingCircumstances: S('Shown as "Where you start": who you are and how your life stands as the premise scene begins. Same time and place as the premise; never an earlier scene'),
         backstory: S(),
         incitingIncident: S(),
-        immediateGoal: S(),
+        immediateGoal: S('Shown as "Your first goal": what you want in the first scene, true whichever way the premise question is answered; nothing the premise has not set up'),
         keyNpcs: {
           type: 'ARRAY',
           items: {

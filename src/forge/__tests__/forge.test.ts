@@ -13,9 +13,18 @@ class MemoryStorage {
 
 const calls: Array<{ feature?: string; userPrompt: string }> = [];
 let replies: Array<unknown | Error> = [];
+/** The continuity read is counted apart, so the older call-count tests keep their meaning. */
+const checks: Array<{ userPrompt: string }> = [];
+let checkReplies: Array<unknown | Error> = [];
 let local: number | undefined;
 vi.mock('../../lib/geminiService', () => ({
   executeJsonPrompt: vi.fn(async (opts: { feature?: string; userPrompt: string }, isValid: (v: unknown) => boolean) => {
+    if (opts.feature === 'Story check') {
+      checks.push(opts);
+      const c = checkReplies.shift() ?? { problems: [] };
+      if (c instanceof Error) throw c;
+      return c;
+    }
     calls.push(opts);
     const r = replies.shift();
     if (r instanceof Error) throw r;
@@ -79,6 +88,8 @@ function buildReply(premise = GOOD_PREMISE, over: Record<string, unknown> = {}) 
 
 beforeEach(() => {
   calls.length = 0;
+  checks.length = 0;
+  checkReplies = [];
   replies = [];
   local = undefined;
   clearRecent();
@@ -314,7 +325,7 @@ describe('forgeStory', () => {
     expect(calls.map((c) => c.feature)).toEqual(['Story roll']);
     expect(pkg.spread.family.id).toBe(first.family.id);
     expect(pkg.spread.primary.id).toBe(first.primary.id);
-    expect(calls[0].userPrompt).not.toContain('An offered hook');
+    expect(calls[0].userPrompt).not.toContain("The hook (use it");
   });
 
   it('a bare chapter-title turning point takes the pitch event', () => {
@@ -363,9 +374,9 @@ describe('Phase A bug test fixes', () => {
     const { buildPrompt, pitchPrompt } = await import('../prompts');
     const s = drawSpread('fantasy', { rand: () => 0.3 });
     const text = pitchPrompt(s) + buildPrompt({ mode: 'fresh', spread: s, pronouns: 'she/her' });
-    expect(text).toContain(`Offered hero (use them, or someone just as specific and surprising): ${s.heroCard}`);
+    expect(text).toContain(`A hero idea: ${s.heroCard}.`);
     for (const w of ['archivist', 'copyist', 'cupbearer', 'scrivener']) expect(text.toLowerCase()).not.toContain(w);
-    expect(buildPrompt({ mode: 'sequel', spread: s, pronouns: 'she/her', continuation: 'Book 2' })).not.toContain('Offered hero');
+    expect(buildPrompt({ mode: 'sequel', spread: s, pronouns: 'she/her', continuation: 'Book 2' })).not.toContain("A hero idea");
   });
 
   it('M1: worn roles and ledger/ink pitches score lower, unless the card offered that role', async () => {
@@ -461,5 +472,77 @@ describe('0.2 setup screen helpers', () => {
     expect(calls).toHaveLength(1);
     expect(calls[0].userPrompt).toContain(ideas.pitches[1].hook);
     expect(pkg.spread).toBe(ideas.spread);
+  });
+});
+
+describe('coherent rolls (ohnna, 2026-11-25)', () => {
+  it('the second influence always comes from the family\'s own sources, in every category', () => {
+    for (const cat of ['revenge', 'fantasy', 'horror', 'romantic', 'zombie', 'tiktok_drama'] as const) {
+      for (let i = 0; i < 40; i++) {
+        const s = drawSpread(cat, { rand: Math.random });
+        if (s.spice) expect(s.family.sources).toContain(s.spice.id);
+      }
+    }
+  });
+
+  it('the prompt splits core cards from optional ones and asks for one situation', async () => {
+    const { buildPrompt, pitchPrompt } = await import('../prompts');
+    const s = drawSpread('revenge', { rand: () => 0.3 });
+    const p = pitchPrompt(s);
+    expect(p).toContain('THE CORE');
+    expect(p).toContain('OPTIONAL CARDS');
+    expect(p).toContain('ONE STORY, NOT A COLLAGE');
+    expect(p).not.toContain('built around the second influence');
+    const b = buildPrompt({ mode: 'fresh', spread: s, pronouns: 'she/her' });
+    expect(b).toContain('SAME-MOMENT CHECK');
+    expect(b).toMatch(/Each answer risks or costs something/);
+  });
+});
+
+describe('continuity read (ohnna, 2026-11-25)', () => {
+  it('applies the fields it fixed and reads a fixed card once more', async () => {
+    replies = [pitchReply, buildReply()];
+    checkReplies = [{ problems: ['"Where you start" is a different scene'], startingCircumstances: 'You run the ferry at the bell-ringer\'s steps, waiting for the last crossing.' }];
+    const pkg = await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'fresh', rand: () => 0.4 });
+    expect(checks).toHaveLength(2);
+    expect(checks[0].userPrompt).toContain(GOOD_PREMISE);
+    expect(checks[1].userPrompt).toContain('waiting for the last crossing');
+    expect(pkg.outline.startingCircumstances).toContain('waiting for the last crossing');
+    expect(pkg.premise).toBe(GOOD_PREMISE);
+    expect(pkg.stats.continuityFixed).toEqual(['startingCircumstances']);
+  });
+
+  it('a card that passes is read once', async () => {
+    replies = [pitchReply, buildReply()];
+    await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'fresh', rand: () => 0.4 });
+    expect(checks).toHaveLength(1);
+  });
+
+  it('a failed read keeps the card', async () => {
+    replies = [pitchReply, buildReply()];
+    checkReplies = [new Error('busy')];
+    const pkg = await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'fresh', rand: () => 0.4 });
+    expect(pkg.premise).toBe(GOOD_PREMISE);
+  });
+
+  it('never rewrites the player\'s own premise', async () => {
+    const mine = 'You keep the lighthouse on a rock the maps forgot. Tonight a ship signals that it is carrying your brother, who drowned ten years ago. The keeper before you left one rule: never answer a ship at night. Do you answer the signal, or keep the rule?';
+    replies = [buildReply(mine)];
+    checkReplies = [{ problems: ['x'], premise: 'A completely different premise that the model wrote instead of the one the player typed, long enough to count as a premise for the check.' }];
+    const pkg = await forgeStory({ category: 'fantasy', pronouns: 'she/her', mode: 'adapt', fixed: { premise: mine }, rand: () => 0.4 });
+    expect(pkg.premise).toBe(mine);
+  });
+});
+
+describe('continuity read output cleaning', () => {
+  it('drops labels and draft marks, keeps a normal title', async () => {
+    const { parseContinuity } = await import('../continuity');
+    const card = { title: 'Old', premise: 'p', startingCircumstances: 's', immediateGoal: 'g', roleClass: 'r', origin: 'o' };
+    const a = parseContinuity({ problems: ['x'], title: 'The Comb Below', startingCircumstances: 'Where you start: Where you start: You row the ferry.' }, card);
+    expect(a.fixed.title).toBe('The Comb Below');
+    expect(a.fixed.startingCircumstances).toBe('You row the ferry.');
+    for (const bad of ['Sixty-Second Lockdown [Mercy] (Revised)', 'Crayon Box Summit<a></a>', 'Ramp_CLEAN_WAIT', 'Iron Collar途']) {
+      expect(parseContinuity({ problems: ['x'], title: bad }, card).fixed.title).toBeUndefined();
+    }
   });
 });

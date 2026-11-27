@@ -21,6 +21,7 @@ import { PromptMeter, buildPrompt as buildBudgetedPrompt } from '../memory/promp
 import { Turn, shouldSummarize, summarize, summaryPatch } from '../memory/summarizer';
 import { contextTokensFor } from '../memory/tokens';
 import { localContextFor } from '../desktop/localModel';
+import type { PlayerIdentity } from './player';
 
 export type Completer = (messages: ChatMessage[], tier: Tier, opts: CompleteOptions) => Promise<RouterReply>;
 
@@ -32,8 +33,9 @@ export interface PlaySave extends StorySave {
 let seq = 0;
 const mid = () => `${Date.now().toString(36)}-${(seq++).toString(36)}`;
 
-export function newSave(story: Story, tier: Tier = 'good'): PlaySave {
-  return { version: 1, storyId: story.meta.id, state: newState(story), messages: [], memory: emptyMemory(), length: ['short', 'medium', 'long'].indexOf(story.lengthTarget), tier, updatedAt: Date.now() };
+/** A fresh save. Without a player the story asks for a name and pronouns before it begins. */
+export function newSave(story: Story, tier: Tier = 'good', player?: PlayerIdentity): PlaySave {
+  return { version: 1, storyId: story.meta.id, state: newState(story), messages: [], memory: emptyMemory(), length: ['short', 'medium', 'long'].indexOf(story.lengthTarget), tier, updatedAt: Date.now(), ...(player ? { player } : {}) };
 }
 
 /** Saves from before the memory layer have none; they start with an empty one. */
@@ -66,7 +68,7 @@ export function buildPrompt(story: Story, save: PlaySave, tier: Tier, recallScor
   const variant = variantFor(tier);
   const memory = memoryOf(save);
   const built = buildBudgetedPrompt({
-    system: storySystemPrompt(story, variant, targetWords(story, save.length)),
+    system: storySystemPrompt(story, variant, targetWords(story, save.length), save.player),
     sheets: [directorBlock(story, save.state, variant)],
     memory,
     // Turns the summary already covers are left to it.

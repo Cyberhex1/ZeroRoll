@@ -7,6 +7,7 @@ import type { StoryState } from '../story/engine';
 import type { Story } from '../story/schema';
 import type { Tier } from '../ai/router';
 import type { MemoryState } from '../memory/memoryStore';
+import type { PlayerIdentity } from '../story/player';
 
 export interface StoryMessage {
   id: string;
@@ -36,6 +37,8 @@ export interface StorySave {
   updatedAt: number;
   /** updatedAt of the cloud backup this save last matched; a cloud copy newer than it came from elsewhere. */
   cloudBase?: number;
+  /** The name and pronouns the player chose before the story began. Missing on older saves. */
+  player?: PlayerIdentity;
 }
 
 export interface StoryProgress {

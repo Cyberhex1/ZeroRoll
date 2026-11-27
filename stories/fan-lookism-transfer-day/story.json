@@ -1,0 +1,558 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-lookism-transfer-day",
+    "title": "Transfer Day",
+    "category": "real_life",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "Your first day at J High starts with an app scoring your face at the school gate. By lunch you've met a crew that fights for the bullied, a new kid who moves like a model, and a quiet boy everyone pretends not to see. By the bell, you'll have to decide who you stand with.",
+    "cover": "cover",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Lookism",
+      "medium": "manhwa",
+      "owner": "Park Tae-joon and Naver WEBTOON",
+      "aka": [
+        "Lookism webtoon"
+      ]
+    }
+  },
+  "world": "Seoul, present day, at J High, a rowdy school where looks and fists decide your place. A second-year called Kang Min-chul runs an anonymous app, Face Rank, that photographs students at the gate, scores their faces and posts a daily leaderboard; low scorers get bullied. Secretly, Min-chul sells the photos and student details to a shady talent agency. Daniel Park, a handsome transfer student who is also an up-and-coming model, wants it shut down for reasons he won't explain (he lives the difference between two very different faces). Vasco and his crew Burn Knuckles patrol for bullies and will fight anyone who picks on the weak. Zack Lee, a proud boxer, and Jay Hong, a quiet rich kid, are part of Daniel's circle. A short, heavy-set boy in glasses gets picked on daily because of his rank.",
+  "tone": "Webtoon school drama: big emotions, comedy, punchy fights, social media pressure, and a sincere message about looks and worth. Fights are exciting, never brutal.",
+  "playerRole": "A new transfer student at J High with a school uniform, a phone with a cracked case, a bag of snacks and no reputation yet. Whether you're a fighter, a talker, a looker or a quiet observer is up to you.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense, with webtoon energy: dramatic freeze-frames, sound effects in fights, comic overreactions, sudden sincere moments. Use what fans know of the characters' personalities without quoting the webtoon or retelling its arcs. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "daniel",
+      "name": "Daniel Park",
+      "appearance": "A tall, slim, strikingly handsome teen with soft black hair falling over his forehead, gentle eyes, and a neatly worn J High uniform.",
+      "voice": "Polite, earnest and a little awkward for someone that good-looking; gets fierce when someone is bullied.",
+      "stance": "Kind to the player from the first minute and quietly desperate to stop the ranking app."
+    },
+    {
+      "id": "vasco",
+      "name": "Vasco",
+      "appearance": "A tall, heavily muscled teen with short black hair, intense eyes, a scar on his eyebrow and a sleeveless shirt under an open uniform jacket.",
+      "voice": "Blunt, loud and earnest; talks about justice like a superhero and means every word.",
+      "stance": "Leader of Burn Knuckles. Respects courage and will recruit the player if they stand up for someone."
+    },
+    {
+      "id": "zack",
+      "name": "Zack Lee",
+      "appearance": "A lean, athletic teen boxer with sharp eyes, neatly styled black hair and taped knuckles, wearing his uniform shirt untucked.",
+      "voice": "Short-tempered, proud and sarcastic, secretly soft for his friends.",
+      "stance": "Treats the newcomer as a rival until they prove themselves."
+    },
+    {
+      "id": "jay",
+      "name": "Jay Hong",
+      "appearance": "A tall, quiet, good-looking teen with neat dark hair, an expensive jacket over his uniform and a face that rarely changes expression.",
+      "voice": "Almost never speaks; communicates with looks, nods and the occasional typed message on his phone.",
+      "stance": "Watches the player calmly and steps in at exactly the right moment."
+    },
+    {
+      "id": "minchul",
+      "name": "Kang Min-chul",
+      "appearance": "A wiry second-year with bleached hair styled up, a smug grin, an earring, designer sneakers and a phone always in his hand.",
+      "voice": "Mocking, smooth and fake-friendly; calls people by their rank number.",
+      "stance": "Runs Face Rank. Sees the player as a new score to post and later as a threat.",
+      "portrait": "minchul"
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has reacted to being scored at the gate."
+    },
+    "helped_boy": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player helped the heavy-set boy being bullied at lunch."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 with Burn Knuckles on patrol, 2 with Daniel at the photoshoot."
+    },
+    "fought": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player fought beside Burn Knuckles."
+    },
+    "found_agency": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player found out Face Rank sells photos to an agency."
+    },
+    "confronted": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has confronted Min-chul on the roof."
+    },
+    "final_choice": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has decided how to end Face Rank."
+    }
+  },
+  "start": "gate",
+  "beats": [
+    {
+      "id": "gate",
+      "title": "First Day at J High",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Morning at the J High gate. A tripod phone flashes at every student and a speaker announces scores out loud: Face Rank. The player gets a score (make it middling and insulting). Kang Min-chul lounges by the gate reading out numbers. A heavy-set boy in glasses gets a 2 and laughter. Daniel Park, arriving at the same time, scores 99 and looks miserable about it. The scene ends with the player's first move.",
+      "choices": [
+        {
+          "id": "smash_phone",
+          "label": "Knock the tripod phone over",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "cafeteria"
+        },
+        {
+          "id": "laugh_off",
+          "label": "Laugh it off and ask Min-chul what his score is",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "cafeteria"
+        },
+        {
+          "id": "talk_daniel",
+          "label": "Ask Daniel why he looks so unhappy about a 99",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "cafeteria"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "gate",
+          "on": "enter"
+        },
+        {
+          "art": "minchul",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "cafeteria"
+      ],
+      "isEnding": false,
+      "hint": "The speaker crackles: 'Next! New transfer! Let's see that face!'"
+    },
+    {
+      "id": "cafeteria",
+      "title": "Lunch Table Politics",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The cafeteria: Burn Knuckles at one table, Zack and Jay near Daniel at another, and the heavy-set boy from the gate eating alone until Min-chul's friends 'accidentally' dump his tray. Everyone is watching to see what the new kid does. Afterwards, Vasco invites the player on a Burn Knuckles patrol after school, and Daniel asks them to come to a photoshoot where he thinks he can find out who runs Face Rank. The player can't do both.",
+      "choices": [
+        {
+          "id": "help_boy",
+          "label": "Stand up for the boy with the spilled tray",
+          "sets": [
+            {
+              "flag": "helped_boy",
+              "set": true
+            }
+          ]
+        },
+        {
+          "id": "join_patrol",
+          "label": "Go on patrol with Burn Knuckles",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "patrol"
+        },
+        {
+          "id": "join_shoot",
+          "label": "Go to the photoshoot with Daniel",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "photoshoot"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "cafeteria",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "patrol",
+        "photoshoot"
+      ],
+      "isEnding": false,
+      "hint": "Vasco slams a fist on the table: 'After school. Patrol. You in?' Daniel just looks at the player hopefully."
+    },
+    {
+      "id": "patrol",
+      "title": "Burn Knuckles Patrol",
+      "goal": [
+        {
+          "flag": "fought",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "After school, Burn Knuckles walks the streets near J High looking for bullies. They catch Min-chul's friends shaking down a first-year for their phone 'for the app'. A fight breaks out in an alley: big, dramatic, a little ridiculous. Zack shows up halfway through, complaining. The player fights, tricks or talks their way through. One of the beaten bullies admits Min-chul runs Face Rank from the school roof.",
+      "choices": [
+        {
+          "id": "fight_alley",
+          "label": "Throw yourself into the alley fight",
+          "sets": [
+            {
+              "flag": "fought",
+              "set": true
+            }
+          ],
+          "target": "rooftop"
+        },
+        {
+          "id": "protect_kid",
+          "label": "Get the first-year out while Vasco fights",
+          "sets": [
+            {
+              "flag": "fought",
+              "set": true
+            },
+            {
+              "flag": "helped_boy",
+              "set": true
+            }
+          ],
+          "target": "rooftop"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "patrol",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "rooftop"
+      ],
+      "isEnding": false,
+      "hint": "Vasco cracks his knuckles: 'Justice time!'"
+    },
+    {
+      "id": "photoshoot",
+      "title": "Behind the Camera",
+      "goal": [
+        {
+          "flag": "found_agency",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "A small fashion shoot in Gangnam. Daniel is a natural in front of the camera; the player gets pulled in as an extra. Jay quietly points them to the agency's laptop: a folder of hundreds of J High students' Face Rank photos with their names, and an invoice addressed to Kang Min-chul. Getting proof without being caught is the goal. Then they head back to school, where Min-chul works from the roof.",
+      "choices": [
+        {
+          "id": "photo_proof",
+          "label": "Photograph the folder while Daniel distracts the staff",
+          "sets": [
+            {
+              "flag": "found_agency",
+              "set": true
+            }
+          ],
+          "target": "rooftop"
+        },
+        {
+          "id": "copy_files",
+          "label": "Copy the files to your phone",
+          "sets": [
+            {
+              "flag": "found_agency",
+              "set": true
+            }
+          ],
+          "target": "rooftop"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "photoshoot",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "rooftop"
+      ],
+      "isEnding": false,
+      "hint": "Jay taps the laptop screen once and looks at the player."
+    },
+    {
+      "id": "rooftop",
+      "title": "Face Rank's Server Room",
+      "goal": [
+        {
+          "flag": "confronted",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The J High roof at sunset: Min-chul in a little shed full of chargers and a laptop, running Face Rank. He tries charm, then threats, then calls his friends. Whoever the player came with is right behind them. Min-chul offers the player a top score forever if they walk away. The player confronts him; how is up to them.",
+      "choices": [
+        {
+          "id": "confront_minchul",
+          "label": "Call Min-chul out to his face",
+          "sets": [
+            {
+              "flag": "confronted",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "grab_laptop",
+          "label": "Grab the laptop before he can delete anything",
+          "sets": [
+            {
+              "flag": "confronted",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "rooftop",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Min-chul's thumb hovers over 'Delete all'."
+    },
+    {
+      "id": "finale",
+      "title": "The Last Ranking",
+      "goal": [
+        {
+          "flag": "final_choice",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Min-chul is cornered. The player decides how Face Rank ends: shut it down with Burn Knuckles by force (only if they fought with them); expose the agency deal live on Daniel's stream (only if they found the proof); or quietly hand the laptop to a teacher and go home.",
+      "choices": [
+        {
+          "id": "burn_it",
+          "label": "Smash the server with Burn Knuckles",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "newest_member"
+        },
+        {
+          "id": "stream_it",
+          "label": "Expose the agency live on Daniel's stream",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "ranked_number_one"
+        },
+        {
+          "id": "report_it",
+          "label": "Hand the laptop to a teacher",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "just_a_student"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "finale",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "newest_member",
+        "ranked_number_one",
+        "just_a_student"
+      ],
+      "isEnding": false
+    },
+    {
+      "id": "newest_member",
+      "title": "Burn Knuckles' Newest Member",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "fought",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The laptop meets Vasco's fist; Face Rank is gone. Min-chul is suspended. Vasco solemnly declares the player a member of Burn Knuckles and gives them a terrible nickname. Zack pretends not to care. Close on the crew walking out of the gate together at sunset, and the boy from lunch waving.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "burn-knuckles",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Burn Knuckles' Newest Member"
+    },
+    {
+      "id": "ranked_number_one",
+      "title": "Ranked Number One",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "found_agency",
+          "is": true
+        }
+      ],
+      "sceneBrief": "On Daniel's livestream, the player shows the agency folder and the invoice. The stream explodes; the agency is reported, the app is pulled, Min-chul is finished. Comments call the player the real number one. Daniel says something quietly sincere about faces and worth. Close on the two of them laughing at the view count.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "stream",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Ranked Number One"
+    },
+    {
+      "id": "just_a_student",
+      "title": "Just a Student",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player hands the laptop to a teacher and goes home. It is slow and unglamorous, but the app is gone by the next week. The next morning, the heavy-set boy from lunch shares his snacks at the gate where nobody is scoring anyone. Close on an ordinary, good school day.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "just-a-student",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Just a Student"
+    }
+  ],
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "A Korean high school gate in the morning with a phone on a tripod flashing at arriving students."
+    },
+    "gate": {
+      "file": "gate.webp",
+      "alt": "Students in uniforms at a school gate, a big phone screen showing face scores."
+    },
+    "minchul": {
+      "file": "minchul.webp",
+      "alt": "Portrait of a smug teen with bleached hair, an earring and a phone."
+    },
+    "cafeteria": {
+      "file": "cafeteria.webp",
+      "alt": "A busy school cafeteria with a spilled lunch tray and students watching."
+    },
+    "patrol": {
+      "file": "patrol.webp",
+      "alt": "Teen fighters squaring off in a narrow Seoul alley after school."
+    },
+    "photoshoot": {
+      "file": "photoshoot.webp",
+      "alt": "A small fashion studio with lights, a model posing, and a laptop full of photos."
+    },
+    "rooftop": {
+      "file": "rooftop.webp",
+      "alt": "A school rooftop at sunset with a small shed full of glowing screens."
+    },
+    "finale": {
+      "file": "finale.webp",
+      "alt": "A teen holding up a laptop on a rooftop at dusk while others face off."
+    },
+    "burn-knuckles": {
+      "file": "burn-knuckles.webp",
+      "alt": "A group of teens walking out of a school gate together at sunset."
+    },
+    "stream": {
+      "file": "stream.webp",
+      "alt": "A livestream screen exploding with comments and hearts."
+    },
+    "just-a-student": {
+      "file": "just-a-student.webp",
+      "alt": "Two students sharing snacks at a school gate on a sunny morning."
+    }
+  },
+  "skin": {
+    "palette": {
+      "accent": "#4fd1ff"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "backgroundArt": "gate",
+    "particles": "none"
+  }
+}

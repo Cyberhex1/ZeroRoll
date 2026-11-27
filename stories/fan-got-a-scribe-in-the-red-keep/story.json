@@ -1,0 +1,618 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-got-a-scribe-in-the-red-keep",
+    "title": "A Scribe in the Red Keep",
+    "category": "fantasy",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You copy letters for the crown in the Red Keep, and today you copied one line too many: a payment that should not exist. By nightfall the Spider and the Mockingbird both want a word with you, and a bored Lannister has noticed you too.",
+    "cover": "cover",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Game of Thrones",
+      "medium": "tv",
+      "owner": "HBO and George R. R. Martin",
+      "aka": [
+        "GOT",
+        "A Song of Ice and Fire",
+        "ASOIAF"
+      ]
+    }
+  },
+  "world": "King's Landing during King Robert Baratheon's reign, before the realm's great troubles. The crown is deep in debt. A junior scribe in the Red Keep's scriptorium has found, in the tourney accounts, a large payment to a ship's chandler that does not exist; the gold actually goes through a brothel owned by Petyr Baelish to pay a sellsword company. Varys knows part of it and wants the proof to use as leverage. Baelish wants the page gone and the scribe either bought or dead; he has a corrupt Gold Cloak serjeant, Hobb Tarle, who will try to kill the scribe tonight. Tyrion Lannister is in the city, bored and drinking, and sees a clever person in trouble as entertainment and an opportunity. Nobody here is entirely honest.",
+  "tone": "Political intrigue with sharp dialogue, candlelit corridors and the constant hum of danger. Witty, cynical and tense. Violence is sudden but not graphic.",
+  "playerRole": "A junior scribe in the Red Keep, low-born but literate, with a good memory and a sharp eye for numbers. You carry a quill case, a penknife, a few silver stags and a copied page you shouldn't have. Where you come from and what you want are yours to choose.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Westerosi texture: the smell of the city, bells of the sept, gold cloaks, whispers. Let the canon characters speak in their own manner (Varys silky and courteous, Baelish charming and slippery, Tyrion quick and drunk and kind underneath) without quoting the books or show. Every conversation is a negotiation. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 5,
+  "cast": [
+    {
+      "id": "varys",
+      "name": "Varys",
+      "appearance": "A plump, bald man with soft powdered skin, a smell of lavender, rich flowing silk robes and soft slippers, hands folded into his sleeves.",
+      "voice": "Soft, courteous and amused, full of flattery and gentle questions; always seems to know more than he says.",
+      "stance": "Wants the proof as leverage over Baelish, and would like a clever scribe among his little birds."
+    },
+    {
+      "id": "baelish",
+      "name": "Petyr Baelish",
+      "appearance": "A slim man of medium height with a short pointed beard touched with grey, grey-green eyes, a fine doublet and a small silver mockingbird pin at his collar.",
+      "voice": "Charming, playful and quick, makes every threat sound like a favour.",
+      "stance": "Wants the page gone. Will buy the player if he can, and have them removed if he can't."
+    },
+    {
+      "id": "tyrion",
+      "name": "Tyrion Lannister",
+      "appearance": "A dwarf with a large head, mismatched eyes (one green, one black), pale blond hair, a crimson Lannister doublet and a cup of wine in hand.",
+      "voice": "Witty, sardonic and fond of drink and books, quick to see through people and surprisingly gentle with outcasts.",
+      "stance": "Finds the player amusing and admirable; will help if the player is honest with him."
+    },
+    {
+      "id": "hobb",
+      "name": "Serjeant Hobb Tarle",
+      "appearance": "A heavy-set man in a gold cloak with a broken nose, a patchy red beard, a dented half-helm and a short sword.",
+      "voice": "Coarse, mocking, pretends to be friendly before he strikes.",
+      "stance": "A corrupt Gold Cloak paid by Baelish to make the scribe disappear tonight.",
+      "portrait": "hobb"
+    }
+  ],
+  "flags": {
+    "found_it": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has noticed the false payment in the tourney accounts."
+    },
+    "kept_copy": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player kept a copy of the page."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 unset, 1 went to Varys first, 2 went to Baelish first."
+    },
+    "favor": {
+      "type": "counter",
+      "initial": 0,
+      "description": "0 none, 1 promised the page to Varys, 2 promised it to Baelish."
+    },
+    "met_tyrion": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has talked with Tyrion."
+    },
+    "tyrion_trust": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player told Tyrion the truth and he decided to help."
+    },
+    "survived": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player survived Hobb Tarle's attack."
+    },
+    "final_choice": {
+      "type": "bool",
+      "initial": false,
+      "description": "the player has decided what to do with the page."
+    }
+  },
+  "start": "scriptorium",
+  "beats": [
+    {
+      "id": "scriptorium",
+      "title": "Ink in the Red Keep",
+      "goal": [
+        {
+          "flag": "found_it",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Morning in the scriptorium: rows of scribes, the Grand Maester's old voice somewhere, heat and ink. The player is copying the tourney accounts and notices a payment of four thousand gold dragons to a ship's chandler on the Street of Steel; there is no chandler there. The head scribe snaps at them to keep copying. The scene ends when the player decides what to do about the line they found.",
+      "choices": [
+        {
+          "id": "copy_page",
+          "label": "Quietly copy the page for yourself",
+          "sets": [
+            {
+              "flag": "found_it",
+              "set": true
+            },
+            {
+              "flag": "kept_copy",
+              "set": true
+            }
+          ],
+          "target": "invitations"
+        },
+        {
+          "id": "ask_head_scribe",
+          "label": "Ask the head scribe about the payment",
+          "sets": [
+            {
+              "flag": "found_it",
+              "set": true
+            }
+          ],
+          "target": "invitations"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "scriptorium",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "invitations"
+      ],
+      "isEnding": false,
+      "hint": "The figure on the page is too large and too round to be honest."
+    },
+    {
+      "id": "invitations",
+      "title": "Two Invitations",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "That afternoon, two invitations arrive. A small servant child slips a note into the player's sleeve: a lavender-scented request to walk in the godswood at dusk. Then a page in fine livery brings an invitation to sup at a house on the Street of Silk, sealed with a mockingbird. Both senders clearly know what the player found. Going to one first will be noticed by the other.",
+      "choices": [
+        {
+          "id": "go_varys",
+          "label": "Walk in the godswood first",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "godswood"
+        },
+        {
+          "id": "go_baelish",
+          "label": "Go to the house on the Street of Silk first",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "street_of_silk"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "invitations",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "godswood",
+        "street_of_silk"
+      ],
+      "isEnding": false,
+      "hint": "The lavender note smells stronger the longer the player holds it."
+    },
+    {
+      "id": "godswood",
+      "title": "The Spider in the Godswood",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Dusk under the heart tree in the Red Keep's godswood. Varys is already there, feeding birds. He flatters, asks gentle questions, reveals he knows about the false payment and who it really pays, and offers the player protection and a place among his informers in exchange for the page. He also warns, softly, that the player has been noticed by people who do not bargain. Afterwards, the player is waylaid by an invitation to drink with Tyrion Lannister.",
+      "choices": [
+        {
+          "id": "promise_varys",
+          "label": "Promise the page to Varys",
+          "sets": [
+            {
+              "flag": "favor",
+              "set": 1
+            }
+          ],
+          "target": "tyrion"
+        },
+        {
+          "id": "stall_varys",
+          "label": "Give Varys nothing yet",
+          "sets": [],
+          "target": "tyrion"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "godswood",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "tyrion"
+      ],
+      "isEnding": false,
+      "hint": "Varys smiles: 'Time is the one thing neither of us has, my friend.'"
+    },
+    {
+      "id": "street_of_silk",
+      "title": "The Mockingbird's House",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "A warm, perfumed house on the Street of Silk. Petyr Baelish serves good wine and charm. He hints the page is a misunderstanding, offers the player a well-paid post in the treasury if they forget it and hand over every copy, and lets them glimpse a gold cloak serjeant waiting downstairs, a quiet threat. Afterwards, the player is waylaid by an invitation to drink with Tyrion Lannister.",
+      "choices": [
+        {
+          "id": "promise_baelish",
+          "label": "Promise the page to Baelish",
+          "sets": [
+            {
+              "flag": "favor",
+              "set": 2
+            }
+          ],
+          "target": "tyrion"
+        },
+        {
+          "id": "stall_baelish",
+          "label": "Smile and promise nothing",
+          "sets": [],
+          "target": "tyrion"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "street-of-silk",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "tyrion"
+      ],
+      "isEnding": false,
+      "hint": "Baelish refills the cup: 'Think of your future. I always do.'"
+    },
+    {
+      "id": "tyrion",
+      "title": "Wine with a Lannister",
+      "goal": [
+        {
+          "flag": "met_tyrion",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In a cellar tavern below the Red Keep, Tyrion Lannister, drunk and cheerful, has heard the player is in trouble and wants to know why. He is clever enough to guess most of it. If the player tells him the truth, he decides to help, partly from kindness and partly to embarrass Baelish. If they lie, he lets them go with a warning that the walls in this city have ears.",
+      "choices": [
+        {
+          "id": "tell_tyrion",
+          "label": "Tell Tyrion everything",
+          "sets": [
+            {
+              "flag": "met_tyrion",
+              "set": true
+            },
+            {
+              "flag": "tyrion_trust",
+              "set": true
+            }
+          ],
+          "target": "gold_cloak"
+        },
+        {
+          "id": "lie_tyrion",
+          "label": "Keep your secrets and drink his wine",
+          "sets": [
+            {
+              "flag": "met_tyrion",
+              "set": true
+            }
+          ],
+          "target": "gold_cloak"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "tyrion-cellar",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "gold_cloak"
+      ],
+      "isEnding": false,
+      "hint": "Tyrion pours another cup: 'Secrets are heavy. Wine helps. Talking helps more.'"
+    },
+    {
+      "id": "gold_cloak",
+      "title": "A Gold Cloak in the Dark",
+      "goal": [
+        {
+          "flag": "survived",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Walking back to the scribes' quarters at night, the player is cornered in a dark stair by Serjeant Hobb Tarle, Baelish's paid killer. He pretends it's a routine check, then draws. The player must survive by wit, flight, a penknife, or help (if Tyrion is on their side, a Lannister guard arrives at the right moment). Once safe, the page is still theirs and the night is not over.",
+      "choices": [
+        {
+          "id": "fight_hobb",
+          "label": "Fight him in the dark with the penknife",
+          "sets": [
+            {
+              "flag": "survived",
+              "set": true
+            }
+          ],
+          "target": "the_page"
+        },
+        {
+          "id": "flee_hobb",
+          "label": "Run down the servants' stair",
+          "sets": [
+            {
+              "flag": "survived",
+              "set": true
+            }
+          ],
+          "target": "the_page"
+        },
+        {
+          "id": "talk_hobb",
+          "label": "Tell him who else knows about this",
+          "sets": [
+            {
+              "flag": "survived",
+              "set": true
+            }
+          ],
+          "target": "the_page"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "gold-cloak",
+          "on": "enter"
+        },
+        {
+          "art": "hobb",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "the_page"
+      ],
+      "isEnding": false,
+      "hint": "Hobb's sword scrapes the stone wall as he steps closer."
+    },
+    {
+      "id": "the_page",
+      "title": "What Becomes of the Page",
+      "goal": [
+        {
+          "flag": "final_choice",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Before dawn, alone with the page. The player chooses: give it to Varys (only if promised to him), give it to Baelish (only if promised to him), let Tyrion take it to the Small Council (only if he trusts them), or take the first ship to Braavos with the page sewn into their coat. Make the cost of each clear.",
+      "choices": [
+        {
+          "id": "to_varys",
+          "label": "Give the page to Varys",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "the_spiders_web"
+        },
+        {
+          "id": "to_baelish",
+          "label": "Give the page to Baelish",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "the_mockingbirds_coin"
+        },
+        {
+          "id": "to_tyrion",
+          "label": "Let Tyrion take it to the Small Council",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "the_imps_scribe"
+        },
+        {
+          "id": "to_braavos",
+          "label": "Take the first ship to Braavos",
+          "sets": [
+            {
+              "flag": "final_choice",
+              "set": true
+            }
+          ],
+          "target": "ship_to_braavos"
+        }
+      ],
+      "artCues": [
+        {
+          "art": "the-page",
+          "on": "enter"
+        }
+      ],
+      "exits": [
+        "the_spiders_web",
+        "the_mockingbirds_coin",
+        "the_imps_scribe",
+        "ship_to_braavos"
+      ],
+      "isEnding": false,
+      "hint": "The bells of the sept ring the hour before dawn."
+    },
+    {
+      "id": "the_spiders_web",
+      "title": "The Spider's Web",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "favor",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Varys takes the page with delight and the player becomes one of his informers: safe, paid and watched, a little bird with ink-stained fingers. Baelish smiles at them in a corridor a week later, and they both know. Close on the player reading a whisper in their sleeve.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "spiders-web",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Spider's Web"
+    },
+    {
+      "id": "the_mockingbirds_coin",
+      "title": "The Mockingbird's Coin",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "favor",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Baelish burns the page in front of the player and gives them a treasury post and a purse. They rise fast and sleep badly. Close on a new ledger, their own hand making a false entry for the first time.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "mockingbirds-coin",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Mockingbird's Coin"
+    },
+    {
+      "id": "the_imps_scribe",
+      "title": "The Imp's Scribe",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "tyrion_trust",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Tyrion drops the page on the Small Council table with a joke that makes Baelish's smile freeze. Nothing much happens to Baelish, as always, but the sellsword payments stop, and Tyrion takes the player into his own service as scribe when he leaves the city. Close on the road west and an argument about books.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "imps-scribe",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Imp's Scribe"
+    },
+    {
+      "id": "ship_to_braavos",
+      "title": "A Ship to Braavos",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player slips out through Flea Bottom to the docks and onto a Braavosi ship as the sun rises, with the page sewn into their coat. King's Landing falls behind. Freedom, and a secret worth a fortune, and no idea who will come looking. Close on the Titan of Braavos rising from the sea days later.",
+      "choices": [],
+      "artCues": [
+        {
+          "art": "braavos",
+          "on": "enter"
+        }
+      ],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Ship to Braavos"
+    }
+  ],
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "A candlelit desk in a castle scriptorium with a ledger, a quill and a red seal, a great red castle beyond the window."
+    },
+    "scriptorium": {
+      "file": "scriptorium.webp",
+      "alt": "Rows of scribes copying ledgers in a hot, sunlit castle scriptorium."
+    },
+    "invitations": {
+      "file": "invitations.webp",
+      "alt": "Two folded notes on a desk, one with a lavender sprig, one sealed with a silver bird."
+    },
+    "godswood": {
+      "file": "godswood.webp",
+      "alt": "A white tree with a carved face and red leaves in a castle garden at dusk, a robed figure feeding birds."
+    },
+    "street-of-silk": {
+      "file": "street-of-silk.webp",
+      "alt": "A perfumed, lamp-lit parlour with silk hangings and two cups of wine."
+    },
+    "tyrion-cellar": {
+      "file": "tyrion-cellar.webp",
+      "alt": "A low cellar tavern lit by candles, a wine jug and two cups on a barrel table."
+    },
+    "gold-cloak": {
+      "file": "gold-cloak.webp",
+      "alt": "A dark stone stair at night with a guard in a gold cloak drawing a sword."
+    },
+    "hobb": {
+      "file": "hobb.webp",
+      "alt": "Portrait of a heavy-set guard with a broken nose, red beard and gold cloak."
+    },
+    "the-page": {
+      "file": "the-page.webp",
+      "alt": "A single ledger page beside a candle at the window before dawn over a city of red roofs."
+    },
+    "spiders-web": {
+      "file": "spiders-web.webp",
+      "alt": "A tiny folded note being passed through a gap in a castle wall."
+    },
+    "mockingbirds-coin": {
+      "file": "mockingbirds-coin.webp",
+      "alt": "A burning ledger page and a heavy purse of gold on a desk."
+    },
+    "imps-scribe": {
+      "file": "imps-scribe.webp",
+      "alt": "A small party on horseback on a road leading west under a wide sky, a cart of books behind."
+    },
+    "braavos": {
+      "file": "braavos.webp",
+      "alt": "A ship sailing toward a colossal stone statue guarding a harbour."
+    }
+  },
+  "skin": {
+    "palette": {
+      "accent": "#d4a64a"
+    },
+    "backgroundArt": "scriptorium",
+    "particles": "motes"
+  }
+}

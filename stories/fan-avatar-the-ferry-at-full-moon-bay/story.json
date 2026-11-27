@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-avatar-the-ferry-at-full-moon-bay",
+    "title": "The Ferry at Full Moon Bay",
+    "category": "fantasy",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You run the ferry across Full Moon Bay, and you can't bend any element. Then a bald kid with arrow tattoos, a boy with a boomerang and a tiny blind earthbender show up asking for passage, and a Fire Nation captain wants them stopped. You know every current in the bay. Sometimes that's better than bending.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Avatar: The Last Airbender",
+      "medium": "tv",
+      "owner": "Nickelodeon and Paramount (Michael Dante DiMartino and Bryan Konietzko)",
+      "aka": [
+        "ATLA",
+        "Avatar",
+        "Aang",
+        "Last Airbender"
+      ]
+    }
+  },
+  "world": "A world of four nations: Water Tribe, Earth Kingdom, Fire Nation and Air Nomads. Benders control their element through martial arts. The Fire Nation has waged war for a century. Aang is the Avatar, the last airbender, able to master all four elements. He travels with Sokka (a non-bending Water Tribe warrior with a boomerang and big plans), Toph (a blind, tiny, unbeatable earthbender), and Appa the flying bison, who is sick and grounded. Full Moon Bay in the Earth Kingdom is a refugee crossing to Ba Sing Se. Fire Nation Captain Renji has been stopping ferries, searching for the Avatar, and secretly selling refugees' papers.",
+  "tone": "Warm, funny, heartfelt adventure with martial-arts bending battles, found family and hope in wartime.",
+  "playerRole": "A non-bending ferry pilot on Full Moon Bay with a creaky old ferry called the Lucky Turtle, a pole, a lantern, knowledge of every current and rock, and a little sibling waiting on the far shore.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Lively cartoon-adventure narration with comic beats (Sokka's plans, Toph's insults), flowing bending choreography, and heartfelt moments about who you are without powers. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "aang",
+      "name": "Aang",
+      "appearance": "A cheerful twelve-year-old boy with a shaved head with a blue arrow tattoo down the forehead and hands, grey eyes, and orange-and-yellow monk robes, carrying a wooden staff.",
+      "voice": "Playful, kind, goofy and peace-loving; serious when it counts.",
+      "stance": "Befriends the player and admires their skill without bending."
+    },
+    {
+      "id": "sokka",
+      "name": "Sokka",
+      "appearance": "A teenage boy with brown skin, a short wolf-tail ponytail, blue Water Tribe clothes and a boomerang.",
+      "voice": "Sarcastic, funny, plan-obsessed; loves meat.",
+      "stance": "Respects the player as a fellow non-bender."
+    },
+    {
+      "id": "toph",
+      "name": "Toph Beifong",
+      "appearance": "A tiny twelve-year-old girl with black hair in a bun with a headband, pale unfocused eyes, bare feet and green-and-yellow Earth Kingdom clothes.",
+      "voice": "Blunt, tough, cocky; gives nicknames.",
+      "stance": "Teases the player mercilessly; respects toughness."
+    },
+    {
+      "id": "renji",
+      "name": "Captain Renji",
+      "appearance": "A Fire Nation officer with a top-knot, a scarred chin, red-and-black armour and a smug smile.",
+      "voice": "Arrogant and polite in a menacing way.",
+      "stance": "Hunting the Avatar; sells refugee papers on the side."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Sneak onto Renji's flagship; 2 = Take the Serpent's Teeth route."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player stole the refugee papers."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the hidden cove and signal towers."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Last Ferry",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Dusk at Full Moon Bay. Refugees crowd the dock. Three strangers ask the player for passage: a bald kid in an orange hood, a boy with a boomerang and a tiny blind girl. Fire Nation ships patrol the bay; a Fire Nation officer is checking papers at the dock.",
+      "choices": [
+        {
+          "id": "smuggle_them_aboard_under_crates",
+          "label": "Smuggle them aboard under crates",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_why_the_fire_nation_is_after_them",
+          "label": "Ask why the Fire Nation is after them",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "offer_them_free_passage",
+          "label": "Offer them free passage",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Sokka: 'We'd like a ride. A discreet ride. With no Fire Nation in it.'",
+      "page": "Dusk at Full Moon Bay. The dock is packed with refugees: families with bundles, old men with chickens, children holding hands. All of them want a ride to the far shore, and the road to Ba Sing Se.\n\nYour ferry, the Lucky Turtle, creaks at its mooring. She's old and patched and she's never let you down.\n\nThree strangers push to the front. A bald kid in an orange hood. A boy in blue with a boomerang on his back. And a tiny barefoot girl with pale eyes who walks straight to you like she knows exactly where you are.\n\n\"We'd like a ride,\" says the boy with the boomerang. \"A discreet ride. With no Fire Nation in it.\"\n\nFurther down the dock, a Fire Nation officer with a top-knot is checking papers, and smiling at nobody."
+    },
+    {
+      "id": "crossroads",
+      "title": "Halfway Across",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Mid-bay, the ferry is stopped by fog. Aang reveals he's the Avatar; Appa is sick on the far shore. Captain Renji's ships are searching. Two options: sneak aboard Renji's flagship to find out what he's planning, or take the dangerous route through the Serpent's Teeth rocks only the player knows.",
+      "choices": [
+        {
+          "id": "teach_aang_to_steer_the_ferry",
+          "label": "Teach Aang to steer the ferry",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You put Aang's hands on the steering pole and show him how to read the current. He's terrible at first, then suddenly good, laughing as the ferry slides between waves. \"This is like airbending, but slower!\" You tell him you can't bend anything. He looks at you, surprised. \"You don't need to. You know the water. That's its own kind of bending.\" From the deck, Toph snorts. But Sokka nods, very seriously, like one non-bender to another."
+        },
+        {
+          "id": "sneak_onto_renji_s_flagship",
+          "label": "Sneak onto Renji's flagship",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "take_the_serpent_s_teeth_route",
+          "label": "Take the Serpent's Teeth route",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Toph, lying on deck: 'I can't see anything, and I still know this is a bad idea.'",
+      "page": "Halfway across, the fog rolls in so thick you can't see your own bow. The Lucky Turtle drifts.\n\nThe bald kid pushes back his hood. A blue arrow tattoo runs down his forehead. \"I'm Aang. I'm, um, the Avatar.\" He winces. \"Our bison Appa is sick on the far shore. We have to get to him.\"\n\nThe boy is Sokka. The tiny girl is Toph. She's lying flat on the deck. \"I can't see anything, and I still know this is a bad idea.\"\n\nThrough the fog, the lanterns of Captain Renji's warships glow red. They're searching.\n\nYou know two things: Renji's flagship is anchored close. And there's another way across, through the Serpent's Teeth. Nobody else would dare."
+    },
+    {
+      "id": "path_a",
+      "title": "The Flagship",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Sokka and the player sneak aboard. They find Renji's strongbox of confiscated refugee papers, being sold to Fire Nation spies, and his order to burn the ferry dock tonight.",
+      "choices": [
+        {
+          "id": "steal_the_refugee_papers",
+          "label": "Steal the refugee papers",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "read_renji_s_orders",
+          "label": "Read Renji's orders",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Sokka, whispering: 'I have a plan. It's a great plan. Well, it's a plan.'",
+      "page": "You and Sokka paddle a dinghy through the fog and climb the anchor chain of Renji's flagship. \"I have a plan,\" Sokka whispers. \"It's a great plan. Well, it's a plan.\"\n\nThe plan involves a lot of crawling.\n\nIn the captain's cabin, there's a strongbox full of papers: travel papers, confiscated from refugees, each one stamped and ready to sell to Fire Nation spies who need Earth Kingdom identities.\n\nAnd on the desk, Renji's orders: \"Burn the ferry dock tonight. No more crossings.\"\n\nSokka goes very quiet. \"Okay. New plan. Better plan.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Serpent's Teeth",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "A maze of jagged rocks in strong currents. The player steers; Toph feels the rocks through the hull; Aang airbends the sail. They find a hidden cove where Appa can be brought safely, and old Earth Kingdom signal towers.",
+      "choices": [
+        {
+          "id": "light_the_old_signal_tower",
+          "label": "Light the old signal tower",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "bring_the_ferry_into_the_hidden_cove",
+          "label": "Bring the ferry into the hidden cove",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Toph, grinning: 'Okay, Captain Driftwood. You're not totally useless.'",
+      "page": "The Serpent's Teeth are jagged rocks rising out of the bay like fangs, the water between them boiling with currents. Nobody sails them. Except you.\n\n\"Left,\" you say, and lean on the pole. Toph has her hand flat on the hull. \"Rock. Big one. Right side.\" Aang bends a gust into the sail at exactly the right moment.\n\nThe Lucky Turtle slides through gaps with inches to spare.\n\nOn the far side, there's a hidden cove where Appa could land unseen. And on the cliffs above it, old Earth Kingdom signal towers, stacked with dry wood, waiting for a spark.\n\nToph grins. \"Okay, Captain Driftwood. You're not totally useless.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Fire on the Water",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Renji's flagship attacks the ferry. Firebenders on the deck. Aang, Toph and Sokka fight. The ferry is burning.",
+      "choices": [
+        {
+          "id": "steer_straight_at_the_flagship",
+          "label": "Steer straight at the flagship",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "put_out_the_fire_on_deck",
+          "label": "Put out the fire on deck",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Renji: 'Surrender the Avatar, ferry pilot, and your little boat lives!'",
+      "page": "The fog lifts all at once, and the flagship is right there, huge and red, bearing down on you.\n\nFirebenders line its deck. Flames roar across the water and catch the Lucky Turtle's sail.\n\nAang leaps into the air, spinning wind. Toph rips rocks up out of the shallows. Sokka's boomerang spins out and back. But the ferry is burning.\n\nCaptain Renji leans on the rail above you, smiling. \"Surrender the Avatar, ferry pilot, and your little boat lives!\""
+    },
+    {
+      "id": "finale",
+      "title": "Full Moon",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The full moon rises. The player decides: give the refugees their stolen papers back and expose Renji (only if they have them); light the signal towers to call the Earth Kingdom navy (only if they found them); or simply get everyone across, Avatar included, and let the Fire Nation chase shadows.",
+      "choices": [
+        {
+          "id": "return_the_refugees_papers",
+          "label": "Return the refugees' papers",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "papers_for_everyone"
+        },
+        {
+          "id": "light_the_signal_towers",
+          "label": "Light the signal towers",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_bay_lights_up"
+        },
+        {
+          "id": "get_everyone_across_quietly",
+          "label": "Get everyone across quietly",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "just_a_ferry"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "papers_for_everyone",
+        "the_bay_lights_up",
+        "just_a_ferry"
+      ],
+      "isEnding": false,
+      "page": "The flagship is dead in the water, its rudder jammed by a rock Toph threw. The flames on the Lucky Turtle are out, mostly. Everyone is soaked, smoky and alive.\n\nThen the full moon rises over the bay, huge and silver, and the water glows.\n\nAang looks at you. \"You're the captain. What do we do?\""
+    },
+    {
+      "id": "papers_for_everyone",
+      "title": "Papers for Everyone",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The refugees get their papers back and cross safely; Renji is disgraced by his own navy. Aang gives the player an air-nomad blessing. Close on families walking toward Ba Sing Se at dawn.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Papers for Everyone",
+      "page": "You stand on the dock at dawn with Renji's strongbox, and you hand the papers back, one by one, to the refugees whose names are on them.\n\nWhen the Fire Nation admiral hears what Renji was doing, the captain is stripped of his rank in front of his own crew.\n\nBefore he leaves, Aang presses his palms together and bows to you, an Air Nomad blessing. \"Thank you, Captain.\"\n\nYou watch the families walk up the road toward Ba Sing Se as the sun comes up, papers in hand, kids running ahead."
+    },
+    {
+      "id": "the_bay_lights_up",
+      "title": "The Bay Lights Up",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Signal fires blaze along the coast; Earth Kingdom ships drive off Renji. Toph declares the player 'Captain Rock-Brain', a high honour. Close on Appa flying over the bay, healed.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Bay Lights Up",
+      "page": "You climb the cliff above the hidden cove and light the first signal tower. Then the next. Then the next. A chain of fires blazes along the coast.\n\nBy midnight, Earth Kingdom warships appear around the headland, and Renji's fleet turns tail.\n\nToph punches your arm, hard. \"Captain Rock-Brain. That's your new name. It's a compliment.\"\n\nAt dawn, a huge, fluffy, six-legged bison rises out of the cove, healed and rumbling, with Aang on his head. Appa circles the bay once, low over the Lucky Turtle, and you swear he winks."
+    },
+    {
+      "id": "just_a_ferry",
+      "title": "Just a Ferry",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The Lucky Turtle reaches the far shore; Appa is waiting. Aang hugs the player and they fly off on the bison. The player's sibling runs to them on the dock. Close on the ferry under a full moon.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Just a Ferry",
+      "page": "You steer the Lucky Turtle quietly through the moonlight, under the noses of the searching ships, and bring her into the far shore without a sound.\n\nAppa is waiting on the beach, sneezing but alive. Aang hugs you, then hugs Appa, then hugs you again. \"We'll come back! I promise!\"\n\nThey lift off into the moonlight, the giant bison growing smaller against the stars.\n\nAnd then someone is shouting your name, running down the dock: your little sibling, who has waited all night. You catch them in your arms as the full moon shines on the old ferry."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f0a03a"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "none"
+  }
+}

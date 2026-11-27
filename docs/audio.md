@@ -108,75 +108,42 @@ All controls are keyboard-accessible, expose `aria-pressed` for toggles and
 - **Crossfade:** When the track key changes, the new voice's gain ramps
   `0 → 1` over 1.6 s; the previous voice ramps `1 → 0` over the same window
   and is stopped at the end.
-- **No hotlinking without a license:** All current URLs point at Pixabay
-  Audio. See the license table below.
+- **Self-hosted:** every track is served from the ZeroRoll R2 bucket. See
+  the asset section below.
 
 ---
 
-## Asset licenses (current catalog)
+## Assets and licensing
 
-Every track URL in [`src/audio/catalog.ts`](../src/audio/catalog.ts) currently
-points at **Pixabay Audio**. Pixabay's license permits free commercial and
-non-commercial use, **no attribution required**, though attribution is
-appreciated.
+Every track is an **original ZeroRoll loop**, synthesized for this app from
+scratch (no third-party samples or recordings), so there is no outside
+license or attribution to carry. The earlier catalog pointed at Pixabay
+links that turned out to be placeholders and partly dead; they are gone.
 
-> Pixabay Content License — <https://pixabay.com/service/license/>
->
-> "You can use all contents on Pixabay for free. ... Attribution is not
-> required. However, any content used must comply with the Content License
-> terms."
-
-We document the source on every catalog entry so it is easy to verify or
-swap.
-
-| Key | Source | License | URL |
-|---|---|---|---|
-| home | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3> |
-| fantasy | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/03/15/audio_a0e92b3b3c.mp3> |
-| adventure | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/03/10/audio_1aa9e0d4a8.mp3> |
-| historical_adventure | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/04/27/audio_3c8c3e5b6e.mp3> |
-| horror | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/03/19/audio_5b1c2e1f7d.mp3> |
-| cozy_ghibli | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/05/16/audio_7c0c8a9b2a.mp3> |
-| romantic | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/03/22/audio_b0e4b8eaa1.mp3> |
-| revenge | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/04/20/audio_e4d0b9f2c8.mp3> |
-| apocalypse | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/05/04/audio_d2b1c0a4e7.mp3> |
-| zombie | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/05/02/audio_c3f0d8b9a6.mp3> |
-| cosmic_horror | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/04/11/audio_a6b7c8d9e0.mp3> |
-| psychedelic_trip | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/04/22/audio_f1e2d3c4b5.mp3> |
-| tiktok_drama | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/03/30/audio_9a8b7c6d5e.mp3> |
-| ancient_greek | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/05/22/audio_4b3c2d1e0f.mp3> |
-| mythology | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/04/05/audio_2c1d0e9f8a.mp3> |
-| real_life | Pixabay Audio | Pixabay Content License | <https://cdn.pixabay.com/audio/2022/02/22/audio_5c8b0a9d3e.mp3> |
-
-> **Note on placeholder URLs.** The track URLs above were selected to match
-> each category's mood, but the **specific Pixabay IDs are illustrative**. If
-> a URL returns 404 or fails CORS, the audio manager logs a warning and
-> silently falls back to silence — the app continues to work normally.
-> Always test the deployed URLs before relying on them; replace any 404s
-> with a fresh Pixabay search result.
+- **Where they live:** the `zeroroll-assets` R2 bucket, as `music/<key>.mp3`
+  (for example `music/home.mp3`, `music/horror.mp3`). The public folder is
+  `DEFAULT_MUSIC_BASE` in [`src/audio/catalog.ts`](../src/audio/catalog.ts).
+- **Override:** set `VITE_MUSIC_BASE` on the deploy to load the same file
+  names from somewhere else.
+- **Generator:** the loops were made with a small Python synth script
+  (`synth.py`, kept in the project files next to `zeroroll-music.zip`).
+  Rerun it to regenerate or tweak a mood.
+- **Check:** `npm run music:check -- --online` fetches every track and fails
+  on any that is missing or not audio.
 
 ---
 
 ## How to swap a track
 
-**Option A — point at a different remote URL.**
-Open `src/audio/catalog.ts` and update the `url` field. Done. Add the new
-license info to the table above.
+1. Make or pick a 30–90 s seamless loop (≤ 150 kbps MP3, ≤ 3 MB). If it is
+   not your own work, make sure its license allows commercial use.
+2. Upload it to the bucket as `music/<key>.mp3`, replacing the old file.
+3. If it is not an original loop, update that entry's `source`, `license`
+   and `licenseUrl` in `src/audio/catalog.ts`.
+4. Run `npm run music:check -- --online`.
 
-**Option B — self-host the file under `assets/audio/`.**
-
-1. Drop your file into the repo:
-   - `assets/audio/home.mp3` (global theme), or
-   - `assets/audio/<category>.mp3` for a per-category track.
-2. Open `src/audio/catalog.ts` and change the `url` field to a relative
-   path that Vite will bundle, e.g. `new URL('../assets/audio/home.mp3', import.meta.url).href` or simply `'/assets/audio/home.mp3'`.
-3. Update the `source` and `license` fields with attribution.
-4. Add a row to the table above.
-
-Recommended spec: 30–90 s seamless loop, ≤ 150 kbps MP3, ≤ 3 MB total
-payload per track. Loop crossfades in `audioManager` rely on the file being
-seamlessly loopable; if your loop has a hard start/end, pad it with a 2 s
-ambient tail.
+Loop crossfades in `audioManager` rely on the file being seamlessly loopable;
+if your loop has a hard start/end, pad it with a 2 s ambient tail.
 
 ---
 

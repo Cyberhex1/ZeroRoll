@@ -7,6 +7,7 @@ import type { ExperienceCategory } from '../types';
 import { Story } from './schema';
 import { checkStory } from './validate';
 import { listImportedStories } from './importPackage';
+import { storyArtFileUrl } from './art';
 
 export type StoryMeta = Story['meta'];
 
@@ -23,7 +24,7 @@ export function coverUrl(meta: StoryMeta): string | null {
   if (!meta.cover) return null;
   const entry = storyIndex.find((e) => e.meta.id === meta.id)?.cover;
   if (!entry) return null;
-  return entry.url ?? `${(import.meta.env.VITE_STORY_ART_BASE || '/story-art').replace(/\/+$/, '')}/${meta.id}/${entry.file}`;
+  return entry.url ?? storyArtFileUrl(meta.id, entry.file);
 }
 
 export function storiesByCategory(): Map<ExperienceCategory, StoryMeta[]> {
@@ -50,7 +51,7 @@ export async function importedStories(): Promise<Story[]> {
 export function storyCoverUrl(story: Story): string | null {
   const a = story.meta.cover ? story.art[story.meta.cover] : undefined;
   if (!a) return null;
-  return a.url ?? `${(import.meta.env.VITE_STORY_ART_BASE || '/story-art').replace(/\/+$/, '')}/${story.meta.id}/${a.file}`;
+  return a.url ?? storyArtFileUrl(story.meta.id, a.file);
 }
 
 /** Loads and validates a story. Throws with the validator's first error if it is broken. */

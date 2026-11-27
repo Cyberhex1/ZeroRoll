@@ -43,6 +43,21 @@ my-story/
 - **Skin**: each category has a base look; the story's `skin` block overrides any part of
   it (palette colours, fonts, bubble shape, pattern, background art, particles).
 
+## Book pages (play offline)
+
+A story whose every beat has a `page` can be read like a choose-your-own-adventure book, with
+no AI and no connection. `page` is the written text shown when the player enters the beat (20
+to 5000 characters; `{name}` is replaced with the player's name). A choice without a `target`
+(it stays in the same beat) should have an `outcome`: the short text shown after it is picked.
+
+In book mode the authored choices are the buttons. A choice whose way is still shut (an ending
+that needs an earlier discovery) is hidden, and a stay-here choice already made is not offered
+again. Typing your own action hands that turn to the AI narrator ("going off the rails", which
+needs an AI key); picking a book choice afterwards goes back to the written pages from wherever
+the story now is. The play screen's "Story text" setting can switch a story to "AI narrator every turn".
+Write pages so they read right whichever way the player arrived. `src/story/__tests__/book.test.ts`
+checks that every built-in story has pages and that its choices alone reach every ending.
+
 ## Checking and installing
 
 ```

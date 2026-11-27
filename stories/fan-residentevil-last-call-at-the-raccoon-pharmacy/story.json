@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-residentevil-last-call-at-the-raccoon-pharmacy",
+    "title": "Last Call at the Raccoon Pharmacy",
+    "category": "zombie",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "You work the night shift at a small pharmacy in Raccoon City. Tonight the customers are getting sick, the phones are dead, and a S.T.A.R.S. officer just kicked in your back door asking for a cure that Umbrella swears doesn't exist. You have the keys to the cold room. That makes you important.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Resident Evil",
+      "medium": "game",
+      "owner": "Capcom",
+      "aka": [
+        "RE",
+        "Raccoon City",
+        "Umbrella"
+      ]
+    }
+  },
+  "world": "Raccoon City, September 1998, the night the T-virus outbreak overwhelms the town. Streets fill with zombies, the police are falling apart, and the Umbrella Corporation is quietly sending agents to recover samples and silence witnesses. Ford's Pharmacy on Ennerdale Street has a locked cold room where an Umbrella sales rep, Dr. Hensley, stored a crate of 'vitamin shots' last week: an experimental vaccine prototype, labelled V-JOLT. Jill Valentine, an ex-S.T.A.R.S. officer, is trying to get survivors out. An Umbrella cleanup operative, Agent Corwin, wants the crate and no witnesses. A lumbering tyrant pursues anyone carrying Umbrella property.",
+  "tone": "Classic survival horror: limited ammo, locked doors, puzzles, jump scares, a dark sense of humour, and dread that builds room by room.",
+  "playerRole": "A night-shift pharmacy clerk with a ring of store keys, a flashlight, a first-aid spray, a stapler-sharp wit and absolutely no weapons training.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Tight survival-horror narration: fixed-camera rooms, groaning off-screen, key items you must remember, short bursts of action. Track ammo and herbs. Scares should land. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "jill",
+      "name": "Jill Valentine",
+      "appearance": "A fit young woman with short brown hair, sharp blue eyes, a blue tube top under a tactical vest, a black skirt over cycling shorts, combat boots, and a handgun in a thigh holster.",
+      "voice": "Calm, focused and dry-witted under pressure; protective of civilians.",
+      "stance": "Needs the player's keys and pharmacy knowledge, and keeps them alive if she can."
+    },
+    {
+      "id": "corwin",
+      "name": "Agent Corwin",
+      "appearance": "A tall man in a black Umbrella tactical suit and gas mask hanging at his neck, buzz-cut blond hair, a scar across his lip, carrying a silenced submachine gun and a sample case.",
+      "voice": "Polite, corporate and chilling; calls the outbreak 'an incident'.",
+      "stance": "Wants the V-JOLT crate and will lie, bribe or shoot to get it."
+    },
+    {
+      "id": "hensley",
+      "name": "Dr. Paula Hensley",
+      "appearance": "A middle-aged woman with a messy grey bob, glasses on a chain, a bloodstained white lab coat over a business suit, and a bandaged forearm.",
+      "voice": "Rapid, guilty and frightened; explains science too fast.",
+      "stance": "Created V-JOLT, is infected, and wants it to save people before Umbrella buries it."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search the alley for the Umbrella rep; 2 = Go upstairs for the manager's key."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "Dr. Hensley gave the player her vaccine notes."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Umbrella's kill order."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Night Shift",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Ford's Pharmacy, 11 p.m. Sirens outside. A customer collapses in aisle three and gets back up wrong. The phones are dead. As the player locks the front door, the back door bursts open: Jill Valentine, gun drawn, with a wounded survivor, asking if there's anything in the store that can stop the infection.",
+      "choices": [
+        {
+          "id": "let_jill_in_and_lock_the_back_door",
+          "label": "Let Jill in and lock the back door",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "grab_the_first_aid_sprays_from_behind_th",
+          "label": "Grab the first-aid sprays from behind the counter",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "deal_with_the_customer_in_aisle_three",
+          "label": "Deal with the customer in aisle three",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Something heavy thuds against the front glass. Then again.",
+      "page": "Ford's Pharmacy, eleven at night. Sirens have been wailing for an hour, and the radio keeps cutting to static.\n\nIn aisle three, a customer who came in for cough syrup slumps against the shelves, grey and sweating. He slides to the floor. Then, slowly, wrongly, he gets back up.\n\nThe phones are dead. You lock the front door with shaking hands. Something heavy thuds against the glass. Then again.\n\nThe back door bursts open. A woman with short brown hair and a handgun sweeps the room, half-carrying a bleeding man in a mechanic's jacket. \"Jill Valentine. Raccoon P.D., sort of. Is there anything in this store that can stop the infection?\""
+    },
+    {
+      "id": "crossroads",
+      "title": "The Cold Room Key",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The store is a fortress for now. The player remembers the Umbrella crate in the cold room, but the cold room key was taken by the store manager, now somewhere upstairs in the stockroom offices. Jill can scout the alley for the dying Umbrella rep who stored the crate, or go upstairs with the player to find the key. Radios crackle about the police station falling.",
+      "choices": [
+        {
+          "id": "patch_up_the_wounded_survivor_and_talk_w",
+          "label": "Patch up the wounded survivor and talk with Jill",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You kneel beside the mechanic and spray first aid on his wound while Jill holds the light. He grips your hand. \"Thanks, kid.\" Afterward, Jill leans against the wall and lets out a long breath. \"You're steadier than half the cops I worked with.\" She shows you how to hold the spare handgun she carries, safety on. \"Just in case. Don't be a hero.\""
+        },
+        {
+          "id": "search_the_alley_for_the_umbrella_rep",
+          "label": "Search the alley for the Umbrella rep",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "go_upstairs_for_the_manager_s_key",
+          "label": "Go upstairs for the manager's key",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Jill checks her magazine: 'Two places to look, and not much time.'",
+      "page": "The store is a fortress, for now. Jill helps you shove shelves against the windows. The wounded mechanic lies on a cot in the back room, breathing hard.\n\nThen you remember. \"There's a crate. Umbrella's sales rep left it in the cold room last week. 'Vitamin shots.' Something called V-JOLT.\"\n\nJill's eyes sharpen. \"Key?\"\n\n\"The manager took it. He's... upstairs. In the stockroom offices.\" You don't say what he might be now.\n\nJill checks her magazine. \"There was a woman in a lab coat in the alley out back when I came in. Bitten, I think. She was asking for this pharmacy by name.\" The radio crackles: the police station has fallen. \"Two places to look, and not much time.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Alley",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Rain, burning cars, and Dr. Hensley hiding in a dumpster enclosure with a bitten arm. She explains V-JOLT: a prototype vaccine that works if given early. Umbrella wants it destroyed. She gives the player her notes and the formula, and begs them to get it out of the city.",
+      "choices": [
+        {
+          "id": "take_hensley_s_notes",
+          "label": "Take Hensley's notes",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "bring_hensley_inside_to_safety",
+          "label": "Bring Hensley inside to safety",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Hensley grabs the player's sleeve: 'They'll burn it. They burn everything.'",
+      "page": "The alley is rain and burning cars, a red glow over everything. Behind the dumpsters, a middle-aged woman in a bloodstained lab coat holds her bandaged arm against her chest.\n\n\"Dr. Paula Hensley. Umbrella pharmaceuticals.\" She laughs, too high. \"I made V-JOLT. It's a vaccine. A prototype. It works if you give it early, before the fever.\" She shoves a stained folder into your hands: formulas, dosages, test results. \"Umbrella wants it gone. They're sending someone to collect it and anyone who knows about it.\"\n\nShe grabs your sleeve, eyes wet. \"They'll burn it. They burn everything. Get it out of this city.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Stockroom",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Upstairs offices: flickering lights, a zombified manager wearing the key on a lanyard, and a puzzle lock on the safe. Inside the safe is Umbrella paperwork: an order to Agent Corwin to retrieve V-JOLT and eliminate witnesses, signed by an Umbrella executive.",
+      "choices": [
+        {
+          "id": "take_the_key_and_the_umbrella_order",
+          "label": "Take the key and the Umbrella order",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "barricade_the_stairs_after_you",
+          "label": "Barricade the stairs after you",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The manager's lanyard swings as he turns toward the player's flashlight.",
+      "page": "The stairs to the stockroom offices are dark except for one fluorescent tube that flickers like a dying heartbeat.\n\nThe manager is still at his desk. He turns, slowly, when your flashlight finds him. His eyes are milk. The key to the cold room swings on the lanyard around his neck.\n\nAfter the worst sixty seconds of your life, the key is yours. Behind the desk, the office safe has a four-digit lock; the code is on a sticky note under the keyboard, because of course it is.\n\nInside: Umbrella paperwork. An order, on letterhead, to \"Agent Corwin\" to recover the V-JOLT crate from Ford's Pharmacy and \"eliminate all witnesses to the incident.\" It's signed by an Umbrella executive."
+    },
+    {
+      "id": "showdown",
+      "title": "The Cold Room",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The crate is real. Agent Corwin enters through the loading bay with his gun up, politely asking for it. Then the walls shake: something huge in a trench coat is coming through the building, following Umbrella property. Jill is pinned down.",
+      "choices": [
+        {
+          "id": "refuse_corwin_and_run_with_the_crate",
+          "label": "Refuse Corwin and run with the crate",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "let_the_tyrant_reach_corwin_first",
+          "label": "Let the tyrant reach Corwin first",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Corwin smiles: 'You're a pharmacy clerk. Let's not make this complicated.'",
+      "page": "The cold room hisses open. Frost on everything. And there it is: a steel crate, packed with rows of blue glowing vials.\n\nBehind you, the loading-bay door rolls up. A tall man in black tactical gear, gas mask hanging at his neck, steps in with a silenced gun. \"Agent Corwin, Umbrella Corporation. I'll take that, thank you. You're a pharmacy clerk. Let's not make this complicated.\"\n\nThen the whole building shakes. Something huge is coming through the walls, a figure in a long dark coat, following the scent of Umbrella property.\n\nJill is pinned down by the front door, shooting into the dark."
+    },
+    {
+      "id": "finale",
+      "title": "Escape from Ennerdale Street",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "A rescue chopper is landing on a nearby roof. The player decides: give Hensley's formula to Jill to get to someone who can mass-produce a cure (only if they have the notes); broadcast Umbrella's kill order on the police radio so survivors know who to fear (only if they took it); or simply grab survivors and run for the chopper, leaving the crate.",
+      "choices": [
+        {
+          "id": "give_jill_the_vaccine_formula",
+          "label": "Give Jill the vaccine formula",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_formula"
+        },
+        {
+          "id": "broadcast_umbrella_s_kill_order",
+          "label": "Broadcast Umbrella's kill order",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "umbrella_exposed"
+        },
+        {
+          "id": "leave_the_crate_and_run_for_the_chopper",
+          "label": "Leave the crate and run for the chopper",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "just_survive"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_formula",
+        "umbrella_exposed",
+        "just_survive"
+      ],
+      "isEnding": false,
+      "page": "The tyrant is gone, buried under a fallen floor. Corwin is gone too, one way or another. You and Jill drag yourselves onto the roof, coughing.\n\nOver the burning city, a rescue helicopter is circling, searchlight sweeping. It's landing on the next building over. There's a plank across the gap.\n\nYou have what you have: survivors behind you, maybe a crate, maybe papers, and maybe the last chance anyone will have to tell the world what happened in Raccoon City tonight."
+    },
+    {
+      "id": "the_formula",
+      "title": "The Formula",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The player and Jill make the chopper with the formula and a few vials. Raccoon City burns behind them, but a cure exists. Jill says the player would make a decent S.T.A.R.S. medic. Close on dawn over the forest as the chopper flies away.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Formula",
+      "page": "You press Dr. Hensley's folder into Jill's hands as the chopper lifts off. \"Get this to someone who can make more.\"\n\nShe tucks it inside her vest and keeps a hand on it the whole flight. A few vials rattle in a case at your feet. Raccoon City burns behind you, but a cure exists.\n\nAs the sun comes up over the forest, Jill finally lets herself sit back. \"You know,\" she says, \"you'd make a decent S.T.A.R.S. medic.\" The helicopter banks toward the dawn."
+    },
+    {
+      "id": "umbrella_exposed",
+      "title": "Umbrella Exposed",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The kill order goes out over every radio in the city. Survivors stop trusting Umbrella teams; some live because of it. The player escapes with Jill, and the evidence becomes the start of a long fight. Close on a burning Umbrella logo on a billboard.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Umbrella Exposed",
+      "page": "You find a police radio still working on the roof and read Umbrella's order out on every channel. \"Eliminate all witnesses.\" You read the executive's name twice.\n\nAcross the city, survivors hear it. Some of them stop running toward the men in black Umbrella gear. Some of them live because of it.\n\nYou and Jill escape on the chopper with the order folded in your pocket. It's not over; it's the start of a very long fight. As you fly away, flames climb over a giant Umbrella billboard, and the red-and-white logo burns."
+    },
+    {
+      "id": "just_survive",
+      "title": "Just Survive",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The crate is lost when the pharmacy collapses, but the player gets three survivors onto the chopper. They don't save the city. They save who they can. Close on the player looking down at the burning streets, keys still in their hand.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Just Survive",
+      "page": "The crate is lost when the pharmacy floor finally gives way. You don't look back for it.\n\nInstead you pull the wounded mechanic across the plank, then two more survivors from the stairwell, and you all pile into the chopper as it lifts. Jill is the last one in.\n\nYou don't save the city. You save who you can. As the helicopter climbs, you look down at the burning streets, the store keys still clutched in your fist, and realise you never let go of them all night."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#b8342b"
+    },
+    "fonts": {
+      "heading": "sans",
+      "body": "sans"
+    },
+    "particles": "rain"
+  }
+}

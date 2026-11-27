@@ -39,6 +39,8 @@ export interface StorySave {
   cloudBase?: number;
   /** The name and pronouns the player chose before the story began. Missing on older saves. */
   player?: PlayerIdentity;
+  /** false: the AI narrates every turn. Missing or true: a story with book pages reads them, and only typed actions go to the AI. */
+  book?: boolean;
 }
 
 export interface StoryProgress {

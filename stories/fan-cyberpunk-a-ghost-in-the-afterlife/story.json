@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-cyberpunk-a-ghost-in-the-afterlife",
+    "title": "A Ghost in the Afterlife",
+    "category": "adventure",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "Night City runs on favours, chrome and bad decisions. You're a nobody runner who just picked up a stolen braindance chip at the Afterlife, and now a fixer, a corpo and a braindance editor all want what's on it. Watch it, sell it, or burn it. In this city, all three can get you killed.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Cyberpunk 2077",
+      "medium": "game",
+      "owner": "CD Projekt Red",
+      "aka": [
+        "Cyberpunk",
+        "Night City",
+        "2077"
+      ]
+    }
+  },
+  "world": "Night City, 2077: a neon megacity ruled by corporations like Arasaka and Militech, gangs like the Maelstrom and Tyger Claws, and fixers who broker jobs. The Afterlife is a legendary mercenary bar in a converted morgue. A braindance (BD) chip records a person's full sensory memories. The chip the player carries holds the last memories of a missing Arasaka scientist, Dr. Imani Kade, who recorded proof that Arasaka is testing illegal cyberware on Watson's poor. Judy Alvarez, a gifted BD editor, can decode it. An Arasaka counter-intel agent, Kenji Mori, is hunting the chip. A fixer named Rhea Okafor brokered the job and is playing both sides.",
+  "tone": "Neon-noir action: style, chrome, attitude and moral rot; flashes of tenderness and loyalty between people who can't afford them.",
+  "playerRole": "A street-level mercenary runner with basic chrome (your choice of optics, arms or reflexes), a pistol, a battered car, a pile of debt and the stolen chip in your pocket.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Punchy neon-noir narration with street slang, gun and cyberware details, and quick cuts between scenes. The player chooses their style: talk, sneak, hack or shoot. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "judy",
+      "name": "Judy Alvarez",
+      "appearance": "A young woman with an undercut, the long side dyed teal and pink, bright tattoos on her arms and neck, a tank top under dungarees, and BD editing tech worn as a neural headset.",
+      "voice": "Warm, blunt and idealistic beneath a hard shell; geeks out about BD editing.",
+      "stance": "Wary at first, then a fierce ally if the player shows they care about the victims."
+    },
+    {
+      "id": "rhea",
+      "name": "Rhea Okafor",
+      "appearance": "A tall woman in her fifties with silver-streaked locs, glowing gold optic implants, a long red coat and a cigar.",
+      "voice": "Smooth, amused and transactional; calls everyone 'choom'.",
+      "stance": "Brokered the job; will sell the player out to whoever pays more."
+    },
+    {
+      "id": "kenji",
+      "name": "Kenji Mori",
+      "appearance": "A sharp-featured man in a perfectly tailored dark grey suit, slicked black hair, faint circuit lines glowing on his jaw, with a katana handle at his hip.",
+      "voice": "Quiet, polite, precise and utterly cold.",
+      "stance": "Arasaka agent; offers a fortune for the chip, then threatens."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Break into Rhea's office; 2 = Go to the clinic in Watson."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player downloaded Rhea's files."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Dr. Kade's backup drive with the decryption key."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Afterlife",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Afterlife bar, under red light and bass. The player just finished a job and has the chip in their pocket. Rhea meets them in a back booth, then gets strange when she sees it: someone else has already offered her triple. Across the bar, a man in a grey suit raises a glass at the player.",
+      "choices": [
+        {
+          "id": "pocket_the_chip_and_leave_by_the_back",
+          "label": "Pocket the chip and leave by the back",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "demand_rhea_explain_the_triple_offer",
+          "label": "Demand Rhea explain the triple offer",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "walk_over_to_the_man_in_the_grey_suit",
+          "label": "Walk over to the man in the grey suit",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "A bartender slides a drink over: 'From the corpo at the bar. He says no hard feelings.'",
+      "page": "The Afterlife hums with bass and bad decisions, red light pooling in the old morgue drawers along the walls. You've just finished a job. The chip in your pocket feels warmer than it should.\n\nRhea Okafor waits in the back booth, gold optics glowing, cigar smoke curling. She sees the chip and her smile slips. \"Choom. Somebody just offered me triple for that. Triple.\" She taps ash. \"Which makes me wonder what's on it.\"\n\nAcross the bar, a sharp-featured man in a perfect grey suit raises his glass to you. Faint circuit lines glow along his jaw.\n\nThe bartender slides you a drink you didn't order. \"From the corpo at the bar. He says no hard feelings.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Lizzie's Bar",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player needs to know what's on the chip. Judy Alvarez, the best BD editor in town, works out of Lizzie's Bar. She starts decoding: a scientist in a clinic in Watson, terrified. But the chip is encrypted in layers. Two options: break into Rhea's office for her client files, or go to the Watson clinic itself.",
+      "choices": [
+        {
+          "id": "ask_judy_what_s_she_s_seen_in_bds_like_t",
+          "label": "Ask Judy what's she's seen in BDs like this",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You ask Judy what she's seen in BDs like this. She's quiet for a while. \"People sell their worst moments. Other people pay to feel them. I edit them so they hurt less. Sometimes I edit them so they hurt more, if it means somebody finally listens.\" She looks at you sideways. \"You didn't just sell it. You came to me first. That counts.\" She saves your number under a little teal heart."
+        },
+        {
+          "id": "break_into_rhea_s_office",
+          "label": "Break into Rhea's office",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "go_to_the_clinic_in_watson",
+          "label": "Go to the clinic in Watson",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Judy pulls off the headset, pale: 'Okay. Whatever's on this, people are dying for it.'",
+      "page": "Lizzie's Bar is all pink neon and braindance rigs. In the back, Judy Alvarez pulls on her editing headset and slots in your chip, fingers flying across a glowing workstation.\n\nShe goes very still.\n\n\"Okay. It's a scientist. Dr. Imani Kade. She's in a clinic in Watson, and she's scared out of her mind.\" Judy pulls off the headset, pale. \"It's encrypted in layers. Whatever's on this, people are dying for it.\"\n\nTwo ways to crack it. Rhea's office has her client files: who's really paying for this chip. Or the clinic itself, in Watson, where Kade made the recording."
+    },
+    {
+      "id": "path_a",
+      "title": "Rhea's Office",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "A penthouse above a noodle stand. Getting in means hacking, sneaking or charming the guard. In Rhea's files: proof she sold the player's location to Arasaka twice, and Arasaka's payment schedule naming Kenji Mori.",
+      "choices": [
+        {
+          "id": "download_rhea_s_files",
+          "label": "Download Rhea's files",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "wait_for_rhea_and_confront_her",
+          "label": "Wait for Rhea and confront her",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A security drone whirs past the window, scanning.",
+      "page": "Rhea's place is a penthouse above a noodle stand, all glass and old money. A security drone whirs past the window as you work your way in, hacking, sneaking or charming, whatever gets the door open.\n\nHer terminal is guarded by ICE that bites. You bite back.\n\nInside: client files. Rhea has sold your location twice in the last forty-eight hours, both times to Arasaka. Below that, an Arasaka payment schedule, every transfer signed off by one name. Kenji Mori.\n\nFootsteps in the hall. Rhea's voice, laughing on a call. \"Don't worry, choom. Our runner won't see it coming.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Watson Clinic",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "A shuttered back-alley clinic, really an Arasaka test site. Victims with experimental chrome, Tyger Claws guards, and Dr. Kade's hidden lab. The player finds Kade's backup drive with the full decryption key and patient records.",
+      "choices": [
+        {
+          "id": "grab_the_backup_drive",
+          "label": "Grab the backup drive",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "free_the_patients_first",
+          "label": "Free the patients first",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A patient grabs the player's arm: 'They said it was free chrome. It was never free.'",
+      "page": "The Watson clinic is a shuttered back-alley storefront. Inside, it's a lab. Patients lie on cots with experimental chrome glowing under their skin, twitching in their sleep. Tyger Claws guards patrol the halls.\n\nA patient grabs your arm as you pass. \"They said it was free chrome. It was never free.\"\n\nBehind a hidden panel you find Dr. Kade's lab, abandoned in a hurry. In a drawer taped underneath her desk: a backup drive. The full decryption key for your chip, and records of every patient Arasaka has tested on. Names. Ages. Outcomes.\n\nSomewhere, an alarm starts to wail."
+    },
+    {
+      "id": "showdown",
+      "title": "Rooftop at Jig-Jig Street",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Kenji Mori corners the player on a neon rooftop in the rain, with Arasaka drones overhead. Rhea is there too, nervous, playing both sides. Judy is on comms. Kenji makes his last offer.",
+      "choices": [
+        {
+          "id": "draw_your_gun_on_kenji",
+          "label": "Draw your gun on Kenji",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "stall_while_judy_uploads_the_bd",
+          "label": "Stall while Judy uploads the BD",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Kenji's hand rests on his katana: 'Name your price. Everyone has one.'",
+      "page": "Jig-Jig Street, a rooftop, rain hammering down. Arasaka drones hang overhead with their searchlights crossing on you.\n\nKenji Mori steps out of the rain, suit somehow dry, one hand resting on the katana at his hip. Behind him, Rhea, nervous, playing both sides to the last.\n\n\"Name your price,\" Kenji says. \"Everyone has one.\"\n\nIn your ear, Judy's voice, tight: \"I'm almost there. Keep him talking, or don't. Your call.\""
+    },
+    {
+      "id": "finale",
+      "title": "Burn It All",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides what to do with the truth: release Rhea's files and expose her and Kenji to every fixer in Night City (only if they have them); have Judy upload Dr. Kade's BD to the whole net (only if they have the key); or sell the chip to the highest bidder and get out of town rich.",
+      "choices": [
+        {
+          "id": "leak_rhea_s_files_to_every_fixer",
+          "label": "Leak Rhea's files to every fixer",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "no_fixer_is_safe"
+        },
+        {
+          "id": "have_judy_release_kade_s_bd_to_the_net",
+          "label": "Have Judy release Kade's BD to the net",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_world_watches"
+        },
+        {
+          "id": "sell_the_chip_and_leave_night_city",
+          "label": "Sell the chip and leave Night City",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "eddies_and_exhaust"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "no_fixer_is_safe",
+        "the_world_watches",
+        "eddies_and_exhaust"
+      ],
+      "isEnding": false,
+      "page": "The drones are gone. Kenji Mori is down, or gone, or simply recalculating. Rhea is sweating rain and fear.\n\nYou stand on the roof with the chip in one hand and everything you've learned in the other, Night City glittering all around you like a promise it never intends to keep.\n\nIn this city, information is the only real currency. It's time to spend it."
+    },
+    {
+      "id": "no_fixer_is_safe",
+      "title": "No Fixer Is Safe",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Rhea's double-dealing is everywhere by dawn; she's finished in Night City and Kenji is recalled. The player's name now means something in the Afterlife. Close on the player in Rhea's old booth, a drink with their name on it.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "No Fixer Is Safe",
+      "page": "You send Rhea's files to every fixer in Night City at once.\n\nBy dawn, everyone knows: Rhea Okafor sold her own runners to Arasaka. Her contacts disappear. Her booth at the Afterlife is empty by nightfall. Kenji Mori is quietly recalled to Tokyo.\n\nA week later, you walk into the Afterlife and the bartender slides you a drink without being asked. Somebody's already carved your name into the old booth. Night City has decided you're somebody."
+    },
+    {
+      "id": "the_world_watches",
+      "title": "The World Watches",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Kade's BD goes viral; millions feel what she felt. Arasaka denies everything, but the Watson clinic is raided and the patients freed. Judy and the player watch the city lights from her apartment. Close on a neon sign flickering back on in Watson.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The World Watches",
+      "page": "Judy pushes the button. Dr. Kade's braindance hits the net, and suddenly millions of people feel what she felt: the clinic, the screaming patients, the cold voice telling her to keep testing.\n\nArasaka denies everything. It doesn't matter. Within a day the Watson clinic is raided and the patients are freed.\n\nThat night you sit on Judy's balcony watching the city lights, sharing a cheap beer. Across the district, a neon sign that's been dead for years flickers back on in Watson. Judy grins. \"Look at that. Something in this city got fixed.\""
+    },
+    {
+      "id": "eddies_and_exhaust",
+      "title": "Eddies and Exhaust",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player sells to Arasaka for a fortune and drives out into the Badlands at sunrise. It's freedom, of a kind. Judy stops answering their calls. Close on a car on a desert highway, Night City shrinking in the mirror.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Eddies and Exhaust",
+      "page": "You sell the chip to Arasaka for more eddies than you've ever seen.\n\nYou drive out of Night City at sunrise, the radio loud, the Badlands opening up gold and empty ahead of you. It feels like freedom. Mostly.\n\nJudy stops answering your calls. You tell yourself it doesn't matter.\n\nIn the rear-view mirror, the towers of Night City shrink down to a glittering line on the horizon, and then they're gone."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f2e600"
+    },
+    "fonts": {
+      "heading": "mono",
+      "body": "sans"
+    },
+    "particles": "rain"
+  }
+}

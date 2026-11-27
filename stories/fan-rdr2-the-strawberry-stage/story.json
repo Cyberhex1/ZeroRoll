@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-rdr2-the-strawberry-stage",
+    "title": "The Strawberry Stage",
+    "category": "historical_adventure",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "1899. You ride shotgun on the stagecoach to Strawberry, carrying a mine payroll and a widow's letter. When a gang stops the coach in the hills, you meet a tired outlaw who doesn't seem like the others, and a woman with a rifle who is hunting all of them. The West is dying. You can still choose how it treats you.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Red Dead Redemption 2",
+      "medium": "game",
+      "owner": "Rockstar Games",
+      "aka": [
+        "RDR2",
+        "Red Dead",
+        "Arthur Morgan"
+      ]
+    }
+  },
+  "world": "The American frontier in 1899, in the mountain town of Strawberry and the pine hills around it. The age of outlaws is ending: Pinkerton agents and railroads are pushing in. A payroll for the Elysian Pool silver mine rides on the weekly stagecoach. A ragged outlaw gang, the Calloway boys, plans to rob it, tipped off by Strawberry's crooked mayor, Mayor Bramble, who wants the mine to fail so his railroad friends can buy it cheap. Arthur Morgan, an outlaw from a different gang, is in the hills for his own reasons and has a conscience he doesn't advertise. Sadie Adler, a widow turned bounty hunter, is hunting the Calloways.",
+  "tone": "Slow-burn western: big landscapes, campfires, gunfights that end fast, dry humour, and a mournful sense of an era ending.",
+  "playerRole": "A stagecoach guard with a lever-action rifle, a revolver, a good hat, a horse you trust, and the coach company's promise of five dollars a week.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Laconic western narration with landscape, weather and horses. People speak plainly; violence is quick and consequential. Honour matters. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "arthur",
+      "name": "Arthur Morgan",
+      "appearance": "A big, rugged man in his mid-thirties with a weathered face, short light-brown hair and stubble, a worn grey hat, a blue shirt under a brown leather vest and a gunbelt with a revolver.",
+      "voice": "Gruff, dry and slow-spoken, with flashes of dark humour and unexpected gentleness.",
+      "stance": "Doesn't trust the law, but respects honest folks and helps the player if they're straight with him."
+    },
+    {
+      "id": "sadie",
+      "name": "Sadie Adler",
+      "appearance": "A lean woman in her late twenties with blond hair pinned up under a wide hat, a sharp weathered face, a long duster coat, trousers, and a rifle.",
+      "voice": "Fierce, blunt and grieving; jokes like a blade.",
+      "stance": "Hunting the Calloways; sees the player as a useful partner."
+    },
+    {
+      "id": "bramble",
+      "name": "Mayor Bramble",
+      "appearance": "A soft, pink-faced man in his fifties with a waxed moustache, a tall silk hat, a fine checked suit, a pocket watch and a walking cane.",
+      "voice": "Pompous, florid and smiling, with a cold edge.",
+      "stance": "Tipped off the robbers; wants the payroll lost and the mine sold."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Track the gang with Arthur; 2 = Investigate the tip-off in Strawberry."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Bramble's letter to the Calloways."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied Bramble's railroad telegrams."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Shotgun",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The stagecoach climbs the pine hills toward Strawberry with a payroll strongbox and two passengers: a nervous widow carrying a letter and a travelling salesman. At a narrow pass, a tree is down across the road. Then riders appear.",
+      "choices": [
+        {
+          "id": "stand_on_the_coach_and_fire_a_warning_sh",
+          "label": "Stand on the coach and fire a warning shot",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "tell_the_driver_to_turn_back",
+          "label": "Tell the driver to turn back",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "hide_the_strongbox_under_the_seat",
+          "label": "Hide the strongbox under the seat",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "A voice from the trees: 'Throw down the box, friend, and nobody's got to be a hero.'",
+      "page": "The stagecoach to Strawberry climbs through tall pines, wheels jolting over roots. Inside: a nervous widow clutching a letter and a salesman who hasn't stopped talking about patent medicine since Valentine. On the roof, you, a rifle across your knees, and under your boots, the strongbox: the Elysian Pool mine payroll.\n\nAt a narrow pass, the driver hauls on the reins. A tree is down across the road. Freshly cut.\n\nRiders come out of the trees on both sides, bandanas over their faces, rifles up.\n\n\"Throw down the box, friend,\" calls the one in front, \"and nobody's got to be a hero.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "After the Robbery",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Calloways got the strongbox, but the player is alive. A big man in a grey hat, Arthur Morgan, rides out of the trees after the gang leaves and helps with the wounded driver. In Strawberry, Sadie Adler arrives hunting the same gang. Two ways forward: ride with Arthur into the hills to track the gang's camp, or stay in town and look into who tipped them off.",
+      "choices": [
+        {
+          "id": "share_coffee_with_arthur_at_his_fire",
+          "label": "Share coffee with Arthur at his fire",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "Arthur builds a small fire off the road while the driver sleeps. He pours you coffee that tastes like boiled boots. You talk about horses, mostly, and about how many towns have changed since the railroads came. \"World's movin' on,\" he says. \"Folks like me ain't in it.\" Then, after a while: \"You did all right today. Didn't run.\" He doesn't say much else. He doesn't need to."
+        },
+        {
+          "id": "track_the_gang_with_arthur",
+          "label": "Track the gang with Arthur",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "investigate_the_tip_off_in_strawberry",
+          "label": "Investigate the tip-off in Strawberry",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Arthur spits: 'Somebody told 'em when you'd be coming. Ain't no other way.'",
+      "page": "They got the strongbox. You got a bruise, a story and a living driver, which feels like a win.\n\nAs the dust settles, a big man in a battered grey hat rides out of the trees, gets down without a word, and starts binding the driver's leg. \"Arthur,\" he says, when you ask. That's all.\n\n\"Calloway boys,\" he says, watching the dust where the gang vanished. \"Somebody told 'em when you'd be coming. Ain't no other way.\"\n\nIn Strawberry, a lean blond woman in a duster is tacking a wanted poster to the hotel wall. Sadie Adler, bounty hunter. She's hunting the Calloways too, and she's not shy about it."
+    },
+    {
+      "id": "path_a",
+      "title": "The Calloway Camp",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The gang's camp in the hills, three drunk outlaws and the strongbox. Arthur and the player scout it at dusk. The player finds a letter in the leader's saddlebag from Mayor Bramble, giving the coach schedule and promising a cut.",
+      "choices": [
+        {
+          "id": "steal_the_mayor_s_letter",
+          "label": "Steal the mayor's letter",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "take_back_the_strongbox",
+          "label": "Take back the strongbox",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "One of the outlaws starts singing badly. Arthur rolls his eyes.",
+      "page": "You and Arthur track the gang into the hills, leading your horses on foot the last mile. By dusk you're lying in the brush above their camp: three men drunk around a fire, one singing so badly Arthur rolls his eyes, the strongbox sitting in the open like a prize.\n\nWhile they sing, you crawl down to the leader's saddlebags.\n\nInside, folded twice, is a letter on fine paper. The coach schedule, the time it would reach the pass, and a promise: \"One third to you, the rest to me. The mine will fold within the month.\" It's signed with a flourish: Bramble. The Mayor of Strawberry."
+    },
+    {
+      "id": "path_b",
+      "title": "Strawberry's Secrets",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The pretty mountain town. Sadie and the player poke around: the telegraph office, the hotel, the mayor's office. They find telegrams from Bramble to a railroad company about the mine's 'imminent failure'.",
+      "choices": [
+        {
+          "id": "copy_the_telegrams",
+          "label": "Copy the telegrams",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "bribe_the_telegraph_clerk_for_more",
+          "label": "Bribe the telegraph clerk for more",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Sadie spits: 'Funny how a town's mayor gets so rich in a mine town with no money.'",
+      "page": "Strawberry is a pretty mountain town, freshly painted, all hanging baskets and polished brass. Sadie walks beside you, eyes narrowed. \"Funny how a town's mayor gets so rich in a mine town with no money.\"\n\nAt the telegraph office, a nervous clerk lets you see the outgoing file for the price of a silver dollar and a long stare from Sadie.\n\nMayor Bramble has been busy. Telegram after telegram to a railroad company in Saint Denis: \"Mine failure imminent. Workers unpaid. Purchase recommended at reduced price.\" Each one sent days before the robbery."
+    },
+    {
+      "id": "showdown",
+      "title": "Showdown at the Mine",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Everything converges at the Elysian Pool mine. The Calloways are trying to sell the strongbox to Bramble's men, Arthur and Sadie are in position, and the miners are watching, unpaid. Bramble arrives to 'oversee'.",
+      "choices": [
+        {
+          "id": "call_out_bramble_in_front_of_the_miners",
+          "label": "Call out Bramble in front of the miners",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "draw_on_the_calloways",
+          "label": "Draw on the Calloways",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Bramble twirls his cane: 'A misunderstanding, I'm sure. Let's be civilised.'",
+      "page": "It all comes to a head at the Elysian Pool mine. The miners, unpaid and angry, stand outside the shaft. The Calloways have brought the strongbox to sell to Bramble's hired men. Arthur is up on the ridge with his rifle. Sadie is somewhere behind the ore carts.\n\nThen Mayor Bramble arrives in his silk hat and checked suit, cane swinging.\n\n\"A misunderstanding, I'm sure,\" he says, smiling. \"Let's be civilised, shall we?\"\n\nEvery hand near a gun twitches."
+    },
+    {
+      "id": "finale",
+      "title": "The Law in Strawberry",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Smoke clears at the mine. The player decides: show the miners Bramble's letter to the Calloways (only if they found it); take the railroad telegrams to the Marshal in Valentine (only if they copied them); or return the payroll and ride on.",
+      "choices": [
+        {
+          "id": "show_the_miners_bramble_s_letter",
+          "label": "Show the miners Bramble's letter",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "miners_justice"
+        },
+        {
+          "id": "take_the_telegrams_to_the_marshal",
+          "label": "Take the telegrams to the Marshal",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_marshal_rides_in"
+        },
+        {
+          "id": "return_the_payroll_and_ride_on",
+          "label": "Return the payroll and ride on",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "paid_in_full"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "miners_justice",
+        "the_marshal_rides_in",
+        "paid_in_full"
+      ],
+      "isEnding": false,
+      "page": "The smoke clears. The Calloways are on the ground or running. The strongbox sits in the dirt between you and the miners. Mayor Bramble has lost his silk hat and some of his smile.\n\nArthur rides down from the ridge. Sadie steps out from behind the carts. Everybody is looking at you, because you're the one who rode the coach, and the law in Strawberry is whatever you make of it today."
+    },
+    {
+      "id": "miners_justice",
+      "title": "Miners' Justice",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The miners read the letter and Bramble is run out of town on a rail. The mine stays open. Arthur tips his hat to the player and rides off. Close on a sunset over the pines and the payroll being handed out.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Miners' Justice",
+      "page": "You hold up Bramble's letter and read it aloud to the miners. \"One third to you, the rest to me. The mine will fold within the month.\"\n\nThere's a long silence. Then a roar.\n\nThe miners run Mayor Bramble out of Strawberry on a fence rail, silk hat and all. The mine stays open. The payroll is handed out right there on the ore carts, man by man.\n\nArthur tips his hat to you from his saddle and rides off into the trees. The sun sets gold over the pines, and someone in the crowd starts singing."
+    },
+    {
+      "id": "the_marshal_rides_in",
+      "title": "The Marshal Rides In",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Marshal arrests Bramble and the railroad deal collapses. Sadie collects the bounties and offers the player a partnership. Close on two riders heading into the mountains.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Marshal Rides In",
+      "page": "You ride to Valentine with the telegrams in your saddlebag and lay them on the Marshal's desk. He reads them twice, then reaches for his hat.\n\nBramble is arrested on the steps of his own town hall. The railroad's deal collapses before the ink dries.\n\nSadie collects the bounty on every Calloway, then finds you at the hitching post. \"I could use a partner who reads telegrams,\" she says. \"You any good at tracking?\"\n\nThe next morning two riders head up into the mountains together, rifles on their backs."
+    },
+    {
+      "id": "paid_in_full",
+      "title": "Paid in Full",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The miners are paid and nobody learns the truth. The player rides on, a little poorer, a little wiser. Arthur's last words to them: 'Be better than me.' Close on the empty road and a lone rider.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Paid in Full",
+      "page": "You hand the strongbox to the foreman. The miners are paid. Bramble smiles like it was all his idea, and nobody ever learns the truth.\n\nYou ride on, a little poorer than you'd hoped, a little wiser than you'd planned.\n\nAt the fork in the road, Arthur reins in beside you one last time. He looks at you for a long moment. \"Be better than me,\" he says. Then he turns his horse toward the hills.\n\nYou ride the other way, alone on the empty road, with the whole West going quiet around you."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c97b3a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

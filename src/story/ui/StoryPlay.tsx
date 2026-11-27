@@ -6,7 +6,8 @@ import { complete, Tier, TIERS } from '../../ai/router';
 import { classifyAIError, describeAIError } from '../../lib/aiErrors';
 import { reportAIFailure } from '../../lib/aiStatus';
 import { AI_PROVIDERS } from '../../lib/providersConfig';
-import { getActiveProvider } from '../../lib/geminiService';
+import { getActiveProvider, hasActiveAIKey } from '../../lib/geminiService';
+import { hasBook, openBook, turnBook, usesBook } from '../book';
 import { isMatureContentEnabled } from '../../lib/contentRating';
 import { StoryProgress, StoryRepository } from '../../storage/storyRepository';
 import { BackupStatus, CloudStoryMeta, cloudMovedOn, cloudStoryMeta, createBackupQueue, describeBackup, loadCloudStory } from '../../storage/storyCloud';
@@ -145,6 +146,20 @@ export default function StoryPlay() {
 
   const send = (input: { text?: string; choiceId?: string }) => {
     if (!story || !save || busy || save.state.ending) return;
+    if (usesBook(story, save)) {
+      // Book choices read the written pages; only a typed action (or an AI-suggested one) asks the AI.
+      if (input.choiceId) {
+        setError(null);
+        setDraft('');
+        const read = turnBook(story, save, input.choiceId);
+        void persist(read, Boolean(read.state.ending && !save.state.ending));
+        return;
+      }
+      if (!hasActiveAIKey()) {
+        setError('Writing your own action needs an AI. Add a key in Settings, or pick one of the choices to keep reading offline.');
+        return;
+      }
+    }
     // A new input starts a new turn, so Reroll can no longer go back past it.
     const next = { ...addPlayerInput(story, save, input).save, undo: undefined };
     setDraft('');
@@ -155,7 +170,8 @@ export default function StoryPlay() {
   const begin = (player: PlayerIdentity) => {
     if (!save || busy) return;
     rememberPlayer(player);
-    void runNarrator({ ...save, player });
+    if (story && usesBook(story, save)) void persist(openBook(story, { ...save, player }));
+    else void runNarrator({ ...save, player });
   };
 
   const reroll = () => {
@@ -168,7 +184,7 @@ export default function StoryPlay() {
   const restart = async () => {
     if (!story || busy) return;
     if (!window.confirm('Start this story again from the beginning? Your endings and map stay.')) return;
-    await persist(newSave(story, save?.tier));
+    await persist({ ...newSave(story, save?.tier), ...(save?.book === false ? { book: false } : {}) });
   };
 
   const exportSave = async () => {
@@ -233,6 +249,7 @@ export default function StoryPlay() {
   const chips = currentChips(story, save);
   const ended = Boolean(save.state.ending);
   const lastIsPlayer = save.messages[save.messages.length - 1]?.kind === 'player';
+  const book = usesBook(story, save);
   const btn = 'inline-flex items-center gap-1 rounded px-2.5 py-1.5 text-xs disabled:opacity-40 border';
   const btnStyle = { borderColor: 'color-mix(in srgb, var(--sk-accent) 40%, transparent)', color: 'var(--sk-text)' };
 
@@ -387,7 +404,7 @@ export default function StoryPlay() {
                 id="story-input"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder={story.meta.mode === 'character' ? 'Say something' : 'Or write what you do'}
+                placeholder={story.meta.mode === 'character' ? 'Say something' : book ? 'Or write your own action (the AI takes over)' : 'Or write what you do'}
                 maxLength={600}
                 className="flex-1 rounded px-3 py-2 text-sm border bg-transparent"
                 style={{ borderColor: 'color-mix(in srgb, var(--sk-text) 25%, transparent)' }}
@@ -396,7 +413,16 @@ export default function StoryPlay() {
             </form>
             <div className="flex flex-wrap items-center gap-3 text-xs" style={{ color: 'var(--sk-muted)' }}>
               <button type="button" onClick={reroll} disabled={busy || (!save.undo && !lastIsPlayer)} className={btn} style={btnStyle}><RefreshCw className="w-3 h-3" />{lastIsPlayer ? 'Try again' : 'Reroll'}</button>
-              <button type="button" onClick={() => send({ text: 'Continue.' })} disabled={busy || lastIsPlayer} className={btn} style={btnStyle}><SkipForward className="w-3 h-3" />Continue</button>
+              {!book && <button type="button" onClick={() => send({ text: 'Continue.' })} disabled={busy || lastIsPlayer} className={btn} style={btnStyle}><SkipForward className="w-3 h-3" />Continue</button>}
+              {hasBook(story) && (
+                <label className="flex items-center gap-2" title="Book pages work offline with no AI. Typing your own action always asks the AI.">
+                  Story text
+                  <select value={book ? 'book' : 'ai'} onChange={(e) => void persist({ ...save, book: e.target.value === 'book' })} className="rounded px-2 py-1 border bg-transparent" style={{ borderColor: 'color-mix(in srgb, var(--sk-text) 25%, transparent)' }}>
+                    <option value="book" style={{ background: '#111' }}>Book pages (works offline)</option>
+                    <option value="ai" style={{ background: '#111' }}>AI narrator every turn</option>
+                  </select>
+                </label>
+              )}
               <label className="flex items-center gap-2" title="How much story the narrator writes each reply">
                 Reply length
                 <input

@@ -143,7 +143,8 @@
         "first_raid"
       ],
       "isEnding": false,
-      "hint": "Akane's message blinks again: 'We have snacks! Virtual ones! Join us!!!'"
+      "hint": "Akane's message blinks again: 'We have snacks! Virtual ones! Join us!!!'",
+      "page": "Late at night, and your room is dark except for the screen.\n\nRen, your duo partner in Forest of Savior for two whole years, just left your party to join a big-name guild. Then he left your group chat. His last message was one emoji. A waving hand.\n\nYou stare at the guild recruitment board for a long time.\n\nOne small guild's post catches your eye. Friendly. Casual. All levels welcome. You click Apply before you can talk yourself out of it.\n\nThirty seconds later, a healer called Akane messages you. Five exclamation marks. A welcome sticker of a dancing cat. \"We have snacks! Virtual ones! Join us!!!\""
     },
     {
       "id": "first_raid",
@@ -209,7 +210,8 @@
         "meetup"
       ],
       "isEnding": false,
-      "hint": "Party chat, Yamada: 'move.' The boss is winding up."
+      "hint": "Party chat, Yamada: 'move.' The boss is winding up.",
+      "page": "Your first raid with the guild: a forest temple, vines and glowing ruins, a boss the size of a house.\n\nYamada, the guild's top-ranked player, carries the fight. In party chat, he gives you notes. Blunt ones. \"stop standing in the fire.\" \"your rotation is wrong.\" \"move.\"\n\nHaru, the guild's other healer, keeps you alive with perfectly timed heals and never once apologises for it, which is somehow comforting.\n\nAkane cheers for everyone, constantly.\n\nThe boss is winding up a huge attack. Party chat, Yamada: \"move.\""
     },
     {
       "id": "meetup",
@@ -231,7 +233,8 @@
               "flag": "yamada",
               "add": 1
             }
-          ]
+          ],
+          "outcome": "You sit down next to Yamada. He nods, once, and goes back to his juice.\n\nFor twenty minutes, he says nothing. Then, without looking up, he slides the plate of grilled skewers toward you. \"...these are good.\"\n\nLater, when Akane makes everyone play a silly game, he catches your eye across the table and, very briefly, almost smiles."
         },
         {
           "id": "sit_haru",
@@ -241,7 +244,8 @@
               "flag": "haru",
               "add": 1
             }
-          ]
+          ],
+          "outcome": "You sit down next to Haru, who goes slightly pink and offers you a piece of bread from the box. It's still warm.\n\nHaru asks about your favourite class in the game, and listens to the answer properly, all the way through, nodding.\n\nWhen the grill flares up, Haru moves the plate out of the way without thinking, so the flames don't catch your sleeve."
         },
         {
           "id": "practise_yamada",
@@ -277,7 +281,8 @@
         "bakery"
       ],
       "isEnding": false,
-      "hint": "Akane, a little tipsy: 'So! Who are you practising with?' Everyone looks at the player."
+      "hint": "Akane, a little tipsy: 'So! Who are you practising with?' Everyone looks at the player.",
+      "page": "The guild's offline meetup is at a cosy izakaya with paper lanterns and a grill on every table.\n\nAkane is excited and nervous, introducing everyone twice. Haru arrives early with a box of bread from the bakery where they work. Yamada arrives late, looks about eighteen, orders juice and says almost nothing at all, until someone mentions the guild tournament next week. Then he talks for five straight minutes about strategy.\n\nThere's a free seat next to Yamada. There's a free seat next to Haru.\n\nAt the end of the night, both ask you, separately, to practise before the tournament. Yamada: late at night, online. Haru: at the bakery at dawn, before their shift.\n\nAkane, a little tipsy, claps her hands. \"So! Who are you practising with?\" Everyone looks at you."
     },
     {
       "id": "duo_queue",
@@ -333,7 +338,8 @@
         "tournament"
       ],
       "isEnding": false,
-      "hint": "Yamada: '...again.' The duel timer resets."
+      "hint": "Yamada: '...again.' The duel timer resets.",
+      "page": "2 a.m. Voice chat with Yamada. Duel practice. Again. And again. And again.\n\nHe's a strict teacher, but a patient one. He never raises his voice. He just says \"...again\" and resets the duel timer.\n\nBetween matches, in the quiet, he says one or two unexpectedly personal things. About why he plays. About how annoying it is when people leave.\n\nYou realise, slowly, that he's talking about himself. And maybe about you.\n\nThe duel timer resets. \"...again.\""
     },
     {
       "id": "bakery",
@@ -393,7 +399,8 @@
         "tournament"
       ],
       "isEnding": false,
-      "hint": "Haru dusts their hands: 'Um. Can I tell you something?'"
+      "hint": "Haru dusts their hands: 'Um. Can I tell you something?'",
+      "page": "5 a.m. at the little bakery where Haru works. The street outside is still dark. Inside, it's warm, and it smells of butter and yeast, and the ovens glow orange.\n\nHaru gives you an apron and teaches you to shape bread rolls while you talk tournament strategy. Then, slowly, not strategy. Family. Work. Why you both play.\n\nHaru's hands go still in the dough. They dust off their hands, not looking at you.\n\n\"Um,\" Haru says. \"Can I tell you something? I noticed you. In the first raid. Before the meetup.\""
     },
     {
       "id": "tournament",
@@ -457,7 +464,8 @@
         "party_of_four"
       ],
       "isEnding": false,
-      "hint": "Ren types in all-chat: 'still bad lol'. The final round starts."
+      "hint": "Ren types in all-chat: 'still bad lol'. The final round starts.",
+      "page": "Tournament night. Everybody in voice chat, Akane screaming encouragement.\n\nYou make it to the final. And on the enemy team, in his big-name guild's colours: Ren.\n\nHe types in all-chat: \"still bad lol.\"\n\nThe final round starts. It comes down to you, one on one, the whole guild holding its breath.\n\nWin or lose, when it's over, the voice chat explodes with noise and cheering. Then, slowly, people start to drift off, and you have a choice of where to spend the rest of the night."
     },
     {
       "id": "level_up",
@@ -479,7 +487,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Level Up"
+      "endingTitle": "Level Up",
+      "page": "A quiet walk to the convenience store at 1 a.m. with Yamada. Streetlights. Empty roads. The hum of the fridge cases.\n\nHe buys your favourite snack without asking which one it is. You never told him. He just noticed.\n\n\"You played well,\" he says, bluntly, looking at the shelves instead of you. \"Better than him. Better than me, at the end.\"\n\nHe stands closer to you than he needs to, under the streetlight, both of you holding cans of juice.\n\nNothing is said. Nothing needs to be. But something has started."
     },
     {
       "id": "player_two",
@@ -501,7 +510,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Player Two"
+      "endingTitle": "Player Two",
+      "page": "You stay on the call with Haru until the sun comes up.\n\nYou can hear the bakery in the background: the oven timer, the clatter of trays, Haru's soft laugh when you say something stupid.\n\nAs the sky turns pink, Haru goes quiet. Then: \"Do you, um. Want to duo? Properly? And maybe... get breakfast after?\"\n\nThe first light comes through your window.\n\n\"Yes,\" you say."
     },
     {
       "id": "party_of_four",
@@ -518,7 +528,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Party of Four"
+      "endingTitle": "Party of Four",
+      "page": "A chaotic group video call. Akane is crying happy tears. Haru is holding a loaf of bread up to the camera for no reason. Yamada is eating chips in total silence, but he hasn't left the call, which for him is practically a party.\n\nYour phone buzzes. A message from Ren. An apology. A real one.\n\nYou'll decide whether to answer later.\n\nAkane yells, \"SCREENSHOT!\" and everyone makes a silly pose. You look at it afterwards, the four of you in your little boxes, and you realise you've found your people."
     }
   ],
   "art": {

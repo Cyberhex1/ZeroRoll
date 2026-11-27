@@ -137,7 +137,8 @@
         "route_wind"
       ],
       "isEnding": false,
-      "hint": "The envelope responds to an ordinary observation, not a grand confession."
+      "hint": "The envelope responds to an ordinary observation, not a grand confession.",
+      "page": "A sea-cliff dock in the morning wind. Gulls overhead. Waves far below.\n\nYour friend Ren helps you unpack your inheritance from your old mentor: half of a hand-drawn sky map, and a balloon. Ochre and cream, with three teal repair patches, folded in a big wicker basket.\n\nThe rigging is sound. But the envelope lies slack on the dock.\n\n\"It only rises for the truth,\" Ren says. \"Not a big dramatic truth. Just a real one.\" They hold up a hand to the breeze. \"Like: my hands are cold.\" The envelope stirs, very slightly.\n\nBeyond the edge of the map, past a bank of cloud, your first delivery is waiting."
     },
     {
       "id": "route_wind",
@@ -193,7 +194,8 @@
         "post_island"
       ],
       "isEnding": false,
-      "hint": "Ren points out the time saved on one route and the resting dock on the other."
+      "hint": "Ren points out the time saved on one route and the resting dock on the other.",
+      "page": "The balloon rises, gently, above the sea cliffs, and you look at the half-map in your hands.\n\nIt stops short of a great bank of cloud. Beyond it, nothing. Just blank paper.\n\nRen points out two ways in. A quick updraft rising off the reef: faster, but exposed, with fewer places to rest. Or a detour to a small mail landing where local couriers know the gaps in the cloud.\n\n\"Either works,\" Ren says. \"One's quicker. One's got a dock to rest at. The delivery isn't urgent-urgent. Just... it'd be nice to arrive today.\"\n\nThe blank part of the map isn't empty, you realise. Someone just didn't draw it."
     },
     {
       "id": "reef_thermal",
@@ -245,7 +247,8 @@
         "blank_margin"
       ],
       "isEnding": false,
-      "hint": "A dock marker provides a fixed point against moving cloud."
+      "hint": "A dock marker provides a fixed point against moving cloud.",
+      "page": "You ride the sea-cliff updraft, the balloon swaying, the basket creaking.\n\nThe moving clouds make your mentor's inherited line look perfectly convincing. Then you spot a fixed dock marker, a painted post on the cliff edge, and you check it against the map.\n\nThe line is wrong. Not by a lot. But wrong.\n\nYou and Ren take careful measurements against the fixed post. The balloon stays steady while you're honest about what you know and what you don't. When you say \"I think,\" it lifts a little less. When you say \"I measured,\" it lifts a little more.\n\nYou have real evidence now. Enough to go on to Siv's mooring safely."
     },
     {
       "id": "post_island",
@@ -297,7 +300,8 @@
         "blank_margin"
       ],
       "isEnding": false,
-      "hint": "Pavo's ordinary delivery stamps cover places the inherited map omits."
+      "hint": "Pavo's ordinary delivery stamps cover places the inherited map omits.",
+      "page": "Pavo, a cheerful courier with a satchel full of letters, meets you at the little post island. \"New faces! Welcome!\"\n\nHe shows you his delivery records: dozens of homes and gardens, regularly visited, right where your inherited map is blank.\n\n\"Your mentor's map just... doesn't have them,\" Pavo says, scratching his head. He insists his own route is direct. Then, a bit sheepishly, he admits that some of it is from local advice, not measurements. \"I trust the folks who live there. But I didn't measure it myself.\"\n\nIt isn't a villain reveal. Just an honest correction. And he can tell you a safe way to Siv's shared mooring."
     },
     {
       "id": "blank_margin",
@@ -344,7 +348,8 @@
         "map_table"
       ],
       "isEnding": false,
-      "hint": "Siv asks which line was measured and which line was assumed."
+      "hint": "Siv asks which line was measured and which line was assumed.",
+      "page": "Safely moored at Siv's island, you spread the evidence you've gathered on the table.\n\nSiv is quiet and thoughtful, an islander with weather-lined hands. She looks at your mentor's old bearing, and at your measurements, and asks a simple question. \"Which line did someone measure, and which line did someone guess?\"\n\nYour mentor, it turns out, missed a crossing once, years ago. And instead of writing down that they were uncertain, they just left the margin blank. As if nobody lived here.\n\nSiv doesn't want anyone humiliated. She just wants her island on the map, accurately. She'll help you measure enough for a proper, bounded correction."
     },
     {
       "id": "map_table",
@@ -416,7 +421,8 @@
         "long_survey"
       ],
       "isEnding": false,
-      "hint": "The balloon lifts for a modest truthful plan as readily as a brave one."
+      "hint": "The balloon lifts for a modest truthful plan as readily as a brave one.",
+      "page": "With the balloon securely moored, Siv, Ren and Pavo gather around a big wooden table with you and lay the chart out flat.\n\nThe delivery can go by Siv's verified approach. Or by a slower known route home. Or Pavo could take it on his regular service, while you stay here to survey.\n\n\"Whatever you publish,\" Siv says, \"it has to show what's still unknown. Honestly.\"\n\nThe balloon, tied up outside, stirs in the wind. It doesn't need you to be brave. It just needs you to be honest about what you're going to do."
     },
     {
       "id": "shared_chart",
@@ -438,7 +444,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "A Map with Room for Others"
+      "endingTitle": "A Map with Room for Others",
+      "page": "You publish the corrected chart, with its remaining gaps clearly marked: UNMEASURED, in neat letters, instead of blank paper.\n\nSiv's verified approach gets the delivery where it needs to go. Islanders bring their own notes: a landmark here, a wind pattern there.\n\nRen double-checks the final mooring. Pavo compares the practical route with his own and nods. \"Better than mine,\" he admits.\n\nThe blank spaces on the new chart mean something different now. Not 'nobody lives here'. Just 'nobody has measured this yet'. A map with room for other people."
     },
     {
       "id": "careful_return",
@@ -460,7 +467,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The Honest Way Home"
+      "endingTitle": "The Honest Way Home",
+      "page": "You admit it, out loud: \"The route isn't ready yet.\" The balloon lifts, steady and sure, at the honesty of it.\n\nPavo arranges a slower, safe delivery through his regular service. Nobody goes without what they need.\n\nRen claps you on the shoulder. \"Knowing your limits is good navigation. Every old pilot says so.\"\n\nYou ride home by the known moorings, back toward the familiar sea-cliff dock, with a notebook full of real measurements and honest questions, saved for another day."
     },
     {
       "id": "long_survey",
@@ -482,7 +490,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The People Who Know the Wind"
+      "endingTitle": "The People Who Know the Wind",
+      "page": "You decide to stay and survey with the islanders. Pavo takes the delivery on his regular round. \"I'll bring your next packet on Thursday,\" he says.\n\nSiv brings out her own maps of local landmarks. Ren checks the shared gear. Together, you start planning the first proper survey of the island.\n\nThe new map lines will name what was measured, and leave honest room around what wasn't.\n\nThe balloon rests securely at its mooring, its three teal patches bright in the afternoon light, waiting for whatever you decide to do with it next."
     }
   ],
   "art": {

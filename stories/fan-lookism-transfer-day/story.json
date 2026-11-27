@@ -162,7 +162,8 @@
         "cafeteria"
       ],
       "isEnding": false,
-      "hint": "The speaker crackles: 'Next! New transfer! Let's see that face!'"
+      "hint": "The speaker crackles: 'Next! New transfer! Let's see that face!'",
+      "page": "Your first morning at J High, and there's a phone on a tripod at the school gate.\n\nIt flashes at every student who walks through. A speaker crackles and announces a number, out loud, for everyone to hear. \"Face Rank: 64!\" \"Face Rank: 81!\" Laughter. Groans.\n\nKang Min-chul, a smirking boy with bleached hair, lounges by the gate reading the scores aloud like a game-show host. A heavy-set boy in glasses walks through. \"Face Rank: 2!\" Everyone laughs. The boy keeps his eyes on the ground.\n\nA tall, impossibly handsome boy walks in beside you. Daniel Park. \"Face Rank: 99!\" He looks miserable about it.\n\nThe speaker crackles at you. \"Next! New transfer! Let's see that face!\" The flash goes off. Your number is middling, and the way Min-chul reads it is insulting."
     },
     {
       "id": "cafeteria",
@@ -184,7 +185,8 @@
               "flag": "helped_boy",
               "set": true
             }
-          ]
+          ],
+          "outcome": "You get up, walk over and kneel to help the boy scoop up his spilled tray. Then you stand, turn to Min-chul's friends, and ask them, loudly and pleasantly, if they need help learning to walk.\n\nThe cafeteria goes very quiet. Then somebody at the Burn Knuckles table cheers.\n\nThe boy, whose name is Jin-ho, looks at you as if nobody has ever done that before. Maybe nobody has. He gives you half of his remaining kimbap."
         },
         {
           "id": "join_patrol",
@@ -220,7 +222,8 @@
         "photoshoot"
       ],
       "isEnding": false,
-      "hint": "Vasco slams a fist on the table: 'After school. Patrol. You in?' Daniel just looks at the player hopefully."
+      "hint": "Vasco slams a fist on the table: 'After school. Patrol. You in?' Daniel just looks at the player hopefully.",
+      "page": "The J High cafeteria, and it's all politics.\n\nAt one table: Burn Knuckles, a crew of loud, earnest kids who say they fight bullies, led by Vasco, who is built like a fridge and has a heart of gold. At another: Zack and Jay, sitting near Daniel. At a third: the heavy-set boy from the gate, eating alone.\n\nThen two of Min-chul's friends walk past him and 'accidentally' knock his tray onto the floor. Rice everywhere. Laughter.\n\nEveryone turns to look at the new kid. At you.\n\nVasco slams a fist on the table. \"After school. Patrol. You in?\" Across the room, Daniel just looks at you, hopefully. He's going to a photoshoot. He thinks he can find out who runs Face Rank. You can't do both."
     },
     {
       "id": "patrol",
@@ -276,7 +279,8 @@
         "rooftop"
       ],
       "isEnding": false,
-      "hint": "Vasco cracks his knuckles: 'Justice time!'"
+      "hint": "Vasco cracks his knuckles: 'Justice time!'",
+      "page": "After school, Burn Knuckles walks the streets around J High in a grim, determined line, looking for injustice.\n\nThey find it fast: in an alley, Min-chul's friends are shaking down a first-year for his phone. \"It's for the app, kid. Hand it over.\"\n\nVasco cracks his knuckles. \"Justice time!\"\n\nWhat follows is a big, loud, dramatic and slightly ridiculous fight. Halfway through, Zack wanders in, complaining about the noise, and joins in anyway.\n\nWhen it's over, one of the beaten bullies, sitting on the ground holding his nose, admits it: Min-chul runs Face Rank from a shed on the school roof."
     },
     {
       "id": "photoshoot",
@@ -328,7 +332,8 @@
         "rooftop"
       ],
       "isEnding": false,
-      "hint": "Jay taps the laptop screen once and looks at the player."
+      "hint": "Jay taps the laptop screen once and looks at the player.",
+      "page": "A small fashion shoot in a white studio in Gangnam. Daniel is a natural in front of the camera, even though he hates it. Within ten minutes, a stylist has pulled you in as an extra and you're holding a pose you didn't know your body could do.\n\nDuring a break, Jay, quiet as always, catches your eye and nods at the agency's open laptop on a side table.\n\nOn the screen: a folder of hundreds of J High students' Face Rank photos, with their names. And an invoice, addressed to Kang Min-chul. The agency is paying him for faces.\n\nJay taps the screen once and looks at you. You need proof, and you need to not get caught."
     },
     {
       "id": "rooftop",
@@ -375,7 +380,8 @@
         "finale"
       ],
       "isEnding": false,
-      "hint": "Min-chul's thumb hovers over 'Delete all'."
+      "hint": "Min-chul's thumb hovers over 'Delete all'.",
+      "page": "The J High roof at sunset. Pink sky. Wind.\n\nIn a little shed full of chargers and blinking lights, Min-chul sits at a laptop, running Face Rank.\n\nHe tries charm first. Then threats. Then he calls his friends, who come pounding up the stairs. Whoever came with you is right behind you.\n\n\"Walk away,\" Min-chul says, \"and I'll give you a 95. Forever. You'll be somebody.\"\n\nHis thumb hovers over a button on the screen: Delete all."
     },
     {
       "id": "finale",
@@ -434,7 +440,8 @@
         "ranked_number_one",
         "just_a_student"
       ],
-      "isEnding": false
+      "isEnding": false,
+      "page": "Min-chul is cornered against the shed, his friends backing off, the laptop open on the table between you.\n\nFace Rank is right there. Every score. Every photo. Every kid who got laughed at through that gate.\n\nIt's your call how this ends."
     },
     {
       "id": "newest_member",
@@ -456,7 +463,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Burn Knuckles' Newest Member"
+      "endingTitle": "Burn Knuckles' Newest Member",
+      "page": "The laptop meets Vasco's fist. Then the router. Then, for good measure, the shed door.\n\nFace Rank is gone. Min-chul is suspended by the end of the week.\n\nVasco puts a huge hand on your shoulder and solemnly declares you a member of Burn Knuckles. He gives you a nickname. It's terrible. You're stuck with it forever.\n\nZack pretends not to care. He's smiling.\n\nThe crew walks out of the school gate together at sunset, where there's no tripod anymore, and the heavy-set boy from lunch waves at you from the bus stop."
     },
     {
       "id": "ranked_number_one",
@@ -478,7 +486,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Ranked Number One"
+      "endingTitle": "Ranked Number One",
+      "page": "That night, on Daniel's livestream, you hold up your phone to the camera and show everything: the folder, the names, the invoice to Kang Min-chul.\n\nThe stream explodes. Tens of thousands of viewers. Then hundreds of thousands. The agency is reported by morning. The app is pulled. Min-chul is finished.\n\nThe comments call you the real number one.\n\nWhen the stream ends, Daniel sits back and says quietly, \"A face isn't what you're worth. I wish someone had said that to me sooner.\" Then he looks at the view count, and you both start laughing and can't stop."
     },
     {
       "id": "just_a_student",
@@ -495,7 +504,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Just a Student"
+      "endingTitle": "Just a Student",
+      "page": "You pick up the laptop, carry it downstairs to the staff room, hand it to a teacher and go home.\n\nIt's slow. It's unglamorous. Nobody films it.\n\nBut by the next week, Face Rank is gone, and Min-chul has had several very long meetings with his parents and the principal.\n\nThe next morning, at the school gate, there's no tripod and no speaker. The heavy-set boy from lunch is standing there, and he holds out a bag of snacks to share.\n\nIt's an ordinary school day. It's a good one."
     }
   ],
   "art": {

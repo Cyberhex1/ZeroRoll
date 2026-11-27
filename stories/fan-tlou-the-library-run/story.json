@@ -139,7 +139,8 @@
         "crossroads"
       ],
       "isEnding": false,
-      "hint": "Ellie, reading aloud: 'What do you call a sad strawberry? A blueberry. Okay, that one's bad.'"
+      "hint": "Ellie, reading aloud: 'What do you call a sad strawberry? A blueberry. Okay, that one's bad.'",
+      "page": "Dawn at Jackson's gate, and the cold gets into your teeth.\n\nTommy Miller checks your saddle straps twice, then hands you a radio, a hand-drawn map and a look. \"Silver Creek library. In and out. Back by dark. Snow's coming early this year, and I don't like early.\"\n\nEllie is already on her horse, grinning, a battered joke book sticking out of her jacket. \"What do you call a sad strawberry?\" she asks nobody. \"A blueberry.\" Pause. \"Okay, that one's bad.\"\n\nYou ride out past frozen cars, past a billboard for a dentist nobody has needed in twenty-five years. The world is white and silent.\n\nHalfway there, Ellie reins in and points. In the fresh snow on the road: horse tracks. New ones. Heading the same way you are."
     },
     {
       "id": "crossroads",
@@ -161,7 +162,8 @@
               "flag": "bond",
               "set": true
             }
-          ]
+          ],
+          "outcome": "You and Ellie sit on a frozen bench across the street, out of rifle range, and split a strip of jerky. You ask her why she really came. Not for comics, surely.\n\nShe's quiet for a while. Then: \"There's this kid at the school. Won't talk to anyone. But I saw her drawing dinosaurs on a wall. I figured, maybe a dinosaur book.\" She shrugs, embarrassed. \"Somebody did stuff like that for me once.\"\n\nShe flips open her joke book, very fast, before you can say anything. \"Okay. Why don't skeletons fight each other? They don't have the guts.\" She looks at you sideways. You laugh, mostly to make her happy. It works."
         },
         {
           "id": "knock_on_the_barricaded_front_doors",
@@ -192,7 +194,8 @@
         "path_b"
       ],
       "isEnding": false,
-      "hint": "A voice from an upstairs window: 'We see your horses. Let's talk about those horses.'"
+      "hint": "A voice from an upstairs window: 'We see your horses. Let's talk about those horses.'",
+      "page": "The Silver Creek public library is red brick, half its west wing collapsed under the weight of old winters. Ivy has frozen black on its walls.\n\nThere's smoke rising from the chimney.\n\nThe main doors are barricaded from inside, with a sign painted in careful capitals: NO ENTRY. WE ARE ARMED.\n\nAround the side, a basement door hangs open on darkness. The air coming out of it is thick and sweet with spores. Ellie pulls her gas mask out of her pack. \"Children's section was downstairs,\" she says. \"I checked the old map.\"\n\nThen a voice calls down from an upstairs window, calm as a teacher taking roll. \"We see your horses. Let's talk about those horses.\""
     },
     {
       "id": "path_a",
@@ -239,7 +242,8 @@
         "showdown"
       ],
       "isEnding": false,
-      "hint": "One of the kids is holding a picture book, unopened, like treasure."
+      "hint": "One of the kids is holding a picture book, unopened, like treasure.",
+      "page": "The man who comes to the barricade is gaunt, with a shaved head under a knit cap and a long army coat belted with rope. \"Abel Strand,\" he says. \"I used to teach eighth-grade history. Now I mostly teach people how not to starve.\"\n\nInside the lobby, by a stove made from a filing cabinet, sit five thin adults and two kids. They've been burning book pages for warmth. One of the kids is holding a picture book, unopened, like treasure.\n\nAbel wants a horse. \"There's a settlement east, they say. We won't make it on foot.\" He offers their last medicine in trade: a half-bottle of antibiotics.\n\nOn the table, half under a blanket, is a map. Jackson's patrol routes, drawn in pencil, with times. Abel sees you looking. \"For avoiding your people,\" he says. \"Not for finding them.\" He holds your gaze. Maybe."
     },
     {
       "id": "path_b",
@@ -286,7 +290,8 @@
         "showdown"
       ],
       "isEnding": false,
-      "hint": "A Clicker stops two shelves away, head jerking toward the sound of the player's breathing."
+      "hint": "A Clicker stops two shelves away, head jerking toward the sound of the player's breathing.",
+      "page": "Gas masks on, you and Ellie slip down into the basement stacks. Spores drift in your flashlight beams like slow snow. Shelves stretch away into the dark.\n\nClicking. Somewhere ahead, a Clicker shuffles between the aisles, its head jerking at every sound. You stop breathing. It stops two shelves away. Then moves on.\n\nIn a dry corner under a collapsed ceiling, you find the children's section: dinosaurs, fairy tales, a book about the ocean. Ellie stuffs them into her pack with shaking hands.\n\nTaped to a shelf is a note, in careful capitals: KEEP LURING THEM DOWN HERE. NOBODY GETS THE BOOKS, NOBODY GETS UPSTAIRS. IF THEY COME FOR THE BOOKS, WE TAKE THE HORSES. — A.\n\nAt the bottom of the stairs to the reading room, a Bloater, huge and fungal, sways in the dark."
     },
     {
       "id": "showdown",
@@ -328,7 +333,8 @@
         "finale"
       ],
       "isEnding": false,
-      "hint": "Ellie, low: 'Hey. Whatever happens, I'm with you.'"
+      "hint": "Ellie, low: 'Hey. Whatever happens, I'm with you.'",
+      "page": "Night comes fast, and the snow comes with it, screaming against the windows.\n\nThen the basement breaks. Infected pour up the stairs, Runners first, then the clicking. Everyone, Abel's people and you and Ellie, ends up in the old reading room, shoving shelves against the doors.\n\nFor one heartbeat, Abel's rifle is pointed at your chest. Then he swings it to the door.\n\nThe radio crackles. Tommy's voice, distorted: \"...on our way... snow's bad... hold on...\" Too far. Much too far.\n\nSomething heavy slams into the barricade. Ellie's shoulder presses against yours. \"Hey,\" she says, low. \"Whatever happens, I'm with you.\""
     },
     {
       "id": "finale",
@@ -382,7 +388,8 @@
         "story_time",
         "one_horse"
       ],
-      "isEnding": false
+      "isEnding": false,
+      "page": "Dawn. The snow has stopped. The reading room is wrecked, but everyone in it is alive.\n\nOutside, the infected are dead or gone, and fresh white snow covers all of it like nothing happened.\n\nAbel's people sit huddled by the stove. The two kids are asleep on a pile of coats. Ellie is counting bullets: you have one left.\n\nAbel looks at you across the room, tired and waiting. Whatever you decide about his group, he knows it's your call."
     },
     {
       "id": "watching_the_walls",
@@ -399,7 +406,8 @@
       "artCues": [],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Watching the Walls"
+      "endingTitle": "Watching the Walls",
+      "page": "When Tommy's riders arrive at noon, you hand him Abel's pencil map of Jackson's patrols.\n\nTommy studies it for a long time. Then he gives Abel's group food, blankets and a stern, quiet warning, and his riders escort them east, well away from Jackson's routes.\n\nRiding home, Ellie is quiet. \"You did the right thing,\" she says finally. She doesn't sound sure. Neither are you.\n\nA week later, Jackson's patrol schedule is changed, every route, every time. You stand on the wall in fresh snow watching the new patrol ride out, and you hope, wherever Abel's kids are, that they're warm."
     },
     {
       "id": "story_time",
@@ -416,7 +424,8 @@
       "artCues": [],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Story Time"
+      "endingTitle": "Story Time",
+      "page": "You show Abel the note, and you tell him you know what he planned. Then you tell him you're taking all of them to Jackson anyway.\n\nHe stares at you. Then he sits down heavily, and for a moment the history teacher is back in his face, ashamed. \"We were so hungry,\" he says.\n\nIt isn't simple. Jackson's council argues for a week. But Abel's group is given a chance, and a house, and work.\n\nA week later, you sit in the warm school room with snow at the window, reading a dinosaur book aloud to a room full of kids, including Abel's two and the girl who draws on walls. Ellie heckles from the back with terrible puns. Nobody minds."
     },
     {
       "id": "one_horse",
@@ -428,7 +437,8 @@
       "artCues": [],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "One Horse"
+      "endingTitle": "One Horse",
+      "page": "You untie one of the horses and hand Abel the reins. You don't ask for the medicine.\n\nHe looks at you for a long moment. \"Thank you,\" he says, and you think he means it. His group rides east into the white, the two kids waving from the saddle.\n\nYou and Ellie ride home on one horse, a sack of picture books tied behind. She reads jokes aloud the entire way, each one worse than the last. \"What do you call a fish with no eyes? A fsh.\"\n\nAs the light fades, Jackson's lamps appear in the dusk ahead, warm and gold. Ellie stops reading. \"Home,\" she says, like it's the best word she knows."
     }
   ],
   "art": {},

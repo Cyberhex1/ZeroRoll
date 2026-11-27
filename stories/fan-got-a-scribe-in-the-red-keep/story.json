@@ -151,7 +151,8 @@
         "invitations"
       ],
       "isEnding": false,
-      "hint": "The figure on the page is too large and too round to be honest."
+      "hint": "The figure on the page is too large and too round to be honest.",
+      "page": "Morning in the scriptorium of the Red Keep. Rows of scribes bent over desks. Heat, ink, the scratch of a hundred quills, and somewhere, the Grand Maester's old voice droning about the price of parchment.\n\nYou're copying the tourney accounts. Jousting prizes, pavilions, wine. Dull, honest numbers.\n\nThen one line that isn't honest. Four thousand gold dragons, paid to a ship's chandler on the Street of Steel.\n\nThere is no chandler on the Street of Steel. You walked down it yesterday. Smiths, armourers, a pie shop. No chandler.\n\nThe figure on the page is too large and too round to be honest.\n\nThe head scribe raps your desk with his knuckles. \"Copy. Don't read.\" But you've already read it."
     },
     {
       "id": "invitations",
@@ -199,7 +200,8 @@
         "street_of_silk"
       ],
       "isEnding": false,
-      "hint": "The lavender note smells stronger the longer the player holds it."
+      "hint": "The lavender note smells stronger the longer the player holds it.",
+      "page": "That afternoon, two invitations arrive.\n\nThe first comes from a small servant child, who slips a note into your sleeve without stopping. It smells strongly of lavender. Walk in the godswood at dusk, it says. No name. It doesn't need one. Everybody in the Red Keep knows who smells of lavender.\n\nThe second comes from a page in fine livery, who bows and hands you a card sealed with a little silver mockingbird. Sup with me tonight, on the Street of Silk.\n\nBoth of them know what you found. That means both of them knew before you did.\n\nWhoever you see first, the other will know by nightfall."
     },
     {
       "id": "godswood",
@@ -241,7 +243,8 @@
         "tyrion"
       ],
       "isEnding": false,
-      "hint": "Varys smiles: 'Time is the one thing neither of us has, my friend.'"
+      "hint": "Varys smiles: 'Time is the one thing neither of us has, my friend.'",
+      "page": "Dusk under the heart tree in the Red Keep's godswood. Its carved face weeps red sap. The air is cool and green.\n\nVarys is already there, plump and powdered, feeding breadcrumbs to the birds. \"Ah, my friend. I do so love the birds. They hear everything.\"\n\nHe flatters you. He asks gentle questions. And then, softly, he tells you what you found: the false payment, and who it really pays. Sellswords, he says, for someone who wants a war.\n\n\"I can protect you,\" he says. \"A place among my little birds. Safe. Paid. All I ask is the page.\" He smiles. \"You have been noticed by people who do not bargain, my friend. Time is the one thing neither of us has.\""
     },
     {
       "id": "street_of_silk",
@@ -283,7 +286,8 @@
         "tyrion"
       ],
       "isEnding": false,
-      "hint": "Baelish refills the cup: 'Think of your future. I always do.'"
+      "hint": "Baelish refills the cup: 'Think of your future. I always do.'",
+      "page": "The house on the Street of Silk is warm and perfumed and full of soft laughter behind closed doors.\n\nPetyr Baelish pours you excellent wine with his own hand. He's charming. He's funny. He's very interested in your future.\n\n\"A misunderstanding, that page. Accounts are complicated things.\" He smiles. \"There's a post in the treasury. Well paid. Very comfortable. It's yours, if you forget what you saw, and bring me every copy.\"\n\nThrough the window, you can see a gold cloak serjeant standing in the street below, looking up. Not doing anything. Just waiting.\n\nBaelish refills your cup. \"Think of your future. I always do.\""
     },
     {
       "id": "tyrion",
@@ -334,7 +338,8 @@
         "gold_cloak"
       ],
       "isEnding": false,
-      "hint": "Tyrion pours another cup: 'Secrets are heavy. Wine helps. Talking helps more.'"
+      "hint": "Tyrion pours another cup: 'Secrets are heavy. Wine helps. Talking helps more.'",
+      "page": "On your way back, a messenger catches you. Somebody wants to drink with you.\n\nIn a cellar tavern below the Red Keep, Tyrion Lannister sits on a stack of cushions, cheerful and very drunk, and waves you over. \"Ah! The scribe everybody's suddenly so interested in. Sit, sit. Wine?\"\n\nHe's heard you're in trouble. He wants to know why. And as he talks, you realise he's clever enough to have guessed most of it already.\n\n\"Secrets are heavy,\" he says, pouring you another cup. \"Wine helps. Talking helps more.\""
     },
     {
       "id": "gold_cloak",
@@ -396,7 +401,8 @@
         "the_page"
       ],
       "isEnding": false,
-      "hint": "Hobb's sword scrapes the stone wall as he steps closer."
+      "hint": "Hobb's sword scrapes the stone wall as he steps closer.",
+      "page": "Walking back to the scribes' quarters in the dark, you take the narrow servants' stair. Halfway down, a gold cloak steps out of the shadows below.\n\nSerjeant Hobb Tarle. The same man who was waiting outside Baelish's house.\n\n\"Routine check,\" he says pleasantly. \"Night patrol. Let's see your hands.\"\n\nThen he draws his sword. It scrapes on the stone wall as he steps closer. You have a penknife, quick legs and your wits. You need them all."
     },
     {
       "id": "the_page",
@@ -468,7 +474,8 @@
         "ship_to_braavos"
       ],
       "isEnding": false,
-      "hint": "The bells of the sept ring the hour before dawn."
+      "hint": "The bells of the sept ring the hour before dawn.",
+      "page": "Before dawn. Alone in your little room, with a single candle and the page on the desk in front of you.\n\nYou survived the night. The page is still yours.\n\nThe Spider wants it. The Mockingbird wants it. A drunken Lannister might want it too, for his own reasons. And on the docks, the Braavosi ships leave with the morning tide.\n\nOutside, the bells of the sept ring the hour before dawn. Whatever you do, you have to do it now."
     },
     {
       "id": "the_spiders_web",
@@ -490,7 +497,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The Spider's Web"
+      "endingTitle": "The Spider's Web",
+      "page": "You give the page to Varys. He takes it with genuine delight, like a child with a sweet.\n\nFrom then on, you're one of his little birds. Safe. Paid. Watched. You copy letters by day, and by night you whisper what you've copied to a plump man who smells of lavender.\n\nA week later, Baelish passes you in a corridor and smiles at you. You smile back. You both know.\n\nThat evening, a note appears in your sleeve. You never see who puts it there. You read the whisper, and you begin to understand how the Red Keep really works."
     },
     {
       "id": "the_mockingbirds_coin",
@@ -512,7 +520,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The Mockingbird's Coin"
+      "endingTitle": "The Mockingbird's Coin",
+      "page": "You give the page to Baelish. He reads it once, smiles, and holds it to a candle until it's ash.\n\nThe next morning, you have a post in the treasury and a heavy purse. Within a year, you have a better room, better clothes, a servant of your own.\n\nYou rise fast. You sleep badly.\n\nOne night, alone at your new desk, Baelish's man brings you a ledger and stands waiting. You dip your quill. And for the first time, in your own careful hand, you write a payment to a chandler who doesn't exist."
     },
     {
       "id": "the_imps_scribe",
@@ -534,7 +543,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The Imp's Scribe"
+      "endingTitle": "The Imp's Scribe",
+      "page": "Tyrion drops the page on the Small Council table in the middle of a meeting, with a joke so filthy and so precise that Baelish's smile freezes on his face.\n\nNothing much happens to Baelish. Nothing ever does. But the payments to the sellswords stop, quietly, that week.\n\nAnd when Tyrion leaves King's Landing for the west, he takes you with him as his own scribe.\n\nOn the road, he argues with you about books for three days straight. You win at least half the arguments. He seems delighted by that. \"Finally,\" he says, \"someone in my service who reads.\""
     },
     {
       "id": "ship_to_braavos",
@@ -551,7 +561,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "A Ship to Braavos"
+      "endingTitle": "A Ship to Braavos",
+      "page": "You slip out of the Red Keep before dawn, down through the stinking alleys of Flea Bottom, to the docks.\n\nA Braavosi ship is casting off with the morning tide. You pay the captain with everything you have. The page is sewn into the lining of your coat.\n\nKing's Landing falls behind you: the Red Keep on its hill, the Great Sept, the smoke of a thousand chimneys.\n\nDays later, at sunrise, the Titan of Braavos rises out of the sea ahead of you, enormous, a stone giant with fire in his eyes. You're free. You have a secret worth a fortune. And you have no idea who will come looking for it."
     }
   ],
   "art": {

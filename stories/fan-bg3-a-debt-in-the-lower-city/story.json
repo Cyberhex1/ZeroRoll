@@ -170,7 +170,8 @@
         "the_wide"
       ],
       "isEnding": false,
-      "hint": "Karlach thumps the table: 'Right, soldier. Who's coming with you?'"
+      "hint": "Karlach thumps the table: 'Right, soldier. Who's coming with you?'",
+      "page": "You wake with a head full of broken glass and the smell of stale ale, in a cramped room above the Elfsong Tavern.\n\nUnder your pillow: a black wax seal stamped with a nine-fingered hand. A Guild debt marker. Pinned to it, a note in neat handwriting. Three hundred gold, or one favour, by moonset. The grate behind the Counting House.\n\nYou don't remember any dice game. You don't remember much of anything.\n\nDownstairs, the ghostly singing from the cellar drifts up through the floorboards. In the taproom, Karlach is eating breakfast at noon, horns gleaming, her infernal engine humming in her chest. She waves a sausage at you. \"You look like hell, soldier. And I'd know.\"\n\nIn the darkest corner, Astarion lounges with a glass of something red, and smiles like he's already read your note. He has. \"Guild trouble? How thrilling. I might be persuaded to help. For a small consideration.\""
     },
     {
       "id": "the_wide",
@@ -236,7 +237,8 @@
         "guild_den"
       ],
       "isEnding": false,
-      "hint": "A limping boy ducks behind the puppet stall every time the player looks back."
+      "hint": "A limping boy ducks behind the puppet stall every time the player looks back.",
+      "page": "Evening on the Wide, the great square of Baldur's Gate. Street preachers shout about gods. Flaming Fist patrols clank past. A puppet show is performing a very rude version of a famous duke's life.\n\nAnd every time you look back, a thin boy with a limp ducks behind the puppet stall.\n\nHe's a Guild runner, and not a very good one. If you could just get a word with him, he might know who put that marker under your pillow, and why."
     },
     {
       "id": "guild_den",
@@ -288,7 +290,8 @@
         "lockbox"
       ],
       "isEnding": false,
-      "hint": "Dagny taps the lockbox: 'The moon won't wait, dear.'"
+      "hint": "Dagny taps the lockbox: 'The moon won't wait, dear.'",
+      "page": "The grate behind the Counting House lifts with a groan. Down the ladder, through the sewers, into a dry vault lined with ledgers.\n\nDagny Vell sits behind a desk like a kindly aunt doing the household accounts. She is polite. That's the worst part.\n\n\"You never played dice, dear. We had you drugged at the Blushing Mermaid. Nothing personal. We needed someone the Fist doesn't know.\" She slides a sealed iron lockbox across the desk. \"Carry this through the Basilisk Gate. Hand it to a buyer on the bridge under Wyrm's Rock at moonset. Do that, and your debt's gone.\"\n\n\"And if I don't?\"\n\n\"Then we sell your marker to people who collect in fingers.\" She taps the box. It's warded. \"I don't know what's in it. I don't care. The moon won't wait, dear.\""
     },
     {
       "id": "lockbox",
@@ -352,7 +355,8 @@
         "basilisk_gate"
       ],
       "isEnding": false,
-      "hint": "The silver stake catches the lantern light. Astarion has gone very still."
+      "hint": "The silver stake catches the lantern light. Astarion has gone very still.",
+      "page": "In an alley off the Wide, out of the lantern light, Astarion picks the lock with insulting ease. \"Honestly. Wards like these are an insult to both of us.\"\n\nThe lid opens.\n\nInside: a hunter's warrant sealed by a temple of Lathander. It describes a pale elf, white curls, red eyes, 'spawn of the dead, two centuries in the city'. Beneath it lies a silver-chased stake, etched with prayers.\n\nThe silver catches the light. Astarion has gone very still.\n\nKarlach looks from the stake to Astarion to you. She can't stand people being hunted for what was done to them. She'll side with whoever is honest. What you say next matters."
     },
     {
       "id": "basilisk_gate",
@@ -418,7 +422,8 @@
         "wyrms_rock"
       ],
       "isEnding": false,
-      "hint": "The hound starts barking at Karlach's chest plate. The sergeant reaches for the box."
+      "hint": "The hound starts barking at Karlach's chest plate. The sergeant reaches for the box.",
+      "page": "The Basilisk Gate checkpoint: a bored Flaming Fist sergeant, two recruits who look about fourteen and a hound with a nose for wards.\n\nA warded box is exactly what they're looking for.\n\nKarlach's engine runs hot when she's nervous, and the hound hates the smell of it. It starts barking at her chest plate. Astarion hangs back, because a vampire spawn can't enter the gatehouse uninvited, and if anyone gets dragged inside, he can't follow.\n\nThe sergeant reaches for the box under your arm. You need a way through. Now."
     },
     {
       "id": "wyrms_rock",
@@ -482,7 +487,8 @@
         "hot_engine"
       ],
       "isEnding": false,
-      "hint": "Odric raises his crossbow a finger's width. 'Your choice, friend. Quickly.'"
+      "hint": "Odric raises his crossbow a finger's width. 'Your choice, friend. Quickly.'",
+      "page": "Moonset on the bridge below Wyrm's Rock. The river Chionthar roars underneath.\n\nOdric Thale, a vampire hunter in a grey coat, waits with a loaded crossbow. He opens the box, takes out the warrant and reads it aloud, slowly, looking at Astarion the whole time.\n\nAstarion doesn't move. If he didn't know what was in the box, he knows now. If he did know, he's looking at you to see what you'll do.\n\n\"Debt paid,\" Odric says to you, \"and a purse besides. Just step aside, friend.\"\n\nKarlach's engine is roaring like a forge. Odric raises his crossbow a finger's width. \"Your choice. Quickly.\""
     },
     {
       "id": "paid_in_full",
@@ -499,7 +505,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Paid in Full"
+      "endingTitle": "Paid in Full",
+      "page": "You hand Odric the box. You walk away.\n\nHe pays, a heavy purse, and the next morning, Dagny burns your debt marker in her lamp with a little smile. You're free. You're richer than you've ever been.\n\nAstarion disappeared into the night without a word. You didn't see where he went.\n\nKarlach finds you at the Elfsong and says she understands. Her voice says she doesn't.\n\nYou sit in the taproom with your purse on the table, listening to the ghost singing in the cellar, and you've never felt so alone."
     },
     {
       "id": "ashes_on_the_river",
@@ -521,7 +528,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Ashes on the Chionthar"
+      "endingTitle": "Ashes on the Chionthar",
+      "page": "You step between Odric and Astarion, take the warrant from the box and hold it to a lantern. It burns. You drop the ash into the Chionthar, and the silver stake after it.\n\nOdric backs away into the dark, promising he'll be back. The Guild is going to be furious about the lost sale.\n\nAstarion looks at you for a long moment. Then he says, very quietly, \"Nobody's ever done that for me. In two hundred years.\" Then, quickly: \"Don't let it go to your head, darling. It's not a good look.\"\n\nHe offers you a place in their odd little company. The three of you walk back up through the Lower City as the sky starts to pale, Astarion hurrying for the shade, Karlach laughing, and you, for once, feeling like you belong somewhere."
     },
     {
       "id": "hot_engine",
@@ -543,7 +551,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Hot Engine, Cold River"
+      "endingTitle": "Hot Engine, Cold River",
+      "page": "Karlach grins. \"My way? Oh, you're going to love my way.\"\n\nOdric goes over the bridge rail and into the Chionthar, crossbow and all. He comes up swearing. He'll live.\n\nFlaming Fist whistles shriek behind you. The three of you run for it through the dock alleys, laughing like idiots, Karlach's engine blazing like a lantern.\n\nAt a safe corner, she stops, breathless, and holds out a gauntleted fist. You bump it. It's the closest she can get to a hug without burning you. \"You're welcome to stick around, soldier.\"\n\nAstarion, leaning on a wall and pretending he isn't out of breath, sniffs. \"Fine. I admit it. That was fun.\""
     }
   ],
   "art": {

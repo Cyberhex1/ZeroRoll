@@ -39,6 +39,8 @@ interface NarrativeStreamProps {
   lockedReason?: string;
   /** Shown under lockedReason, e.g. a Continue to Book Two button. */
   lockedAction?: React.ReactNode;
+  /** Shown under a message's bubble (scene art under Game Master messages). */
+  renderAfterMessage?: (log: LogMessage, isLatestDm: boolean) => React.ReactNode;
   /** Book and chapter dividers, keyed by the log index they sit before (src/components/ChapterProgress.tsx). */
   dividers?: Record<number, StreamDivider>;
   /** "Chapter 3 · The Smuggler's Den", shown in the feed header. */
@@ -61,6 +63,7 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
   checkModifierLabel,
   lockedReason,
   lockedAction,
+  renderAfterMessage,
   dividers,
   chapterHeading
 }) => {
@@ -299,6 +302,8 @@ export const NarrativeStream: React.FC<NarrativeStreamProps> = ({
                     </div>
                   )}
                 </div>
+
+                {log.sender === 'dm' && renderAfterMessage?.(log, logIndex === lastDmIndex)}
 
                 {/* Suggested Action Chips (Hidden if pending check) */}
                 {!pendingCheck && !lockedReason && logIndex === lastDmIndex && log.suggestedActions && log.suggestedActions.length > 0 && (

@@ -1,0 +1,454 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-frieren-the-flower-field-spell",
+    "title": "The Flower Field Spell",
+    "category": "cozy_ghibli",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "Your village paid an elf mage to clear a monster from the old mill road. She agreed, on one condition: someone has to help her find a spell that makes a field of flowers bloom, a spell your great-grandmother supposedly knew. You're the one who volunteered. The journey takes a week. For Frieren, that's a blink.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Frieren: Beyond Journey's End",
+      "medium": "manga",
+      "owner": "Kanehito Yamada, Tsukasa Abe, Shogakukan and Madhouse",
+      "aka": [
+        "Frieren",
+        "Sousou no Frieren"
+      ]
+    }
+  },
+  "world": "A gentle fantasy continent, decades after the Hero Himmel's party defeated the Demon King. Frieren, an elf mage over a thousand years old, travels with her apprentice Fern, a serious young human mage, and Stark, a nervous young warrior with enormous strength. Frieren collects odd, harmless spells ('a spell to make grapes sour', 'a spell to clean bronze statues'). Demons in this world speak like people but feel nothing; they use words as lures. The player's village of Oberlind has a monster, a demon named Lusel who mimics a lost child's voice, on the mill road. The player's great-grandmother, Elsa, once met Himmel's party and supposedly traded spells with Frieren, who doesn't remember.",
+  "tone": "Quiet, bittersweet, cosy fantasy about time, memory and small kindnesses, with sudden, precise magical fights.",
+  "playerRole": "A young villager of Oberlind with a backpack of bread and honey, a walking stick, your great-grandmother's old notebook and the knack of noticing small things.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Gentle, unhurried narration with seasons, meals and small moments; Frieren's dry, sleepy humour; flashbacks to Himmel; and fights that are short, quiet and devastating. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "frieren",
+      "name": "Frieren",
+      "appearance": "A slender elf woman who looks about seventeen, with long pale silver hair in two twin-tails, pointed ears, green eyes, a white-and-gold mage's coat and a staff with a red gem.",
+      "voice": "Calm, sleepy and deadpan; easily distracted by obscure spells and mimics (treasure chests).",
+      "stance": "Slowly warms to the player and remembers more as they travel."
+    },
+    {
+      "id": "fern",
+      "name": "Fern",
+      "appearance": "A young woman with long straight purple hair, purple eyes, a long black coat over a white dress and a wooden staff.",
+      "voice": "Serious, quiet, quietly exasperated with Frieren.",
+      "stance": "Treats the player politely and keeps the trip on schedule."
+    },
+    {
+      "id": "lusel",
+      "name": "Lusel",
+      "appearance": "A demon disguised as a small girl in a ragged blue dress, with grey skin, long white hair, two small curved horns and pupil-less silver eyes.",
+      "voice": "Sweet, childlike and pleading, saying words it does not understand.",
+      "stance": "Wants to lure villagers off the road."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Go to the hermit's tower in the hills; 2 = Take the mill road to the shrine."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied the hermit's half of the spell."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player read Elsa's carving on the shrine altar."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Mage Who Came to Oberlind",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Spring in Oberlind. Frieren, Fern and Stark arrive. The mayor begs them to clear the mill road; Frieren yawns and asks if anyone knows a spell to make a flower field bloom. The player raises their hand: their great-grandmother's notebook mentions one.",
+      "choices": [
+        {
+          "id": "show_frieren_the_notebook",
+          "label": "Show Frieren the notebook",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "offer_the_party_honey_bread",
+          "label": "Offer the party honey bread",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_about_the_hero_himmel",
+          "label": "Ask about the Hero Himmel",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Frieren, peering at the notebook: 'Hm. Elsa. I think I knew an Elsa. Maybe.'",
+      "page": "Spring comes late to Oberlind. The mayor is wringing his hands when the mages arrive: a serious girl with purple hair, a red-haired young man who looks scared of the chickens, and an elf with long silver twin-tails who is, as far as you can tell, mostly asleep standing up.\n\n\"The mill road,\" the mayor pleads. \"There's a monster. It calls out in a child's voice.\"\n\nThe elf, Frieren, yawns. \"Sure. Does anyone here know a spell to make a field of flowers bloom?\"\n\nSilence. Then your hand goes up, almost before you decide. Your great-grandmother's notebook is in your bag.\n\nFrieren peers at the faded handwriting. \"Hm. Elsa. I think I knew an Elsa.\" She thinks. \"Maybe.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "The Notebook",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The notebook mentions the spell was hidden in two places: a hermit's tower in the hills, or the old shrine on the mill road where the demon lives. Frieren says either is fine; Fern says the demon must be dealt with first; Stark is scared of both.",
+      "choices": [
+        {
+          "id": "share_supper_with_the_party_under_the_st",
+          "label": "Share supper with the party under the stars",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You spread a blanket by the fire and share honey bread. Stark eats four slices and thanks you each time. Fern quietly makes tea. Frieren lies on her back looking at the stars and tells you, very matter-of-factly, about Himmel: how he made her go on silly detours, how he died, how she cried and didn't understand why. \"I'm trying to understand humans better,\" she says. \"Thank you for the bread.\" You realise it's the most she's said all day."
+        },
+        {
+          "id": "go_to_the_hermit_s_tower_in_the_hills",
+          "label": "Go to the hermit's tower in the hills",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "take_the_mill_road_to_the_shrine",
+          "label": "Take the mill road to the shrine",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Fern, sighing: 'Frieren-sama, please decide before the season ends.'",
+      "page": "That night, by lamplight, you read the notebook with the party.\n\nYour great-grandmother wrote that she met the Hero Himmel's party when she was young. She traded a spell with their elf mage: \"A spell for making a flower field bloom, which I hid in two halves, so it would be an adventure to find again.\"\n\nOne half with an old hermit in a tower in the hills. The other at the shrine on the mill road, where the demon now waits.\n\nFern looks at Frieren. \"Frieren-sama, please decide before the season ends.\"\n\nFrieren looks at you. \"You choose. You're the one who'll remember it longest. Well. Not longest.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Hermit's Tower",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "A crumbling tower with a very old hermit who remembers Himmel's party. He gives the player the first half of the spell and tells them how Elsa and Frieren traded spells on a rainy night. Frieren remembers, a little.",
+      "choices": [
+        {
+          "id": "copy_down_the_spell",
+          "label": "Copy down the spell",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "ask_the_hermit_about_elsa",
+          "label": "Ask the hermit about Elsa",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Frieren stares out of the tower window: 'She laughed a lot. Your great-grandmother.'",
+      "page": "The hermit's tower leans like a tired old man. So does the hermit. When he sees Frieren, he sits down heavily. \"You haven't changed at all. I was twelve when Himmel's party came through.\"\n\nHe brings out a folded paper, browned with age. \"Elsa left this with me. Half a spell. She said you'd come back for it.\"\n\nYou copy it carefully into the notebook. While you write, the hermit tells the story: a rainy night, a party in a barn, Elsa laughing so hard she fell off a hay bale, trading spells with a silent elf.\n\nFrieren stands at the window, looking out at the hills. \"She laughed a lot,\" she says quietly. \"Your great-grandmother.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Mill Road",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "On the mill road, a little girl cries for her mother. Fern raises her staff; the player sees it's the demon Lusel. In the shrine beyond, the player finds Elsa's carving on the altar: the second half of the spell, and a note that Frieren would come back 'in eighty years or so'.",
+      "choices": [
+        {
+          "id": "read_the_carving_on_the_altar",
+          "label": "Read the carving on the altar",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "warn_the_villagers_about_the_voice",
+          "label": "Warn the villagers about the voice",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The little girl's voice calls the player's name. She has never heard it.",
+      "page": "The mill road is quiet. Too quiet. Then a little voice: \"Mama? Mama, where are you?\"\n\nA small girl in a ragged blue dress stands in the road, crying. Grey skin. White hair. Two little curved horns. Silver eyes with nothing behind them.\n\nFern lifts her staff without a word.\n\nBeyond the girl, in a mossy shrine, you find carving on the altar in a hand you know from the notebook: the second half of the spell, and a note. \"Frieren, I knew you'd forget. Come back in eighty years or so. —Elsa.\"\n\nBehind you, the little voice calls your name. It has never heard your name."
+    },
+    {
+      "id": "showdown",
+      "title": "The Demon's Words",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "At the shrine, Lusel drops its disguise. It pleads, cries, promises it means no harm. Frieren listens with no expression. Fern prepares Zoltraak.",
+      "choices": [
+        {
+          "id": "stand_with_frieren",
+          "label": "Stand with Frieren",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "get_the_villagers_away",
+          "label": "Get the villagers away",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Lusel: 'Please. I'm just lonely. You'd never hurt a child?'",
+      "page": "At the shrine, the little girl stops crying. \"Please,\" says Lusel, in a perfect child's voice. \"I'm just lonely. I don't want to hurt anyone. You'd never hurt a child?\"\n\nFrieren stands perfectly still, her face showing nothing at all.\n\n\"Demons learned to speak,\" she says softly, to you. \"They never learned what the words mean. 'Mother' is just the sound that makes humans stop walking.\"\n\nFern's staff begins to glow. Lusel's smile stretches too wide."
+    },
+    {
+      "id": "finale",
+      "title": "The Spell",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The demon is gone. The player decides: cast the first half of the spell with Frieren's help (only if they have it); cast the half on the shrine altar (only if they read it); or let Frieren simply cast an ordinary flower spell of her own.",
+      "choices": [
+        {
+          "id": "cast_the_hermit_s_half_with_frieren",
+          "label": "Cast the hermit's half with Frieren",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "elsa_s_field"
+        },
+        {
+          "id": "cast_the_altar_half",
+          "label": "Cast the altar half",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "in_eighty_years_or_so"
+        },
+        {
+          "id": "let_frieren_choose_a_spell",
+          "label": "Let Frieren choose a spell",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_small_spell"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "elsa_s_field",
+        "in_eighty_years_or_so",
+        "a_small_spell"
+      ],
+      "isEnding": false,
+      "page": "The shrine is quiet again. Where the demon stood there is only a faint scorch on the stones and the sound of wind in the trees.\n\nFrieren sits on the shrine steps and holds out her hand for the notebook. \"Well,\" she says. \"You found it. Let's see what Elsa hid.\"\n\nFern and Stark sit down too, watching you. It's your great-grandmother's spell. It's your choice how to cast it."
+    },
+    {
+      "id": "elsa_s_field",
+      "title": "Elsa's Field",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The field blooms in blue and gold, Elsa's favourite colours. Frieren smiles, properly. 'I remember now.' Close on the party leaving Oberlind through waves of flowers.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Elsa's Field",
+      "page": "You read the hermit's half aloud, and Frieren's hand rests over yours on the notebook, adding the magic you don't have.\n\nThe field beside the mill road shivers. Then it blooms, all at once: blue and gold, as far as the eye can see. Elsa's favourite colours. You didn't know that until now.\n\nFrieren smiles. Not her small sleepy smile, but a real one. \"I remember now. She wanted me to see this.\"\n\nThe next morning the party leaves Oberlind, walking through waves of flowers, Stark sneezing, Fern patient, Frieren looking back just once."
+    },
+    {
+      "id": "in_eighty_years_or_so",
+      "title": "In Eighty Years or So",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The altar spell blooms a field around the shrine; Frieren reads Elsa's note and laughs quietly. 'She was right.' Close on Frieren pressing a flower into her book.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "In Eighty Years or So",
+      "page": "You trace Elsa's carved words on the altar, and Frieren speaks them with you.\n\nAround the old shrine, the ground blooms: white and blue flowers spilling down the steps and across the mill road, covering the scorch marks, covering everything.\n\nFrieren reads Elsa's note again. \"Come back in eighty years or so.\" She laughs quietly, almost to herself. \"She was right. It was eighty-one.\"\n\nBefore she leaves, she picks one flower and presses it carefully between the pages of her spellbook, next to a very old, very faded one."
+    },
+    {
+      "id": "a_small_spell",
+      "title": "A Small Spell",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Frieren casts a spell that makes exactly one flower bloom in the player's garden every spring. It's small. It's perfect. Close on the player, old, decades later, as a silver-haired elf passes by.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Small Spell",
+      "page": "Frieren closes the notebook. \"Hmm. How about this instead.\"\n\nShe taps her staff on the ground in your family's garden, and a single flower blooms: small, blue, perfect.\n\n\"It'll bloom every spring,\" she says. \"For a long time.\"\n\nShe's right. It does. Years pass. You grow up. You grow old. Every spring, the flower blooms.\n\nAnd one spring, decades later, as you sit by your garden gate, a silver-haired elf walks past on the road, stops, sees the flower, and smiles."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#8fc7b8"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "petals"
+  }
+}

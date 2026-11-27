@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-deathnote-the-second-notebook",
+    "title": "The Second Notebook",
+    "category": "revenge",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "A black notebook falls at your feet on the anniversary of your brother's death, and the man who ruined him is still free. Write a name, and that person dies. A tall, grinning shinigami is very curious what you'll do. So is a pale, barefoot detective who has just arrived in your city.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Death Note",
+      "medium": "anime",
+      "owner": "Tsugumi Ohba, Takeshi Obata, Shueisha and Madhouse",
+      "aka": [
+        "Death Note",
+        "Ryuk",
+        "L"
+      ]
+    }
+  },
+  "world": "Present-day Japan. A Death Note is a shinigami's notebook: write a person's name while picturing their face and they die, of a heart attack unless otherwise specified. Ryuk, a bored shinigami, has dropped a second notebook into the human world to see what happens. The player's older brother, Kaito, died by suicide after a corrupt pharmaceutical executive, Reiji Mabuchi, framed him for falsifying drug trials Mabuchi himself rigged. L, the world's greatest detective, has come to investigate a string of mysterious deaths elsewhere and notices the player's case. The truth can be proven by documents in Mabuchi's company and a whistleblower who is still alive.",
+  "tone": "Tense psychological thriller about grief, justice and revenge, with cat-and-mouse mind games and a darkly playful shinigami. No gore; death is quick and heavy.",
+  "playerRole": "A university student grieving your older brother, with a phone full of his old messages, a part-time job at a convenience store, a sharp mind and, now, a black notebook with rules written inside its cover.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Taut psychological narration with inner monologue, clocks ticking, rain on windows, Ryuk's chuckling commentary. The notebook is a constant presence; using it is the player's choice and it always has weight. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "ryuk",
+      "name": "Ryuk",
+      "appearance": "A tall, gangly shinigami with grey-blue skin, a huge fixed grin, yellow-red eyes, spiky black hair, black feathered wings, a leather outfit with chains and belts.",
+      "voice": "Amused, laid-back and curious; says 'humans are so interesting'; loves apples.",
+      "stance": "Neutral; wants entertainment; won't help or stop the player."
+    },
+    {
+      "id": "l",
+      "name": "L",
+      "appearance": "A thin young man with messy black hair, dark circles under wide dark eyes, a plain white long-sleeved shirt, faded jeans and bare feet, crouching on chairs.",
+      "voice": "Monotone, blunt and eccentric; eats sweets constantly; brilliant.",
+      "stance": "Suspects the player; respects intelligence; offers to help catch Mabuchi legally."
+    },
+    {
+      "id": "mabuchi",
+      "name": "Reiji Mabuchi",
+      "appearance": "A polished man in his fifties with silver hair swept back, a tailored charcoal suit, a heavy watch and a thin politician's smile.",
+      "voice": "Smooth, condescending and untouchable.",
+      "stance": "Ruined the player's brother and fears exposure."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Break into the company archive; 2 = Meet L at the café he's been visiting."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied the rigged trial files."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player agreed to L's plan and got the confession."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Anniversary",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Rain. The anniversary of Kaito's death. The player walks home past Mabuchi's company tower; his face smiles from a billboard. A black notebook lands at their feet: DEATH NOTE. That night, a grinning shinigami appears in their room, eating an apple.",
+      "choices": [
+        {
+          "id": "read_the_rules_in_the_notebook",
+          "label": "Read the rules in the notebook",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_shinigami_what_it_wants",
+          "label": "Ask the shinigami what it wants",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "write_nothing_and_hide_it",
+          "label": "Write nothing and hide it",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Ryuk chuckles: 'Humans are so interesting. Go on. What will you do?'",
+      "page": "It rains on the anniversary. It always does.\n\nYou walk home past the Mabuchi Pharmaceuticals tower. From a billboard forty metres high, Reiji Mabuchi smiles down at the city: silver hair, kind eyes, \"Caring for Japan's future.\" He framed your brother for his own crimes. Kaito couldn't live with the shame. Mabuchi got a promotion.\n\nSomething black falls out of the sky and lands at your feet with a slap.\n\nA notebook. On the cover, in white letters: DEATH NOTE.\n\nThat night, in your room, you hear crunching. You turn. A tall, gangly creature with grey-blue skin, black feathered wings and an enormous fixed grin is sitting on your bed, eating an apple.\n\n\"Humans are so interesting,\" it says. \"Go on. What will you do?\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Two Paths to Mabuchi",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player could write Mabuchi's name tonight. They also learn L is in town, investigating notebook deaths elsewhere, and he's visited Kaito's old lab. Two ways to the truth: break into Mabuchi's company archive for the rigged trial files, or meet L.",
+      "choices": [
+        {
+          "id": "talk_to_ryuk_about_why_he_dropped_it",
+          "label": "Talk to Ryuk about why he dropped it",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "\"Why did you drop it?\" you ask. Ryuk thinks about it, crunching. \"Bored. The shinigami realm is all dust and gambling. I dropped one before, somewhere else, and it was so fun I wanted to see it again.\" He leans in. \"I'm not on your side, you know. I'm not on anyone's side. When you die, I'll write your name in my own notebook. That's the rule.\" He grins wider. \"But until then, I'll watch. Got any more apples?\""
+        },
+        {
+          "id": "break_into_the_company_archive",
+          "label": "Break into the company archive",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "meet_l_at_the_caf_he_s_been_visiting",
+          "label": "Meet L at the café he's been visiting",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Ryuk, crunching an apple: 'You could just write it. That'd be faster. But faster is boring.'",
+      "page": "\"The human whose name is written in this note shall die.\" The rules are written inside the cover in neat English. You read them five times.\n\nRyuk, the shinigami, floats upside down above your desk. \"You could just write it. That'd be faster. But faster is boring.\"\n\nOn the news: mysterious heart attacks in Kanto, and a detective known only as L has taken the case. Then a message from Kaito's old labmate: a strange barefoot young man came by asking about your brother.\n\nKaito's old company access card is still in his wallet, in the box under your bed. And L, apparently, has been eating cake at the same café near the station every afternoon this week."
+    },
+    {
+      "id": "path_a",
+      "title": "The Archive",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Using Kaito's old access card, the player gets into Mabuchi's company archive at night. They find the original trial data with Mabuchi's signature on the falsification, and an email naming a whistleblower.",
+      "choices": [
+        {
+          "id": "copy_the_trial_files",
+          "label": "Copy the trial files",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "find_the_whistleblower_s_name",
+          "label": "Find the whistleblower's name",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A security guard's flashlight sweeps the room. Ryuk floats through the wall, giggling.",
+      "page": "Kaito's card still works. Nobody thought to cancel a dead man's access.\n\nThe archive is on the twelfth floor: endless metal cabinets, humming silence. You search by phone light until you find it. Trial MX-14. The original data, before it was changed. And the authorisation to change it, signed in Reiji Mabuchi's elegant hand.\n\nClipped to the back, an email printout. A junior researcher, Haruka Mori, writing to her boss: \"I can't stay quiet about MX-14.\" She's still alive. She resigned and moved to Osaka.\n\nA flashlight sweeps across the glass door. Ryuk floats through the wall beside you, giggling."
+    },
+    {
+      "id": "path_b",
+      "title": "Cake with L",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "L sits crouched in a café booth surrounded by cake. He calmly lays out that he knows about Kaito, suspects the player has 'an unusual motive', and proposes a deal: help him trap Mabuchi legally, with a recorded confession.",
+      "choices": [
+        {
+          "id": "agree_to_l_s_plan",
+          "label": "Agree to L's plan",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "test_l_with_a_trick_question",
+          "label": "Test L with a trick question",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "L, sugar cube in hand: 'You're thinking about writing his name. I'd rather you didn't.'",
+      "page": "The café is warm and smells of sugar. In the corner booth, a thin young man with messy black hair is crouching barefoot on the seat, surrounded by six slices of cake. He doesn't look up.\n\n\"Please sit. You're Kaito's sibling.\" He stacks sugar cubes. \"I'm investigating notebook deaths elsewhere. Your brother's case caught my interest. The data on MX-14 was changed, and he didn't change it.\"\n\nHe looks at you finally, with huge dark eyes. \"You're thinking about writing his name. I'd rather you didn't. I'd like to catch Mabuchi properly. A recorded confession. You can get close to him. I can't.\"\n\nHe pushes a slice of strawberry cake across the table."
+    },
+    {
+      "id": "showdown",
+      "title": "Mabuchi's Gala",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Mabuchi's charity gala, all chandeliers and champagne. The player gets face to face with him. He mocks Kaito. The notebook is in their bag. L is somewhere in the room. Ryuk floats overhead.",
+      "choices": [
+        {
+          "id": "confront_mabuchi_about_kaito",
+          "label": "Confront Mabuchi about Kaito",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "bait_him_into_boasting",
+          "label": "Bait him into boasting",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Mabuchi smiles: 'Your brother was weak. The world forgets weak people.'",
+      "page": "The Mabuchi charity gala glitters: chandeliers, champagne, people in silk laughing at nothing.\n\nYou find him by the ice sculpture. Reiji Mabuchi, smiling his billboard smile. He recognises you, and the smile doesn't change at all.\n\n\"Ah. The brother's little sibling. I was sorry to hear.\" He sips his champagne. \"Your brother was weak. The world forgets weak people.\"\n\nThe notebook is in your bag. A pen is in your pocket. Somewhere in the crowd, a barefoot detective is pretending to eat canapés. And above the chandeliers, a winged shape is watching, delighted."
+    },
+    {
+      "id": "finale",
+      "title": "The Name",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Pen in hand. The player decides: release the trial files to the press and clear Kaito's name (only if they copied them); play L's recording of Mabuchi's confession to the police (only if they agreed to the plan); or write Mabuchi's name in the notebook.",
+      "choices": [
+        {
+          "id": "leak_the_trial_files",
+          "label": "Leak the trial files",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "kaito_s_name"
+        },
+        {
+          "id": "give_l_the_confession",
+          "label": "Give L the confession",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "justice_slowly"
+        },
+        {
+          "id": "write_his_name",
+          "label": "Write his name",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_heart_attack"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "kaito_s_name",
+        "justice_slowly",
+        "a_heart_attack"
+      ],
+      "isEnding": false,
+      "page": "You're home. It's still raining.\n\nThe notebook lies open on your desk. The pen is in your hand. Ryuk sits on the windowsill, very quiet for once, apple untouched.\n\nEverything you've learned tonight is on the desk beside it. There are several ways to end this.\n\n\"Whatever you choose,\" Ryuk says softly, \"I'll be watching.\""
+    },
+    {
+      "id": "kaito_s_name",
+      "title": "Kaito's Name",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The files hit the news. Mabuchi is arrested; Kaito's name is cleared. The player burns the notebook. Ryuk sighs: 'Boring. But kind of cool.' Close on flowers at Kaito's grave in sunlight.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Kaito's Name",
+      "page": "You send the trial files to three newspapers and to Haruka Mori, the whistleblower in Osaka, with one line: \"It's time.\"\n\nShe goes public the next morning. By evening, Mabuchi is arrested on live television, silver hair dishevelled, billboard smile gone.\n\nThe news says your brother's name. Kaito was innocent. They say it again and again.\n\nThat night, you burn the Death Note in a metal bin on your balcony. Ryuk watches the pages curl. \"Boring,\" he sighs. Then: \"But kind of cool.\"\n\nA week later, you lay fresh flowers on Kaito's grave, and for the first time on that day, the sun is shining."
+    },
+    {
+      "id": "justice_slowly",
+      "title": "Justice, Slowly",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "L hands the confession to the police; Mabuchi is convicted. L offers the player a job, then steals their cake. The notebook is surrendered. Close on L walking away barefoot in the rain.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Justice, Slowly",
+      "page": "You hand L the tiny recorder from inside your jacket. He listens to Mabuchi bragging, chewing a lollipop, and nods. \"That's enough.\"\n\nMabuchi is arrested the next day. At trial, his own voice convicts him.\n\nAfterwards, L finds you on the courthouse steps. \"If you ever want a job, I could use someone who can resist an easy solution.\" Then he takes the cake you were eating and walks off with it.\n\nYou give the notebook to him too. He takes it without a word, as if he always knew.\n\nHe walks away barefoot through the rain, and you finally let yourself cry."
+    },
+    {
+      "id": "a_heart_attack",
+      "title": "A Heart Attack",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player writes the name. Forty seconds later, Mabuchi collapses. The world calls it natural. The player knows. Ryuk laughs. Close on the notebook, open, waiting for another name.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Heart Attack",
+      "page": "You write it slowly, in your neatest handwriting. Reiji Mabuchi.\n\nForty seconds.\n\nAcross the city, at a late dinner in a private room, Mabuchi puts down his glass, puts a hand to his chest, and collapses.\n\nThe news calls it a heart attack. Natural causes. Such a loss to the industry.\n\nYou know. Ryuk knows. He laughs, long and delighted, rolling across your ceiling.\n\nThe notebook lies open on your desk, page after empty page, waiting. You don't close it. You can't seem to close it."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#b0222a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "rain"
+  }
+}

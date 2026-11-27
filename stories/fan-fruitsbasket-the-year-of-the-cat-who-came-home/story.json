@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-fruitsbasket-the-year-of-the-cat-who-came-home",
+    "title": "The Year of the Cat Who Came Home",
+    "category": "romantic",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You rent the spare room at Shigure Sohma's house for a term. Three days in, you hug a classmate by accident and he turns into a cat. Then a mouse. The Sohma family has a secret, a cursed New Year banquet is coming, and the quiet boy you keep arguing with is the one who hates the curse most.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Fruits Basket",
+      "medium": "manga",
+      "owner": "Natsuki Takaya and Hakusensha",
+      "aka": [
+        "Furuba",
+        "Sohma family",
+        "Fruits Basket"
+      ]
+    }
+  },
+  "world": "Present-day Japan, around the Sohma family. Thirteen members are possessed by spirits of the Chinese zodiac (plus the outcast Cat) and transform into their animal when hugged by someone of the opposite sex or when weak. The family head, Akito, controls them cruelly. Shigure Sohma (the Dog), a lazy novelist, lives in a house in the woods with Yuki (the Rat, a polite 'prince' at school) and Kyo (the Cat, hot-tempered, despised by the family). Tohru Honda, a kind orphaned girl, lives with them. A forgotten family custom: if an outsider brings a gift to the New Year banquet with the Cat's name on it, the Cat must be invited, which Akito forbids.",
+  "tone": "Tender, funny and emotional slice-of-life romance about loneliness, family and being accepted; comic transformations and gentle heartbreak.",
+  "playerRole": "A student who just moved to town and rented a room at Shigure's house, with a suitcase, a talent of your choosing, a habit of saying what you think, and no family nearby.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Warm shojo narration: cherry blossoms, kitchens, school days, comic poofs of smoke when people transform, flustered blushes and heartfelt confessions. Romance develops slowly and is the player's choice. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "kyo",
+      "name": "Kyo Sohma",
+      "appearance": "A teenage boy with spiky orange hair, red-brown eyes, a black-and-white beaded bracelet on his left wrist and a school uniform worn messily; transforms into an orange cat.",
+      "voice": "Short-tempered, blunt, secretly kind; hates being pitied.",
+      "stance": "Argues with the player constantly; slowly trusts them."
+    },
+    {
+      "id": "yuki",
+      "name": "Yuki Sohma",
+      "appearance": "A slim, beautiful teenage boy with silvery grey hair, violet eyes and a neat school uniform; transforms into a small grey rat.",
+      "voice": "Polite, soft-spoken and composed; cuts sharply when needed.",
+      "stance": "Kind to the player; quietly wants Kyo to be included."
+    },
+    {
+      "id": "shigure",
+      "name": "Shigure Sohma",
+      "appearance": "A tall, lazy man in his late twenties with dark hair and a grey kimono, a playful smirk and a manuscript he hasn't finished; transforms into a black dog.",
+      "voice": "Teasing, flirty and secretly calculating.",
+      "stance": "Watches everything; drops hints."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search the estate library for the custom; 2 = Spend time with Kyo on the roof."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the scroll recording the custom."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made Kyo's mother's salted-plum rice balls."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Spare Room",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player arrives at Shigure's house in the woods. Kyo crashes through the roof chasing Yuki. In the chaos the player trips into Kyo, there's a poof of smoke, and they're holding an orange cat. Then Yuki, a rat. Shigure laughs from the porch.",
+      "choices": [
+        {
+          "id": "calmly_set_the_cat_down_and_introduce_yo",
+          "label": "Calmly set the cat down and introduce yourself",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "scream_then_laugh",
+          "label": "Scream, then laugh",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_shigure_for_an_explanation",
+          "label": "Ask Shigure for an explanation",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Shigure, sipping tea: 'Well! Welcome to the family. Don't hug anyone. Or do. It's entertaining.'",
+      "page": "Shigure Sohma's house sits alone in the woods, old wood and paper screens, smelling of tea. You've barely put down your suitcase when the roof explodes.\n\nA boy with spiky orange hair crashes through, yelling, chasing a silver-haired boy who sighs as he dodges. They both land right in front of you. You trip. You grab the orange-haired boy to steady yourself.\n\nPoof.\n\nYou are holding a cat. An orange cat. A furious orange cat.\n\nYou drop him and stumble into the other boy. Poof. A small grey rat looks up at you with a very polite expression.\n\nOn the porch, a tall man in a grey kimono sips his tea and laughs until he cries. \"Well! Welcome to the family. Don't hug anyone.\" He considers. \"Or do. It's entertaining.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "New Year Approaching",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The curse is explained. The New Year banquet is coming; Kyo is never invited. Shigure mentions an old custom: a gift with the Cat's name, brought by an outsider, forces an invitation. Two paths: find the record of the custom in the Sohma estate library, or win Kyo's trust and learn what gift would mean something to him.",
+      "choices": [
+        {
+          "id": "cook_dinner_with_tohru_and_yuki",
+          "label": "Cook dinner with Tohru and Yuki",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You cook dinner with Tohru and Yuki the next evening. Tohru hums, Yuki chops vegetables with perfect precision and talks about his garden, and you laugh so much the rice nearly burns. Kyo hovers in the doorway pretending not to want any, until you hand him a bowl. He mutters \"thanks\" so quietly you almost miss it. Yuki catches your eye and smiles, just slightly."
+        },
+        {
+          "id": "search_the_estate_library_for_the_custom",
+          "label": "Search the estate library for the custom",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "spend_time_with_kyo_on_the_roof",
+          "label": "Spend time with Kyo on the roof",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Yuki, quietly: 'He won't admit it, but he'd like to go. Just once.'",
+      "page": "That night, over hotpot, the Sohmas explain the curse. Thirteen of the family are possessed by animals of the zodiac. Yuki is the Rat. Shigure is the Dog. Kyo is the Cat, the one who was never in the zodiac, the one the family despises.\n\n\"The New Year banquet,\" Shigure says lazily, \"is in two weeks. The zodiac all gather at the main house. Kyo is never invited.\"\n\n\"I don't want to go,\" Kyo snaps, and leaves the room.\n\nShigure taps his chin. \"There's an old custom, you know. If an outsider brings a gift with the Cat's name on it, he must be invited. I think there's a record in the main house library. Or you could just find out what would mean something to him.\"\n\nYuki, quietly: \"He won't admit it, but he'd like to go. Just once.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Estate Library",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Sneaking into the Sohma main house library, avoiding Akito's servants, the player finds an old scroll recording the custom: the Cat was once honoured at the banquet; Akito's predecessor erased it.",
+      "choices": [
+        {
+          "id": "take_the_scroll",
+          "label": "Take the scroll",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "copy_the_custom_down",
+          "label": "Copy the custom down",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Footsteps in the corridor. A cold voice: 'Who's in my library?'",
+      "page": "The Sohma main house is enormous and silent. Servants glide down long corridors. You slip in through a side door and find the library: dusty, dark, shelves of scrolls.\n\nBy candlelight, after an hour, you find it. An old scroll, its ink faded: \"In the years of the first banquet, the Cat sat at the table's end, and was honoured for his loneliness.\" Below it, a later note in harsh brushstrokes: \"The custom is abolished. The Cat shall not be spoken of.\"\n\nBut the custom about the gift is there, clear as day.\n\nFootsteps in the corridor. A cold, soft voice: \"Who's in my library?\""
+    },
+    {
+      "id": "path_b",
+      "title": "On the Roof",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Kyo sits on the roof every evening. Over several evenings the player and Kyo talk: his mother, his master, the beads on his wrist, being hated. He mentions his late mother made him rice balls with salted plum. That's the gift.",
+      "choices": [
+        {
+          "id": "make_salted_plum_rice_balls",
+          "label": "Make salted-plum rice balls",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "promise_kyo_he_won_t_be_alone",
+          "label": "Promise Kyo he won't be alone",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Kyo, not looking at the player: 'Why do you even care?'",
+      "page": "Every evening, Kyo sits on the roof. On the first night, you climb up and he tells you to go away. On the second, he just ignores you. On the third, he talks.\n\nAbout his mother, who loved him and was afraid of him. About the master who raised him. About the beads on his wrist, which keep him from turning into something worse.\n\n\"She made me rice balls,\" he says, staring at the stars. \"With salted plum inside. Every day. Even when she couldn't look at me.\" He scowls. \"Why am I telling you this? Why do you even care?\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Main House Gate",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "New Year's Eve. The player arrives at the Sohma estate gate. Akito's servants block the way. Kyo is furious the player came; Yuki and Shigure watch.",
+      "choices": [
+        {
+          "id": "insist_on_presenting_your_gift",
+          "label": "Insist on presenting your gift",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "ask_yuki_to_stand_with_you",
+          "label": "Ask Yuki to stand with you",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "A servant: 'Outsiders are not permitted. Leave.'",
+      "page": "New Year's Eve. Snow on the ground. The gate of the Sohma estate looms, huge and dark, guarded by stern servants in black.\n\n\"Outsiders are not permitted,\" one says. \"Leave.\"\n\nBehind you, footsteps crunch. Kyo, red-faced and furious. \"What are you doing?! Are you stupid?! Go home!\"\n\nYuki and Shigure are a little way behind him. Yuki looks worried. Shigure looks very, very interested."
+    },
+    {
+      "id": "finale",
+      "title": "The Banquet",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The doors open. The player decides: read the ancient custom aloud before the family so the Cat must be invited (only if they have the scroll); present the rice balls with Kyo's name to Akito (only if they made them); or take Kyo away to spend New Year somewhere else together.",
+      "choices": [
+        {
+          "id": "read_the_custom_aloud",
+          "label": "Read the custom aloud",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_seat_for_the_cat"
+        },
+        {
+          "id": "present_the_rice_balls",
+          "label": "Present the rice balls",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "salted_plum"
+        },
+        {
+          "id": "take_kyo_away_for_new_year",
+          "label": "Take Kyo away for New Year",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "somewhere_else"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "a_seat_for_the_cat",
+        "salted_plum",
+        "somewhere_else"
+      ],
+      "isEnding": false,
+      "page": "The gate creaks open. Inside, the banquet hall glows with lanterns. Twelve members of the zodiac sit at a long table. At its head, a pale, slender figure in a dark kimono, Akito, watches you with eyes like ice.\n\n\"An outsider,\" Akito says softly. \"How bold.\"\n\nKyo stands beside you, rigid, his fists clenched. He's not leaving. He's not going in. He's waiting to see what you'll do."
+    },
+    {
+      "id": "a_seat_for_the_cat",
+      "title": "A Seat for the Cat",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The custom is read; the zodiac members stand one by one for Kyo. Akito can't refuse. Kyo takes a seat at the banquet for the first time, red-faced. Close on Kyo glancing at the player across the table and almost smiling.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Seat for the Cat",
+      "page": "You unroll the old scroll and read it aloud to the whole hall. \"The Cat sat at the table's end, and was honoured for his loneliness.\" Then the custom about the gift.\n\nSilence. Then Yuki stands. \"The custom is clear.\" Then Shigure, smirking. Then, one by one, the others: the Ox, the Tiger, the Rabbit...\n\nAkito's face is white with fury. But Akito can't refuse in front of everyone.\n\nKyo walks to the end of the table and sits down for the first time in his life, so red in the face he looks sunburned. Across the table, he catches your eye and almost, almost smiles."
+    },
+    {
+      "id": "salted_plum",
+      "title": "Salted Plum",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Kyo eats one of the rice balls and goes very quiet. 'It tastes like hers.' The family sees him cry, and nobody laughs. Close on Kyo walking the player home under the first snow, closer than before.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Salted Plum",
+      "page": "You set a small lacquered box in front of Akito. Inside, wrapped in paper with Kyo's name written on it in your best handwriting: rice balls. With salted plum.\n\nAkito stares at you for a long time, and then gestures, coldly. The invitation must be made.\n\nKyo takes one rice ball. Bites it. Goes very still.\n\n\"It tastes like hers,\" he says, and his voice cracks. And in front of the whole family, the Cat cries. Nobody laughs.\n\nLater, he walks you home through the first snow of the year. He doesn't say much. But he walks closer to you than before, close enough that your shoulders brush."
+    },
+    {
+      "id": "somewhere_else",
+      "title": "Somewhere Else",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player and Kyo watch the New Year sunrise from a hill, away from the family. He doesn't say thank you; he gives them his jacket. Close on two figures on a hill as the sun comes up.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Somewhere Else",
+      "page": "You grab Kyo's hand. \"Forget them. Come on.\"\n\nYou run from the gate, through the snowy streets, up a hill on the edge of town, and you sit there in the cold until the sky starts to turn pink.\n\nThe New Year sun comes up over the rooftops, gold and huge.\n\nKyo doesn't say thank you. He isn't the type. He takes off his jacket and drops it over your shoulders without looking at you, and you sit together on the hill as the first morning of the year begins."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f2994a"
+    },
+    "fonts": {
+      "heading": "hand",
+      "body": "serif"
+    },
+    "particles": "petals"
+  }
+}

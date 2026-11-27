@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-howl-a-new-door-for-the-moving-castle",
+    "title": "A New Door for the Moving Castle",
+    "category": "cozy_ghibli",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "The moving castle needs a fifth door, and the fire demon who powers it insists only you can open it, because you once did him a kindness you don't remember. Behind the new door is a seaside town where something is drowning the stars. Howl is sulking about his hair. Sophie is in charge. You might be too.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Howl's Moving Castle",
+      "medium": "anime",
+      "owner": "Studio Ghibli and the estate of Diana Wynne Jones",
+      "aka": [
+        "Howl",
+        "Calcifer",
+        "Ghibli"
+      ]
+    }
+  },
+  "world": "A whimsical old-European fantasy world of steam trains and airships. Howl's moving castle, a walking heap of turrets and chimneys on chicken legs, is powered by Calcifer, a fire demon bound to Howl. Its front door has a coloured dial that opens onto different places. Howl is a vain, brilliant and cowardly-brave wizard; Sophie, once cursed into an old woman, runs the household. Markl is Howl's young apprentice. A new door colour has appeared on the dial: sea-green, leading to Saltmarsh, a seaside town where the stars have begun falling into the sea every night and not coming back. The cause: a lonely sea witch, the Tide-Mother, is collecting fallen stars to make herself a heart, because she gave hers away long ago.",
+  "tone": "Gentle, magical, funny and warm, with dreamy flying sequences, kitchens and breakfasts, and a little melancholy about hearts and loneliness.",
+  "playerRole": "A new lodger at the moving castle with a carpet bag, a talent for mending things, a kindness you once did a falling star that you have long forgotten, and a hat you are rather fond of.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Dreamy, warm storytelling with breakfasts of bacon and eggs, rattling castle rooms, magical doors, flying, and Calcifer's grumbling. Wonder over danger. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "calcifer",
+      "name": "Calcifer",
+      "appearance": "A small, lively fire demon with a flickering orange-and-blue flame body, big round eyes and a wide mouth, living in the castle hearth on a log.",
+      "voice": "Grumpy, dramatic and secretly soft; complains about being overworked.",
+      "stance": "Insists the player is the one who can open the new door."
+    },
+    {
+      "id": "howl",
+      "name": "Howl",
+      "appearance": "A tall, slender young man with blond hair (sometimes dyed), blue eyes, dangling earrings and a pink-and-grey patterned jacket over a white shirt.",
+      "voice": "Theatrical, vain, charming and evasive; serious only when it matters.",
+      "stance": "Pretends not to care; very much cares."
+    },
+    {
+      "id": "sophie",
+      "name": "Sophie",
+      "appearance": "A young woman with short silver-grey hair and a kind, determined face, wearing a simple blue dress, apron and a straw hat.",
+      "voice": "Practical, kind, bossy and brave.",
+      "stance": "Runs the household and adopts the player as family."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Read the lighthouse keeper's logbook; 2 = Fly with Howl after dark."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took the lighthouse logbook."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player learned Howl's counter-spell."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Fifth Colour",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The castle kitchen at breakfast. Calcifer announces that a new sea-green colour has appeared on the door dial and won't turn for anyone but the player, who just moved into the attic. Howl is sulking because his hair is the wrong shade. Sophie sets a plate in front of the player.",
+      "choices": [
+        {
+          "id": "try_the_new_door_at_once",
+          "label": "Try the new door at once",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_calcifer_why_it_s_you",
+          "label": "Ask Calcifer why it's you",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "help_sophie_with_breakfast_first",
+          "label": "Help Sophie with breakfast first",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Calcifer, flaring: 'It's YOU. You did something nice for a star once. I can smell it on you.'",
+      "page": "Breakfast in the moving castle is bacon, eggs and chaos. The whole place rattles as it walks. Sophie flips eggs with one hand and swats Markl's fingers away from the bacon with the other.\n\nHowl sits at the table in a pink-and-grey jacket, staring miserably into a mirror. \"It's the wrong blond. It's the wrong blond, Sophie.\"\n\n\"It's fine,\" says Sophie, setting a plate in front of you. \"Eat. You're too thin.\"\n\nIn the hearth, a little flame with big eyes flares up. \"There's a new colour on the door! Sea-green! And it won't turn for anybody but HER.\" He means you. You only moved into the attic three days ago.\n\nCalcifer squints at you. \"It's YOU. You did something nice for a star once. I can smell it on you.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Saltmarsh",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Through the sea-green door: a seaside town at twilight. Fishermen say stars fall into the sea every night and don't come back, and the sky is getting darker. Two ways to learn why: the lighthouse keeper's old logbook, or a night flight with Howl to watch where the stars fall.",
+      "choices": [
+        {
+          "id": "walk_on_the_beach_with_sophie",
+          "label": "Walk on the beach with Sophie",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You walk along the beach with Sophie, collecting shells for no reason. She tells you about being cursed old, and how it made her brave, because she stopped worrying what anyone thought. \"Then I got young again and had to keep being brave on purpose.\" She smiles at you sideways. \"You'll do well here. You notice things. The castle likes people who notice things.\" She hands you the best shell. It's warm."
+        },
+        {
+          "id": "read_the_lighthouse_keeper_s_logbook",
+          "label": "Read the lighthouse keeper's logbook",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "fly_with_howl_after_dark",
+          "label": "Fly with Howl after dark",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Howl, inspecting his nails: 'Stars are very dramatic. I relate.'",
+      "page": "The dial turns to sea-green under your hand as if it's been waiting. The door opens onto salt air and the sound of gulls.\n\nSaltmarsh is a little seaside town of crooked houses and fishing boats, and it's twilight. As you watch, a star falls out of the sky, a bright streak, straight into the sea. Then another. They don't come back up.\n\n\"Every night,\" an old fisherman says. \"More and more. Sky's getting darker.\"\n\nSophie folds her arms. \"Well. Someone should do something.\" The lighthouse on the point has a keeper's logbook going back a hundred years. And Howl, inspecting his nails, says, \"Stars are very dramatic. I relate. I suppose I could fly out and look.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Lighthouse",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The keeper's logbook goes back a century. It records a sea witch, the Tide-Mother, who gave her heart away for love and has been lonely ever since. A recent entry: 'She is gathering the stars to make a new one.'",
+      "choices": [
+        {
+          "id": "take_the_logbook",
+          "label": "Take the logbook",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "read_the_old_love_story",
+          "label": "Read the old love story",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The lighthouse lamp flickers and, far out at sea, something glows in answer.",
+      "page": "The lighthouse keeper is long gone, but his logbook remains, thick as a loaf, on a desk beneath the great lamp.\n\nThe oldest entries tell a story: a sea witch, the Tide-Mother, who fell in love with a sailor and gave him her heart, all of it, so he would never drown. He sailed home, grew old and died a happy man. She was left with nothing in her chest at all.\n\nThe newest entry is from last month, in shaky handwriting: \"She is gathering the stars. She is trying to make a new heart.\"\n\nThe lamp flickers. Far out at sea, something glows in answer."
+    },
+    {
+      "id": "path_b",
+      "title": "Flight over the Sea",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Howl takes the player's hand and they walk on the air above the waves. They watch stars fall into a glowing whirlpool far out to sea. Howl recognises the spell: a heart-making spell. He knows how to undo it gently, because he once made a similar bargain.",
+      "choices": [
+        {
+          "id": "learn_howl_s_gentle_counter_spell",
+          "label": "Learn Howl's gentle counter-spell",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "catch_a_falling_star",
+          "label": "Catch a falling star",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Howl, quieter than usual: 'Everyone wants a heart. Some of us just do it badly.'",
+      "page": "After dark, Howl takes your hand. \"Don't look down. Actually, do. It's lovely.\"\n\nYou step off the lighthouse balcony and walk on the air, above the dark waves, the wind tugging your hat.\n\nFar out to sea, stars are falling into a glowing whirlpool, spinning slow and silver.\n\nHowl's face goes quiet in a way you haven't seen before. \"A heart-making spell. Someone's trying to build themselves a heart.\" He looks at the castle on the cliff, where Calcifer burns. \"I know a gentler way to undo it. I made a bargain like that once.\" He teaches you the words. \"Everyone wants a heart. Some of us just do it badly.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Tide-Mother",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In the whirlpool's heart, the Tide-Mother sits in a palace of water, holding a glowing bundle of stars. She is lonely, beautiful and tired. Calcifer flickers in the player's pocket.",
+      "choices": [
+        {
+          "id": "speak_to_her_kindly",
+          "label": "Speak to her kindly",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "stand_between_her_and_the_castle",
+          "label": "Stand between her and the castle",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The Tide-Mother: 'Just a few more stars. Then I'll feel something again.'",
+      "page": "At the centre of the whirlpool is a palace made of water, its walls shimmering, fish swimming through them.\n\nOn a throne of coral sits the Tide-Mother: beautiful, pale, tired, her long blue hair drifting as if underwater. In her arms is a glowing bundle of stars, pulsing faintly, almost like a heartbeat but not quite.\n\n\"Just a few more,\" she whispers. \"Then I'll feel something again.\"\n\nIn your coat pocket, Calcifer crackles nervously. \"Careful. She's lonely. Lonely things grab.\""
+    },
+    {
+      "id": "finale",
+      "title": "Return the Stars",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: give her back the old love story from the logbook so she can remember her heart was given out of love, not lost (only if they have it); use Howl's counter-spell to release the stars gently (only if they learned it); or give her a little of their own kindness, through Calcifer, a spark of warmth.",
+      "choices": [
+        {
+          "id": "give_her_the_old_love_story",
+          "label": "Give her the old love story",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_heart_given"
+        },
+        {
+          "id": "use_howl_s_counter_spell",
+          "label": "Use Howl's counter-spell",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "starfall_reversed"
+        },
+        {
+          "id": "give_her_a_spark_of_your_kindness",
+          "label": "Give her a spark of your kindness",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_spark"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "a_heart_given",
+        "starfall_reversed",
+        "a_spark"
+      ],
+      "isEnding": false,
+      "page": "The Tide-Mother looks at you with eyes like the deep sea. She doesn't move to stop you. She doesn't let go of the stars.\n\n\"Everyone takes something,\" she says. \"What will you take?\"\n\nAbove, the sky is so dark now. Behind you, the moving castle has walked down to the beach to wait, chimneys puffing anxiously. It's your door. Your choice."
+    },
+    {
+      "id": "a_heart_given",
+      "title": "A Heart Given",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "She reads the story, remembers, and smiles. The stars float back up into the sky one by one. Close on Saltmarsh under a sky full of stars and the castle walking home along the beach.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Heart Given",
+      "page": "You open the logbook and read her the old story aloud. The sailor. The heart she gave him. How he lived a long, happy life because of it.\n\nThe Tide-Mother listens. When you finish, she's crying, but she's smiling too.\n\n\"I didn't lose it,\" she whispers. \"I gave it. That's different.\"\n\nShe opens her arms, and the stars float up out of them, one by one, back into the sky.\n\nThat night Saltmarsh sees more stars than anyone can remember. And the moving castle walks home along the beach, leaving giant footprints in the wet sand."
+    },
+    {
+      "id": "starfall_reversed",
+      "title": "Starfall Reversed",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Howl and the player sing the counter-spell and the stars rise in a glittering wave. Howl pretends it was easy and then takes a long nap. Close on a sky thick with stars over the sea.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Starfall Reversed",
+      "page": "You and Howl stand side by side on the water and speak the words he taught you, softly, like a lullaby.\n\nThe bundle of stars loosens in the Tide-Mother's arms. They rise, all of them, in a glittering wave that pours back up into the sky.\n\nThe Tide-Mother sighs, and it sounds like relief.\n\n\"Easy,\" says Howl afterwards, examining his hair. Then he lies down on the castle sofa and sleeps for nineteen hours.\n\nWhen you look out of the window that night, the sky over the sea is so thick with stars it looks like spilled sugar."
+    },
+    {
+      "id": "a_spark",
+      "title": "A Spark",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Calcifer gives a tiny spark; it lands in the Tide-Mother's chest and glows. She releases the stars. Calcifer is exhausted and proud. Close on a warm hearth and Sophie making breakfast.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Spark",
+      "page": "You hold out your hand. Calcifer, grumbling, crackles out of your pocket into your palm. \"Fine. Just a little one.\"\n\nA tiny spark floats from him to the Tide-Mother and settles in her chest. It glows: small, warm, orange.\n\nShe touches it, amazed. Then she lets go of the stars, and they float home to the sky.\n\nCalcifer is exhausted for a week, and unbearably proud. Back at the castle, he flickers happily on his log, telling the story over and over, while Sophie makes breakfast and the whole house smells of bacon and warmth."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f5a85a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-aot-the-supply-run-to-trost",
+    "title": "The Supply Run to Trost",
+    "category": "apocalypse",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "You're a Garrison soldier who has never seen a Titan up close. Then a gas-supply wagon breaks down outside Wall Rose, and the Survey Corps sends its strangest squad leader and its hungriest cadet to help you bring it home. Somewhere out there, a Titan is following you, and it isn't acting like the others.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Attack on Titan",
+      "medium": "anime",
+      "owner": "Hajime Isayama, Kodansha and Wit Studio/MAPPA",
+      "aka": [
+        "AoT",
+        "Shingeki no Kyojin",
+        "Survey Corps"
+      ]
+    }
+  },
+  "world": "Humanity lives inside three huge walls, Maria, Rose and Sina, to hide from Titans: giant, mindless humanoids that eat people. Soldiers fight them with Omni-Directional Mobility (ODM) gear, gas-powered grappling harnesses, and blades that must cut the nape of the neck. The Garrison guards the walls; the Survey Corps ventures outside. Gas for ODM gear is precious. A supply wagon carrying gas canisters for the Trost district has broken down at an abandoned village outside Wall Rose. A strange Titan has been seen shadowing it: an 'Abnormal' that doesn't attack, just watches. Hange Zoë, the Survey Corps' brilliant Titan researcher, wants to study it. Corrupt merchant Gustav Rehn has been skimming gas meant for the walls.",
+  "tone": "Desperate, intense military dark fantasy: terror, courage, moments of black humour and friendship, and the cost of every choice.",
+  "playerRole": "A young Garrison soldier, trained but untested outside the walls, with ODM gear, two blades, half-full gas tanks, a horse called Pebble and a promise to your little brother that you'd come back.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Breathless, cinematic narration: the whir of ODM wires, wind, the thud of Titan footsteps, gore kept impressionistic. Moments of stillness before terror. Comic relief from Sasha and Hange's enthusiasm. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "hange",
+      "name": "Hange Zoë",
+      "appearance": "A tall Survey Corps officer with messy brown hair in a ponytail, goggles pushed up on the forehead, rectangular glasses, a brown jacket with the Wings of Freedom emblem and ODM gear.",
+      "voice": "Manic, gleeful and brilliant about Titans; serious as stone in danger.",
+      "stance": "Wants to study the Abnormal and needs the player to keep it alive long enough."
+    },
+    {
+      "id": "sasha",
+      "name": "Sasha Blouse",
+      "appearance": "A young Survey Corps soldier with auburn hair in a ponytail, brown eyes, a Wings of Freedom jacket, ODM gear and a potato in her pocket.",
+      "voice": "Cheerful, food-obsessed and nervous, with a hunter's instincts and country accent.",
+      "stance": "Becomes the player's partner and friend on the run."
+    },
+    {
+      "id": "gustav",
+      "name": "Gustav Rehn",
+      "appearance": "A plump merchant in a fur-collared coat with a gold chain, rings on every finger, a neat beard and a nervous smile.",
+      "voice": "Sweaty, flattering and evasive.",
+      "stance": "Has been stealing gas from the supply line and will sacrifice soldiers to hide it."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Follow the wagon tracks; 2 = Help Hange observe the Abnormal."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Gustav's gas ledger."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player recorded the Abnormal Titan's warning."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Outside the Wall",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player rides out of Wall Rose for the first time with a small team to recover a broken supply wagon. The world outside is huge and silent. At the abandoned village, the wagon is half-empty, and in the distance a strange Titan sits on a hill, watching them.",
+      "choices": [
+        {
+          "id": "check_the_wagon_s_cargo",
+          "label": "Check the wagon's cargo",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "watch_the_strange_titan",
+          "label": "Watch the strange Titan",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "signal_the_survey_corps_with_a_flare",
+          "label": "Signal the Survey Corps with a flare",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "A green flare arcs across the sky. Hoofbeats: the Survey Corps is coming.",
+      "page": "The gate of Wall Rose grinds shut behind you, and for the first time in your life you are outside.\n\nThe world is enormous. Green fields roll on forever under a sky so wide it makes you dizzy. No walls. Nothing between you and everything.\n\nYour squad rides fast and silent to an abandoned village where the supply wagon broke an axle three days ago. Pebble, your horse, is trembling. So are you.\n\nThe wagon is half-empty. Canisters missing. And on a hill beyond the village sits a Titan, fifteen metres tall, its face slack and smiling. It isn't moving. It isn't hunting. It's just sitting there, watching you."
+    },
+    {
+      "id": "crossroads",
+      "title": "Hange's Request",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Hange Zoë and Sasha Blouse arrive. Hange is thrilled by the Abnormal and wants to capture it alive. Sasha is thrilled by the village's abandoned food stores. The canisters are missing. Two options: follow wagon tracks to where the missing gas went, or help Hange observe the Abnormal from close range.",
+      "choices": [
+        {
+          "id": "share_rations_with_sasha_and_talk",
+          "label": "Share rations with Sasha and talk",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You sit on the village well with Sasha and split your rations. She tells you about her village in the mountains, hunting with her father, and how she joined the military mostly for the food. \"And because somebody has to.\" She gives you half a stolen potato. \"For luck.\" You tell her about your little brother. She nods seriously. \"Then we're both coming back. That's decided.\""
+        },
+        {
+          "id": "follow_the_wagon_tracks",
+          "label": "Follow the wagon tracks",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "help_hange_observe_the_abnormal",
+          "label": "Help Hange observe the Abnormal",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Hange, practically vibrating: 'It's not attacking! Do you understand how incredible that is?!'",
+      "page": "Hoofbeats. The Survey Corps arrives, green cloaks snapping. At the front, an officer with goggles and rectangular glasses leaps off her horse before it's even stopped.\n\n\"It's not attacking! Do you understand how incredible that is?!\" Hange Zoë pulls out a notebook. \"I want it alive. I want everything about it.\"\n\nBehind her, a girl with an auburn ponytail is already rummaging through a village house. \"Bread! Old bread! Still bread!\" That's Sasha.\n\nThe canisters are gone. Wagon tracks lead away toward the barns at the edge of the village. And Hange is staring at the Titan on the hill like it's the most beautiful thing she's ever seen."
+    },
+    {
+      "id": "path_a",
+      "title": "The Hidden Cache",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The tracks lead to a barn where dozens of gas canisters are hidden under hay, stamped with Gustav Rehn's merchant seal. A ledger shows he's been selling military gas to nobles. Then a normal Titan finds the barn.",
+      "choices": [
+        {
+          "id": "grab_the_ledger_and_fly",
+          "label": "Grab the ledger and fly",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "take_canisters_to_refill_your_gear",
+          "label": "Take canisters to refill your gear",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The barn roof creaks. A huge grinning face fills the hayloft door.",
+      "page": "The tracks end at a barn. Inside, under piles of hay, are dozens of gas canisters, the precious gas that keeps soldiers alive, stamped with a merchant's seal: G. Rehn.\n\nOn a crate is a ledger. Columns of numbers. Gas taken from military supply. Gas sold to noble houses for their private guards. Signed with a flourish: Gustav Rehn.\n\nThe barn roof creaks.\n\nYou look up. A huge grinning face fills the hayloft door, eyes empty, teeth like tombstones. A normal Titan. It has found you."
+    },
+    {
+      "id": "path_b",
+      "title": "Face to Face",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Using ODM gear, the player and Hange get close to the Abnormal. It doesn't attack; it tries to point toward the village and makes sounds like words. Hange realises it's trying to warn them: more Titans are coming, drawn by something in the village.",
+      "choices": [
+        {
+          "id": "record_what_the_titan_is_trying_to_say",
+          "label": "Record what the Titan is trying to say",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "follow_where_it_s_pointing",
+          "label": "Follow where it's pointing",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Hange whispers, eyes huge: 'It's... talking. Write this down. WRITE THIS DOWN.'",
+      "page": "Wires hiss. You and Hange fly up the hill on ODM gear and anchor on a dead tree right beside the Titan's head.\n\nIt doesn't attack. Up close it's horribly human: a big slack face, wet eyes. It raises one arm, slowly, and points at the village. Its mouth opens. A low sound comes out, like a word stretched underwater.\n\n\"It's talking,\" Hange whispers, eyes enormous. \"Write this down. WRITE THIS DOWN.\"\n\nYou scribble. It points again, harder, then turns its whole body toward the horizon, where dust is rising. More Titans. Many more. Coming this way. It was trying to warn you."
+    },
+    {
+      "id": "showdown",
+      "title": "The Horde",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Titans pour toward the village. The team must hold the wagon long enough to fill it and escape. Gustav arrives with private guards to reclaim his canisters. The Abnormal stands at the edge of the village, waiting.",
+      "choices": [
+        {
+          "id": "fight_the_titans_to_buy_time",
+          "label": "Fight the Titans to buy time",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "lead_the_titans_away_on_horseback",
+          "label": "Lead the Titans away on horseback",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Sasha, bow drawn, shaking: 'We can do this. We can do this. Can we do this?'",
+      "page": "They come over the fields like a tide. Ten, twenty, more: grinning giants, running and lurching toward the village.\n\n\"Load the wagon!\" someone screams. \"Every canister!\"\n\nThen a carriage rattles in from the road, guarded by men in private uniforms. A plump merchant in a fur collar leans out. \"Those canisters are my property! Load them on my carriage!\"\n\nSasha nocks an arrow with shaking hands. \"We can do this. We can do this. Can we do this?\"\n\nAt the edge of the village, the strange Titan stands up, and waits."
+    },
+    {
+      "id": "finale",
+      "title": "Back to the Wall",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The gate of Wall Rose is in sight. The player decides: hand Gustav's ledger to the Military Police (only if they have it); give Hange's notes on the talking Titan to the Survey Corps commander (only if they recorded it); or just get everyone home alive and say nothing.",
+      "choices": [
+        {
+          "id": "turn_in_gustav_s_ledger",
+          "label": "Turn in Gustav's ledger",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "gas_for_the_walls"
+        },
+        {
+          "id": "give_hange_the_titan_notes",
+          "label": "Give Hange the Titan notes",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_titan_that_spoke"
+        },
+        {
+          "id": "just_get_everyone_home",
+          "label": "Just get everyone home",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "home"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "gas_for_the_walls",
+        "the_titan_that_spoke",
+        "home"
+      ],
+      "isEnding": false,
+      "page": "The gate of Wall Rose rises ahead, and the bells are ringing for you. Behind you, smoke over the fields. The wagon creaks along, loaded. Everyone who rode out is still riding.\n\nHange rides beside you, covered in dust and grinning. Sasha is asleep in the saddle.\n\nThe question now isn't whether you survived. It's what you're going to tell the people behind the walls."
+    },
+    {
+      "id": "gas_for_the_walls",
+      "title": "Gas for the Walls",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Gustav is arrested and the stolen gas returns to the Garrison. The Trost wall is fully supplied. The player is promoted. Close on soldiers refilling ODM gear on the wall at sunset.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Gas for the Walls",
+      "page": "You walk into the Military Police office and put Gustav Rehn's ledger on the captain's desk.\n\nHe's arrested that night. Every stolen canister is returned to the Garrison. For the first time in months, the Trost wall is fully supplied.\n\nA week later, someone pins a new badge on your jacket.\n\nAt sunset, you stand on top of Wall Rose watching soldiers refill their ODM gear, gas hissing into the tanks. Every one of those hisses is a life that might come back from outside. You helped with that."
+    },
+    {
+      "id": "the_titan_that_spoke",
+      "title": "The Titan That Spoke",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Hange spends three days awake reading the notes, then hugs the player so hard their ribs creak. The Survey Corps commander studies the report in silence. Close on Hange's lamp burning late in a tower window.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Titan That Spoke",
+      "page": "You give your notes to Hange. She reads them standing up, then sitting down, then lying on the floor. She doesn't sleep for three days.\n\nOn the fourth day she finds you and hugs you so hard your ribs creak. \"It was warning us. A Titan was warning us. Do you understand what this means?\" She doesn't know yet. Nobody does. But she's going to find out.\n\nThe Survey Corps commander reads your report in silence and folds it into his coat.\n\nThat night, a single lamp burns in a tower window at headquarters until dawn."
+    },
+    {
+      "id": "home",
+      "title": "Home",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Everyone makes it back. The player keeps their promise to their little brother. That night, on the wall, they share Sasha's stolen potato and watch the sunset over the Titan lands. Close on two silhouettes on the wall.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Home",
+      "page": "Every single person who rode out rides back in. In this world, that's a miracle.\n\nYou say nothing about the ledger, nothing about the Titan that pointed. You're too tired and too grateful.\n\nThat night you go home and your little brother throws himself at you so hard you both fall over.\n\nLater, you climb the wall and find Sasha already sitting there, feet dangling over the edge. She hands you half a potato. You watch the sun go down over the Titan lands together, two small silhouettes on top of the world."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#5d8a5a"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

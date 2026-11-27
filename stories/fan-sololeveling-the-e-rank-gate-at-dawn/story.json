@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-sololeveling-the-e-rank-gate-at-dawn",
+    "title": "The E-Rank Gate at Dawn",
+    "category": "fantasy",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You're an E-rank hunter, the weakest of the weak, and your raid team just abandoned you inside a gate that was supposed to be easy. The only other person left is a quiet guy in a black hoodie who fights like he's playing a game only he can see. The boss room door is opening. Your rank won't save you. Maybe he will.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Solo Leveling",
+      "medium": "manhwa",
+      "owner": "Chugong, DUBU (Redice Studio) and Kakao Entertainment",
+      "aka": [
+        "Solo Leveling",
+        "Sung Jinwoo",
+        "Hunters"
+      ]
+    }
+  },
+  "world": "Modern Seoul, where gates to monster dungeons open across the city. Hunters, people who awakened powers and are ranked E to S, clear them for money via guilds and the Hunters Association. Sung Jinwoo, once known as 'the world's weakest hunter', has secretly been growing through a mysterious System only he can see, and commands shadow soldiers. Yoo Jinho, a cheerful rich kid, idolises him. A shady guild, Iron Fang, sends E-ranks into gates as bait so stronger members can loot boss rooms. A dungeon break threatens if the boss isn't killed in time.",
+  "tone": "Tense, punchy power-fantasy action: dread in dark dungeons, game-like flashes, huge cool moments, and loyalty between underdogs.",
+  "playerRole": "An E-rank hunter with a cheap dagger, a dented helmet, two healing potions, an awakening you're still not sure about, and rent due tomorrow.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Cinematic, game-flavoured narration: blue system windows only Jinwoo seems to see, ominous dungeon atmosphere, crunchy monster fights, and slow-motion 'cool' moments. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "jinwoo",
+      "name": "Sung Jinwoo",
+      "appearance": "A lean young man with messy black hair, sharp grey eyes that sometimes glow purple, a black hooded jacket over dark clothes and a black dagger.",
+      "voice": "Quiet, cool and dry; few words, small smirks.",
+      "stance": "Protects the player without explanation; tests whether they have courage."
+    },
+    {
+      "id": "jinho",
+      "name": "Yoo Jinho",
+      "appearance": "A cheerful young man with neat blond-dyed hair, an expensive jacket, a big shield, and puppy-dog eagerness.",
+      "voice": "Excitable, loyal and talkative; calls Jinwoo 'hyung-nim'.",
+      "stance": "Shows up to help and befriends the player instantly."
+    },
+    {
+      "id": "dongsu",
+      "name": "Guildmaster Ma Dongsu",
+      "appearance": "A burly man with a shaved head, a golden tooth, a red guild jacket emblazoned with an iron fang and a huge axe.",
+      "voice": "Loud, mocking and greedy.",
+      "stance": "Used the player as bait and wants the boss loot."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search the flooded tunnels; 2 = Descend the bone stair."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took Dongsu's recording."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player learned the boss's attack pattern."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Abandoned",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Inside a gate beneath a Seoul subway station. The Iron Fang guild sealed a corridor behind the player and ran. Wolf-like monsters circle in the dark. A quiet man in a black hoodie steps out of the shadows and kills two of them with a single dagger.",
+      "choices": [
+        {
+          "id": "fight_beside_the_stranger",
+          "label": "Fight beside the stranger",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "use_your_last_potion_on_yourself",
+          "label": "Use your last potion on yourself",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_stranger_who_he_is",
+          "label": "Ask the stranger who he is",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The stranger glances at the player: 'Stay behind me. Or don't. Your choice.'",
+      "page": "The corridor seals behind you with a grinding crash. Through the crack, you hear the Iron Fang guild laughing as they run.\n\nBait. They brought you as bait.\n\nThe dungeon under the subway station is dark and damp. Glowing eyes appear in the black. Wolf-things, low and hungry, circle you. Your cheap dagger shakes in your hand. You're E-rank. The weakest of the weak.\n\nThen someone steps out of the shadows behind them: a lean young man in a black hoodie. One movement. Two wolves fall. The others back away whining.\n\nHe glances at you with grey eyes that flicker, just for a second, with purple. \"Stay behind me,\" he says. \"Or don't. Your choice.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "The Dungeon Depths",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The stranger, Sung Jinwoo, says the dungeon will break into the city in an hour if no one kills the boss. Yoo Jinho bursts in through a side passage with a giant shield, shouting 'Hyung-nim!'. Two ways down: the flooded tunnels where Iron Fang left their gear, or the bone stair where the boss's minions gather.",
+      "choices": [
+        {
+          "id": "share_your_potion_with_jinho_and_ask_abo",
+          "label": "Share your potion with Jinho and ask about Jinwoo",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "Jinho has a nasty cut on his arm and no potions, of course. You hand him one of yours. He stares at you like you've given him a kidney. \"You're E-rank and you're sharing potions? You're amazing!\" He tells you all about Jinwoo: weakest hunter in Korea, then suddenly the strongest, and no one knows why. \"But he's kind. He just doesn't say it.\" Jinwoo, ahead of you, doesn't turn around. But he slows down so you can keep up."
+        },
+        {
+          "id": "search_the_flooded_tunnels",
+          "label": "Search the flooded tunnels",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "descend_the_bone_stair",
+          "label": "Descend the bone stair",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Jinho grins: 'You fought beside Jinwoo-hyung? You're my friend now!'",
+      "page": "\"Sung Jinwoo.\" That's all he says by way of introduction. Then: \"This gate breaks in an hour if no one kills the boss. Monsters pour into the subway.\"\n\nA side passage explodes with noise. A young man with a giant shield and an expensive jacket comes charging in, sees Jinwoo, and lights up like a kid at a festival. \"Hyung-nim! I knew you'd be here!\" He sees you. \"You fought beside Jinwoo-hyung? You're my friend now! I'm Yoo Jinho!\"\n\nTwo ways down. Flooded tunnels to the left, where Iron Fang made camp. A spiral stair of bones to the right, where the boss's minions gather.\n\nJinwoo shrugs. \"Pick.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Flooded Tunnels",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Iron Fang's abandoned camp: and a recording device. On it, Ma Dongsu laughing about using E-ranks as bait and splitting loot. Water monsters lurk.",
+      "choices": [
+        {
+          "id": "take_the_recording_device",
+          "label": "Take the recording device",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "grab_iron_fang_s_spare_gear",
+          "label": "Grab Iron Fang's spare gear",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Something huge moves in the black water, and bubbles rise near the player's boots.",
+      "page": "The flooded tunnels stink of rot. Iron Fang's abandoned camp sits on a ledge above black water: crates, a cooking stove, a guild flag with an iron fang.\n\nOn a crate, a small recording device blinks red. You press play.\n\nMa Dongsu's loud voice: \"Send the E-ranks in first. Seal the corridor. While the monsters eat them, we take the boss. Nobody checks on E-ranks.\" Laughter. \"Free loot, every time.\"\n\nBubbles rise near your boots. Something huge is moving in the water."
+    },
+    {
+      "id": "path_b",
+      "title": "The Bone Stair",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "A spiral stair made of monster bones. Jinwoo shows the player a glimpse of his power: shadows rising from dead monsters as soldiers. He teaches the player to read the boss's attack pattern from carvings on the walls.",
+      "choices": [
+        {
+          "id": "study_the_boss_s_pattern",
+          "label": "Study the boss's pattern",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "watch_the_shadows_rise",
+          "label": "Watch the shadows rise",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Jinwoo, quietly: 'Arise.' The dead monster's shadow stands up.",
+      "page": "The stair spirals down into the dark, built entirely from monster bones. On the walls are carvings: a giant wolf king, the way it raises its claws, the half-second it leaves its throat open after a roar.\n\n\"Study it,\" Jinwoo says. \"Patterns keep you alive.\"\n\nAt the bottom, a giant spider-thing drops from the ceiling. Jinwoo kills it before you can scream. Then he raises his hand over its body, and quietly says, \"Arise.\"\n\nThe spider's shadow peels off the floor and stands up. A soldier made of darkness, bowing to him.\n\nYou stare. Jinwoo just puts his hands back in his pockets."
+    },
+    {
+      "id": "showdown",
+      "title": "The Boss Room",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "A vast chamber; the boss, a giant armoured werewolf king. Iron Fang arrives to steal the kill. The player is at the front.",
+      "choices": [
+        {
+          "id": "charge_the_boss",
+          "label": "Charge the boss",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "hold_off_iron_fang",
+          "label": "Hold off Iron Fang",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Ma Dongsu: 'Thanks for softening it up, bait!'",
+      "page": "The boss room is a cathedral of stone. In the centre, rising from a throne of bones, is the werewolf king: three times taller than a man, armoured in black iron, eyes like burning coals.\n\nIt roars. The whole dungeon shakes.\n\nBehind you, footsteps. Iron Fang, in red jackets, axes out. Ma Dongsu flashes his gold tooth. \"Thanks for softening it up, bait! We'll take it from here!\"\n\nSomehow, you're at the front. The werewolf king is looking at you."
+    },
+    {
+      "id": "finale",
+      "title": "Gate Closed",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The boss falls. The player decides: give Ma Dongsu's recording to the Hunters Association (only if they have it); land the final blow using the pattern Jinwoo showed them, claiming the boss's core (only if they learned it); or let Jinwoo take everything and walk away.",
+      "choices": [
+        {
+          "id": "hand_the_recording_to_the_association",
+          "label": "Hand the recording to the Association",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "iron_fang_falls"
+        },
+        {
+          "id": "land_the_final_blow",
+          "label": "Land the final blow",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "level_up"
+        },
+        {
+          "id": "let_jinwoo_take_the_kill",
+          "label": "Let Jinwoo take the kill",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "weakest_no_more"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "iron_fang_falls",
+        "level_up",
+        "weakest_no_more"
+      ],
+      "isEnding": false,
+      "page": "The werewolf king crashes to one knee, bleeding black, its throat open for one breath after its roar. Iron Fang is scattered across the chamber floor, groaning. Jinho is grinning behind his dented shield.\n\nJinwoo stands beside you, not attacking. Waiting.\n\n\"Your gate,\" he says. \"Your call.\""
+    },
+    {
+      "id": "iron_fang_falls",
+      "title": "Iron Fang Falls",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Association raids Iron Fang; Dongsu loses his licence. E-rank hunters get new protections. Jinho throws a party. Close on the player paying rent with a reward cheque.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Iron Fang Falls",
+      "page": "You walk out of the gate at dawn and straight to the Hunters Association office, the recording in your hand.\n\nThey play it once. The room goes silent. Then very busy.\n\nBy evening, Iron Fang is being raided. Ma Dongsu's licence is revoked on live television. A new rule is announced the next week: no guild may send E-ranks into a gate without a senior escort.\n\nJinho throws a party. You pay your rent with the Association's reward cheque and still have money left over for the first time in your life."
+    },
+    {
+      "id": "level_up",
+      "title": "Level Up",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The player's dagger finds the werewolf king's weak spot; a blue window flickers in front of their eyes for a moment. Jinwoo smirks. Close on the player walking out of the gate into dawn, stronger.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Level Up",
+      "page": "The werewolf king roars, and in the half-second after, its throat opens exactly the way the carving showed.\n\nYou move.\n\nYour cheap dagger finds the gap in its armour. The king falls like a mountain.\n\nFor a moment, a glowing blue window flickers in front of your eyes, like something from a game: a single word you can't quite read. Then it's gone. You look at Jinwoo. He's smirking.\n\nYou walk out of the gate into the dawn. Your legs are shaking. But somehow, you feel stronger than you did when you walked in."
+    },
+    {
+      "id": "weakest_no_more",
+      "title": "Weakest No More",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Jinwoo kills the boss in one move. Outside the gate at dawn, he hands the player the boss's core anyway: 'You didn't run.' Close on the player holding it in the sunrise.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Weakest No More",
+      "page": "You step back. Jinwoo steps forward. One movement, and it's over. The werewolf king doesn't even have time to roar.\n\nOutside the gate, the sun is coming up over Seoul. Jinho is telling a crowd of reporters how amazing Jinwoo was.\n\nJinwoo walks over to you and drops something into your hand: the boss's magic core, glowing and warm, worth more than you make in a year.\n\n\"You didn't run,\" he says. Then he's gone. You stand holding the core in the sunrise, the weakest hunter in Seoul, with the best story of anyone."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#8a5cff"
+    },
+    "fonts": {
+      "heading": "sans",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

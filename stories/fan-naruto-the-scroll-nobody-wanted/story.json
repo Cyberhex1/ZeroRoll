@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-naruto-the-scroll-nobody-wanted",
+    "title": "The Scroll Nobody Wanted",
+    "category": "adventure",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You're a Leaf Village genin who just failed your third D-rank mission (the cat escaped, again). So you get the worst job in the village: delivering a dusty old scroll to a retired ninja in the hills. A loud blond boy in orange insists on coming. Then the scroll turns out to be the one thing a rogue ninja wants most.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Naruto",
+      "medium": "anime",
+      "owner": "Masashi Kishimoto, Shueisha and Studio Pierrot",
+      "aka": [
+        "Hidden Leaf",
+        "Konoha",
+        "Shinobi"
+      ]
+    }
+  },
+  "world": "The Hidden Leaf Village (Konoha), a ninja village in the Land of Fire, with the Hokage's faces carved into the cliff. Ninja use chakra for jutsu: ninjutsu, genjutsu and taijutsu. Genin are junior ninja in teams under a jonin teacher. Naruto Uzumaki, a loud, determined boy in orange who carries the Nine-Tailed Fox inside him, dreams of becoming Hokage. Kakashi Hatake, a lazy-seeming silver-haired jonin, reads novels and is very dangerous. The dusty scroll belongs to an old retired ninja, Granny Hisae, and contains a forbidden sealing technique. A rogue ninja from the Hidden Mist, Karasu the Ink-Blade, has tracked it.",
+  "tone": "Hopeful, energetic shonen ninja adventure: rivalry, training, never giving up, friendship and big, sincere emotions.",
+  "playerRole": "A genin of the Hidden Leaf, headband on your forehead, with kunai, a few shuriken, three ninja tools of your choice, a signature jutsu you haven't mastered yet and a bag of rice balls.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Energetic ninja-action narration: hand signs, smoke bombs, clones, speed lines, comic yelling, then quiet heartfelt moments about dreams and bonds. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "naruto",
+      "name": "Naruto Uzumaki",
+      "appearance": "A spiky blond boy with blue eyes, three whisker marks on each cheek, a bright orange-and-black jumpsuit and a Leaf headband.",
+      "voice": "Loud, brash and endlessly determined; ends sentences with 'believe it'.",
+      "stance": "Instantly treats the player as a rival and a friend."
+    },
+    {
+      "id": "kakashi",
+      "name": "Kakashi Hatake",
+      "appearance": "A tall man with spiky silver hair, a face mask covering everything below his eyes, a headband slanted over his left eye, a green flak jacket and an orange book in hand.",
+      "voice": "Lazy, polite and dry; suddenly razor-sharp.",
+      "stance": "Shadowing the mission to test the genin."
+    },
+    {
+      "id": "karasu",
+      "name": "Karasu the Ink-Blade",
+      "appearance": "A gaunt rogue ninja with long black hair, a slashed Hidden Mist headband, black ink tattoos crawling over his arms, and a long brush-like blade.",
+      "voice": "Soft, poetic and cruel.",
+      "stance": "Wants the scroll's sealing technique."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Take the misty ravine shortcut; 2 = Go the long way to Tanzaku."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player stole Karasu's list of targets."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player learned the two-person seal."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Worst Mission",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Hokage's office. After the player's third failed cat-retrieval mission, they're handed a dusty scroll to deliver to retired ninja Granny Hisae in the hills. Naruto Uzumaki bursts in and demands to come. Kakashi, reading his book, says sure.",
+      "choices": [
+        {
+          "id": "accept_naruto_as_your_partner",
+          "label": "Accept Naruto as your partner",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_hokage_what_s_in_the_scroll",
+          "label": "Ask the Hokage what's in the scroll",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "challenge_naruto_to_a_race_to_the_gate",
+          "label": "Challenge Naruto to a race to the gate",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Naruto points at the player: 'I'm gonna be Hokage, so I can't let you do this alone! Believe it!'",
+      "page": "The cat escaped. Again. That's your third failed mission this month, and the Hokage looks very, very tired.\n\n\"Here.\" A dusty scroll lands on the desk in front of you. \"Deliver this to Granny Hisae, a retired ninja who lives in the hills. It's an easy job. Please don't lose a cat on the way.\"\n\nThe door slams open. A spiky-haired blond boy in a blinding orange jumpsuit points right at you.\n\n\"I'm Naruto Uzumaki! I'm gonna be Hokage, so I can't let a fellow Leaf ninja do a mission alone! I'm coming! Believe it!\"\n\nIn the corner, a silver-haired man in a mask doesn't look up from his little orange book. \"Sure,\" Kakashi says. \"Why not.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Ambush on the Road",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "On the forest road, ink-black crows swoop and a rogue ninja's voice asks politely for the scroll. Smoke, kunai and a narrow escape. Kakashi has vanished. Two paths: the shortcut through a misty ravine where the ambush came from, or the long way to the village of Tanzaku where Granny Hisae's student lives.",
+      "choices": [
+        {
+          "id": "share_rice_balls_with_naruto_and_ask_abo",
+          "label": "Share rice balls with Naruto and ask about his dream",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You sit on a log and share your rice balls. Naruto eats four. Then he tells you about being alone as a kid, about everyone in the village looking at him like something scary. \"That's why I'm gonna be Hokage. Then they'll have to see me.\" He grins at you. \"You're kinda weird. I like that.\" You tell him your own dream. He doesn't laugh. \"Then we both gotta work hard. Believe it!\""
+        },
+        {
+          "id": "take_the_misty_ravine_shortcut",
+          "label": "Take the misty ravine shortcut",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "go_the_long_way_to_tanzaku",
+          "label": "Go the long way to Tanzaku",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Naruto, panting: 'Who was that guy?! And where'd Kakashi-sensei go?!'",
+      "page": "The forest road is quiet. Too quiet. Then black crows come screaming out of the trees, and you realise they aren't birds. They're made of ink.\n\n\"Hand me the scroll, little leaf,\" says a soft voice from nowhere. Smoke bombs. Kunai. Naruto shouting. You throw everything you have and somehow, when the smoke clears, the crows are gone and you still have the scroll.\n\nKakashi has vanished.\n\n\"Who was that guy?!\" Naruto pants. \"And where'd Kakashi-sensei go?!\"\n\nThe ambush came from a misty ravine to the west, a shortcut to the hills. Or there's the long road through Tanzaku Town, where Granny Hisae's old student runs a noodle shop."
+    },
+    {
+      "id": "path_a",
+      "title": "The Ravine",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "In the ravine the player and Naruto find Karasu's camp and a list of Leaf ninja names with seals beside them: the sealing technique could lock away chakra. They also spot Karasu's weakness: his ink fails in water.",
+      "choices": [
+        {
+          "id": "steal_karasu_s_list",
+          "label": "Steal Karasu's list",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "test_water_against_his_ink",
+          "label": "Test water against his ink",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "An ink crow lands on a branch and tilts its head at the player.",
+      "page": "The ravine is full of mist and cold rocks. You and Naruto creep along the wall until you smell smoke: a camp.\n\nThe rogue ninja isn't there, but his things are. A long brush-like blade. Pots of ink. And a list: names of Leaf ninja, each with a little sealing symbol drawn beside it. The scroll's technique could lock away a ninja's chakra forever. He's planning to use it on all of them.\n\nNaruto, meanwhile, has knocked over a water bucket. Where the water splashed across an ink drawing, the ink has run and dissolved into nothing.\n\nAn ink crow lands on a branch above you and tilts its head."
+    },
+    {
+      "id": "path_b",
+      "title": "Tanzaku Town",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In Tanzaku, Granny Hisae's former student, a nervous noodle-shop owner, tells them how to use the scroll safely: it can seal Karasu's ink jutsu permanently if activated together by two people who trust each other.",
+      "choices": [
+        {
+          "id": "learn_the_two_person_seal",
+          "label": "Learn the two-person seal",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "practise_the_hand_signs_with_naruto",
+          "label": "Practise the hand signs with Naruto",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The noodle-shop owner slurps nervously: 'Only works if you trust your partner completely.'",
+      "page": "Tanzaku Town is lanterns, gambling halls and the smell of broth. At a tiny noodle shop, Granny Hisae's former student turns pale when he sees the scroll.\n\n\"She gave you that? Then it's serious.\" He slurps nervously. \"It's a sealing technique. It can lock away a jutsu forever. But it takes two people, both making the signs together, and it only works if they trust each other completely.\"\n\nHe shows you the hand signs. Naruto gets them wrong six times. You get them wrong four. On the seventh try, both your hands glow at the same time, and Naruto whoops so loudly half the shop turns around."
+    },
+    {
+      "id": "showdown",
+      "title": "Granny Hisae's Hill",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "At the retired ninja's hut on the hill, Karasu attacks with an army of ink beasts. Naruto makes dozens of shadow clones. Granny Hisae is old, but not helpless. The scroll glows.",
+      "choices": [
+        {
+          "id": "fight_the_ink_beasts_beside_naruto",
+          "label": "Fight the ink beasts beside Naruto",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "protect_granny_and_the_scroll",
+          "label": "Protect Granny and the scroll",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Karasu smiles: 'Hand me the scroll, little leaf, and I'll paint you a quiet death.'",
+      "page": "Granny Hisae's hut stands alone on a windy hill. A tiny old woman with a walking stick opens the door, sees the scroll, and sighs. \"Took your time.\"\n\nThen the sky goes black with ink. Beasts made of it pour up the hill: wolves, snakes, a dragon. At the top of the ridge, a gaunt ninja with ink tattoos crawling up his arms smiles.\n\n\"Karasu the Ink-Blade. Hand me the scroll, little leaf, and I'll paint you a quiet death.\"\n\n\"Shadow Clone Jutsu!\" Fifty Narutos burst into being around you, yelling."
+    },
+    {
+      "id": "finale",
+      "title": "The Seal",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Karasu is cornered. The player decides: bring Karasu's list of targets to the Hokage so those ninja can be protected (only if they took it); use the two-person seal with Naruto to lock away Karasu's ink forever (only if they learned it); or simply hand the scroll to Granny Hisae and let her deal with him.",
+      "choices": [
+        {
+          "id": "take_karasu_s_list_to_the_hokage",
+          "label": "Take Karasu's list to the Hokage",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "report_to_the_hokage"
+        },
+        {
+          "id": "seal_his_ink_with_naruto",
+          "label": "Seal his ink with Naruto",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "two_hands_one_seal"
+        },
+        {
+          "id": "give_the_scroll_to_granny",
+          "label": "Give the scroll to Granny",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "granny_s_way"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "report_to_the_hokage",
+        "two_hands_one_seal",
+        "granny_s_way"
+      ],
+      "isEnding": false,
+      "page": "The ink beasts are puddles. Karasu is on one knee in the grass, panting, his brush-blade cracked.\n\nGranny Hisae leans on her stick, watching you with sharp eyes. From a tree branch, a familiar voice: \"Don't mind me. Just observing.\" Kakashi, reading his book.\n\nNaruto looks at you. \"Okay. What do we do with him?\""
+    },
+    {
+      "id": "report_to_the_hokage",
+      "title": "Report to the Hokage",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Hokage reads the list and doubles the guard on every name. The player is recommended for the Chunin Exams. Naruto is furious he wasn't too. Close on ramen at Ichiraku, Kakashi appearing to steal a bite.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Report to the Hokage",
+      "page": "You lay Karasu's list on the Hokage's desk. The old man reads it twice, then rings a bell. Within the hour, every ninja on that list has a guard.\n\n\"Good work,\" the Hokage says. \"I'll be recommending you for the Chunin Exams.\"\n\nNaruto is furious he wasn't recommended too. \"That's not fair! I made fifty clones!\"\n\nThat night at Ichiraku Ramen, he complains through three bowls. Kakashi appears out of nowhere, steals a bite of yours, and vanishes before either of you can say a word."
+    },
+    {
+      "id": "two_hands_one_seal",
+      "title": "Two Hands, One Seal",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The seal flares and Karasu's ink turns to plain water. Naruto and the player bump fists, exhausted. Kakashi closes his book: 'Teamwork. Finally.' Close on the two of them asleep against each other on the hillside.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Two Hands, One Seal",
+      "page": "\"Together?\" you say. Naruto grins. \"Together!\"\n\nYour hands move through the signs at the same time, and for once, Naruto gets every one right. The scroll blazes. Light wraps around Karasu, and every ink tattoo on his arms turns to plain water and drips into the grass.\n\nHe stares at his empty hands.\n\nKakashi closes his book. \"Teamwork. Finally.\"\n\nYou and Naruto collapse on the hillside, too tired to move. By sunset you've both fallen asleep leaning against each other, and Granny Hisae puts a blanket over you both."
+    },
+    {
+      "id": "granny_s_way",
+      "title": "Granny's Way",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Granny Hisae takes the scroll and seals Karasu in one terrifying motion, then offers everyone tea. On the way home, Naruto swears he'll be that cool someday. Close on the Hokage faces at sunset.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Granny's Way",
+      "page": "You hand the scroll to Granny Hisae. She unrolls it, makes three hand signs too fast to see, and Karasu is sealed inside a stone in one terrifying motion.\n\nShe dusts off her hands. \"Tea?\"\n\nOn the walk home, Naruto doesn't stop talking. \"Did you SEE that? She's like a hundred years old! I'm gonna be that cool someday! Cooler!\"\n\nThe sun sets behind the carved faces of the Hokage on the cliff, and you think that maybe, someday, he really will be."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f28c28"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "none"
+  }
+}

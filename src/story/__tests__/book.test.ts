@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { checkStory } from '../validate';
 import type { Story } from '../schema';
 import { bookChips, fillPage, hasBook, openBook, turnBook, usesBook, walkBook } from '../book';
-import { newSave } from '../play';
+import { PlaySave, newSave } from '../play';
 
 const dir = join(__dirname, '../../../stories');
 const all = readdirSync(dir)
@@ -26,7 +26,7 @@ describe('book mode', () => {
 
   it('reads pages offline: opening page, a choice, then the next page', () => {
     const s = all.find((x) => x.meta.id === 'fan-zelda-the-courier-of-hateno')!;
-    let save = { ...newSave(s), player: { name: 'Rin', pronouns: 'they/them' } };
+    let save: PlaySave = { ...newSave(s), player: { name: 'Rin', pronouns: 'they/them' } };
     expect(usesBook(s, save)).toBe(true);
     save = openBook(s, save);
     const first = save.messages.filter((m) => m.kind === 'narrator');

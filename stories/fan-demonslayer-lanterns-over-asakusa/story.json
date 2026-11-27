@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-demonslayer-lanterns-over-asakusa",
+    "title": "Lanterns over Asakusa",
+    "category": "historical_adventure",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You're one of the Kakushi, the masked helpers who clean up after the Demon Slayer Corps' battles. During the lantern festival in Asakusa, children start vanishing from the crowds, and the only slayers nearby are a kind boy with a box on his back and a blond boy who screams a lot. Someone needs to know the streets. That's you.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Demon Slayer",
+      "medium": "anime",
+      "owner": "Koyoharu Gotouge, Shueisha and ufotable",
+      "aka": [
+        "Kimetsu no Yaiba",
+        "Tanjiro",
+        "Demon Slayer Corps"
+      ]
+    }
+  },
+  "world": "Taisho-era Japan, early 20th century: gas lamps, trams and kimono beside Western suits. Demons are humans transformed by the demon king's blood; they eat people, fear sunlight and die only when beheaded with a Nichirin sword or exposed to the sun. The Demon Slayer Corps hunts them. The Kakushi are its masked, non-combat support staff. In Asakusa, during the summer lantern festival, a demon called the Lantern-Maker hides among lantern sellers, luring children with lanterns that show their dead parents' faces. Tanjiro Kamado, a kind young slayer, carries his demon sister Nezuko in a wooden box. Zenitsu Agatsuma is cowardly until he faints and fights asleep.",
+  "tone": "Earnest, emotional historical fantasy action: breathtaking sword techniques, sorrow for demons who were once human, comic relief and fierce kindness.",
+  "playerRole": "A Kakushi of the Demon Slayer Corps in a black uniform, hood and cloth mask, with a medical kit, a lantern, a map of Asakusa's alleys in your head and no sword at all.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Lush, emotional narration: festival lights and taiko drums, breathing techniques visualised as water and lightning, flashback-tinged demon sorrow, and Zenitsu's comic shrieking. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "tanjiro",
+      "name": "Tanjiro Kamado",
+      "appearance": "A teenage boy with dark red hair, a scar on his forehead, hanafuda earrings, a green-and-black checkered haori over a black uniform, a black sword and a wooden box on his back.",
+      "voice": "Kind, polite, earnest and stubborn; can smell emotions.",
+      "stance": "Treats the Kakushi as an equal and partner from the first moment."
+    },
+    {
+      "id": "zenitsu",
+      "name": "Zenitsu Agatsuma",
+      "appearance": "A teenage boy with bright yellow hair fading to orange at the tips, a yellow haori patterned with white triangles, a black uniform and a sword.",
+      "voice": "Panicky, whiny and dramatic; flirts badly; fights brilliantly when asleep.",
+      "stance": "Clings to the player for protection and secretly protects them."
+    },
+    {
+      "id": "lanternmaker",
+      "name": "The Lantern-Maker",
+      "appearance": "A tall, thin demon disguised as an old lantern seller in a grey kimono, with a paper-pale face, eyes like candle flames and long fingers that end in wicks.",
+      "voice": "Gentle, sad and coaxing; speaks to children like a grandfather.",
+      "stance": "Wants the children's grief to keep his lanterns lit; was once a grieving father."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search the workshop by the river; 2 = Talk to the families of the missing."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the demon's family register."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The grandmother gave the player the lantern map."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Festival Night",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Asakusa's lantern festival: crowds, taiko drums, fireworks over the river. The player, in Kakushi black, is here because two children vanished last night. Near the temple, a little girl stares into a lantern showing a woman's face, then walks toward an alley. A boy with a box on his back catches the player's eye.",
+      "choices": [
+        {
+          "id": "follow_the_little_girl_into_the_alley",
+          "label": "Follow the little girl into the alley",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_boy_with_the_box_for_help",
+          "label": "Ask the boy with the box for help",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "check_the_lantern_stall_she_came_from",
+          "label": "Check the lantern stall she came from",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The lantern in the girl's hands whispers: 'Come, little one. Mama's waiting.'",
+      "page": "Asakusa's lantern festival is a river of light. Paper lanterns sway over every street, taiko drums thunder by the temple, and fireworks bloom over the water.\n\nYou move through it in black: the hood and cloth mask of the Kakushi. Two children vanished from this festival last night. Nobody else has noticed yet.\n\nNear the temple gate, a little girl in a yellow yukata stands perfectly still, staring into a paper lantern. Inside it, glowing, is a woman's face. Smiling. The girl takes a step toward a dark alley.\n\n\"Come, little one,\" the lantern whispers. \"Mama's waiting.\"\n\nAcross the crowd, a boy with dark red hair and a wooden box on his back turns his head sharply, as if he's smelled something."
+    },
+    {
+      "id": "crossroads",
+      "title": "Two Slayers",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Tanjiro and a shrieking Zenitsu introduce themselves; Tanjiro smells sorrow, not just blood, on the lanterns. Two ways to find the demon: search the lantern sellers' workshop by the river, or follow the vanished children's families, who all mention a kind old lantern seller.",
+      "choices": [
+        {
+          "id": "bandage_zenitsu_s_scraped_knee_and_talk",
+          "label": "Bandage Zenitsu's scraped knee and talk",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "Zenitsu has scraped his knee running from a firework. You kneel and clean it from your kit. He immediately stops shrieking. \"You're so kind. Are you an angel? Will you marry me?\" Tanjiro sighs. \"He does this.\" While you bandage, Zenitsu tells you, in a tiny voice, that he's scared all the time. You tell him so are you. He looks at you like you've handed him something precious."
+        },
+        {
+          "id": "search_the_workshop_by_the_river",
+          "label": "Search the workshop by the river",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "talk_to_the_families_of_the_missing",
+          "label": "Talk to the families of the missing",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Zenitsu, hiding behind the player: 'Why is it always lanterns?! Why can't it be a nice dango demon?!'",
+      "page": "\"Tanjiro Kamado!\" The red-haired boy bows politely. \"You're with the Corps? Thank you for everything you do.\"\n\nBehind him, a boy with bright yellow hair is clinging to a lamppost. \"Why is it always lanterns?! Why can't it ever be a nice dango demon?!\" That's Zenitsu.\n\nTanjiro sniffs the lantern the little girl dropped. \"Blood. But mostly... sorrow. So much sorrow.\"\n\nAll the missing children's families mention the same kind old lantern seller. And by the river there's a workshop where the lanterns are made. Tanjiro looks to you. \"You know these streets. Where should we start?\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Workshop",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "A riverside workshop full of unlit paper lanterns, each with a child's name painted inside. Under the floor are the missing children, asleep and alive, wrapped in paper. The player finds the demon's old family register: he was a lantern maker whose daughter drowned at a festival decades ago.",
+      "choices": [
+        {
+          "id": "wake_the_sleeping_children",
+          "label": "Wake the sleeping children",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "take_the_family_register",
+          "label": "Take the family register",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "One lantern flickers on by itself and shows a small girl's face, laughing.",
+      "page": "The workshop by the river is dark and smells of glue and candle wax. Hundreds of paper lanterns hang unlit from the rafters. Inside each one, painted in tiny careful brushstrokes, is a child's name.\n\nUnder a loose floorboard: the missing children, wrapped in paper like lanterns themselves, sleeping peacefully. Alive.\n\nOn a shelf above the workbench is an old family register. A lantern maker, his wife, a daughter named Ochiyo, drowned during a festival, decades ago.\n\nOver your head, one lantern flickers on by itself and shows a small girl's face, laughing at something you can't see."
+    },
+    {
+      "id": "path_b",
+      "title": "The Families",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The player visits the families. Each child had recently lost a parent. A grandmother remembers a lantern seller with candle-flame eyes who spoke her dead son's name. She gives the player the lantern he left behind: inside its paper, a map of hidden rooms beneath the temple.",
+      "choices": [
+        {
+          "id": "take_the_lantern_map",
+          "label": "Take the lantern map",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "promise_to_bring_her_grandson_home",
+          "label": "Promise to bring her grandson home",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The grandmother grips the player's sleeve: 'He knew my son's name. How did he know?'",
+      "page": "Every family tells the same story. Their child had just lost a parent. A kind old lantern seller with strange bright eyes stopped by and spoke the dead parent's name, gently, like a friend.\n\nIn a small house near the canal, an old grandmother holds out a lantern with trembling hands. \"He left this for my grandson. He knew my son's name. How did he know?\"\n\nWhen you hold the lantern up to her lamp, faint lines appear in the paper: a map. Tunnels beneath the temple, hidden rooms, a way in and out.\n\nShe grips your sleeve. \"Bring him home. Please.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Beneath the Temple",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In caves under the temple, the Lantern-Maker sits surrounded by glowing lanterns, children asleep around him. He begs the slayers to let him keep them a little longer; they make him remember his daughter. Tanjiro draws his sword. Zenitsu faints and stands up, eyes closed, hand on hilt.",
+      "choices": [
+        {
+          "id": "shield_the_children_while_they_fight",
+          "label": "Shield the children while they fight",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "talk_to_the_demon_about_his_daughter",
+          "label": "Talk to the demon about his daughter",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The Lantern-Maker, softly: 'Just one more night. Please. She's almost here.'",
+      "page": "Beneath the temple, a cave glows with a thousand lanterns. Children sleep in a ring on the stone floor, smiling.\n\nIn the centre sits a tall, thin old man in a grey kimono, with fingers like candle wicks and eyes like two small flames. He looks up at you, and his face is so sad it hurts.\n\n\"Just one more night. Please. Their grief keeps the lanterns lit, and in the lanterns, she's almost here.\"\n\nTanjiro's hand goes to his sword. Beside him, Zenitsu makes a small noise, faints, and then stands back up, eyes closed, perfectly calm, his hand on his hilt crackling with lightning."
+    },
+    {
+      "id": "finale",
+      "title": "The Last Lantern",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The demon kneels, beaten. The player decides how this ends: show him his own family register and his daughter's name so he remembers who he was before he dies (only if they have it); lead the children out through the hidden tunnels on the lantern map before the caves collapse (only if they have it); or step back and let Tanjiro end it swiftly.",
+      "choices": [
+        {
+          "id": "show_him_his_daughter_s_name",
+          "label": "Show him his daughter's name",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "her_name_was_ochiyo"
+        },
+        {
+          "id": "lead_the_children_out_by_the_lantern_map",
+          "label": "Lead the children out by the lantern map",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "out_of_the_dark"
+        },
+        {
+          "id": "let_tanjiro_end_it",
+          "label": "Let Tanjiro end it",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "one_clean_stroke"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "her_name_was_ochiyo",
+        "out_of_the_dark",
+        "one_clean_stroke"
+      ],
+      "isEnding": false,
+      "page": "The fight is over. The Lantern-Maker kneels among broken lanterns, his flame-eyes guttering. The children are stirring. Above, the cave ceiling groans; dust trickles down.\n\nTanjiro stands over the demon with his black blade, waiting. He looks at you, not at the demon. \"You've seen more of who he was than I have,\" he says quietly. \"What should we do?\""
+    },
+    {
+      "id": "her_name_was_ochiyo",
+      "title": "Her Name Was Ochiyo",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The demon reads his daughter's name and weeps. Tanjiro's blade falls gently; as he crumbles to ash, he sees her waiting with a lantern. Close on a single paper lantern floating down the river at dawn.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Her Name Was Ochiyo",
+      "page": "You kneel and hold the family register open in front of the demon. \"Her name was Ochiyo.\"\n\nHe reads it. His long fingers shake. \"Ochiyo,\" he whispers. \"I forgot her name. How could I forget her name?\" He begins to weep.\n\nTanjiro's blade falls gently, the way water falls. As the old man crumbles into ash, he looks past all of you and smiles, like someone is waiting with a lantern just out of sight.\n\nAt dawn, you set one paper lantern on the river. It floats away downstream, glowing, until the sunrise swallows its light."
+    },
+    {
+      "id": "out_of_the_dark",
+      "title": "Out of the Dark",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The player leads the children through tunnels into the dawn just as the caves collapse. Families run to them in the temple courtyard. Zenitsu wakes up and claims he did everything. Close on the sun rising over Asakusa.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Out of the Dark",
+      "page": "\"This way!\" You hold up the grandmother's lantern and its map glows. You wake the children one by one and lead them through narrow tunnels, Tanjiro guarding the rear.\n\nBehind you the caves collapse with a roar.\n\nYou burst out into the temple courtyard just as the sun comes up. Families run across the stones, shouting names. The grandmother sinks to her knees with her grandson in her arms.\n\nZenitsu wakes up, looks around, and announces, \"I did all of that.\" Nobody argues. The sun rises gold over Asakusa."
+    },
+    {
+      "id": "one_clean_stroke",
+      "title": "One Clean Stroke",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Tanjiro's blade flows like water and the demon is gone. The children are safe. Afterwards, Tanjiro sits with the player on the temple steps, quiet. Close on festival fireworks over the river.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "One Clean Stroke",
+      "page": "You step back. Tanjiro breathes, and his blade flows like a river. One clean stroke. The demon is gone before he can feel it.\n\nThe children wake, confused and safe. You carry them up one by one.\n\nLater, after the families have gone home, Tanjiro sits beside you on the temple steps in silence. \"He was a father once,\" he says at last. \"I hope he's with her now.\"\n\nOver the river, the last fireworks of the festival bloom and fade."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f2a33a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "embers"
+  }
+}

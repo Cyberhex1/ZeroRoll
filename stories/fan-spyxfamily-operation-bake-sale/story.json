@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-spyxfamily-operation-bake-sale",
+    "title": "Operation Bake Sale",
+    "category": "real_life",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You've just been hired as the Forger family's part-time babysitter, and Eden Academy's charity bake sale is on Saturday. The dad is suspiciously good at everything, the mum is suspiciously strong, and their daughter keeps answering questions you only thought. Meanwhile a rival parent is determined to sabotage the Forgers' stall.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Spy x Family",
+      "medium": "anime",
+      "owner": "Tatsuya Endo, Shueisha and Wit Studio/CloverWorks",
+      "aka": [
+        "Spy Family",
+        "Forger family",
+        "Anya"
+      ]
+    }
+  },
+  "world": "Berlint, the capital of Ostania, in a Cold War-style world of spies and secret police. The Forgers are a fake family: Loid (secretly the spy Twilight), Yor (secretly the assassin Thorn Princess) and adopted daughter Anya (secretly a telepath), plus Bond, a big white dog who sees the future. None of them knows the others' secrets, except Anya, who knows everything. Eden Academy is an elite school. The charity bake sale is judged by a stern headmaster; winning earns a 'Stella' star, which Anya needs. A rival parent, Mrs. Gretchen Vance, an obsessive society mother, plans to sabotage the Forger stall. Separately, an enemy courier is using the bake sale to pass a microfilm hidden in a cake.",
+  "tone": "Warm, silly family comedy with spy-thriller beats, misunderstandings, heart, and Anya's chaotic inner commentary.",
+  "playerRole": "A new part-time babysitter for the Forgers, with an apron, a cookbook, a bus pass, decent baking skills and absolutely no idea that you've walked into a house full of secrets.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Light comic narration with spy-movie cuts, misunderstandings played for laughs, Anya's thoughts shown in quick asides when she reacts, and sincere family warmth. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "anya",
+      "name": "Anya Forger",
+      "appearance": "A small girl of about six with pink hair in a bob, two black horn-like hair clips, big green eyes and a black Eden Academy uniform dress with gold trim.",
+      "voice": "Childish, blunt and mischievous; speaks in short sentences; loves peanuts and spy cartoons.",
+      "stance": "Reads the player's mind and decides they're 'a good one'."
+    },
+    {
+      "id": "loid",
+      "name": "Loid Forger",
+      "appearance": "A tall, handsome man with neat blond hair parted to the side, green eyes, a dark suit and a perfectly calm expression.",
+      "voice": "Polite, precise and over-prepared; internally calculating everything.",
+      "stance": "Suspects the player might be an enemy agent; slowly trusts them."
+    },
+    {
+      "id": "yor",
+      "name": "Yor Forger",
+      "appearance": "A tall young woman with long black hair with pale bangs, red eyes, a red sweater dress and a gentle, slightly awkward smile.",
+      "voice": "Sweet, formal and anxious; terrible at cooking; terrifyingly strong.",
+      "stance": "Desperately wants to help with baking and keeps destroying things."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Spy on Mrs. Vance; 2 = Follow the courier with Anya."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took Mrs. Vance's sabotage checklist."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player marked the courier's microfilm cake."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "New Babysitter",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Forger apartment. Loid interviews the player with suspicious precision, Yor apologises for an exploded oven, and Anya stares at the player and gasps at what they're thinking. The bake sale is Saturday; the Forgers have nothing to sell.",
+      "choices": [
+        {
+          "id": "offer_to_bake_with_the_whole_family",
+          "label": "Offer to bake with the whole family",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "answer_loid_s_interview_questions_carefu",
+          "label": "Answer Loid's interview questions carefully",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_anya_why_she_s_staring",
+          "label": "Ask Anya why she's staring",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Anya, very seriously: 'Anya likes this one. They think about cake a lot.'",
+      "page": "The Forger apartment smells of smoke. The oven has exploded. Mrs. Forger, a tall woman with long black hair, is bowing over and over. \"I'm so sorry! I only wanted to bake! I may have pressed it too hard!\"\n\nMr. Forger, blond and perfectly calm, sits across from you with a clipboard. \"Previous employment? Allergies? Political views? Do you have any scars?\"\n\nAnd their daughter, small and pink-haired, is staring at you with enormous green eyes, gasping every few seconds, as if you're telling her a very exciting story. You haven't said a word.\n\n\"The school charity bake sale is on Saturday,\" Mr. Forger says. \"We have nothing to sell.\"\n\nAnya points at you. \"Anya likes this one. They think about cake a lot.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Two Problems",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Anya secretly overhears two minds: Mrs. Vance plans to swap the Forgers' cake for a salt bomb, and a 'courier' plans to hide something in a cake at the sale. Loid wants a perfect cake; Yor wants to help. The player chooses: guard the Forgers' recipe from Mrs. Vance, or investigate the mysterious courier with Anya.",
+      "choices": [
+        {
+          "id": "teach_yor_to_frost_a_cake_carefully",
+          "label": "Teach Yor to frost a cake (carefully)",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You take Mrs. Forger's hands, very gently, and show her how to spread frosting without pushing the knife through the cake and the plate and the table. \"Like you're petting a kitten,\" you say. She tries. The cake survives. She stares at it, then at you, then bursts into happy tears. \"It's so smooth! Thank you!\" Anya, in the doorway, gives you a solemn thumbs up."
+        },
+        {
+          "id": "spy_on_mrs_vance",
+          "label": "Spy on Mrs. Vance",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "follow_the_courier_with_anya",
+          "label": "Follow the courier with Anya",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Anya, whispering: 'There's a spy. A different spy. Anya is very calm about this.'",
+      "page": "That evening, Anya tugs your apron and drags you into the hallway. Her voice drops to a whisper.\n\n\"Two problems. Mrs. Vance. Very mean. She wants to swap Papa's cake with a salt bomb so we lose. And...\" She looks around dramatically. \"There's a spy. A different spy. He wants to hide something in a cake at the sale. Anya is very calm about this.\"\n\nYou have no idea how she knows any of this. Bond, the huge white dog, sits beside her, nodding, which dogs shouldn't do.\n\nIn the kitchen, Mr. Forger is drafting a cake blueprint. With measurements. Mrs. Forger is holding a whisk like a weapon."
+    },
+    {
+      "id": "path_a",
+      "title": "Operation Frosting",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Mrs. Vance invites the player to her mansion 'for tips' and tries to bribe them. The player finds her plan in her kitchen: a recipe card swapped with salt instead of sugar, and her checklist of sabotage.",
+      "choices": [
+        {
+          "id": "take_mrs_vance_s_sabotage_checklist",
+          "label": "Take Mrs. Vance's sabotage checklist",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "swap_her_salt_back_to_sugar",
+          "label": "Swap her salt back to sugar",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Mrs. Vance, sweetly: 'Surely a babysitter could use a little extra money?'",
+      "page": "Mrs. Gretchen Vance's mansion is all pearls and marble. She pours you tea and slides an envelope across the table.\n\n\"Surely a babysitter could use a little extra money? All you'd have to do is bring me the Forgers' recipe on Friday night.\"\n\nWhen she leaves to answer the phone, you peek into her kitchen. On the counter is a recipe card in perfect copy of Mr. Forger's handwriting, except sugar has been swapped for salt. Pinned to the fridge: a typed list. Item one: swap the cake. Item two: distract the father. Item three: blame the babysitter.\n\nShe's even underlined item three."
+    },
+    {
+      "id": "path_b",
+      "title": "The Courier",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Anya and the player tail a nervous man in a trench coat to a bakery, where he hides a tiny microfilm in a chocolate cake. Anya reads his mind: the cake goes to stall 7 on Saturday.",
+      "choices": [
+        {
+          "id": "mark_the_microfilm_cake",
+          "label": "Mark the microfilm cake",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "buy_the_cake_before_anyone_else",
+          "label": "Buy the cake before anyone else",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Anya, peering through the bakery glass: 'Mission. This is a real mission.'",
+      "page": "Anya holds your hand very tightly as you follow a nervous man in a trench coat through the streets of Berlint. \"Spy mission,\" she whispers. \"Real spy mission. Like Bondman.\"\n\nHe ducks into a bakery. Through the glass you watch him slip something tiny, like a fingernail of film, into the middle of a chocolate cake and smooth the frosting over it.\n\nAnya stares at him, frowning hard. \"He's thinking about the sale. Stall seven. Saturday. Someone will buy it and take it away.\" She looks up at you, eyes shining. \"Mission. This is a real mission.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Saturday",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The bake sale. The headmaster tastes cakes. Mrs. Vance's people are circling the Forger table; the courier's cake is at stall 7; Loid is pretending not to notice; Yor is holding a cake knife a little too skilfully.",
+      "choices": [
+        {
+          "id": "stand_guard_at_the_forger_stall",
+          "label": "Stand guard at the Forger stall",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "go_after_the_courier_s_cake",
+          "label": "Go after the courier's cake",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The headmaster approaches: 'Elegance! Show me elegance!'",
+      "page": "Saturday. Eden Academy's courtyard is a sea of cake stands and nervous parents. The headmaster, stern and monocled, moves from stall to stall with a tiny fork, crying, \"Elegance! Show me elegance!\"\n\nMrs. Vance's friends are circling the Forger table like sharks in pearls. The chocolate cake sits innocently at stall seven. Mr. Forger is pretending very convincingly not to notice anything. Mrs. Forger is holding the cake knife with a grip that looks frighteningly professional.\n\nAnya is vibrating with excitement. She looks up at you. \"Your move.\""
+    },
+    {
+      "id": "finale",
+      "title": "Judging",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The headmaster stands at the Forger table. The player decides: quietly hand Mrs. Vance's checklist to the headmaster (only if they have it); slip the courier's marked cake to Loid without a word (only if they marked it); or simply let the headmaster taste the family's own lopsided cake.",
+      "choices": [
+        {
+          "id": "show_the_headmaster_mrs_vance_s_checklis",
+          "label": "Show the headmaster Mrs. Vance's checklist",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "elegant"
+        },
+        {
+          "id": "slip_the_marked_cake_to_loid",
+          "label": "Slip the marked cake to Loid",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "mission_accomplished"
+        },
+        {
+          "id": "serve_the_forgers_own_cake",
+          "label": "Serve the Forgers' own cake",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "family_recipe"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "elegant",
+        "mission_accomplished",
+        "family_recipe"
+      ],
+      "isEnding": false,
+      "page": "The headmaster arrives at the Forger table. He lifts his monocle. He lifts his tiny fork.\n\nBehind you, Mrs. Vance is smiling too much. Across the courtyard, someone is drifting toward stall seven. Mr. Forger meets your eyes for a fraction of a second, then looks away.\n\nAnya squeezes your hand. She already knows what you're going to do. She's just waiting for you to know it too."
+    },
+    {
+      "id": "elegant",
+      "title": "Elegant",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Mrs. Vance is disqualified. The headmaster calls the Forger cake 'elegant' and Anya gets her Stella star. Anya hugs the player's leg. Close on the Forgers' fridge with a star sticker and the player's photo.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Elegant",
+      "page": "You fold Mrs. Vance's checklist into the headmaster's hand. He reads it. His monocle falls out.\n\n\"Item three: blame the babysitter?! This is the opposite of elegance!\"\n\nMrs. Vance is disqualified on the spot. The headmaster tastes the Forger cake, pauses, and declares it \"Elegant.\" Anya is awarded a Stella star for \"family cooperation.\"\n\nShe hugs your leg and won't let go for ten minutes.\n\nThat night, on the Forgers' fridge, there's a shiny star sticker, and right beside it, a photo of the whole family and you, all covered in flour."
+    },
+    {
+      "id": "mission_accomplished",
+      "title": "Mission Accomplished",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Loid takes the cake, raises an eyebrow and says 'Thank you' in a very particular way. The microfilm reaches the right people. Anya gives the player a peanut, her highest honour. Close on Loid smiling at the player for the first time.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Mission Accomplished",
+      "page": "You walk to stall seven, buy the chocolate cake, and set it on the Forger table right in front of Mr. Forger. You don't say a word.\n\nHe looks at the tiny mark you made in the frosting. He looks at you. Something calculates behind his eyes.\n\n\"Thank you,\" he says, in a very particular way.\n\nThat evening, the cake is gone and so is whatever was in it. Anya presents you with a single peanut, her highest honour. And when you leave, Mr. Forger shakes your hand and smiles, a real smile, for the first time since you met him."
+    },
+    {
+      "id": "family_recipe",
+      "title": "Family Recipe",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The cake is lopsided and Yor's frosting is slightly too strong, but the headmaster laughs and calls it 'honest'. No star, but the family sits on the steps sharing it. Close on Bond licking frosting off Anya's face.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Family Recipe",
+      "page": "The headmaster tastes the Forgers' own cake. It is lopsided. The frosting is a little too thick, because Mrs. Forger got excited. There's a small dent where Anya poked it.\n\nHe chews. He thinks. Then he laughs. \"Not elegant. But honest! I like honest!\"\n\nNo star this time. But the family sits on the school steps sharing what's left with plastic forks, Mr. Forger wiping frosting off his cuff, Mrs. Forger glowing, and Bond licking cake off Anya's whole face while she shrieks with laughter."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f08cb0"
+    },
+    "fonts": {
+      "heading": "hand",
+      "body": "sans"
+    },
+    "particles": "none"
+  }
+}

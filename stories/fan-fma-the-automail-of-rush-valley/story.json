@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-fma-the-automail-of-rush-valley",
+    "title": "The Automail of Rush Valley",
+    "category": "fantasy",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You're an apprentice mechanic in Rush Valley, the town where everyone has an automail arm or leg. When a customer's new arm starts moving on its own, a short, very angry alchemist and his giant armoured brother turn up asking questions. Someone in town is using alchemy where it shouldn't be used, and the town's best mechanic, your boss, is hiding something.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Fullmetal Alchemist",
+      "medium": "manga",
+      "owner": "Hiromu Arakawa, Square Enix and Bones",
+      "aka": [
+        "FMA",
+        "Fullmetal Alchemist Brotherhood",
+        "Elric brothers"
+      ]
+    }
+  },
+  "world": "Amestris, an industrial country where alchemy follows the law of Equivalent Exchange: to gain something, something of equal value must be lost. Human transmutation is forbidden. Automail is mechanical prosthetic limbs connected to nerves. Rush Valley is the automail capital, a town of workshops and haggling. Edward Elric, the Fullmetal Alchemist, has an automail arm and leg; his brother Alphonse's soul is bound to a huge suit of armour. Winry Rockbell is their brilliant mechanic friend. In Rush Valley, Master Garron Pike, the player's boss, has been secretly using illegal transmutation circles inside automail to make limbs stronger, using stolen philosopher's-stone fragments, and the circles are starting to take control.",
+  "tone": "Warm, witty, steampunk adventure with real moral stakes: science, sacrifice, found family, and the cost of shortcuts.",
+  "playerRole": "An apprentice automail mechanic in Rush Valley with grease on your face, a toolbelt, a wrench you named, a notebook of your own designs and a fierce pride in honest work.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Lively steampunk narration with gears, sparks, alchemy flashes (blue lightning and circles on the ground), comic beats from Ed's height complex and Al's gentleness, and sincere talk about Equivalent Exchange. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "ed",
+      "name": "Edward Elric",
+      "appearance": "A short teenage boy with long golden hair in a braid, golden eyes, a red hooded coat over black clothes, white gloves, one automail arm and leg.",
+      "voice": "Brash, quick-tempered and brilliant; explodes if called short.",
+      "stance": "Investigates the moving automail and respects the player's skill."
+    },
+    {
+      "id": "al",
+      "name": "Alphonse Elric",
+      "appearance": "A huge suit of medieval-style steel armour with a spike on its helmet, a loincloth sash and glowing eyes in the dark helmet.",
+      "voice": "Gentle, polite, kind and soft-spoken.",
+      "stance": "Befriends the player quickly and protects them."
+    },
+    {
+      "id": "winry",
+      "name": "Winry Rockbell",
+      "appearance": "A young woman with long blonde hair in a ponytail under a bandana, blue eyes, a black tube top, overalls tied at the waist and a big wrench.",
+      "voice": "Cheerful, passionate about automail, quick to throw wrenches.",
+      "stance": "Geeks out with the player and helps examine the arm."
+    },
+    {
+      "id": "garron",
+      "name": "Master Garron Pike",
+      "appearance": "A big man in his sixties with a grey beard, a scarred bald head, thick goggles, a leather apron and an automail hand of his own.",
+      "voice": "Gruff and proud; speaks lovingly of machines.",
+      "stance": "The player's mentor, secretly using forbidden alchemy."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search Garron's locked back workshop; 2 = Visit the other customers with Al."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took Garron's journal."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player built the damping clamp."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Rush Valley Morning",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Garron's workshop. A customer's brand-new automail arm suddenly grips her wrench and won't let go, moving on its own. Then a short boy in a red coat and a giant suit of armour walk in, asking about alchemy.",
+      "choices": [
+        {
+          "id": "calm_the_customer_and_inspect_the_arm",
+          "label": "Calm the customer and inspect the arm",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_boy_in_red_what_he_s_looking_for",
+          "label": "Ask the boy in red what he's looking for",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "tell_master_garron",
+          "label": "Tell Master Garron",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Ed glares: 'Who are you calling a pipsqueak who can't see over the counter?!' (Nobody said that.)",
+      "page": "Rush Valley wakes up to hammering and haggling. In Master Garron's workshop, you're polishing a brand-new automail arm for a customer, a quiet woman who lost hers in a mine collapse.\n\nShe flexes the fingers. They close on a wrench on the bench. And won't let go.\n\n\"I'm not doing that,\" she whispers. The arm lifts the wrench all by itself.\n\nThe bell over the door jingles. A short boy with a golden braid and a red coat walks in, followed by a huge suit of armour that has to duck under the frame.\n\nThe boy looks at the arm, then glares at you. \"Who are you calling a pipsqueak who can't see over the counter?!\"\n\nNobody said anything. The armour sighs. \"Sorry. Brother's sensitive.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Under the Plating",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Winry arrives and nerds out with the player over the arm. Under its plating is a tiny transmutation circle etched in red. Ed goes pale: it's using a philosopher's stone fragment. Two leads: Garron's locked back workshop, or customers across town with Garron's newest limbs.",
+      "choices": [
+        {
+          "id": "talk_shop_with_winry",
+          "label": "Talk shop with Winry",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You and Winry fall into a rapid-fire conversation about nerve connectors and spring tension, and within five minutes you're finishing each other's sentences. Ed and Al exchange a look. \"It's like there's two of her,\" Ed mutters. Winry shows you a trick for silent joints; you show her your notebook of designs. She looks up, eyes shining. \"You're good. Really good.\" Coming from her, that's everything."
+        },
+        {
+          "id": "search_garron_s_locked_back_workshop",
+          "label": "Search Garron's locked back workshop",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "visit_the_other_customers_with_al",
+          "label": "Visit the other customers with Al",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Al, softly: 'Whoever did this didn't understand what they were trading.'",
+      "page": "A blonde girl in a bandana bursts through the door, takes one look at the arm, and gasps with delight. \"Is that a Pike model? The finger linkage! Can I look? I'm Winry!\" She's already got the plating off before you can answer.\n\nUnder the plating, tucked between the gears, is something that shouldn't be there: a tiny circle etched in glowing red.\n\nEdward Elric goes pale. \"That's a transmutation circle. Powered by a philosopher's stone fragment.\"\n\nThe armour, Alphonse, speaks softly. \"Whoever did this didn't understand what they were trading.\"\n\nMaster Garron's back workshop has been locked for weeks. And he's made a dozen new limbs for customers across town this month."
+    },
+    {
+      "id": "path_a",
+      "title": "The Back Workshop",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Behind a locked door, a shelf of red stone fragments and Garron's journal: he bought them from a smuggler to make his automail 'perfect' after a customer died from a failed limb years ago. The circles are now linking all the limbs together.",
+      "choices": [
+        {
+          "id": "take_garron_s_journal",
+          "label": "Take Garron's journal",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "take_the_red_stone_fragments",
+          "label": "Take the red stone fragments",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A row of finished automail arms on the bench twitch in unison.",
+      "page": "The lock on the back workshop is good, because Garron made it. You're better, because he taught you.\n\nInside: a shelf of red stone fragments, glowing like embers. A row of finished automail arms on the bench, all twitching in perfect rhythm.\n\nAnd Garron's journal. You read it with a sick feeling. Years ago, one of his limbs failed and a young customer died. He swore it would never happen again. He bought these stones from a smuggler called \"the Red Man\" and etched circles into every limb to make them perfect.\n\nThe last page: \"The circles are linking. I don't understand why. I can't make them stop.\""
+    },
+    {
+      "id": "path_b",
+      "title": "Across Town",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Al and the player visit Garron's customers; all their limbs are twitching in the same rhythm. The player and Al design a damping clamp that can safely break the link without hurting the wearers.",
+      "choices": [
+        {
+          "id": "build_the_damping_clamp",
+          "label": "Build the damping clamp",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "test_it_on_a_willing_customer",
+          "label": "Test it on a willing customer",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A little girl's automail leg taps a rhythm on the floor. So does an old man's arm across the street.",
+      "page": "Alphonse walks beside you across town, gentle as a giant. At every house where Garron fitted a new limb, it's the same: the automail is twitching in a rhythm. Tap. Tap-tap. Tap.\n\nA little girl's leg taps the floor. Across the street, an old man's arm taps the window frame. Same rhythm. Perfectly in time.\n\n\"They're linked,\" Al says. \"Like one machine.\"\n\nYou sit at a street workbench and sketch. A damping clamp: brass, simple, fitted around the circle to break the link without cutting the nerves. Al holds pieces steady with enormous careful hands. By sunset, it works."
+    },
+    {
+      "id": "showdown",
+      "title": "The Linked Limbs",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "At sunset, all the linked automail across Rush Valley moves at once, dragging their wearers toward Garron's workshop. Garron is in the middle, trying to control it with a transmutation circle and failing. Ed claps his hands.",
+      "choices": [
+        {
+          "id": "help_ed_break_the_circle",
+          "label": "Help Ed break the circle",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "protect_the_people_being_dragged",
+          "label": "Protect the people being dragged",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Garron, desperate: 'I only wanted them to never fail anyone again!'",
+      "page": "At sunset, every linked limb in Rush Valley moves at once.\n\nArms and legs drag their wearers through the streets toward the workshop. People scream. A man is pulled along by his own leg, clinging to a lamppost.\n\nIn the workshop, Master Garron stands inside a huge circle chalked on the floor, glowing red, sweat running down his face. \"Stop! I command you! STOP!\" They don't.\n\n\"I only wanted them to never fail anyone again!\" he cries.\n\nEd claps his hands together. Blue lightning crackles up his arms."
+    },
+    {
+      "id": "finale",
+      "title": "Equivalent Exchange",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The circle is breaking. The player decides: hand Garron's journal to the State so the smuggler is caught (only if they took it); fit everyone with the damping clamp so no one loses their limb (only if they built it); or let Ed destroy the circle with alchemy, at the cost of all the linked automail.",
+      "choices": [
+        {
+          "id": "give_garron_s_journal_to_the_state",
+          "label": "Give Garron's journal to the State",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "following_the_stones"
+        },
+        {
+          "id": "clamp_every_linked_limb",
+          "label": "Clamp every linked limb",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "nobody_loses_a_limb"
+        },
+        {
+          "id": "let_ed_destroy_the_circle",
+          "label": "Let Ed destroy the circle",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_fair_trade"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "following_the_stones",
+        "nobody_loses_a_limb",
+        "a_fair_trade"
+      ],
+      "isEnding": false,
+      "page": "The red circle on the floor flickers, half-broken. The limbs in the street have stopped moving, for now, frozen mid-step. Garron has collapsed against the workbench, weeping into his hands.\n\nEd's hands are still raised, crackling. Al stands between the crowd and the circle. Winry is holding your arm.\n\n\"It's your town,\" Ed says. \"Your trade. What's the fair exchange here?\""
+    },
+    {
+      "id": "following_the_stones",
+      "title": "Following the Stones",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The State traces the smuggler through Garron's journal. Garron gives up his licence but teaches the player everything he knows, honestly. Close on the player's own sign over a new workshop.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Following the Stones",
+      "page": "You hand the journal to the State officer who arrives the next morning. The trail leads straight to the smuggler called the Red Man, who is arrested in Central three weeks later with a crate of stones.\n\nGarron surrenders his licence. \"I traded honesty for perfection,\" he says. \"Bad trade.\"\n\nBut he doesn't stop teaching you. Every night for a year, he shows you everything he knows, honestly, by lamplight.\n\nOn the first day of the next spring, a new sign goes up over a little workshop on the main street, with your name on it."
+    },
+    {
+      "id": "nobody_loses_a_limb",
+      "title": "Nobody Loses a Limb",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The clamps hold and every automail goes quiet, wearers unharmed. Winry declares the player a genius and steals their design. Ed pretends not to be impressed. Close on mechanics cheering in the street.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Nobody Loses a Limb",
+      "page": "You and Winry run from limb to limb with the brass clamps, Al lifting people gently so you can reach. Click. Click. Click.\n\nEvery automail in Rush Valley goes quiet. Every wearer still has their limb.\n\nThe street erupts in cheering. Mechanics hoist you onto their shoulders.\n\nWinry grabs your notebook. \"I'm stealing this design. Don't argue.\" Ed folds his arms and says he could've done it faster with alchemy, but he's smiling when he says it."
+    },
+    {
+      "id": "a_fair_trade",
+      "title": "A Fair Trade",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Ed's alchemy shatters the circle; every linked limb falls dead. The town spends weeks rebuilding them by hand, and the player works day and night. Close on a customer flexing a new, honest arm.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Fair Trade",
+      "page": "Ed slams his hands to the floor. Blue lightning races through the circle and shatters it into dust.\n\nAcross Rush Valley, every linked limb falls dead at once.\n\nNobody is hurt. But dozens of people now have arms and legs that don't move. Equivalent Exchange.\n\nFor weeks you work day and night, rebuilding every one by hand, no circles, no shortcuts. Winry stays to help. On the last night, a woman flexes her new arm, honest steel and springs, and laughs out loud. You've never been prouder of anything."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#d9a441"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

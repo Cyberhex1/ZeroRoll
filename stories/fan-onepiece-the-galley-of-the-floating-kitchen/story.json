@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-onepiece-the-galley-of-the-floating-kitchen",
+    "title": "The Galley of the Floating Kitchen",
+    "category": "adventure",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You cook on a floating restaurant-ship in the Grand Line, and today three customers walk in: a rubber-limbed boy in a straw hat who orders everything, a navigator counting every berry, and a blond cook who insults your soup. By dessert, a Marine captain wants your ship, and the Straw Hats want a stowaway chef.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "One Piece",
+      "medium": "anime",
+      "owner": "Eiichiro Oda, Shueisha and Toei Animation",
+      "aka": [
+        "Straw Hats",
+        "Luffy",
+        "OP"
+      ]
+    }
+  },
+  "world": "The Grand Line, a wild ocean of strange islands, sea kings and pirates chasing the legendary One Piece treasure. The Floating Kitchen is a small, beloved restaurant-ship anchored near the island of Saucepan Reef, run by an old one-legged chef, Granny Pepper, who feeds pirates and Marines alike as long as they don't fight at her tables. Marine Captain Brisk 'Iron Ladle' Hollin wants to seize the ship as a naval supply galley, claiming Granny owes taxes; secretly, he's after her recipe book, which contains a map to a legendary sea-salt that makes any dish perfect. The Straw Hat Pirates, Monkey D. Luffy, Nami and Sanji, have stopped by for lunch.",
+  "tone": "Big-hearted, loud, comedic adventure with huge emotions, wild fights, food, friendship and the dream of freedom.",
+  "playerRole": "A young line cook on the Floating Kitchen with a chef's knife, a ladle, a burn-scarred apron, a secret family recipe of your own and a dream you haven't told anyone yet.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Energetic, exaggerated anime narration: huge reactions, sound effects, sudden flashbacks, stretchy fights, and heartfelt speeches about dreams. Food descriptions are glorious. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "luffy",
+      "name": "Monkey D. Luffy",
+      "appearance": "A lanky, cheerful young man with messy black hair, a scar under his left eye, a big grin, a straw hat with a red band, an open red vest, blue shorts and sandals.",
+      "voice": "Loud, simple, hungry and absolutely sincere; laughs 'shishishi'.",
+      "stance": "Loves the player's food instantly and wants them to join his crew."
+    },
+    {
+      "id": "nami",
+      "name": "Nami",
+      "appearance": "A young woman with long orange hair, a tattoo of a pinwheel and tangerine on her left shoulder, a blue-and-white striped top, jeans, and a folded staff at her hip.",
+      "voice": "Sharp, practical, greedy about money, softer underneath.",
+      "stance": "Suspicious of the player until she sees Granny's map."
+    },
+    {
+      "id": "sanji",
+      "name": "Sanji",
+      "appearance": "A slim young man with blond hair covering one eye, a curly eyebrow, a black suit, a blue shirt and a cigarette.",
+      "voice": "Smooth, dramatic and fiercely proud of cooking; respects any chef who feeds the hungry.",
+      "stance": "Challenges the player to a cooking duel and becomes a rival-friend."
+    },
+    {
+      "id": "hollin",
+      "name": "Captain Hollin",
+      "appearance": "A broad Marine captain with a square jaw, a white Marine coat over his shoulders, a huge iron ladle as a weapon, and a neat blue cap.",
+      "voice": "Pompous and bureaucratic; quotes regulations, then smashes things.",
+      "stance": "Wants the recipe book and the ship."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Find out what's in Granny's recipe book with Nami; 2 = Sneak aboard the Marine ship with Sanji."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "Granny gave the player her map to the Sea-Salt Spring."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the commodore's letter."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Lunch Rush",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Floating Kitchen at noon. Three new customers: a boy in a straw hat who orders the entire menu, a navigator haggling over the bill before eating, and a blond cook who tastes the player's soup and declares it 'almost good'. Then Granny Pepper drops a ladle: Marine sails on the horizon.",
+      "choices": [
+        {
+          "id": "serve_luffy_another_mountain_of_meat",
+          "label": "Serve Luffy another mountain of meat",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "accept_the_blond_cook_s_challenge",
+          "label": "Accept the blond cook's challenge",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "warn_granny_about_the_marines",
+          "label": "Warn Granny about the Marines",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Luffy, cheeks stuffed: 'Thish ish sho good! Join my crew!'",
+      "page": "Noon on the Floating Kitchen, and the dining room is chaos. Grill hissing, pans clanging, Granny Pepper stomping between tables on her peg leg, shouting orders.\n\nThen three new customers sit at table six.\n\nA lanky boy in a straw hat orders \"everything.\" Not everything on the menu. Just everything. A girl with orange hair asks for the bill before the food arrives and argues with it. And a blond young man in a black suit takes one sip of your soup, sighs dramatically, and says, \"Almost good.\"\n\nYou're still holding the ladle when Granny drops hers. She's staring out the window. Marine sails on the horizon, coming fast.\n\nThe boy in the straw hat, cheeks stuffed with meat, beams at you. \"Thish ish sho good! Join my crew!\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Iron Ladle",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Captain Hollin boards with Marines, slaps a tax notice on the bar and declares the ship seized. Granny is ordered to hand over 'all documents', and the player sees her clutching her recipe book. Two leads: Nami spotted a map tucked in the book's spine, or the Marine ship's storeroom might show what Hollin's really after.",
+      "choices": [
+        {
+          "id": "cook_the_straw_hats_a_thank_you_dish",
+          "label": "Cook the Straw Hats a thank-you dish",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "While the Marines argue with Granny, you fire up the stove and cook the three strangers your secret family dish, the one you've never served anyone. Luffy eats it in one bite and cries. Nami goes quiet and eats every crumb. Sanji tastes it, puts down his fork, and says, very seriously, \"Who taught you this?\" You tell them about your dream. Nobody laughs. Luffy just grins wider."
+        },
+        {
+          "id": "find_out_what_s_in_granny_s_recipe_book_",
+          "label": "Find out what's in Granny's recipe book with Nami",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "sneak_aboard_the_marine_ship_with_sanji",
+          "label": "Sneak aboard the Marine ship with Sanji",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Hollin bangs his ladle: 'Regulation 47-B! Every galley belongs to the Navy!'",
+      "page": "The Marine ship pulls alongside with a thud. A broad captain in a white coat stomps aboard, swinging an iron ladle the size of an anchor. He slaps a paper on the bar.\n\n\"Captain Hollin, Marine Supply Division! This vessel owes back taxes! By Regulation 47-B, every galley belongs to the Navy! Hand over all documents, old woman!\"\n\nGranny Pepper clutches her battered recipe book to her chest and says nothing.\n\nThe orange-haired girl, Nami, leans over to you. \"That book's spine is too thick. There's something hidden in it.\" The blond cook, Sanji, lights a cigarette and glares at the Marine ship. \"Or we find out what a supply captain really wants with a restaurant.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Recipe Book",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "In Granny's cabin, Nami and the player find the map hidden in the recipe book's spine: the way to the Sea-Salt Spring of Saucepan Reef. Granny confesses she never went, because she lost her leg on the reef. She wants it to go to someone with a dream.",
+      "choices": [
+        {
+          "id": "take_the_map_and_promise_granny",
+          "label": "Take the map and promise Granny",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "copy_the_map_onto_your_apron",
+          "label": "Copy the map onto your apron",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Nami's eyes turn into berry signs: 'This could be worth a fortune!' Then she sees Granny's face and softens.",
+      "page": "In Granny's tiny cabin, Nami slides a knife along the recipe book's spine. A folded paper falls out, a hand-drawn sea chart, marked with a spiral reef and a tiny drawing of a salt crystal.\n\n\"The Sea-Salt Spring,\" Granny says from the doorway, leaning on her stick. \"Salt that makes any dish perfect. I tried to reach it when I was young. The reef took my leg.\" She looks at you. \"I'd rather it went to someone with a dream than to a man with a ladle.\"\n\nFor a second Nami's eyes turn into gold coins. Then she sees Granny's face, and quietly folds the map and hands it to you."
+    },
+    {
+      "id": "path_b",
+      "title": "The Marine Storeroom",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Sanji and the player sneak aboard Hollin's ship disguised as delivery cooks. In the storeroom, a letter from a corrupt Marine commodore promising Hollin a promotion for the 'perfect salt' to sell to nobles, and proof the tax notice is fake.",
+      "choices": [
+        {
+          "id": "pocket_the_commodore_s_letter",
+          "label": "Pocket the commodore's letter",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "cook_for_the_marine_crew_as_cover",
+          "label": "Cook for the Marine crew as cover",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Sanji whispers, lighting a cigarette: 'A cook who steals a kitchen. Disgusting.'",
+      "page": "You and Sanji slip aboard the Marine ship dressed as delivery cooks, carrying crates of onions.\n\n\"A cook who steals a kitchen,\" Sanji mutters, lighting a cigarette. \"Disgusting.\"\n\nThe storeroom is full of barrels and paperwork. In Hollin's locked chest, which Sanji opens with one very elegant kick, is a letter from a commodore: \"Bring me the old woman's salt map. The nobles will pay a fortune for perfect salt. Your promotion is assured.\"\n\nUnder it, the \"tax notice,\" with a blank where the official seal should be. It's fake."
+    },
+    {
+      "id": "showdown",
+      "title": "Battle on the Deck",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Hollin attacks the Floating Kitchen with his iron ladle and Marines. Luffy stretches into action; Sanji kicks; Nami summons lightning. Hollin grabs Granny's recipe book and holds it over the sea.",
+      "choices": [
+        {
+          "id": "leap_at_hollin_to_save_the_book",
+          "label": "Leap at Hollin to save the book",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "hit_him_with_your_hottest_pepper_sauce",
+          "label": "Hit him with your hottest pepper sauce",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Luffy, punching a Marine across the ship: 'Hey! You don't mess with someone's kitchen!'",
+      "page": "Hollin loses patience. \"Seize the ship!\"\n\nMarines swarm the deck. Then Luffy's arm stretches across the entire ship and punches three of them into the sea. \"Hey! You don't mess with someone's kitchen!\"\n\nSanji's legs blur. Nami's staff crackles with lightning. The Floating Kitchen becomes the loudest restaurant in the Grand Line.\n\nThen Hollin grabs Granny's recipe book and holds it out over the rail, above the churning sea. \"One more step and the old woman's recipes go to the fish!\""
+    },
+    {
+      "id": "finale",
+      "title": "What Kind of Cook",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Hollin is down, the ship is safe for now. The player decides: set sail with the Straw Hats for the Sea-Salt Spring with Granny's map (only if they have it); expose Hollin's fake tax notice to the Marine fleet with the commodore's letter (only if they have it); or stay with Granny and keep feeding everyone who comes.",
+      "choices": [
+        {
+          "id": "sail_with_the_straw_hats_to_find_the_sal",
+          "label": "Sail with the Straw Hats to find the salt",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "to_the_sea_salt_spring"
+        },
+        {
+          "id": "expose_hollin_to_the_marine_fleet",
+          "label": "Expose Hollin to the Marine fleet",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_clean_kitchen"
+        },
+        {
+          "id": "stay_and_cook_for_granny",
+          "label": "Stay and cook for Granny",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "granny_s_kitchen"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "to_the_sea_salt_spring",
+        "a_clean_kitchen",
+        "granny_s_kitchen"
+      ],
+      "isEnding": false,
+      "page": "Hollin is flat on the deck, his iron ladle bent into a pretzel. The Marines have retreated to their ship. Granny's recipe book is safe in your hands, a little damp.\n\nLuffy flops down on the deck, laughing. \"That was fun! Hey, is there more meat?\"\n\nGranny looks at you for a long time. \"Well, cook,\" she says. \"What kind of cook are you going to be?\""
+    },
+    {
+      "id": "to_the_sea_salt_spring",
+      "title": "To the Sea-Salt Spring",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The player waves goodbye to Granny from the Thousand Sunny's deck. Luffy declares them the crew's 'second cook', and Sanji grumbles but hands them a knife. Close on the ship sailing into the sunset with a map to a dream.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "To the Sea-Salt Spring",
+      "page": "You stand on the deck of a ship with a lion figurehead, waving until Granny is just a tiny dot on the Floating Kitchen.\n\n\"Second cook!\" Luffy announces to the crew. Sanji grumbles that he never agreed to that, then hands you one of his own knives without a word.\n\nNami pins Granny's map to the galley wall and taps the spiral reef. \"Three weeks. If we don't sink.\"\n\nThe sun sets red over the Grand Line. Somewhere out there is a spring of perfect salt, and you're sailing straight at it."
+    },
+    {
+      "id": "a_clean_kitchen",
+      "title": "A Clean Kitchen",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "A Marine vice admiral reads the letter, arrests Hollin and the commodore, and personally eats three bowls of the player's soup. Granny's ship is declared neutral ground forever. Close on Marines and pirates sitting at the same tables.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Clean Kitchen",
+      "page": "A Marine vice admiral arrives two days later. She reads the commodore's letter, looks at the fake tax notice, and turns to Hollin with an expression that makes him shrink two sizes.\n\nHollin and the commodore are both arrested. The vice admiral declares the Floating Kitchen neutral ground forever. Then she sits down and eats three bowls of your soup.\n\nThat night, Marines and pirates eat at the same tables, glaring at each other over dessert. Nobody fights. Granny Pepper wouldn't allow it."
+    },
+    {
+      "id": "granny_s_kitchen",
+      "title": "Granny's Kitchen",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The Straw Hats sail off; Luffy shouts that he'll come back for more meat. The player stays, apron tied tight, cooking for anyone who's hungry. Close on Granny handing over her favourite ladle.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Granny's Kitchen",
+      "page": "The Straw Hats sail off at sunset. Luffy hangs off the rail, shouting, \"We'll come back for more meat!\" until they're out of earshot. Sanji raises one hand without looking back.\n\nYou stay. You tie your apron tight, light the stove, and start the evening rush.\n\nLate that night, after the last customer is gone, Granny limps over and puts her favourite old ladle in your hands. \"It's yours now,\" she says. \"Feed whoever comes.\""
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e8452c"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "none"
+  }
+}

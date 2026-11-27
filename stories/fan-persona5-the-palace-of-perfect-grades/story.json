@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-persona5-the-palace-of-perfect-grades",
+    "title": "The Palace of Perfect Grades",
+    "category": "psychedelic_trip",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "Your new homeroom teacher praises everyone, smiles at everyone, and somehow every student in your class is falling apart. Then a strange app on your phone opens a door into his heart: a cathedral where grades are worship and students are statues. A boy in glasses and a talking cat say you have potential. As a thief.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Persona 5",
+      "medium": "game",
+      "owner": "Atlus and Sega",
+      "aka": [
+        "P5",
+        "Phantom Thieves",
+        "Persona"
+      ]
+    }
+  },
+  "world": "Tokyo, present day. Shujin Academy is a high school in Aoyama. The Metaverse is a cognitive world reached through a phone app: people with twisted desires have 'Palaces' there, shaped by how they see the world, with a Treasure at the heart. Steal the Treasure and their heart changes. The Phantom Thieves of Hearts, led by a quiet student with glasses called Joker, with Morgana (a cat in the real world, a bipedal cat-like thief in the Metaverse) and Ann Takamaki, are scouting a new target: Mr. Saeki, a charismatic teacher who secretly sells top students' grades to a cram-school chain and crushes anyone who questions him. His Palace is a cathedral where students are stone saints ranked by score. Persona users summon a mask-born manifestation of their rebellion.",
+  "tone": "Stylish, rebellious, colourful heist drama: jazz, slick UI energy, school-life slice and surreal dungeon weirdness, with sincere anger at adults who abuse power.",
+  "playerRole": "A transfer student at Shujin Academy, in uniform, with a phone, a bag of convenience-store snacks and a sense that something is very wrong in your class. In the Metaverse, your rebellion takes the shape of a mask and a Persona whose form is yours to decide.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Stylish, punchy narration: day-life scenes in Tokyo, then surreal Palace imagery, all-out attacks, and the moment of awakening when the player rips off a mask. Keep the jazz-and-red-black flair. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "joker",
+      "name": "Joker",
+      "appearance": "A slim teen boy with messy black hair and round black-framed glasses in a Shujin uniform; in the Metaverse, a long black tailcoat, red gloves and a white bird-like domino mask.",
+      "voice": "Calm, quiet, few words; a small smirk; when he does speak, it's decisive.",
+      "stance": "The Thieves' leader; sees potential in the player and lets them choose their own path."
+    },
+    {
+      "id": "morgana",
+      "name": "Morgana",
+      "appearance": "In the real world, a black-and-white cat with big blue eyes and a yellow collar; in the Metaverse, a small upright cat-like thief with a huge round head, a yellow scarf, utility belt and a cutlass.",
+      "voice": "Bossy, proud and earnest; insists he's not a cat; loves sushi.",
+      "stance": "Wants a new member and argues for recruiting the player."
+    },
+    {
+      "id": "saeki",
+      "name": "Mr. Saeki",
+      "appearance": "A handsome teacher in his thirties with neat swept-back hair, rimless glasses and a perfect navy suit; in his Palace, a towering bishop in white-and-gold robes with a halo of floating report cards.",
+      "voice": "Warm, encouraging and praising in public; icy and contemptuous in private.",
+      "stance": "The target. Sells grades, crushes doubters, and sees students as statues to rank."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Infiltrate the Palace's Archive Nave; 2 = Investigate the cram school with Ann."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player stole the ledger of offerings."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player recorded the cram school director."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Homeroom",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player's first week at Shujin. Mr. Saeki praises every student, but a classmate is crying in the stairwell over a 'mistake' on her test that cost her a scholarship, and the top student seems suspiciously bored. On the player's phone, a red-and-black app with an eye has appeared and won't delete. A boy with glasses and a cat in his bag watches them from the next desk.",
+      "choices": [
+        {
+          "id": "talk_to_the_crying_classmate",
+          "label": "Talk to the crying classmate",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "open_the_strange_red_app",
+          "label": "Open the strange red app",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_boy_with_glasses_about_his_cat",
+          "label": "Ask the boy with glasses about his cat",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The app pulses: 'Keywords confirmed: Saeki. Shujin. Cathedral.'",
+      "page": "Week one at Shujin Academy. Mr. Saeki is everyone's favourite teacher: warm voice, perfect suit, a kind word for every student.\n\nAnd yet. In the stairwell at lunch, a girl from your class is crying over a test result. One \"mistake\" on her paper cost her a scholarship. The top student in your class, meanwhile, never seems to study at all.\n\nOn your phone, an app you never installed has appeared: a red-and-black eye that won't delete, no matter how many times you try.\n\nAt the next desk, a quiet boy with messy hair and round glasses is watching you. His school bag twitches. A black-and-white cat pokes its head out and, you'd swear, looks annoyed."
+    },
+    {
+      "id": "crossroads",
+      "title": "Leblanc's Attic",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "After school at Leblanc, a cosy back-alley café. Joker and Morgana (who talks, to the player's shock) explain the Metaverse and the Phantom Thieves. They want proof of Saeki's crimes before stealing his heart. Two ways: infiltrate his Palace's 'Archive Nave', or investigate the real world with Ann, starting at the cram school where Saeki's top students study.",
+      "choices": [
+        {
+          "id": "share_curry_with_the_thieves_and_ask_why",
+          "label": "Share curry with the Thieves and ask why they do this",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You ask why they do this. Joker stirs his coffee. \"Because nobody else does.\" Morgana talks for ten minutes about justice and getting his true form back, and somewhere in the middle of it, Joker slides you a plate of curry and you realise you've been accepted. Morgana finishes: \"And also the sushi. Thieves get sushi.\" Joker smirks. You laugh for the first time this week."
+        },
+        {
+          "id": "infiltrate_the_palace_s_archive_nave",
+          "label": "Infiltrate the Palace's Archive Nave",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "investigate_the_cram_school_with_ann",
+          "label": "Investigate the cram school with Ann",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Morgana thumps the table: 'We need a calling card and we need proof. Pick one!'",
+      "page": "Leblanc is a tiny café down a back alley, smelling of coffee and curry. Upstairs in the cluttered attic, the boy with glasses introduces himself as Joker. Then the cat sits up on the table and speaks.\n\n\"I am NOT a cat. I'm Morgana. And you, newbie, have the app. That means potential.\"\n\nThey explain: the Metaverse, Palaces built from twisted hearts, the Treasure at the centre. Steal it and the heart changes. They call themselves the Phantom Thieves.\n\n\"Saeki has a Palace,\" Joker says quietly. \"But we need proof before we send a calling card.\"\n\nMorgana thumps the table. \"Palace, or real world. Pick one!\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Archive Nave",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Inside the Palace: a vast white cathedral where students stand as stone statues on pedestals labelled with scores, and Shadow priests patrol. The player awakens to their Persona when cornered, tearing off a mask in a burst of blue fire. In the Archive Nave is a ledger of 'offerings': grades sold, prices paid.",
+      "choices": [
+        {
+          "id": "steal_the_ledger_of_offerings",
+          "label": "Steal the ledger of offerings",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "free_a_statue_of_your_classmate",
+          "label": "Free a statue of your classmate",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A Shadow priest pauses, its mask turning: 'An unranked one walks the nave...'",
+      "page": "The app opens a doorway and the world bends. Shujin Academy becomes a white cathedral so vast its ceiling disappears into light.\n\nStudents stand frozen as stone saints on pedestals, each one labelled with a number. Shadow priests in white masks drift between them.\n\nOne turns. \"An unranked one walks the nave...\"\n\nIt lunges, and something in you snaps. A voice in your head asks if you'll let them decide your worth. You feel a mask on your face and rip it away, and blue fire roars up around you as your Persona tears into being.\n\nDeep in the Archive Nave, guarded by flickering candles, lies a ledger bound in gold: Offerings. Grades sold. Prices paid. Names you recognise."
+    },
+    {
+      "id": "path_b",
+      "title": "Cram School Stakeout",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Ann Takamaki and the player stake out a glossy cram school in Shibuya. Inside, they find the 'scholarship' students are all from rich families, and the cram school director is bragging on the phone about 'our partner at Shujin'. Recording it means getting close.",
+      "choices": [
+        {
+          "id": "record_the_director_s_phone_call",
+          "label": "Record the director's phone call",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "talk_your_way_in_as_a_new_student",
+          "label": "Talk your way in as a new student",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Ann whispers: 'If we get this on tape, he can't wriggle out.'",
+      "page": "Ann Takamaki has blonde twin-tails, a red hoodie under her uniform and absolutely no patience for creeps. \"This place,\" she says, pointing at a glossy cram school in Shibuya, \"is where all of Saeki's top students go.\"\n\nInside, everything is polished glass. The \"scholarship\" students are all children of rich parents. You recognise the bored top student from your class.\n\nThrough the office door, the director is on the phone, laughing. \"Our partner at Shujin is very reliable. Very discreet. The usual fee, yes.\"\n\nAnn's eyes go wide. She shoves her phone toward you, already recording, and whispers, \"If we get this on tape, he can't wriggle out.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Altar of Grades",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The heart of the Palace: an altar where Saeki's Shadow, a towering bishop crowned with floating report cards, guards the Treasure (a golden trophy). He summons statues of students to fight. The Thieves fight beside the player.",
+      "choices": [
+        {
+          "id": "lead_the_all_out_attack",
+          "label": "Lead the all-out attack",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "expose_his_hypocrisy_to_his_face",
+          "label": "Expose his hypocrisy to his face",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Shadow Saeki booms: 'Grades are virtue! Rank is truth! I made you all!'",
+      "page": "The heart of the Palace: an altar at the top of a stair made of report cards. On it, glowing gold, sits the Treasure: a trophy.\n\nShadow Saeki rises above it, a towering bishop in white and gold, a halo of floating grades spinning around his head. \"Grades are virtue! Rank is truth! I made you all!\"\n\nHe raises his hands, and the stone students on their pedestals turn their heads toward you.\n\nJoker's coat flares. Morgana draws his cutlass. \"Now's our chance! Lead us!\""
+    },
+    {
+      "id": "finale",
+      "title": "The Calling Card",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Treasure is in reach. The player decides how Saeki falls: release the ledger to the school and the press alongside his change of heart (only if they stole it); play the cram school recording at a school assembly (only if they made it); or simply steal the Treasure and let his heart change quietly.",
+      "choices": [
+        {
+          "id": "leak_the_ledger_with_the_calling_card",
+          "label": "Leak the ledger with the calling card",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "take_your_heart"
+        },
+        {
+          "id": "play_the_recording_at_assembly",
+          "label": "Play the recording at assembly",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "assembly_hall"
+        },
+        {
+          "id": "steal_the_treasure_quietly",
+          "label": "Steal the Treasure quietly",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_quiet_theft"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "take_your_heart",
+        "assembly_hall",
+        "a_quiet_theft"
+      ],
+      "isEnding": false,
+      "page": "Shadow Saeki kneels on the altar steps, his halo of grades fluttering to the ground like dead leaves. \"I just wanted to be the best teacher,\" he whispers. \"The results proved it.\"\n\nThe Treasure glows within reach. Joker looks at you and gives a tiny nod. Your call, rookie.\n\nIn the real world, a calling card is waiting to be written. How Saeki falls is up to you."
+    },
+    {
+      "id": "take_your_heart",
+      "title": "Take Your Heart",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Next week, a confessing Saeki and a leaked ledger. The cram school scandal makes the news and the classmate's scholarship is restored. The Phantom Thieves' approval rating jumps. Close on the team at Leblanc, Morgana demanding sushi, and the player's mask on the table.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Take Your Heart",
+      "page": "The calling card hits every noticeboard at Shujin: \"Mr. Saeki, sinner of greed. We will take your heart.\" And attached, page after page, the ledger of offerings.\n\nA week later, Saeki confesses everything in front of the faculty. The cram-school scandal is on the evening news. Your classmate's scholarship is restored.\n\nThe Phantom Thieves' online approval rating jumps. At Leblanc that night, Morgana demands sushi, Joker actually orders it, and your mask sits on the table between the plates like it has always belonged there."
+    },
+    {
+      "id": "assembly_hall",
+      "title": "Assembly Hall",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The recording plays over the assembly speakers; Saeki's face changes as students turn to stare. He confesses on the spot. Ann high-fives the player in the crowd. Close on the crying classmate from the first day laughing with friends.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Assembly Hall",
+      "page": "The morning assembly is boring until the speakers crackle. \"Our partner at Shujin is very reliable. The usual fee, yes.\"\n\nFive hundred students turn to look at Mr. Saeki. His face changes. His heart has already changed. He walks to the microphone and confesses, right there.\n\nIn the crowd, Ann finds you and high-fives so hard your hand stings.\n\nAt lunch, the girl from the stairwell is sitting with friends, laughing about something completely ordinary. She looks like a different person. Maybe she finally is."
+    },
+    {
+      "id": "a_quiet_theft",
+      "title": "A Quiet Theft",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The Treasure is taken. Days later Saeki resigns quietly with an apology letter. Nobody knows why. The player knows. Close on the red app glowing on their phone, a new keyword waiting.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Quiet Theft",
+      "page": "You take the Treasure and the Palace crumbles behind you in a wash of light.\n\nDays later, Mr. Saeki resigns. His apology letter is quiet, sincere and vague. Nobody at Shujin understands why.\n\nYou understand.\n\nThat night, lying on your bed, your phone buzzes. The red-and-black eye has opened again. A new keyword glows on the screen, waiting for you."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e5191c"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

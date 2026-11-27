@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-strangerthings-the-signal-at-the-arcade",
+    "title": "The Signal at the Arcade",
+    "category": "horror",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "Hawkins, Indiana, summer 1986. You've just moved to town and got a job at the Palace Arcade, where one cabinet has started playing a song that isn't in its code. Dustin says it's a radio signal. Steve says it's a broken machine. The lights in the back flicker in a rhythm, and somewhere underneath the floor, something is listening.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Stranger Things",
+      "medium": "tv",
+      "owner": "Netflix and the Duffer Brothers",
+      "aka": [
+        "Hawkins",
+        "Upside Down",
+        "ST"
+      ]
+    }
+  },
+  "world": "Hawkins, Indiana, 1986: a small town with a mall, a lab that officially closed, and a secret: the Upside Down, a dark, spore-filled mirror dimension where monsters (Demogorgons, Demodogs) live, connected by gates. Dustin Henderson, a curly-haired genius kid with a ham radio called Cerebro, and Steve Harrington, a former popular jock turned loyal babysitter of the kids, are the player's guides. At the Palace Arcade, a new cabinet called 'Lightkeeper' has been playing a coded melody: a distress signal from a missing lab scientist, Dr. Ruth Albany, trapped in the Upside Down beneath the arcade. A Russian-backed agent, 'Mr. Pell', posing as the arcade's new owner, wants to use the signal to open a gate.",
+  "tone": "Nostalgic 80s adventure-horror: bikes, walkie-talkies, synth music, friendship, and real fear in flickering lights.",
+  "playerRole": "A teenager new to Hawkins with a summer job at the Palace Arcade, a bike with a banana seat, a Walkman, a pocket full of quarters and a talent for noticing patterns.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Nostalgic 80s narration with synth-pop references, walkie-talkie banter, flickering Christmas-light horror, and quick cuts between the normal world and the Upside Down. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "dustin",
+      "name": "Dustin Henderson",
+      "appearance": "A curly-haired teenage boy with a gap-toothed grin, a trucker cap, a T-shirt with a science logo, and a walkie-talkie on his belt.",
+      "voice": "Excited, nerdy and fast-talking; says 'Steve!' a lot; brave when it counts.",
+      "stance": "Recruits the player into decoding the signal."
+    },
+    {
+      "id": "steve",
+      "name": "Steve Harrington",
+      "appearance": "A tall teenage boy with big swooping brown hair, a polo shirt, a sailor-themed ice cream shop uniform hat in his back pocket, and a nail-studded bat.",
+      "voice": "Laid-back, sarcastic and protective; calls the kids 'dingus'.",
+      "stance": "Treats the player like one of the kids he has to keep alive."
+    },
+    {
+      "id": "pell",
+      "name": "Mr. Pell",
+      "appearance": "A neat man in his forties with a slicked side part, thick glasses, a short-sleeved shirt with a pocket protector and a too-polite smile with a faint accent.",
+      "voice": "Overly friendly arcade-owner talk with cold undertones.",
+      "stance": "Wants the signal to open a gate."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search Mr. Pell's office; 2 = Bike out to Hawkins Lab."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took Pell's blueprints."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player learned the reversed melody."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Night Shift at the Palace",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player is closing up the Palace Arcade. The new 'Lightkeeper' cabinet starts playing a melody that isn't in its code, and the lights flicker in rhythm. Dustin Henderson bangs on the window with a walkie-talkie, shouting that his radio picked up the same song.",
+      "choices": [
+        {
+          "id": "let_dustin_in",
+          "label": "Let Dustin in",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "record_the_melody_on_your_walkman",
+          "label": "Record the melody on your Walkman",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "unplug_the_machine",
+          "label": "Unplug the machine",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The cabinet screen flashes: a pixel figure trapped under a grid, waving.",
+      "page": "Closing time at the Palace Arcade. You've wiped down the counters, counted the quarters and turned off every machine but one.\n\nLightkeeper. The new cabinet. It wasn't supposed to be plugged in yet.\n\nIt starts to play a melody: soft, synthy, sad. It isn't in the game. You checked the manual. Overhead, the lights flicker in time with it. On. Off. On, on. Off.\n\nOn the screen, a tiny pixel figure stands trapped under a grid, waving at you.\n\nBang bang bang. A curly-haired kid in a trucker cap is pounding on the window, holding up a walkie-talkie. \"Are you hearing that?! My radio's picking up the SAME SONG! Let me in!\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Decoding the Song",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In the morning, Steve drives in to 'babysit'. Dustin has decoded part of the melody: it's Morse code, and it says ALBANY. Mr. Pell, the new arcade owner, is suspiciously interested. Two leads: break into Mr. Pell's office at the arcade, or go to the abandoned Hawkins Lab where Dr. Albany worked.",
+      "choices": [
+        {
+          "id": "get_ice_cream_with_steve_and_dustin_and_",
+          "label": "Get ice cream with Steve and Dustin and plan",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You end up at Scoops Ahoy with Steve and Dustin, splitting a banana split the size of a car tyre. Steve complains about everything. Dustin explains radio frequencies with a spoon. Somewhere in the middle, they start telling you, half-joking, about the things they've seen in this town. You laugh. Then you realise they aren't joking. Steve taps your shoulder with his spoon. \"Welcome to Hawkins. Stick with us.\""
+        },
+        {
+          "id": "search_mr_pell_s_office",
+          "label": "Search Mr. Pell's office",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "bike_out_to_hawkins_lab",
+          "label": "Bike out to Hawkins Lab",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Steve, sighing: 'Can we not go into a creepy lab for one summer?'",
+      "page": "In the morning, a tall teenager with incredible hair drives Dustin to the arcade. \"Steve,\" he says, shaking your hand. \"Babysitter. Unofficially. Against my will.\"\n\nDustin has been up all night with his radio, Cerebro. \"It's Morse code! Inside the melody! It spells A-L-B-A-N-Y. Dr. Ruth Albany. She worked at Hawkins Lab. She disappeared two years ago!\"\n\nBehind the prize counter, the new arcade owner, Mr. Pell, smiles a little too politely. \"Interested in that machine, kids? Very special machine.\"\n\nSteve groans. \"Can we not go into a creepy lab for one summer?\""
+    },
+    {
+      "id": "path_a",
+      "title": "Mr. Pell's Office",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Behind the prize counter, Pell's office has Russian documents, blueprints of the arcade's basement with a 'gate' marked, and a schedule: tonight, when the signal peaks, he'll open it.",
+      "choices": [
+        {
+          "id": "take_the_basement_blueprints",
+          "label": "Take the basement blueprints",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "photograph_the_russian_documents",
+          "label": "Photograph the Russian documents",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A rubber-masked arcade mascot costume on the wall seems to watch the player.",
+      "page": "While Mr. Pell is out at lunch, you slip into his office behind the prize counter. A giant rubber arcade mascot costume hangs on the wall, staring at you with plastic eyes.\n\nOn the desk: documents in Russian with a red stamp. Blueprints of the arcade's basement, with a big circle drawn in the middle and one word: GATE. And a schedule. Tonight, 11:47 p.m., signal peak.\n\nDustin grabs your sleeve, white-faced. \"He's not trying to stop the signal. He's using it. He wants to open a door to the Upside Down. Under the arcade.\""
+    },
+    {
+      "id": "path_b",
+      "title": "Hawkins Lab",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Overgrown and abandoned. In Dr. Albany's office, the player finds her notes: she built the arcade game as a beacon to guide people back from the Upside Down. The melody is a key. Played backwards, it closes gates.",
+      "choices": [
+        {
+          "id": "learn_the_reversed_melody",
+          "label": "Learn the reversed melody",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "take_dr_albany_s_notebook",
+          "label": "Take Dr. Albany's notebook",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A Demodog's growl echoes through the empty corridor.",
+      "page": "Hawkins Lab is a ruin of cracked glass and weeds. Steve carries his bat with nails in it. \"I hate this. I hate this so much.\"\n\nDr. Albany's office is untouched: dust, coffee mugs, a corkboard of notes. You read them by flashlight. She built the Lightkeeper game as a beacon, a guiding song for anyone lost in the Upside Down. The melody is a key. Played forwards, it opens. Played backwards, it closes.\n\nAt the end of the corridor, something growls: low, wet, four-legged.\n\n\"Okay,\" whispers Steve. \"Time to go. Time to go right now.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Upside Down",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night. The arcade floor splits open into the Upside Down. Mr. Pell is there with a device. Demodogs prowl. Dr. Albany is trapped in a web of vines. Steve swings his bat. Dustin is on the radio.",
+      "choices": [
+        {
+          "id": "free_dr_albany",
+          "label": "Free Dr. Albany",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "fight_off_the_demodogs_with_steve",
+          "label": "Fight off the Demodogs with Steve",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Dustin over the radio: 'The signal's peaking! Whatever you're gonna do, do it NOW!'",
+      "page": "11:47 p.m. The arcade floor splits open with a sound like ripping cloth, and the room turns upside down: dark, cold, full of floating spores and slimy vines.\n\nMr. Pell stands in the middle with a humming metal device, laughing. Demodogs, faceless and snarling, circle the edges.\n\nAnd there, tangled in vines on the far wall, is a woman in a torn lab coat. Dr. Albany. Alive.\n\nSteve swings his bat. Dustin's voice crackles in your walkie: \"The signal's peaking! Whatever you're gonna do, do it NOW!\""
+    },
+    {
+      "id": "finale",
+      "title": "Game Over",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: show the blueprints and documents to Chief Hopper so Pell is caught (only if they have them); play the melody backwards on the Lightkeeper cabinet to close the gate with Dr. Albany safe (only if they learned it); or grab Albany and run, leaving the gate to collapse on its own.",
+      "choices": [
+        {
+          "id": "give_chief_hopper_pell_s_blueprints",
+          "label": "Give Chief Hopper Pell's blueprints",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "busted"
+        },
+        {
+          "id": "play_the_melody_backwards",
+          "label": "Play the melody backwards",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "high_score"
+        },
+        {
+          "id": "grab_albany_and_run",
+          "label": "Grab Albany and run",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "run"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "busted",
+        "high_score",
+        "run"
+      ],
+      "isEnding": false,
+      "page": "The Demodogs are scattered. Pell's device is sparking on the floor. Dr. Albany is coughing, half-free of the vines. The gate yawns open behind you, pulsing red, getting bigger.\n\nSteve is bleeding from the eyebrow and grinning like an idiot. Dustin is still shouting in your ear.\n\nIt's your arcade. Your shift. Your call how it ends."
+    },
+    {
+      "id": "busted",
+      "title": "Busted",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Hopper raids the arcade, Pell is arrested, and the gate is sealed by soldiers. Dustin brags on the radio for a week. Close on the gang playing arcade games, Steve losing badly.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Busted",
+      "page": "You climb out of the Upside Down and press the blueprints and Russian documents into the hands of Chief Hopper, who has just kicked down the arcade door with a shotgun.\n\nHe reads one page. \"Son of a...\"\n\nMr. Pell is arrested before midnight. Soldiers arrive in unmarked trucks and seal the gate under concrete.\n\nDustin brags about it on the radio for a solid week. And when the Palace Arcade finally reopens, the whole gang crowds around a racing game while Steve loses, badly, three times in a row."
+    },
+    {
+      "id": "high_score",
+      "title": "High Score",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The melody plays backwards and the gate closes with a sigh; Dr. Albany stumbles out. The Lightkeeper machine shows a new high score: the player's initials. Close on the arcade lights steady and warm.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "High Score",
+      "page": "You stumble to the Lightkeeper cabinet and play Dr. Albany's melody backwards, note by note, while Steve holds off the last Demodog.\n\nThe gate sighs, like something going to sleep, and closes.\n\nDr. Albany stumbles out onto the arcade floor, blinking at the normal lights. \"What year is it?\"\n\nThe Lightkeeper screen flickers. The pixel figure is gone. In its place, at the top of the high-score table, three letters: your initials.\n\nThe arcade lights burn steady and warm. For the first time all summer, nothing flickers."
+    },
+    {
+      "id": "run",
+      "title": "Run!",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "They escape with Albany as the gate collapses; the arcade is condemned. Summer goes on. Close on bikes racing down a suburban street at sunset, walkie-talkies crackling.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Run!",
+      "page": "You grab Dr. Albany's hand and pull. Steve grabs yours. Dustin grabs Steve's. You run.\n\nYou burst out through the arcade's front doors just as the whole floor collapses behind you into the dark.\n\nThe Palace Arcade is condemned the next week. Nobody can explain the hole.\n\nBut summer goes on. A week later you're racing your bike down a suburban street at sunset, Dustin and Steve beside you, walkie-talkies crackling with bad jokes, the whole town glowing gold."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e23a2f"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

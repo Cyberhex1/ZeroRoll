@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-starwars-the-kyber-run",
+    "title": "The Kyber Run",
+    "category": "adventure",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You fix starships at a dusty Outer Rim spaceport, and a smuggler who owes everybody money just landed with a cargo he swears is 'just spices'. It's a kyber crystal the Empire would burn the planet to recover. His enormous furry co-pilot likes you. An Imperial officer doesn't. You're about to need a ship.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Star Wars",
+      "medium": "film",
+      "owner": "Lucasfilm and Disney",
+      "aka": [
+        "Star Wars",
+        "Han Solo",
+        "Chewbacca",
+        "Millennium Falcon"
+      ]
+    }
+  },
+  "world": "A galaxy far, far away, during the Galactic Civil War. On the desert world of Arrakor, a remote spaceport town of domed buildings, cantinas and junk yards, the player works as a mechanic. Han Solo, a cocky smuggler with debts, and Chewbacca, his Wookiee co-pilot, land the Millennium Falcon with a stolen kyber crystal (the living crystal that powers lightsabers and superweapons) they were hired to deliver to the Rebel Alliance. Imperial Captain Thessaly Vane has tracked it and locked down the port. A local Hutt crime boss, Grubba the Hutt, wants the crystal too and will betray anyone.",
+  "tone": "Swashbuckling space adventure: blaster fights, starship chases, witty banter, hope against the Empire, and a sense of the Force at the edges.",
+  "playerRole": "A young starship mechanic on Arrakor with a hydrospanner, grease-stained overalls, a droid companion of your design, a beat-up landspeeder and a feeling you're meant for something bigger.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Classic space-opera narration with sound-effect energy (blasters, hyperdrive whine, Wookiee roars), wipes between scenes, and the occasional mysterious nudge of the Force. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "han",
+      "name": "Han Solo",
+      "appearance": "A roguish man in his thirties with tousled brown hair, a lopsided smirk, a white shirt under a black vest, dark trousers with red stripes and a blaster on his hip.",
+      "voice": "Cocky, sarcastic, quick with excuses; secretly decent.",
+      "stance": "Needs the player to fix his ship and keeps telling them not to get involved."
+    },
+    {
+      "id": "chewie",
+      "name": "Chewbacca",
+      "appearance": "A towering Wookiee covered in long brown fur, with a bandolier across his chest and a bowcaster.",
+      "voice": "Roars, growls and howls; very expressive; loyal and gentle with friends.",
+      "stance": "Likes the player instantly."
+    },
+    {
+      "id": "vane",
+      "name": "Captain Thessaly Vane",
+      "appearance": "A sharp-faced Imperial officer with short black hair, a crisp olive-grey uniform and cap, rank plaques and black gloves.",
+      "voice": "Clipped, cold and precise.",
+      "stance": "Hunting the crystal; will offer the player a reward to betray Han."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Go to Grubba the Hutt's palace; 2 = Sneak into the Imperial supply depot."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player stole Grubba's recording of the deal."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took the Imperial code cylinder."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Hangar 9",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player's repair hangar on Arrakor. The Millennium Falcon limps in trailing smoke. Han wants a hyperdrive fix 'yesterday' and swears the sealed crate is 'spices'. Chewbacca pats the player's head. Imperial shuttles land on the other side of the port.",
+      "choices": [
+        {
+          "id": "start_fixing_the_hyperdrive",
+          "label": "Start fixing the hyperdrive",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "peek_inside_the_spice_crate",
+          "label": "Peek inside the 'spice' crate",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "haggle_over_the_price",
+          "label": "Haggle over the price",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Han: 'Look, kid, just fix the motivator and nobody gets hurt. Probably.'",
+      "page": "Hangar 9 is too hot, as always. You're elbow-deep in a speeder engine when the whole building shakes and a battered, saucer-shaped freighter limps in trailing black smoke.\n\nThe ramp drops. A man with a lopsided smirk and a blaster on his hip strolls down. \"Need a hyperdrive motivator fixed. Yesterday.\"\n\nBehind him, an enormous walking carpet of brown fur, with a bandolier and a crossbow, ducks under the ramp, sees you, and gently pats you on the head like you're a small pet.\n\nThe smuggler drops a sealed crate on your workbench. \"Just spices. Don't open it.\" He winks. \"Look, kid, just fix the motivator and nobody gets hurt. Probably.\"\n\nAcross the port, the hum of engines: Imperial shuttles, landing."
+    },
+    {
+      "id": "crossroads",
+      "title": "Lockdown",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Stormtroopers seal the port. The hyperdrive needs a part only two places have: Grubba the Hutt's junk palace, or an Imperial supply depot. The crystal glows when the player touches it.",
+      "choices": [
+        {
+          "id": "help_chewie_with_repairs_and_talk",
+          "label": "Help Chewie with repairs and talk",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You spend the afternoon working beside Chewbacca under the Falcon's belly, passing tools without needing to ask. He grunts approvingly every time you get something right. When you fix a coolant line he's been fighting for an hour, he roars so loudly the hangar shakes, then lifts you off the ground in a hug. Han, from the cockpit, translates: \"He says you've got a good touch. With machines. Don't let it go to your head.\""
+        },
+        {
+          "id": "go_to_grubba_the_hutt_s_palace",
+          "label": "Go to Grubba the Hutt's palace",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "sneak_into_the_imperial_supply_depot",
+          "label": "Sneak into the Imperial supply depot",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Chewbacca roars; Han translates: 'He says you've got a good touch. With machines. Don't let it go to your head.'",
+      "page": "Sirens. Stormtroopers march through the streets, sealing every exit. The port's huge blast shields grind shut over the landing bays.\n\nHan Solo groans. \"Of course.\"\n\nYou open the hyperdrive. \"The motivator's cooked. I need a replacement. There's two places on Arrakor with one: Grubba the Hutt's junk palace, or the Imperial supply depot.\"\n\nWhile you talk, your elbow brushes the \"spice\" crate. The lid slides open a crack. Inside, something glows soft blue. It hums. When you touch it, warmth runs up your arm, and for a second you could swear you hear someone call your name.\n\n\"That,\" says Han, \"is definitely spices.\""
+    },
+    {
+      "id": "path_a",
+      "title": "Grubba's Palace",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "A sweaty, music-filled Hutt palace full of bounty hunters. Grubba offers the part in exchange for the crystal. The player overhears Grubba arranging to sell Han to Captain Vane, and grabs his deal recording.",
+      "choices": [
+        {
+          "id": "steal_grubba_s_recording_of_the_deal",
+          "label": "Steal Grubba's recording of the deal",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "win_the_part_in_a_game_of_sabacc",
+          "label": "Win the part in a game of sabacc",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Grubba laughs a deep, wet laugh: 'Ho ho ho. The little mechanic wants to trade?'",
+      "page": "Grubba the Hutt's palace is a sweaty dome of music, smoke and bounty hunters. Grubba himself sprawls on a dais like a giant green slug, laughing a deep wet laugh.\n\n\"Ho ho ho. The little mechanic wants to trade? The motivator for the crystal. A fair deal.\"\n\nWhile a band plays and Grubba eats something wriggling, you slip behind a curtain. Grubba's majordomo is talking into a comm: \"...yes, Captain Vane. Tonight. We'll hand you Solo and the crystal. Our usual fee.\"\n\nYou've got your recorder running. Every word."
+    },
+    {
+      "id": "path_b",
+      "title": "The Imperial Depot",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The player sneaks into the depot in a borrowed uniform. They find the part, and Vane's orders: if the crystal isn't recovered, the town is to be 'pacified'. Also a code cylinder that opens the port's blast shields.",
+      "choices": [
+        {
+          "id": "take_the_code_cylinder",
+          "label": "Take the code cylinder",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "copy_vane_s_orders",
+          "label": "Copy Vane's orders",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A stormtrooper stops the player: 'Hey, you. Where's your helmet?'",
+      "page": "In a borrowed grey uniform two sizes too big, you walk straight into the Imperial supply depot like you belong there.\n\nCrates of parts everywhere. You find a hyperdrive motivator in four minutes. Then, on a desk, Captain Vane's orders on a datapad: \"If the crystal is not recovered by dawn, the settlement is to be pacified.\"\n\nNext to it, a red code cylinder. The one that opens the port's blast shields.\n\n\"Hey, you.\" A stormtrooper blocks the doorway. \"Where's your helmet?\""
+    },
+    {
+      "id": "showdown",
+      "title": "Breakout",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Falcon is fixed, barely. Stormtroopers storm the hangar. Vane offers the player a fortune for the crystal. Grubba's bounty hunters are coming from the other side.",
+      "choices": [
+        {
+          "id": "board_the_falcon_and_man_the_guns",
+          "label": "Board the Falcon and man the guns",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "distract_vane_while_han_starts_the_engin",
+          "label": "Distract Vane while Han starts the engines",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Han, firing his blaster: 'Get on the ship, kid! You're coming whether you like it or not!'",
+      "page": "The Falcon's engines cough, then roar. Fixed, barely.\n\nThe hangar doors explode inward. Stormtroopers pour in, blasters flashing red. From the other side, Grubba's bounty hunters come in firing too.\n\nCaptain Vane strides through the smoke, crisp and cold. \"Mechanic. Hand me the crystal and you'll have enough credits to leave this rock forever.\"\n\nHan ducks behind a crate and fires back. \"Get on the ship, kid! You're coming whether you like it or not!\""
+    },
+    {
+      "id": "finale",
+      "title": "Jump to Lightspeed",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: broadcast Grubba's recording to Vane so the Empire and the Hutt turn on each other (only if they have it); use the code cylinder to open the blast shields and escape with the crystal to the Rebels (only if they took it); or give the crystal back to Vane to save the town.",
+      "choices": [
+        {
+          "id": "broadcast_grubba_s_betrayal",
+          "label": "Broadcast Grubba's betrayal",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "scoundrels_collide"
+        },
+        {
+          "id": "open_the_blast_shields_and_jump_to_light",
+          "label": "Open the blast shields and jump to lightspeed",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "rebel_delivery"
+        },
+        {
+          "id": "give_vane_the_crystal_to_save_the_town",
+          "label": "Give Vane the crystal to save the town",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_hard_choice"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "scoundrels_collide",
+        "rebel_delivery",
+        "the_hard_choice"
+      ],
+      "isEnding": false,
+      "page": "You're in the Falcon's cockpit. Chewie roars at the controls. Han is strapping in. Outside, stormtroopers and bounty hunters are shooting at the ship, and at each other.\n\nThe crystal hums in its crate behind you, warm and alive.\n\n\"Kid,\" says Han, \"I've got a bad feeling about this. Whatever you're gonna do, do it fast.\""
+    },
+    {
+      "id": "scoundrels_collide",
+      "title": "Scoundrels Collide",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Vane and Grubba's forces turn on each other in a glorious mess; the Falcon slips away in the chaos. Han claims it was his plan. Close on the Falcon shooting into hyperspace.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Scoundrels Collide",
+      "page": "You patch Grubba's recording into the Imperial comm channel. \"...We'll hand you Solo and the crystal. Our usual fee.\" Then, a few seconds later, Captain Vane hears Grubba laughing about selling her out too.\n\nDown in the hangar, the stormtroopers and the bounty hunters turn their blasters on each other. It's a glorious mess.\n\nThe Falcon slips away through the smoke. \"That,\" says Han, \"was my plan. Exactly my plan.\"\n\nChewie roars with laughter. You pull the lever, and the stars stretch into long white lines as the Falcon shoots into hyperspace."
+    },
+    {
+      "id": "rebel_delivery",
+      "title": "Rebel Delivery",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Falcon roars through the blast shields into hyperspace. At a Rebel base, the player is offered a place as a mechanic. Chewie hugs them. Close on stars streaking past the cockpit.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Rebel Delivery",
+      "page": "You slot the red code cylinder into the Falcon's console and transmit. Across the spaceport, the giant blast shields grind open.\n\n\"Punch it, Chewie!\"\n\nThe Falcon roars out over the desert, through the gap, past the Imperial cruisers, and leaps to lightspeed.\n\nDays later, at a hidden Rebel base, a general with silver hair takes the crystal from your hands and thanks you. Then she offers you a job. \"We always need mechanics.\"\n\nChewbacca hugs you so hard your feet leave the ground. Through the cockpit window, the stars streak past forever."
+    },
+    {
+      "id": "the_hard_choice",
+      "title": "The Hard Choice",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Vane gets the crystal; the town is spared. Han is disappointed but understands. The Falcon leaves without them. Close on the player in their hangar, looking up at the twin suns.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Hard Choice",
+      "page": "You climb back down the ramp and hold out the crystal to Captain Vane.\n\n\"Spare the town.\"\n\nShe takes it. She studies you. \"Very well.\" The stormtroopers withdraw.\n\nHan stares at you from the ramp for a long moment. \"You're a fool, kid.\" Then, quieter: \"But maybe the good kind.\"\n\nThe Falcon lifts off without you, rising into the hot white sky.\n\nThat evening you stand in your empty hangar, hydrospanner in hand, looking up at the twin suns setting over the desert, and wonder what else is out there."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f0c040"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

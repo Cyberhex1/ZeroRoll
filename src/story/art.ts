@@ -7,11 +7,21 @@ import { idb } from '../storage/db';
 import type { Story } from './schema';
 
 const BASE = (import.meta.env.VITE_STORY_ART_BASE || '/story-art').replace(/\/+$/, '');
+const BUNDLED = new Set<string>(typeof __BUNDLED_STORY_ART__ !== 'undefined' ? __BUNDLED_STORY_ART__ : []);
+
+/**
+ * Where a built-in story's art file is served. A file that ships in public/story-art comes
+ * from the site itself, so it works even before (or without) an upload to R2; anything else
+ * comes from VITE_STORY_ART_BASE.
+ */
+export function storyArtFileUrl(storyId: string, file: string): string {
+  return BUNDLED.has(`${storyId}/${file}`) ? `/story-art/${storyId}/${file}` : `${BASE}/${storyId}/${file}`;
+}
 
 export function artUrl(story: Story, artId: string): string | null {
   const a = story.art[artId];
   if (!a) return null;
-  return a.url ?? `${BASE}/${story.meta.id}/${a.file}`;
+  return a.url ?? storyArtFileUrl(story.meta.id, a.file);
 }
 
 /** Art from a story imported in the app lives only in IndexedDB, under this scheme. */

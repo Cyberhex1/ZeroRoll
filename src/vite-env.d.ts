@@ -7,6 +7,9 @@ interface ImportMetaEnv {
   readonly VITE_STORY_ART_BASE?: string;
 }
 
+/** `<storyId>/<file>` for each story art file in public/story-art (set by scripts/vite-story-index.ts). */
+declare const __BUNDLED_STORY_ART__: string[];
+
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }

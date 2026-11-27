@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-montecristo-the-count-s-apprentice",
+    "title": "The Count's Apprentice",
+    "category": "revenge",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You were a street thief in Marseille until a mysterious count paid your debts and took you into his service. He's planning the most elegant revenge Paris has ever seen. You're his eyes and hands. But one of his targets has a child who did nothing wrong, and you're starting to wonder whether revenge is a cure or a disease.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Count of Monte Cristo",
+      "medium": "book",
+      "owner": "based on the novel by Alexandre Dumas",
+      "aka": [
+        "Count of Monte Cristo",
+        "Edmond Dantes",
+        "Dumas"
+      ]
+    }
+  },
+  "world": "Paris and Marseille, 1838, during the events of The Count of Monte Cristo. Edmond Dantès, wrongfully imprisoned for fourteen years in the Château d'If, escaped, found a vast treasure on the island of Monte Cristo and now poses as the Count of Monte Cristo to take revenge on the men who betrayed him: the banker Danglars, the prosecutor Villefort and Fernand Mondego. The player is a former street thief, now his secret apprentice. Danglars's daughter, Eugénie, is innocent. The Count's revenge will ruin her too. An old letter proves Danglars's original betrayal; the Count has a vial of a poison that he might use.",
+  "tone": "Swashbuckling romantic adventure of masks, secrets, duels, grand balls, hidden treasure and the slow question of justice versus vengeance.",
+  "playerRole": "A clever former street thief from Marseille with quick hands, a fencing blade, a dozen disguises, a stolen pocket watch and an unpaid debt of gratitude to the Count.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Lush, dramatic narration in the style of a 19th-century serial novel: candlelit salons, masked balls, fencing, letters sealed in wax, sudden reversals, cliffhangers and grand moral questions. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "count",
+      "name": "The Count of Monte Cristo",
+      "appearance": "A tall, pale, elegant man in his forties with long dark hair tied back, a black coat with a high collar, a silver-topped cane and haunted dark eyes.",
+      "voice": "Cultured, controlled, enigmatic; quiet fury beneath.",
+      "stance": "The player's mentor; consumed by revenge."
+    },
+    {
+      "id": "eugenie",
+      "name": "Eugénie Danglars",
+      "appearance": "A spirited young woman with dark hair in a practical braid, a music-stained cuff, a simple blue dress and a bold expression.",
+      "voice": "Independent, frank, sardonic about her father.",
+      "stance": "Innocent daughter of a target; becomes the player's friend."
+    },
+    {
+      "id": "danglars",
+      "name": "Baron Danglars",
+      "appearance": "A plump, self-satisfied banker in his fifties with a gold watch chain, a brocade waistcoat, pomaded hair and small greedy eyes.",
+      "voice": "Oily, boastful, cowardly.",
+      "stance": "The Count's target; betrayed Dantès long ago."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search for the old betrayal letter; 2 = Uncover the Count's full plan."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Danglars's original denunciation letter."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has the vial of poison from the Count's plan."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Masked Ball",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "A masked ball in Paris. The Count sends the player to steal a letter from Baron Danglars's study. Instead, they're caught by Danglars's daughter, Eugénie, who wants to run away from her father's arranged marriage for her.",
+      "choices": [
+        {
+          "id": "tell_eug_nie_a_clever_lie",
+          "label": "Tell Eugénie a clever lie",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "tell_eug_nie_the_truth",
+          "label": "Tell Eugénie the truth",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "escape_through_the_window",
+          "label": "Escape through the window",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The Count, behind his mask: 'Remember, my friend. Wait and hope.'",
+      "page": "Paris, 1838. A masked ball in the mansion of Baron Danglars, banker, all chandeliers and champagne and men who think gold makes them gods.\n\nYou slip away from the dancing, through a velvet curtain, into the baron's dark study. The Count told you exactly where to look: third drawer, false bottom.\n\nYour fingers find the drawer, the false bottom, the letter.\n\n\"Are you robbing my father?\" says a voice behind you.\n\nA young woman in a simple blue dress, her mask pushed up, a dark braid over her shoulder. Not afraid. Curious. \"Good,\" she says. \"I'm running away from him on Friday. Can you show me how to pick a lock?\"\n\nLater, in the Count's carriage, he says only: \"Remember, my friend. All human wisdom is contained in two words. Wait and hope.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "The Count's Plan",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Count reveals his plan: bankrupt Danglars through a false telegraph message. It will ruin Eugénie too. The player can search for the old betrayal letter, which would expose Danglars without ruining his family, or learn the Count's full plan.",
+      "choices": [
+        {
+          "id": "fence_with_the_count_at_dawn",
+          "label": "Fence with the Count at dawn",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "The Count fences with you at dawn in his long mirrored room, as he does every morning. He is very good, and he does not let you win. Today, after a long bout, he lowers his blade and tells you, unexpectedly, about the old priest in the next cell at the Château d'If, who taught him languages and fencing and philosophy through a hole in the wall. \"He made me a man again,\" the Count says. \"I would like to have done the same for you.\" It's the most he's ever said to you. You don't know what to say back."
+        },
+        {
+          "id": "search_for_the_old_betrayal_letter",
+          "label": "Search for the old betrayal letter",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "uncover_the_count_s_full_plan",
+          "label": "Uncover the Count's full plan",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Eugénie: 'My father is a terrible man. That doesn't mean I am.'",
+      "page": "In the Count's palace on the Champs-Élysées, he lays out his plan by candlelight, calmly, like a chess player.\n\n\"Danglars betrayed me. Fourteen years in a cell. He will lose everything he loves: his money, his name, his family's future.\"\n\n\"His daughter too?\" you ask.\n\n\"His daughter too.\" His voice doesn't change. His eyes do.\n\nEugénie Danglars sends you a note that night: 'My father is a terrible man. That doesn't mean I am.'\n\nYou could find the proof of Danglars's old crime, the letter that sent the Count to prison, and expose him without destroying his family. Or you could uncover the rest of the Count's plan, and see how far it really goes."
+    },
+    {
+      "id": "path_a",
+      "title": "The Château d'If",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "In Marseille, the player visits the Château d'If, the prison where the Count was held. In the old cell, they find a hidden niche with Danglars's original handwritten denunciation letter from 1815.",
+      "choices": [
+        {
+          "id": "take_the_denunciation_letter",
+          "label": "Take the denunciation letter",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "read_the_prisoner_s_carvings",
+          "label": "Read the prisoner's carvings",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "On the wall, carved over fourteen years: the words WAIT AND HOPE.",
+      "page": "You take the coach to Marseille and a boat to the Château d'If, the fortress prison on its rock in the glittering sea. Abandoned now. Silent except for gulls.\n\nYou find his old cell by the carvings: fourteen years of marks on the wall, and above them, carved deep: WAIT AND HOPE.\n\nBehind a loose stone, in a niche the old priest must have made, you find a yellowed, folded letter. The handwriting is Danglars's, younger, but unmistakable: an anonymous denunciation, accusing young Edmond Dantès of treason. The letter that started everything.\n\nProof. Enough to ruin Danglars's name. Without touching his daughter."
+    },
+    {
+      "id": "path_b",
+      "title": "The Telegraph Tower",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "At the telegraph tower outside Paris, the player discovers the Count bribed an operator to send false news that will crash Danglars's investments. A vial of poison is also part of the Count's plan, for Villefort's family.",
+      "choices": [
+        {
+          "id": "take_the_vial_of_poison",
+          "label": "Take the vial of poison",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "copy_the_false_message",
+          "label": "Copy the false message",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The telegraph arms clack overhead, spelling ruin.",
+      "page": "You follow the Count's agent, in disguise, to a telegraph tower on a hill outside Paris, its great wooden arms clacking out messages across France.\n\nThe operator is nervous and newly rich. You find his bribe and the message he's been paid to send: false news of a revolution in Spain. Danglars has invested everything in Spanish bonds. He'll sell in a panic. He'll be ruined. So will everyone who depends on him.\n\nOn the table beside the message, a small dark glass vial. A note in the Count's hand: For Villefort's household. Patience.\n\nPoison.\n\nThe telegraph arms clack overhead, spelling out ruin, letter by letter."
+    },
+    {
+      "id": "showdown",
+      "title": "The Duel",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Eugénie's fiancé, a cruel nobleman, challenges the player to a duel at dawn after they help Eugénie escape. The Count watches from his carriage.",
+      "choices": [
+        {
+          "id": "fight_the_duel",
+          "label": "Fight the duel",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "refuse_and_walk_away",
+          "label": "Refuse and walk away",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Mist on the Bois de Boulogne. Steel rings.",
+      "page": "You help Eugénie escape her arranged marriage on Friday night, picking the lock as promised. Her fiancé, the Vicomte de Saint-Laurent, a cruel, proud man, finds out who helped her.\n\nHe challenges you to a duel.\n\nDawn on the Bois de Boulogne. Mist on the grass. Your borrowed sword in your hand. The vicomte smiles coldly as he salutes.\n\nAcross the clearing, a black carriage waits. In the window, the Count of Monte Cristo watches, his face unreadable.\n\nSteel rings in the fog."
+    },
+    {
+      "id": "finale",
+      "title": "Justice or Vengeance",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: expose Danglars publicly with the denunciation letter, sparing his family (only if they have it); pour out the poison and tell the Count his revenge has gone far enough (only if they have the vial); or follow the Count's plan to the end.",
+      "choices": [
+        {
+          "id": "expose_danglars_with_the_letter",
+          "label": "Expose Danglars with the letter",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "justice"
+        },
+        {
+          "id": "pour_out_the_poison_and_confront_the_cou",
+          "label": "Pour out the poison and confront the Count",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "wait_and_hope"
+        },
+        {
+          "id": "follow_the_count_s_plan",
+          "label": "Follow the Count's plan",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_price_of_revenge"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "justice",
+        "wait_and_hope",
+        "the_price_of_revenge"
+      ],
+      "isEnding": false,
+      "page": "You're alive. Your arm is bandaged. The vicomte is gone from Paris.\n\nThe Count's revenge is about to fall like a guillotine. Everything is in motion: the telegraph, the bank, the poison, the letters.\n\nHe stands at the window of his palace, looking out at Paris. He doesn't turn around. \"Well,\" he says. \"You've seen it all now. What would you have me do?\""
+    },
+    {
+      "id": "justice",
+      "title": "Justice",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Danglars is exposed and flees; Eugénie is free to live her own life, as a musician. The Count is satisfied, at last. Close on a Paris concert hall with Eugénie at the piano.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Justice",
+      "page": "You publish Danglars's old denunciation letter in every newspaper in Paris.\n\nBy noon, the city knows: the great banker built his fortune on a lie that sent an innocent man to prison for fourteen years. Danglars flees France in disgrace, with a single suitcase.\n\nBut his family is spared. Eugénie, free at last, goes to Italy and becomes a concert pianist, exactly what she always wanted.\n\nMonths later, you sit in a concert hall in Rome, watching her play. The Count sits beside you. When the music ends, he is quietly crying. \"Justice,\" he whispers. \"Not vengeance. I had forgotten there was a difference.\""
+    },
+    {
+      "id": "wait_and_hope",
+      "title": "Wait and Hope",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Count is moved, abandons the poison and sails away to find peace. He leaves the player his fortune and his blessing. Close on a ship sailing from Marseille at sunset.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Wait and Hope",
+      "page": "You pour the poison out of the Count's window, into the garden, in front of him.\n\nHe goes very still. Then you tell him everything you've been afraid to say. That his revenge has become a prison. That it's making him into the thing he hates. That the old priest didn't save him so he could destroy children.\n\nFor a long time, he says nothing. Then, very slowly, he sits down and puts his face in his hands.\n\nA week later, he sails from Marseille at sunset to find peace, wherever it is. He leaves you his fortune, his palace and a letter: Wait and hope, my friend. You taught me what they meant."
+    },
+    {
+      "id": "the_price_of_revenge",
+      "title": "The Price of Revenge",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The Count's revenge succeeds completely. Danglars is ruined; Eugénie flees. The player becomes the Count's heir and wonders if it was worth it. Close on an empty grand salon at night.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Price of Revenge",
+      "page": "You follow the Count's plan to the very end.\n\nThe false telegraph message goes out. Danglars is ruined in a day. His bank collapses; his name is mud. Villefort's household is destroyed. Eugénie flees Paris with nothing.\n\nThe Count's revenge is complete, perfect, elegant.\n\nMonths later, you stand in his empty grand salon at night, chandeliers dark, and you realise you're his heir now, rich beyond imagining. You wonder, alone in the silence, whether it was worth it. The Count, wherever he's gone, is probably wondering the same thing."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#8a2a3a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

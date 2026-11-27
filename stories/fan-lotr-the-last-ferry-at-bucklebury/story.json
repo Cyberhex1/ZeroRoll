@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-lotr-the-last-ferry-at-bucklebury",
+    "title": "The Last Ferry at Bucklebury",
+    "category": "fantasy",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You're the hobbit who runs the Bucklebury Ferry, the year after the great War of the Ring. A cloaked stranger needs passage at midnight, carrying something wrapped in grey cloth. Rangers are hunting him. An old friend of the Shire asks you to help. Not every dark thing went away when the Ring did.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Lord of the Rings",
+      "medium": "book",
+      "owner": "the Tolkien Estate",
+      "aka": [
+        "Lord of the Rings",
+        "LOTR",
+        "Middle-earth",
+        "the Shire"
+      ]
+    }
+  },
+  "world": "The Shire and Buckland, the year after the War of the Ring ended. Peace is returning; Samwise Gamgee is mayor-in-waiting and replanting trees. The player is a hobbit who keeps the Bucklebury Ferry on the Brandywine River. A cloaked stranger, Halred, a former servant of Saruman, carries the last surviving palantír shard, a seeing-stone that whispers, and wants to cross into the Shire to hide it. A Ranger of the North, Elanor-friend Bregor, is hunting him to destroy it. The shard can be destroyed only in a hearth-fire fed by mallorn wood (from Sam's new tree) or kept safe by the Elves at the Grey Havens.",
+  "tone": "Gentle pastoral fantasy with creeping shadow: pipe smoke, river mist, hearth-fires and the small courage of ordinary people. Quietly heroic, never grim for long.",
+  "playerRole": "A hobbit ferry-keeper with a long pole, a lantern, a well-stocked pantry, big hairy feet, a pipe and more courage than you suspect.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Gentle, lyrical narration in the spirit of an old storyteller by the fire: river mist, lantern glow, meals described lovingly, landscapes with names, and a whisper of dread that hobbits face with stubborn good sense. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "sam",
+      "name": "Samwise Gamgee",
+      "appearance": "A sturdy, sun-browned hobbit gardener with curly brown hair, a simple waistcoat, rolled sleeves, soil on his hands and a kind, steady face.",
+      "voice": "Earnest, plain-spoken and stubbornly brave.",
+      "stance": "Trusts the player and offers his mallorn wood."
+    },
+    {
+      "id": "bregor",
+      "name": "Bregor",
+      "appearance": "A tall, grim Ranger of the North in a weathered green-grey hooded cloak, with a long sword, a stubbled jaw and grey eyes.",
+      "voice": "Few words, quiet authority.",
+      "stance": "Hunting the stranger and the stone."
+    },
+    {
+      "id": "halred",
+      "name": "Halred",
+      "appearance": "A gaunt, hollow-eyed man in a tattered grey cloak, clutching a bundle wrapped in grey cloth, with trembling hands.",
+      "voice": "Whispery, frightened, pleading.",
+      "stance": "A former servant of Saruman; the stone is controlling him."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Track the stranger toward Hobbiton; 2 = Learn about the stone from Bregor."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has wood from Sam's mallorn tree."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player carries the Elves' letter of passage."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Midnight at the Ferry",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Midnight on the Brandywine. Mist on the water. A gaunt stranger in grey pays in old silver for passage into the Shire, clutching a bundle. As the ferry pushes off, the player hears whispering from the bundle.",
+      "choices": [
+        {
+          "id": "ask_the_stranger_his_name",
+          "label": "Ask the stranger his name",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "keep_poling_and_say_nothing",
+          "label": "Keep poling and say nothing",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "glance_at_the_bundle",
+          "label": "Glance at the bundle",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The bundle whispers, very softly, in a voice like cold water.",
+      "page": "The Brandywine River is quiet at midnight, and the mist lies on it like a blanket someone forgot to fold.\n\nYou're about to bank the lantern and go home to bed when a figure steps out of the reeds: a tall, gaunt man in a tattered grey cloak, holding a bundle wrapped in grey cloth against his chest the way you'd hold a baby, or a burn.\n\nHe pays in old silver, the kind nobody's used in the Shire for a hundred years. \"Across,\" he says. \"Please.\"\n\nYou push off. The ferry glides into the mist. Halfway across, in the silence, you hear it: a whisper, coming from the bundle. Soft, and cold, like water under ice. It says something that sounds almost like your name."
+    },
+    {
+      "id": "crossroads",
+      "title": "A Ranger at the Door",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Next morning, a Ranger named Bregor arrives at the player's hole, hunting the stranger. Sam Gamgee drops by with seedlings and news: a stranger was seen heading for Hobbiton. Two choices: track the stranger toward Hobbiton, or go with Bregor to learn what the stone is.",
+      "choices": [
+        {
+          "id": "make_second_breakfast_for_everyone",
+          "label": "Make second breakfast for everyone",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "Whatever is happening, it can wait for second breakfast. You fry mushrooms and bacon and eggs, toast thick bread, put the kettle on. Bregor tries to refuse, then eats three helpings in silence. Sam tells stories about the new trees in the Shire. For a little while, the Ranger's face softens, and you see that he's very tired. \"This,\" he says at last, gesturing at the table, the pipe smoke, the sunny window, \"is what we fought for.\" Sam nods, and doesn't say anything, because he doesn't need to."
+        },
+        {
+          "id": "track_the_stranger_toward_hobbiton",
+          "label": "Track the stranger toward Hobbiton",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "learn_about_the_stone_from_bregor",
+          "label": "Learn about the stone from Bregor",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Bregor: 'What he carries should have been broken long ago. It whispers to those who hold it.'",
+      "page": "In the morning, there's a knock on your round green door, and when you open it there's a man so tall he has to bend nearly double to look in.\n\nHe's a Ranger: green-grey cloak, a long sword, a face that's seen too many winters. \"I am Bregor,\" he says. \"I'm hunting a man who crossed your river last night. He carries something that should have been broken long ago. It whispers to those who hold it.\"\n\nBehind him, cheerful as sunshine, comes Samwise Gamgee with a barrow of seedlings. \"Morning! There's a stranger been seen heading for Hobbiton, looking poorly. Folk are talking.\"\n\nTwo roads, then: follow the stranger toward Hobbiton, or sit with the Ranger and learn what you're dealing with."
+    },
+    {
+      "id": "path_a",
+      "title": "The Party Field",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Near the Party Tree in Hobbiton, the player finds the stranger, Halred, sleeping in a haystack, the stone glowing in his arms. Sam's young mallorn tree is nearby; its fallen wood burns with a pure silver flame. Sam offers a branch.",
+      "choices": [
+        {
+          "id": "take_a_mallorn_branch",
+          "label": "Take a mallorn branch",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "talk_to_halred_gently",
+          "label": "Talk to Halred gently",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The stone glows when you come near. It knows your name.",
+      "page": "You find the stranger in a haystack near the Party Field, fast asleep, the bundle open in his arms. The thing inside is a shard of black crystal, and it's glowing.\n\nSam, beside you, goes pale. \"I've seen one of those before. Not one I liked.\"\n\nNearby stands Sam's pride and joy: a young tree with silver bark and golden leaves, grown from the seed the Lady of the Golden Wood gave him. \"Mallorn,\" Sam whispers. \"Its fallen wood burns silver. Pure as starlight. Nothing dark can stand that fire.\"\n\nHe snaps a dead branch from the tree and presses it into your hands.\n\nWhen you step closer to the sleeping man, the stone glows brighter. It knows you're there."
+    },
+    {
+      "id": "path_b",
+      "title": "Bregor's Tale",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Bregor tells the player about the palantír shard: Saruman's seeing-stone, which shows true things twisted. He carries a letter of passage from the Elves of the Grey Havens, who would take it across the sea if it reached them.",
+      "choices": [
+        {
+          "id": "take_the_elves_letter_of_passage",
+          "label": "Take the Elves' letter of passage",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "listen_to_the_whole_tale",
+          "label": "Listen to the whole tale",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Bregor's eyes look very old for a moment.",
+      "page": "By a campfire that evening, Bregor tells you about the stone.\n\n\"A shard of a palantír. A seeing-stone. Saruman used one, and it showed him true things, twisted, until he went mad with them. This piece survived. Halred was his servant. Now the stone holds Halred.\"\n\nHe pulls a letter from his cloak, sealed with a silver leaf. \"The Elves of the Grey Havens will take it over the sea, where it can do no harm. This is a letter of passage. If the stone reaches them, it will be finished.\"\n\nFor a moment, in the firelight, his grey eyes look very old, as if he's carried a great many things to a great many places."
+    },
+    {
+      "id": "showdown",
+      "title": "The Stone Speaks",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "At dusk, the player finds Halred at the ferry, wild-eyed, the stone showing visions of burning Shire villages. It speaks to the player, offering visions of anything they want. Bregor's sword is drawn.",
+      "choices": [
+        {
+          "id": "look_away_from_the_stone",
+          "label": "Look away from the stone",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "stand_between_halred_and_bregor",
+          "label": "Stand between Halred and Bregor",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "In the stone, your own face looks back at you, older and very lonely.",
+      "page": "At dusk, you find Halred back at your ferry, standing on the raft, holding the stone up to the sky. It's full of fire: visions of Shire villages burning, of round doors broken.\n\n\"It shows me what will be!\" he cries. \"I have to hide it! I have to!\"\n\nBregor arrives at a run, sword drawn.\n\nAnd then the stone turns toward you. In its dark depths, you see yourself: older, richer, master of a great house, and very, very alone. It whispers: anything you want. Anything at all.\n\nThe river laps at the ferry. The mist rises."
+    },
+    {
+      "id": "finale",
+      "title": "Fire or Sea",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: burn the stone in a hearth-fire of mallorn wood (only if they have a branch); carry it with Bregor to the Grey Havens and the Elves (only if they have the letter); or hide it at the bottom of the Brandywine.",
+      "choices": [
+        {
+          "id": "burn_it_in_the_mallorn_fire",
+          "label": "Burn it in the mallorn fire",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "silver_fire"
+        },
+        {
+          "id": "carry_it_to_the_grey_havens",
+          "label": "Carry it to the Grey Havens",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "to_the_havens"
+        },
+        {
+          "id": "drop_it_in_the_deepest_part_of_the_river",
+          "label": "Drop it in the deepest part of the river",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "under_the_river"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "silver_fire",
+        "to_the_havens",
+        "under_the_river"
+      ],
+      "isEnding": false,
+      "page": "Later, the stone sits wrapped in grey cloth on your kitchen table, quiet for now. Halred sleeps by your fire, exhausted, looking younger without it. Bregor sits by the window, keeping watch. Sam has gone home but promised to come back with breakfast.\n\nIt's down to you, in the end. Hobbits often find that the important things are."
+    },
+    {
+      "id": "silver_fire",
+      "title": "Silver Fire",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The stone cracks in a silver flame and is gone forever. Halred weeps with relief. Sam lights his pipe. Close on a hobbit hearth glowing warm.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Silver Fire",
+      "page": "You build a fire in your hearth with Sam's mallorn branch, and when it catches, it burns silver, pure as starlight.\n\nYou unwrap the stone and drop it into the flame.\n\nIt screams, a sound only you can hear, and then it cracks, and cracks again, and is gone, nothing but a wisp of black smoke that the silver fire swallows whole.\n\nHalred wakes and weeps with relief, like a man who's put down a burden he's carried for years. Bregor bows to you, low and formal. And Sam, who's arrived with a basket of eggs, simply sits down by the fire and lights his pipe and says, \"Well. That's that, then.\" It is."
+    },
+    {
+      "id": "to_the_havens",
+      "title": "To the Havens",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The player and Bregor walk west to the Grey Havens; Elves take the stone over the sea. The player sees ships sailing into the sunset. Close on white ships at dusk.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "To the Havens",
+      "page": "You walk west with Bregor, through the Shire and over the Far Downs, the stone wrapped tight in your pack, and you do not unwrap it, no matter how it whispers.\n\nAt the Grey Havens, the Elves meet you at the shore, tall and shining. One of them reads the silver-leaf letter and takes the stone from you gently, as if it weighs nothing.\n\nAt sunset, you stand on the quay and watch a white ship sail west, into the gold, carrying the last of Saruman's shadow away over the edge of the world.\n\nBregor puts a hand on your shoulder. \"Not many could have carried that so far,\" he says. You go home feeling taller than you are."
+    },
+    {
+      "id": "under_the_river",
+      "title": "Under the River",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The stone sinks into the Brandywine's deepest pool. It may wake someday, but not soon. The player keeps the ferry and the secret. Close on the ferry at morning mist.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Under the River",
+      "page": "You pole the ferry to the deepest pool of the Brandywine, where the old folk say there's no bottom at all, and you drop the stone over the side.\n\nIt sinks, glowing, down and down until the dark takes it.\n\nIt isn't destroyed. It may wake someday, far in the future, and whisper to someone else. But not soon. And not to you.\n\nYou keep the ferry, and you keep the secret. Every morning, poling across the misty river, you look down at that deep, dark pool, and you nod to it, the way you'd nod to an old enemy, and you go on with your day."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#5b8a3c"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

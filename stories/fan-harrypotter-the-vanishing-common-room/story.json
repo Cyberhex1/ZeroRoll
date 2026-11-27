@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-harrypotter-the-vanishing-common-room",
+    "title": "The Vanishing Common Room",
+    "category": "fantasy",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You're a fourth-year at Hogwarts, years after the famous battle, and your house common room has vanished. Not the door. The whole room, with everyone's trunks inside. The portraits are gossiping, a nervous first-year saw something on the stairs, and the castle seems to be sulking about something.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Harry Potter",
+      "medium": "book",
+      "owner": "J.K. Rowling and Warner Bros.",
+      "aka": [
+        "Harry Potter",
+        "Hogwarts",
+        "wizarding world"
+      ]
+    }
+  },
+  "world": "Hogwarts School of Witchcraft and Wizardry, about twenty years after the Battle of Hogwarts. The castle is old, alive in its own way and capable of moving rooms. Professor Neville Longbottom teaches Herbology and is Head of the player's house. A first-year, Wren Ashby, is shy and clever. A sixth-year prefect, Cassius Mortlake, has been secretly using an old, forbidden 'room-folding' charm from a banned book to hide his failing marks; it went wrong and folded the common room into the space between walls. The castle is upset because its old house-elf kitchens' fireplace, the room's anchor, was blocked.",
+  "tone": "Cosy, witty school mystery with candlelit corridors, moving staircases, talking portraits, house pride and real magic. Brave, warm and a little bit spooky.",
+  "playerRole": "A fourth-year Hogwarts student with a wand, a school bag full of half-finished homework, a talent (your choice: charms, potions, flying or knowing every secret passage) and an owl named whatever you like.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Warm, witty British school-story narration: candle smoke, creaking staircases, portraits who interrupt, the smell of treacle tart, and magic that feels both wondrous and slightly unpredictable. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "neville",
+      "name": "Professor Neville Longbottom",
+      "appearance": "A tall, kind, broad-shouldered professor in his late thirties with soil on his robes, a cardigan under them and a potted plant usually somewhere nearby.",
+      "voice": "Gentle, encouraging, surprisingly brave.",
+      "stance": "Trusts the player to solve it but worries."
+    },
+    {
+      "id": "wren",
+      "name": "Wren Ashby",
+      "appearance": "A small eleven-year-old witch with a messy brown bob, oversized robes, ink on her fingers and a notebook clutched tight.",
+      "voice": "Shy, whispery, sharp-eyed.",
+      "stance": "Saw something on the stairs and needs a friend."
+    },
+    {
+      "id": "cassius",
+      "name": "Cassius Mortlake",
+      "appearance": "A tall sixth-year prefect with slicked-back blond hair, a polished prefect badge, perfect robes and dark circles under his eyes.",
+      "voice": "Smooth and superior, cracking under pressure.",
+      "stance": "Caused the vanishing and is desperate to hide it."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Sneak into the Restricted Section; 2 = Visit the kitchens."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied the folding charm and can reverse it."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Cassius's forged ledger signature."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Where the Door Was",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "After Quidditch practice, the player finds a blank stone wall where their common room door used to be. Students crowd the corridor. Portraits gossip. Professor Longbottom arrives with a lamp and a frown. A first-year, Wren, is trembling at the back.",
+      "choices": [
+        {
+          "id": "tap_the_wall_with_your_wand",
+          "label": "Tap the wall with your wand",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_portraits_what_they_saw",
+          "label": "Ask the portraits what they saw",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "talk_to_the_trembling_first_year",
+          "label": "Talk to the trembling first-year",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The Fat Friar's portrait, whispering: 'The castle's in a mood, I'd say. A proper mood.'",
+      "page": "Quidditch practice ran late, and you're still muddy as you climb the stairs to your house common room, thinking about cocoa.\n\nThe door isn't there.\n\nNot locked. Not moved. Gone. Where the door used to be, there's a blank, ancient stone wall, and a crowd of students in pyjamas and robes staring at it.\n\nThe portraits are having the time of their lives. \"Vanished!\" \"The whole room!\" \"I said the castle was in a mood.\"\n\nProfessor Longbottom arrives, lamp in hand, cardigan buttoned wrong. He puts his palm flat on the stone and frowns.\n\nAt the back of the crowd, a tiny first-year with a messy bob and an ink-stained notebook is shaking like a leaf, and she won't look at anyone."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Castle Sulks",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Students sleep in the Great Hall. Wren admits she saw a prefect on the stairs at midnight with a strange glowing book. Neville says the castle moves rooms when its anchors are disturbed. Two leads: the Restricted Section, or the kitchens, where the oldest fireplace anchors the common room.",
+      "choices": [
+        {
+          "id": "sit_up_with_wren_and_cheer_her_up",
+          "label": "Sit up with Wren and cheer her up",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "Wren can't sleep, so you sit up together under the floating candles and you teach her the trick to the moving staircases: count to three, step on the fourth. You tell her about the time you fell into a vanishing step in your first year and had to be pulled out by a ghost. She laughs, properly, for the first time. \"I thought Hogwarts would be scary,\" she says. \"It is a bit. But it's better with a friend.\" She falls asleep with her notebook under her cheek."
+        },
+        {
+          "id": "sneak_into_the_restricted_section",
+          "label": "Sneak into the Restricted Section",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "visit_the_kitchens",
+          "label": "Visit the kitchens",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Neville: 'Hogwarts doesn't lose rooms. It hides them. Usually when it's upset.'",
+      "page": "Everyone sleeps in the Great Hall in borrowed sleeping bags under the floating candles. The enchanted ceiling shows a sky full of stars.\n\nThe tiny first-year, Wren, slides her sleeping bag next to yours. \"I saw something,\" she whispers. \"Last night. On the stairs. A prefect, with a book that glowed. He said a word and the stairs went wobbly.\"\n\nProfessor Longbottom sits on a bench nearby. \"Hogwarts doesn't lose rooms,\" he says softly. \"It hides them. Usually when it's upset. Every room has an anchor. If someone disturbs it, the castle sulks.\"\n\nTwo ideas: the Restricted Section, where a glowing book might come from. Or the kitchens, where the oldest fireplaces in the castle live."
+    },
+    {
+      "id": "path_a",
+      "title": "The Restricted Section",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "In the Restricted Section, the player finds a gap where a book on 'Folding Charms' should be, and the library's sign-out ledger with Cassius's signature, forged under a false name, and a scrap of his notes.",
+      "choices": [
+        {
+          "id": "take_the_forged_ledger_page",
+          "label": "Take the forged ledger page",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "copy_the_folding_charm",
+          "label": "Copy the folding charm",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A book on the shelf behind you sighs heavily.",
+      "page": "The Restricted Section at night smells of dust and old leather and something faintly like burnt sugar. Chains on some books clink as you pass.\n\nOn a shelf labelled ADVANCED SPATIAL CHARMS, there's a gap where a book should be. The library ledger on the desk shows it was signed out under the name 'A. Smith'. But the handwriting, those elegant loops, you've seen it on every prefect notice in your common room. Cassius Mortlake.\n\nTucked in the ledger is a scrap of his notes: the folding charm, written out, with a wand movement diagrammed and a desperate little note: 'Hide the marks, then undo it. Simple.'\n\nIt was not simple. A book on the shelf behind you sighs heavily, as if it agrees."
+    },
+    {
+      "id": "path_b",
+      "title": "The Kitchens",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The house-elves in the kitchens are upset: someone blocked their oldest fireplace with a heavy iron grate. The fireplace is the common room's anchor. Behind the grate, the player can hear muffled voices: the room is in there.",
+      "choices": [
+        {
+          "id": "have_the_elves_help_shift_the_grate",
+          "label": "Have the elves help shift the grate",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "listen_at_the_fireplace",
+          "label": "Listen at the fireplace",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "An elderly house-elf pats your hand. 'The castle is very cross, young miss or master.'",
+      "page": "The kitchens are enormous and warm, full of copper pots and the smell of tomorrow's bread. Dozens of house-elves are clustered around the oldest fireplace in the castle, wringing their tea towels.\n\nSomeone has wedged a heavy iron grate across it. \"It is the anchor,\" an elderly elf tells you, patting your hand. \"For your common room, young miss or master. Very old magic. Somebody blocked it, and the castle is very cross.\"\n\nYou press your ear to the cold iron. Faintly, far away, you can hear something: a crackle of fire, a cat yowling, the creak of a room that's been folded up like a letter.\n\nYour common room is in there. Somewhere."
+    },
+    {
+      "id": "showdown",
+      "title": "Between the Walls",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player and Wren step into the folded space between the walls, all stretched stone and floating trunks. Cassius is there, trying to undo the charm and making it worse. The room is starting to crumple.",
+      "choices": [
+        {
+          "id": "help_cassius_undo_the_charm",
+          "label": "Help Cassius undo the charm",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "get_everyone_s_things_out_first",
+          "label": "Get everyone's things out first",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The floor tilts like a ship. Somewhere, a cat is yowling.",
+      "page": "You and Wren slip through the gap behind the fireplace and step into somewhere that shouldn't exist: the space between the walls.\n\nStone stretches like toffee. Staircases bend in half. Trunks float past, lazily turning. Your own trunk drifts by with a sock hanging out of it.\n\nIn the middle of it all, Cassius Mortlake stands with a glowing book, wand trembling, chanting a charm that's making everything worse. The floor tilts like a ship. Somewhere, a cat yowls.\n\n\"I can fix it!\" he shouts, eyes wild. \"I just need to, I just need...\"\n\nThe room around you starts, slowly, to crumple."
+    },
+    {
+      "id": "finale",
+      "title": "Morning in the Great Hall",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Breakfast in the Great Hall. The player decides: restore the room with the right counter-charm (only if they copied the charm); show Neville the forged ledger so Cassius gets help instead of hiding (only if they have it); or let the house-elves unblock the fireplace and let the castle put things right in its own time.",
+      "choices": [
+        {
+          "id": "cast_the_counter_charm",
+          "label": "Cast the counter-charm",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_room_returns"
+        },
+        {
+          "id": "show_neville_the_forged_ledger",
+          "label": "Show Neville the forged ledger",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_second_chance"
+        },
+        {
+          "id": "let_the_castle_fix_itself",
+          "label": "Let the castle fix itself",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "hogwarts_decides"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_room_returns",
+        "a_second_chance",
+        "hogwarts_decides"
+      ],
+      "isEnding": false,
+      "page": "Breakfast in the Great Hall is chaos: owls, porridge, gossip. Nobody has their own clothes on.\n\nWren sits next to you, gripping her notebook. Across the table, Cassius is pale and silent, staring at his toast. Professor Longbottom watches all three of you over his tea.\n\nYou know what happened now. The question is what to do about it."
+    },
+    {
+      "id": "the_room_returns",
+      "title": "The Room Returns",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "With a swish and a pop, the common room unfolds back into place, fire crackling, trunks landing on beds. The house cheers. Wren gets a seat by the fire forever. Close on the common room glowing at night.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Room Returns",
+      "page": "You stand in front of the blank wall with the whole house watching, Wren at your elbow, Cassius's notes in your hand.\n\nYou take a breath and trace the folding charm backwards: flick, sweep, twist, and the word, spoken clearly.\n\nThe wall shivers. With a sound like a giant book closing, the door unfolds, then the corridor, then the common room, fire crackling, trunks thumping back onto beds, the cat landing on its feet looking deeply offended.\n\nThe house cheers so loudly the portraits complain. Somebody lifts you onto their shoulders. That night, Wren gets the best armchair by the fire, and nobody ever takes it from her again."
+    },
+    {
+      "id": "a_second_chance",
+      "title": "A Second Chance",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Cassius confesses to Neville, who gets him tutoring instead of expulsion. Cassius, humbled, thanks the player. Close on Cassius and Wren studying together in the library.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Second Chance",
+      "page": "You show Professor Longbottom the forged ledger page.\n\nHe reads it slowly. Then he goes to find Cassius, not angry, just sad. You learn later that Cassius had been failing everything, terrified of his parents, and tried to hide his marks by folding the room where the report cards were kept.\n\nHe isn't expelled. He gets tutoring, and help, and a very long talk.\n\nA week later, you find Cassius in the library with Wren, explaining Charms homework to her with enormous patience. He looks up at you, and for the first time since you've known him, he looks honest. \"Thank you,\" he says."
+    },
+    {
+      "id": "hogwarts_decides",
+      "title": "Hogwarts Decides",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The elves unblock the fireplace; the castle sighs and the room reappears overnight, a little rearranged and somehow cosier. Close on the moving staircases at dawn.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Hogwarts Decides",
+      "page": "You help the house-elves heave the iron grate away from the old fireplace, and the elves cheer and stoke a fire in it.\n\nThat night, the castle sighs. You feel it through the floor, through your bones, a deep old contented sound.\n\nIn the morning, your common room is back. It's a little rearranged: the windows face a different way, there's a new nook with cushions, and the fire burns warmer than it ever did. The castle has put things right, in its own time, and made them slightly better while it was at it.\n\nYou stand on the moving staircase at dawn, watching it swing gently through the sunlight, and you could swear the castle is pleased with itself."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#b8862e"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

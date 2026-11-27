@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-cthulhu-the-innsmouth-lighthouse",
+    "title": "The Innsmouth Lighthouse",
+    "category": "cosmic_horror",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "You're the new keeper of a lighthouse off Innsmouth, 1928. The last keeper left a journal that ends mid-sentence. The townsfolk have strange eyes and never blink. Something under the reef sings at night, and the lighthouse lamp, it turns out, isn't there to warn ships away.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Cthulhu Mythos",
+      "medium": "book",
+      "owner": "based on the works of H. P. Lovecraft",
+      "aka": [
+        "Cthulhu",
+        "Lovecraft",
+        "Innsmouth",
+        "Call of Cthulhu"
+      ]
+    }
+  },
+  "world": "The decaying fishing town of Innsmouth, Massachusetts, 1928. The townsfolk are slowly transforming into Deep Ones, fish-like beings who worship Dagon and the great Cthulhu, sleeping in sunken R'lyeh. The lighthouse on Devil Reef was built in 1846 to shine a special 'Elder Sign' lens over the reef, keeping the Deep Ones from rising. The Esoteric Order of Dagon's leader, Obed Marsh III, wants it switched off on the night of the spring tide. A Miskatonic University librarian, Dr. Ada Whateley-Armitage, has been researching the town.",
+  "tone": "Cosmic dread and creeping wrongness: salt fog, sagging houses, unblinking eyes, forbidden books and a vast indifferent universe. Sanity is fragile; horror is mostly glimpsed, rarely shown.",
+  "playerRole": "A new lighthouse keeper with an oil lamp, a logbook, an old revolver, a trunk of books, a fragile hold on sanity and a family history you don't know yet.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Dense, dread-soaked narration in the style of a 1920s weird tale: half-seen things, wrong angles, fish-stink and salt fog, journals and letters, and horror that hints and builds rather than shows. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "ada",
+      "name": "Dr. Ada Whateley-Armitage",
+      "appearance": "A sharp-featured woman in her forties with short dark hair, round wire glasses, a tweed suit and a satchel of old books and notes.",
+      "voice": "Brisk, academic, quietly brave.",
+      "stance": "Ally; knows the lore."
+    },
+    {
+      "id": "zadok",
+      "name": "Zadok Allen",
+      "appearance": "An ancient, toothless town drunk with a wild white beard, a tattered coat and a whiskey bottle.",
+      "voice": "Rambling, terrified, prophetic.",
+      "stance": "Knows the truth and is afraid to say it."
+    },
+    {
+      "id": "obed",
+      "name": "Obed Marsh III",
+      "appearance": "A tall, stooped man with a bald, scaly-looking head, wide unblinking bulging eyes, a high-collared black robe and a golden tiara of strange design.",
+      "voice": "Wet, gurgling voice; patient, sinister.",
+      "stance": "Leader of the cult; wants the light switched off."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Research the lens at the library; 2 = Get Zadok's story."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player knows where the spare Elder Sign lens is hidden."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has the cult's tiara fragment as proof."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Keeper's Journal",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player arrives at the lighthouse on Devil Reef. The previous keeper's journal ends mid-sentence. The lamp has a strange star-shaped lens. Townsfolk watch from the docks without blinking. That night, something sings under the reef.",
+      "choices": [
+        {
+          "id": "read_the_old_keeper_s_journal",
+          "label": "Read the old keeper's journal",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "light_the_lamp",
+          "label": "Light the lamp",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "watch_the_reef_through_a_telescope",
+          "label": "Watch the reef through a telescope",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The journal's last line: 'The light is not for the ships. The light is for THEM. Never let it go dark, never let'",
+      "page": "The lighthouse on Devil Reef stands a mile off Innsmouth, a white finger on a black rock, and you are its new keeper.\n\nThe previous keeper left in a hurry. His coat is still on its hook. His journal lies open on the desk, and its last entry ends in the middle of a sentence:\n\n'The light is not for the ships. The light is for THEM. Never let it go dark, never let'\n\nAbove you, the great lamp has a lens unlike any you've seen: a star shape with a burning eye at its centre, carved into the glass.\n\nAcross the water, on the Innsmouth docks, a dozen townsfolk stand watching the lighthouse. They don't move. You don't think they're blinking.\n\nAt midnight, you hear it, under the reef: singing."
+    },
+    {
+      "id": "crossroads",
+      "title": "Innsmouth",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In town, a librarian from Miskatonic, Dr. Ada Whateley-Armitage, warns the player about the Esoteric Order of Dagon. Old Zadok Allen, drunk, mumbles about Devil Reef and 'them that come up'. Two leads: Ada's research at the library, or Zadok's story.",
+      "choices": [
+        {
+          "id": "share_coffee_with_ada_at_the_inn",
+          "label": "Share coffee with Ada at the inn",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You and Ada sit in the corner of the inn, drinking bitter coffee, and she tells you about the Miskatonic library, the books locked in the basement and the professor who went mad translating one. You tell her about the singing. She doesn't laugh. \"Most people would say you're imagining it,\" she says. \"I've stopped saying that to anyone.\" She writes down your account, carefully, the way a scientist would. It helps more than you'd expect, being believed."
+        },
+        {
+          "id": "research_the_lens_at_the_library",
+          "label": "Research the lens at the library",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "get_zadok_s_story",
+          "label": "Get Zadok's story",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Zadok, whispering: 'They come up on the spring tide, keeper. Only the light keeps 'em down.'",
+      "page": "Innsmouth smells of fish and rot. The houses sag. The people have wide, wet eyes and walk with a strange shuffle.\n\nAt the only inn, a sharp woman in tweed and round glasses sits down across from you. \"Dr. Ada Whateley-Armitage. Miskatonic University library.\" She lowers her voice. \"You're the new keeper. Has anyone told you about the Esoteric Order of Dagon?\"\n\nOutside, on the wharf, an ancient drunk with a wild white beard catches your sleeve. Zadok Allen. He smells of whiskey and fear. \"They come up on the spring tide, keeper. Only the light keeps 'em down. Only the light.\"\n\nTwo people who know things. Neither looks well."
+    },
+    {
+      "id": "path_a",
+      "title": "The Library",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "In the old Innsmouth library, the player and Ada find the lighthouse's original plans: the lens is carved with the Elder Sign, which holds the Deep Ones back. A spare lens is hidden in the lighthouse's foundation.",
+      "choices": [
+        {
+          "id": "learn_where_the_spare_lens_is",
+          "label": "Learn where the spare lens is",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "copy_the_elder_sign",
+          "label": "Copy the Elder Sign",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The librarian behind the desk hasn't blinked once.",
+      "page": "The Innsmouth library is cold and smells of mildew and salt. The librarian behind the desk watches you the whole time. She hasn't blinked once.\n\nAda finds the lighthouse's original plans from 1846, and she goes pale. \"Look.\" The lens is drawn in detail: a five-pointed star with a flaming eye. \"The Elder Sign. It's a ward. It holds them back.\"\n\nThere's more: a note in the margin, in an old hand. 'A spare lens is set in the foundation stone, beneath the keeper's hearth, in case of need.'\n\nYou look up. The librarian is standing much closer than before."
+    },
+    {
+      "id": "path_b",
+      "title": "Zadok's Tale",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Zadok, drunk and terrified, tells the history: the Marsh family's pact with the Deep Ones, and the cult's plan to put out the light on the spring tide. He gives the player a gold tiara fragment, proof of the cult.",
+      "choices": [
+        {
+          "id": "take_the_tiara_fragment",
+          "label": "Take the tiara fragment",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "learn_the_date_of_the_spring_tide",
+          "label": "Learn the date of the spring tide",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Zadok's eyes go wide, and he stops talking mid-sentence.",
+      "page": "You buy Zadok a bottle and sit with him on the rotting end of the wharf at dusk, and he talks.\n\nAbout old Captain Obed Marsh, a hundred years ago, sailing home from the South Seas with gold and a bargain. About the things in the reef, and what they asked for, and what they gave. About the families in town who married into them, and the eyes, and the shuffle.\n\n\"Spring tide's in three days,\" he whispers. \"The Order wants the light out. Then they all come up. All of 'em.\"\n\nHe presses something into your hand: a fragment of a golden tiara, carved with fish and tentacles. \"Proof. Take it to somebody. Somebody outside.\"\n\nThen his eyes go wide, staring at the water, and he stops talking mid-sentence."
+    },
+    {
+      "id": "showdown",
+      "title": "The Spring Tide",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The spring tide. Cultists in robes row out to the lighthouse. Obed Marsh climbs the stairs. Below, the sea boils with shapes. The lamp flickers.",
+      "choices": [
+        {
+          "id": "defend_the_lamp",
+          "label": "Defend the lamp",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "confront_obed_marsh",
+          "label": "Confront Obed Marsh",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Something vast moves beneath the waves, and the whole reef shudders.",
+      "page": "The spring tide. The sea is high and wrong, swelling as if something underneath is breathing.\n\nBoats are coming from Innsmouth. Rowboats, full of robed figures, silent.\n\nYou hear them climbing the iron stairs. At the top, a tall, stooped man in a black robe and a golden tiara steps into the lamp room. Wide, bulging, unblinking eyes. A wet, gurgling voice. \"I am Obed Marsh. My great-grandfather made a promise. Turn out the light, keeper.\"\n\nBelow, through the window, the sea is boiling with shapes. Something vast moves beneath the waves, and the whole reef shudders. The lamp flickers."
+    },
+    {
+      "id": "finale",
+      "title": "The Light",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Dawn or darkness. The player decides: install the spare Elder Sign lens to keep the light burning forever (only if they know where it is); take the tiara fragment to Miskatonic and the federal authorities (only if they have it); or keep the light burning by hand all night and pray.",
+      "choices": [
+        {
+          "id": "install_the_spare_lens",
+          "label": "Install the spare lens",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_elder_sign"
+        },
+        {
+          "id": "take_the_proof_to_the_authorities",
+          "label": "Take the proof to the authorities",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_raid"
+        },
+        {
+          "id": "keep_the_light_burning_by_hand",
+          "label": "Keep the light burning by hand",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "keeper_of_the_flame"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_elder_sign",
+        "the_raid",
+        "keeper_of_the_flame"
+      ],
+      "isEnding": false,
+      "page": "You're still alive. The lamp is still lit, barely. The robed figures are gone, for now. The sea is quiet in a way you don't trust.\n\nAda has rowed out to the lighthouse and sits shivering on the stairs. Dawn is still hours away.\n\nWhat you do now will decide whether the light stays lit."
+    },
+    {
+      "id": "the_elder_sign",
+      "title": "The Elder Sign",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The new lens blazes; the Deep Ones sink back. The player keeps the light for life. Close on the lighthouse beam over a calm, dark sea.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Elder Sign",
+      "page": "You pry up the hearthstone with a crowbar, and beneath it, wrapped in oilcloth, is a second lens, carved with the same burning star.\n\nYou and Ada haul it to the lamp room and fit it into the great lamp beside the first.\n\nWhen you light it, the beam doesn't just shine. It blazes, white and gold, over the whole reef. The singing beneath the water stops. The shapes sink back, down, down, to wherever they came from.\n\nYou stay. You keep the light for the rest of your life. On calm nights, you watch the beam sweep over the dark sea and you know exactly why you're there."
+    },
+    {
+      "id": "the_raid",
+      "title": "The Raid",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Federal agents raid Innsmouth; the cult is broken. The player is haunted but free. Close on government boats in the harbour at dawn.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Raid",
+      "page": "You take the tiara fragment to Miskatonic University, and Ada takes it to people she knows in Washington.\n\nIn the winter of 1928, federal agents raid Innsmouth. Nobody says officially what they found. Many townsfolk disappear into 'camps'. Navy submarines fire torpedoes at Devil Reef, and the newspapers say nothing.\n\nYou stand on the hill above town at dawn and watch the government boats in the harbour, and you feel, for the first time in months, that you can breathe.\n\nYou still dream of singing. You suspect you always will."
+    },
+    {
+      "id": "keeper_of_the_flame",
+      "title": "Keeper of the Flame",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player keeps the lamp burning by hand until dawn, and survives, changed. The singing under the reef never quite stops. Close on a lone lighthouse in fog.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Keeper of the Flame",
+      "page": "You keep the light burning by hand all night: trimming the wick, pumping the oil, polishing the lens, over and over, while the sea heaves and things scratch at the base of the tower.\n\nAt dawn, the tide goes out. The sea goes quiet. The light is still burning. You're still alive.\n\nYou're not the same. Your hands shake, and sometimes, in the mirror, your eyes look wider than they used to.\n\nBut the lighthouse stands, alone in the fog, its light steady. And though the singing under the reef never quite stops, it never rises again either."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#3f7a6a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

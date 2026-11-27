@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-sherlock-the-adventure-of-the-silent-clock",
+    "title": "The Adventure of the Silent Clock",
+    "category": "historical_adventure",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You're the newest of the Baker Street Irregulars, the street kids Sherlock Holmes pays to be his eyes in London. Every clock in a clockmaker's shop stopped at 3:17 on the night he vanished. Holmes is ill with influenza, Watson is out of his depth, and for once Holmes needs you to do the deducing.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Sherlock Holmes",
+      "medium": "book",
+      "owner": "based on the stories by Arthur Conan Doyle",
+      "aka": [
+        "Sherlock Holmes",
+        "Dr. Watson",
+        "Baker Street",
+        "221B"
+      ]
+    }
+  },
+  "world": "Victorian London, 1891. Sherlock Holmes, the great consulting detective, lives at 221B Baker Street with Dr. John Watson. He employs street children, the Baker Street Irregulars, as spies. Holmes is bedridden with influenza. A clockmaker, Elias Thorne, has vanished; every clock in his Clerkenwell shop stopped at 3:17. He was secretly building a precision timing device for the Royal Observatory. His apprentice, Silas Grey, sold the design to a foreign agent and locked Thorne in the clocktower of St. Bride's church, the only place with a clock set to 3:17 that night.",
+  "tone": "Atmospheric Victorian detective adventure: fog, gaslight, hansom cabs, street smarts, clever deductions and Holmes's dry wit. Puzzling rather than gruesome.",
+  "playerRole": "A sharp-eyed street kid from the Baker Street Irregulars with a flat cap, worn boots, quick fingers, a knowledge of every alley in London and a shilling from Holmes in your pocket.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Atmospheric, witty Victorian narration in the style of a casebook: fog and gaslight, clues described precisely, deductions laid out step by step, and Holmes's sardonic remarks from his sickbed. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "holmes",
+      "name": "Sherlock Holmes",
+      "appearance": "A tall, gaunt man with sharp features, dark swept-back hair, a red dressing gown, a pipe and a feverish flush, lying on a sofa piled with newspapers.",
+      "voice": "Rapid, sardonic, brilliant, impatient.",
+      "stance": "Directs the player from his sickbed."
+    },
+    {
+      "id": "watson",
+      "name": "Dr. John Watson",
+      "appearance": "A sturdy man in his late thirties with a neat moustache, a tweed suit, a bowler hat and a doctor's bag.",
+      "voice": "Kind, steady, loyal, a little bewildered.",
+      "stance": "The player's companion on the streets."
+    },
+    {
+      "id": "silas",
+      "name": "Silas Grey",
+      "appearance": "A thin young apprentice clockmaker with ink-stained fingers, round spectacles, a leather apron and a nervous twitch.",
+      "voice": "Polite, over-helpful, evasive.",
+      "stance": "Betrayed his master."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Follow the trail of tower soot; 2 = Investigate the Observatory commission."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Thorne's ticking watch in St. Bride's tower."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the Soho receipt for the stolen design."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Stopped at 3:17",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "221B Baker Street. Holmes is sick with influenza. Watson brings news: a clockmaker vanished; every clock in his shop stopped at 3:17. Holmes, feverish, sends the player as his eyes.",
+      "choices": [
+        {
+          "id": "ask_holmes_what_to_look_for",
+          "label": "Ask Holmes what to look for",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "go_to_the_clockmaker_s_shop_with_watson",
+          "label": "Go to the clockmaker's shop with Watson",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_watson_about_the_clockmaker",
+          "label": "Ask Watson about the clockmaker",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Holmes, from beneath a blanket: 'Every clock? Then someone wanted us to notice. Go and see what they wanted us to miss.'",
+      "page": "221B Baker Street smells of pipe smoke, chemicals and influenza.\n\nMr. Sherlock Holmes lies on the sofa in a red dressing gown under a mountain of newspapers and blankets, flushed with fever, glaring at the ceiling as if it has personally offended him.\n\nDr. Watson takes off his bowler hat. \"A clockmaker in Clerkenwell, Elias Thorne. Vanished last night. And Holmes, every clock in his shop stopped at precisely 3:17.\"\n\nHolmes's eyes snap open. \"Every clock?\" He coughs. \"Then someone wanted us to notice. Which means there's something they wanted us to miss.\" He points a long finger at you, standing by the door with your cap in your hands. \"You. You have eyes. Go and use them. Report back.\"\n\nYour first real case."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Clockmaker's Shop",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In the Clerkenwell shop: every clock stopped at 3:17. Silas the apprentice is helpful, too helpful. The player notices one clock with fresh oil and a church's bell-tower soot on the floor. Two leads: follow the soot, or investigate the Royal Observatory commission.",
+      "choices": [
+        {
+          "id": "bring_holmes_his_tea_and_medicine",
+          "label": "Bring Holmes his tea and medicine",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You go back to Baker Street with Holmes's medicine and make him tea the way Mrs. Hudson does, with too much sugar. He complains about it and drinks every drop. Then, in his feverish voice, he teaches you the trick of reading a man's trade from his hands, and you practise on Watson until Watson protests. \"You have the knack,\" Holmes says, with his eyes closed. \"Don't let anyone tell you otherwise. Least of all me.\" From him, it's like a knighthood."
+        },
+        {
+          "id": "follow_the_trail_of_tower_soot",
+          "label": "Follow the trail of tower soot",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "investigate_the_observatory_commission",
+          "label": "Investigate the Observatory commission",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Watson: 'Holmes would say the apprentice is lying. I'd say he looks terrified.'",
+      "page": "The clockmaker's shop in Clerkenwell is wall-to-wall clocks, and every one of them is stopped at 3:17. The silence is eerie.\n\nThe apprentice, Silas Grey, thin and twitchy in round spectacles, is extremely helpful. Too helpful. He keeps answering questions nobody asked.\n\nYou notice two things. One clock smells of fresh oil, as if it was stopped by hand and recently. And on the floor beneath it: black soot, gritty and old, the kind that comes from a church bell tower.\n\nSilas mentions, a little too quickly, that his master was 'working on something important for the Royal Observatory'.\n\nWatson leans down to you. \"Holmes would say the apprentice is lying. I'd say he looks terrified.\" You think it might be both."
+    },
+    {
+      "id": "path_a",
+      "title": "Church Towers of London",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The soot matches a specific bell-tower. The player checks church clocks and finds St. Bride's tower clock also stopped at 3:17. In the bell chamber: Thorne's pocket watch, still ticking.",
+      "choices": [
+        {
+          "id": "take_thorne_s_pocket_watch",
+          "label": "Take Thorne's pocket watch",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "note_the_tower_s_locked_door",
+          "label": "Note the tower's locked door",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Above you, something knocks against the bells. Three times.",
+      "page": "Church soot is like a fingerprint, if you know London. And you know London. That gritty black dust, with the green flecks of old copper, belongs to the oldest bell towers in the City.\n\nYou and Watson visit three churches. At the fourth, St. Bride's, you look up at the tower clock and your heart jumps. 3:17. Stopped.\n\nThe sexton lets you climb the bell tower. In the dusty bell chamber, on the floor, you find a gold pocket watch engraved E. THORNE, still ticking.\n\nThe door to the upper tower is locked, and new.\n\nAbove you, something knocks against the great bells. Three times. Then silence."
+    },
+    {
+      "id": "path_b",
+      "title": "The Observatory",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "At the Royal Observatory, the player learns about Thorne's secret commission: a precision timing device for naval navigation. A receipt shows Silas Grey delivered the 'final design' to an address in Soho, not the Observatory.",
+      "choices": [
+        {
+          "id": "take_the_soho_receipt",
+          "label": "Take the Soho receipt",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "learn_about_the_device",
+          "label": "Learn about the device",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The astronomer: 'Whoever has that design has the sea.'",
+      "page": "The Royal Observatory sits on its hill above the river, its great brass telescope pointing at the fog.\n\nAn astronomer, delighted that anyone's interested, tells you about Thorne's commission: a precision timing device for ships, so they can know their exact position anywhere in the world. \"Whoever has that design,\" she says, \"has the sea.\"\n\nBut the design never arrived. She shows you a receipt, signed by Silas Grey, for the 'final design' delivered not to the Observatory, but to an address in Soho.\n\nWatson whistles low. \"Holmes is going to be insufferable about this.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Fog in Soho",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "At night in Soho fog, the player and Watson trail Silas to a foreign agent's rooms. Silas hands over a leather tube. Then he spots the player.",
+      "choices": [
+        {
+          "id": "chase_silas_into_the_fog",
+          "label": "Chase Silas into the fog",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "follow_the_foreign_agent",
+          "label": "Follow the foreign agent",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "A gaslight sputters. A hansom cab rattles away into the dark.",
+      "page": "Night, Soho, fog so thick you can hardly see the gaslamps. You and Watson wait in a doorway across from the address on the receipt.\n\nSilas Grey comes hurrying along the street with a leather tube under his arm. A cloaked man opens the door. Silas hands over the tube. The cloaked man hands over a heavy purse.\n\nThen Silas turns, and his spectacles catch the gaslight, and he sees you.\n\nHe bolts into the fog. At the same moment, the cloaked man climbs into a hansom cab, which rattles away into the dark."
+    },
+    {
+      "id": "finale",
+      "title": "The Solution",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Back at Baker Street, Holmes listens. The player decides: rescue Thorne from St. Bride's tower (only if they found his watch there); have the design seized by Scotland Yard with the Soho receipt (only if they have it); or present the whole case to Holmes and let him direct the end.",
+      "choices": [
+        {
+          "id": "rescue_thorne_from_the_tower",
+          "label": "Rescue Thorne from the tower",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_clock_strikes"
+        },
+        {
+          "id": "seize_the_stolen_design",
+          "label": "Seize the stolen design",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "elementary"
+        },
+        {
+          "id": "let_holmes_direct_the_finale",
+          "label": "Let Holmes direct the finale",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_casebook"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_clock_strikes",
+        "elementary",
+        "the_casebook"
+      ],
+      "isEnding": false,
+      "page": "Back at Baker Street, Holmes sits up on his sofa, fever forgotten, eyes blazing, while you tell him everything. Watson fills his pipe for him.\n\nHolmes listens without interrupting, which Watson says is unheard of. When you finish, he steeples his fingers.\n\n\"Well,\" he says. \"The pieces are yours. How do you mean to put them together?\""
+    },
+    {
+      "id": "the_clock_strikes",
+      "title": "The Clock Strikes",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The player frees Thorne from the tower as the bells ring; Thorne thanks them with a pocket watch of their own. Close on London rooftops at dawn under the bell tower.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Clock Strikes",
+      "page": "You lead Watson and two constables back to St. Bride's, and the constables break down the new door to the upper tower.\n\nElias Thorne is inside, bound, cold and starving, but alive. He'd been knocking on the bells with his boots for two days, hoping someone would notice.\n\nAs you help him down the stairs, the great bells of St. Bride's begin to ring for morning, and Thorne laughs and weeps at the same time.\n\nA week later, he gives you a gift: a small pocket watch, made by his own hands, engraved To the Irregular Who Heard the Bells. You stand on the roof of St. Bride's at dawn and listen to all of London's clocks begin to tick."
+    },
+    {
+      "id": "elementary",
+      "title": "Elementary",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Scotland Yard seizes the design in Soho; Silas confesses. Holmes, recovering, says 'Elementary' and offers the player a permanent post. Close on 221B's sitting room with a fire and violin.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Elementary",
+      "page": "You give the Soho receipt to Inspector Lestrade of Scotland Yard, and by midnight the cloaked agent is arrested at Victoria Station with the leather tube in his luggage. Silas Grey is found shivering under a bridge and confesses everything, including where his master is locked up.\n\nThe design goes to the Royal Observatory, where it belongs.\n\nBack at Baker Street, Holmes, recovering, picks up his violin and plays something triumphant and slightly out of tune. \"Elementary,\" he says. \"Well, for you, perhaps.\" He pauses. \"There will always be a post for you here, if you want it.\"\n\nThe fire crackles. You want it."
+    },
+    {
+      "id": "the_casebook",
+      "title": "The Casebook",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Holmes directs the solution from his sofa, but writes the player's name into Watson's casebook as the true detective. Close on an open casebook on a desk by gaslight.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Casebook",
+      "page": "You lay it all before Holmes, every clue, and he directs the finale from his sofa like a general: a telegram here, a word to Lestrade there, a cab to St. Bride's, a constable to Soho.\n\nBy dawn, Thorne is free, the design recovered and Silas in custody.\n\nThat evening, you find Watson writing up the case in his casebook by gaslight. On the title page, in Holmes's spiky hand, is written: The Adventure of the Silent Clock. Solved by an Irregular. Assisted by S.H.\n\nWatson smiles at you. \"He insisted,\" he says."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c9a14a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

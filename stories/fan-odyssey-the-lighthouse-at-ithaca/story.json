@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-odyssey-the-lighthouse-at-ithaca",
+    "title": "The Lighthouse at Ithaca",
+    "category": "ancient_greek",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "Odysseus has been gone for nineteen years. You keep the beacon fire on Ithaca's cliffs, lit every night in case his ship comes home. The suitors want it put out. Athena has started visiting you in the shape of a seagull. And a ragged old beggar has just climbed the cliff path, asking about the queen.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Odyssey",
+      "medium": "book",
+      "owner": "based on the epic by Homer",
+      "aka": [
+        "Odyssey",
+        "Odysseus",
+        "Ithaca",
+        "Penelope",
+        "Homer"
+      ]
+    }
+  },
+  "world": "Ithaca, a rocky Greek island, nineteen years after Odysseus left for the Trojan War, during the events of the Odyssey. Queen Penelope weaves a burial shroud by day and unpicks it by night, delaying arrogant suitors who want to marry her and take the throne. Her son Telemachus is nearly grown. Athena, goddess of wisdom, protects the family. The player keeps a beacon fire on the cliffs. The beggar is Odysseus in disguise. The suitors' leader, Antinous, plans to kill Telemachus. Odysseus's great bow can only be strung by him.",
+  "tone": "Epic, mythic adventure with gods in disguise, loyalty, cunning, sea-stories by the fire and the long ache of homecoming.",
+  "playerRole": "The young beacon-keeper of Ithaca with a fire-iron, a goatskin cloak, a sling, a pet dog, a knack for sea-stories and absolute loyalty to the absent king.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Epic, lyrical narration in the style of a Homeric bard: wine-dark seas, rosy-fingered dawn, epithets, gods appearing as animals and strangers, feasts, oaths and the slow tension of a homecoming. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "penelope",
+      "name": "Queen Penelope",
+      "appearance": "A dignified woman in her late thirties with long dark hair pinned with gold, a deep-blue peplos, a loom shuttle in her hand and clever, tired eyes.",
+      "voice": "Wise, guarded, sharp-witted.",
+      "stance": "Trusts the player; tests strangers."
+    },
+    {
+      "id": "beggar",
+      "name": "The Old Beggar",
+      "appearance": "A ragged old man with a hooded cloak, a staff, a wild grey beard and a scar on his leg, with surprisingly strong arms and sharp grey eyes.",
+      "voice": "Humble words, a sailor's stories, sudden flashes of command.",
+      "stance": "Odysseus in disguise."
+    },
+    {
+      "id": "antinous",
+      "name": "Antinous",
+      "appearance": "An arrogant young nobleman with oiled curls, a fine purple cloak, golden armbands and a wine cup always in hand.",
+      "voice": "Mocking, boastful, entitled.",
+      "stance": "Leader of the suitors; plotting against Telemachus."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Uncover the suitors' plot against Telemachus; 2 = Help Penelope with her test."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player hid the suitors' weapons."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has the key to Odysseus's great bow."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Beacon",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night on Ithaca's cliffs. The player tends the beacon fire, kept burning nineteen years for Odysseus. Suitors from the palace come to put it out. A seagull lands nearby and speaks in Athena's voice. A ragged old beggar climbs the cliff path.",
+      "choices": [
+        {
+          "id": "defend_the_beacon_fire",
+          "label": "Defend the beacon fire",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "listen_to_the_seagull",
+          "label": "Listen to the seagull",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "welcome_the_old_beggar",
+          "label": "Welcome the old beggar",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The seagull, in a woman's voice: 'Keep it lit one more night, little keeper. Only one more.'",
+      "page": "Sing, Muse, of the beacon-keeper of Ithaca, who kept the fire lit for nineteen years.\n\nEvery night you climb to the cliff and feed the beacon, so that if Odysseus's ship ever comes home across the wine-dark sea, it will see the light. Every night it doesn't come.\n\nTonight, three drunken young men from the palace stagger up the path with buckets of seawater. Suitors. \"Put it out!\" one laughs. \"The king's dead! Fish ate him!\"\n\nA seagull lands on a rock beside you. It looks at you with grey, very wise eyes, and speaks in a woman's voice. \"Keep it lit one more night, little keeper. Only one more.\"\n\nDown on the path, behind the suitors, a ragged old beggar with a staff is slowly climbing up toward the fire."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Palace",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player brings the beggar to the palace. The suitors mock him; Penelope watches. The old dog Argos lifts his head and wags his tail at the beggar. Two paths: guard Telemachus from the suitors' plot, or help Penelope with her test of the strangers.",
+      "choices": [
+        {
+          "id": "share_bread_and_stories_with_the_beggar",
+          "label": "Share bread and stories with the beggar",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You sit with the beggar by the kitchen fire, sharing bread and olives, and he tells you sea-stories: a one-eyed giant in a cave, a witch who turned sailors into pigs, singing women on rocks who'd lure you to your death. He tells them as if he'd been there. \"How do you know all this?\" you ask. He smiles in his beard. \"I listened to the right sailors.\" He looks at your sling, at your scarred hands from the beacon fire. \"You've kept faith a long time, young one. Faith gets rewarded. Not always quickly. But it does.\" He sounds like he's talking to himself as much as to you."
+        },
+        {
+          "id": "uncover_the_suitors_plot_against_telemac",
+          "label": "Uncover the suitors' plot against Telemachus",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "help_penelope_with_her_test",
+          "label": "Help Penelope with her test",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Penelope, quietly: 'I have heard many men claim to be my husband. I have a test none of them can pass.'",
+      "page": "You bring the old beggar down to the palace for food, because that's the law of hospitality, and the gods punish those who break it.\n\nThe suitors break it gleefully. They throw bones at him. Antinous, their leader, in purple with golden armbands, throws a footstool.\n\nAt the door, the old dog Argos, who has been lying on a dung heap for years, too old to move, lifts his grey head, looks at the beggar and wags his tail. Once. Twice.\n\nQueen Penelope watches from the stairs. Later, she finds you. \"I have heard many men claim to be my husband,\" she says quietly. \"I have a test none of them can pass.\"\n\nYou could help her with it. Or you could find out what the suitors are whispering about Prince Telemachus."
+    },
+    {
+      "id": "path_a",
+      "title": "The Suitors' Feast",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Hiding among the wine-servers, the player hears Antinous plan to ambush Telemachus at sea. They also learn where the suitors' weapons are kept in the great hall.",
+      "choices": [
+        {
+          "id": "hide_the_suitors_weapons",
+          "label": "Hide the suitors' weapons",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "warn_telemachus_of_the_ambush",
+          "label": "Warn Telemachus of the ambush",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A drunken suitor drops a golden cup. It rolls to your feet.",
+      "page": "You slip into the great hall with a jug, pretending to be a wine-server. The suitors are roaring drunk, as they are every night, eating the king's cattle and drinking the king's wine.\n\nAt the high table, Antinous leans close to his friends. \"Telemachus sails back from Pylos tomorrow. We'll wait in the strait with a ship and twenty spears. The boy won't reach the harbour.\"\n\nYou notice something else: the suitors' spears and shields are all racked on the hall walls. If someone moved them in the night, to the storeroom, and locked the door...\n\nA drunken suitor drops a golden cup. It rolls to your feet. You smile, pick it up, and keep pouring."
+    },
+    {
+      "id": "path_b",
+      "title": "Penelope's Loom",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In the queen's chamber, Penelope reveals her test: whoever strings Odysseus's great bow and shoots through twelve axe heads will win her hand. She gives the player the bow's key.",
+      "choices": [
+        {
+          "id": "take_the_key_to_the_bow",
+          "label": "Take the key to the bow",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "learn_the_secret_of_the_bed",
+          "label": "Learn the secret of the bed",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "She pulls a single thread from the shroud. 'Nineteen years of this.'",
+      "page": "Queen Penelope takes you into her chamber, where her great loom stands with a burial shroud half woven on it.\n\n\"I told the suitors I'd marry when I finished this shroud,\" she says. \"Every night I unpick what I wove that day.\" She pulls out a single thread. \"Nineteen years of this.\"\n\nFrom a chest, she lifts a huge curved bow of horn and wood, bound in bronze. \"My husband's bow. Only he could string it. Tomorrow, I'll tell the suitors: whoever strings it and shoots an arrow through twelve axe heads wins my hand.\"\n\nShe gives you the key to the bow's case. \"If a man who deserves it asks for it,\" she says, \"make sure he gets it.\" Then, almost to herself: \"And if he's who I think he is, he'll know the secret of our bed.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Contest",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The great hall. The bow contest. Every suitor fails to string the bow. The beggar asks for a try. Antinous laughs and reaches for his sword.",
+      "choices": [
+        {
+          "id": "hand_the_bow_to_the_beggar",
+          "label": "Hand the bow to the beggar",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "bar_the_doors",
+          "label": "Bar the doors",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Thunder rolls from a clear sky. Zeus is watching.",
+      "page": "The contest. The great hall, the twelve axe heads set in a line, their handle-holes making a narrow tunnel. One by one, the suitors try to string the bow. One by one, they fail, red-faced, cursing.\n\nThen the ragged old beggar steps forward. \"May I try?\"\n\nThe hall roars with laughter. Antinous stands, reaching for his sword. \"The old man wants to marry the queen!\"\n\nPenelope, at the top of the stairs, says, very clearly: \"Let him try.\"\n\nFrom a perfectly clear sky, thunder rolls over the palace. Zeus is watching."
+    },
+    {
+      "id": "finale",
+      "title": "Homecoming",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: give the beggar the bow's key so he can claim it (only if they have it); lead the household against the unarmed suitors (only if their weapons are hidden); or step back and let the gods decide.",
+      "choices": [
+        {
+          "id": "give_the_beggar_the_bow",
+          "label": "Give the beggar the bow",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_bow_is_strung"
+        },
+        {
+          "id": "lead_the_household_against_the_suitors",
+          "label": "Lead the household against the suitors",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_hall_is_cleared"
+        },
+        {
+          "id": "let_the_gods_decide",
+          "label": "Let the gods decide",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_will_of_the_gods"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_bow_is_strung",
+        "the_hall_is_cleared",
+        "the_will_of_the_gods"
+      ],
+      "isEnding": false,
+      "page": "The hall is silent. Every eye is on the beggar, on the bow, on you.\n\nTelemachus stands at the door, home safe. Penelope grips the banister. The old dog Argos, at the threshold, wags his tail.\n\nSomewhere above the clouds, the gods lean in to watch. It is your turn to act."
+    },
+    {
+      "id": "the_bow_is_strung",
+      "title": "The Bow Is Strung",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The beggar strings the bow and is revealed as Odysseus. Penelope tests him with the secret of their bed, then weeps in his arms. Close on Ithaca's beacon fire and a ship's sail at dawn.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Bow Is Strung",
+      "page": "You unlock the case and put the great bow in the beggar's hands.\n\nHe strings it as easily as a musician strings a lyre. He plucks the string, and it sings like a swallow. Then he shoots one arrow through all twelve axe heads, and throws off his rags.\n\nOdysseus. Home.\n\nPenelope doesn't run to him. She tests him: \"Move our bed into the hall.\" He laughs, and weeps. \"It can't be moved. I built it around a living olive tree.\" Then she runs to him, and the hall is full of tears.\n\nAt dawn, on the cliff, you light the beacon one last time and watch his old ship's sail on the horizon, bringing the last of his crew home."
+    },
+    {
+      "id": "the_hall_is_cleared",
+      "title": "The Hall Is Cleared",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The suitors are driven out unarmed; Telemachus is safe. Odysseus reveals himself and honours the player. Close on a feast hall cleaned and bright, with a seat of honour.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Hall Is Cleared",
+      "page": "In the night, you and the old nurse carry every spear and shield out of the great hall and lock them in the storeroom.\n\nWhen the contest turns to violence, the suitors reach for their weapons and find bare walls. Telemachus, warned in time, is already home, standing beside the beggar with a sword. The beggar throws off his rags: Odysseus.\n\nThe suitors flee the palace in terror, unarmed and humiliated, into the sea and the hills.\n\nThe next day, the hall is scrubbed clean and bright. At the feast that night, Odysseus sets a seat of honour beside his own, and gestures to you. \"The keeper of my light,\" he says, \"sits here.\""
+    },
+    {
+      "id": "the_will_of_the_gods",
+      "title": "The Will of the Gods",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Athena appears, ends the strife and restores peace to Ithaca; the player is given a gift of wisdom. Close on an owl in an olive tree at sunrise.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Will of the Gods",
+      "page": "You step back, lower your head and pray: \"Grey-eyed Athena, you've watched over this house for nineteen years. Decide.\"\n\nLightning splits the sky. The hall fills with light, and a tall woman in a gleaming helmet stands among the suitors, grey-eyed and terrible. Athena.\n\n\"Enough,\" she says, and everyone in the hall, suitors and servants, falls silent. She ends the strife with a word. Odysseus is revealed. Peace is sworn on Ithaca.\n\nBefore she vanishes, she touches your forehead. \"For your faith, little keeper, a gift of wisdom.\" At sunrise, an owl sits in the olive tree outside your window, watching you with grey eyes."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c0622a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "embers"
+  }
+}

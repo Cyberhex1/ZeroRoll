@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-prideandprejudice-a-season-at-netherfield",
+    "title": "A Season at Netherfield",
+    "category": "romantic",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You're a cousin of the Bennets, newly arrived in Hertfordshire with a sharp tongue and very little money. Elizabeth is your favourite cousin and your best ally. Mr. Darcy's younger friend, Mr. Thomas Ashcombe, is either the most infuriating man in England or the most interesting. And someone is spreading a rumour that could ruin you.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Pride and Prejudice",
+      "medium": "book",
+      "owner": "based on the novel by Jane Austen",
+      "aka": [
+        "Pride and Prejudice",
+        "Elizabeth Bennet",
+        "Mr. Darcy",
+        "Austen"
+      ]
+    }
+  },
+  "world": "Hertfordshire, England, 1812, in the world of Pride and Prejudice. The Bennet family has five daughters; Elizabeth is witty and independent. Mr. Darcy is proud, rich and secretly kind. The player is a poor cousin of the Bennets staying for the season. Mr. Thomas Ashcombe, Darcy's younger friend, is a reserved, bookish gentleman who keeps getting into arguments with the player. Mr. Wickham's equally charming cousin, Captain Rupert Fane, is spreading a rumour that the player's late father died in debt and disgrace, to steer them away from Ashcombe toward himself (he believes the player will inherit money).",
+  "tone": "Witty, sparkling Regency romance with balls, letters, gossip, long walks, misunderstandings and a slow-burn romance built on arguments that turn into respect.",
+  "playerRole": "A poor but proud young cousin of the Bennets with a sharp wit, two good gowns, a love of long walks, a stack of borrowed novels and absolutely no intention of marrying for money.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Witty, ironic Regency narration in the spirit of Austen: elegant sentences, sly social commentary, letters and conversations as weapons, and feelings revealed through glances, walks and very proper rage. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "elizabeth",
+      "name": "Elizabeth Bennet",
+      "appearance": "A bright-eyed young woman of twenty with dark curls pinned up, a simple muslin gown, a shawl and a merry, clever expression.",
+      "voice": "Witty, warm, teasing, fiercely loyal.",
+      "stance": "The player's best friend and ally."
+    },
+    {
+      "id": "ashcombe",
+      "name": "Mr. Thomas Ashcombe",
+      "appearance": "A tall, reserved young gentleman with tousled chestnut hair, a dark coat and cravat, ink on one cuff and a book in his pocket.",
+      "voice": "Dry, precise, secretly warm; argues for sport.",
+      "stance": "Love interest; misjudged by the player at first."
+    },
+    {
+      "id": "fane",
+      "name": "Captain Rupert Fane",
+      "appearance": "A dashing young officer in a red coat with golden hair, an easy smile and polished boots.",
+      "voice": "Charming, flattering, smooth.",
+      "stance": "Spreading the rumour to win the player's supposed fortune."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Trace the rumour in Meryton; 2 = Visit Netherfield and Mr. Ashcombe."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has Captain Fane's letter about their 'fortune'."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has letters proving their father's debts were paid."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Assembly Ball",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Meryton assembly ball. The player, newly arrived, is introduced to Mr. Ashcombe, who remarks that the player's favourite novel is 'tolerable, but overpraised'. War is declared. Captain Fane, charming in red, asks for two dances.",
+      "choices": [
+        {
+          "id": "argue_with_mr_ashcombe_about_the_novel",
+          "label": "Argue with Mr. Ashcombe about the novel",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "dance_with_captain_fane",
+          "label": "Dance with Captain Fane",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "escape_to_elizabeth",
+          "label": "Escape to Elizabeth",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Elizabeth, behind her fan: 'Oh, he's dreadful. You must argue with him again immediately.'",
+      "page": "It is a truth universally acknowledged that a poor cousin at a country ball must be in want of somewhere to stand.\n\nThe Meryton assembly rooms are hot, loud and full of feathers. You have found a pillar to lean against, and Elizabeth Bennet, your favourite cousin, has found you.\n\nThen you are introduced to Mr. Thomas Ashcombe, a friend of the famous Mr. Darcy. He is tall, reserved and has ink on his cuff. Upon learning the title of your favourite novel, he remarks that it is \"tolerable, but overpraised\".\n\nWar is declared.\n\nA moment later, Captain Rupert Fane, golden-haired and dashing in his red coat, bows and asks you for two dances. Elizabeth, behind her fan: \"Oh, Mr. Ashcombe is dreadful. You must argue with him again immediately.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Rumours in Meryton",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "A rumour spreads through Meryton: that the player's late father died in debt and disgrace. Ashcombe has gone cold. Elizabeth is furious on the player's behalf. Two paths: find the source of the rumour in Meryton, or visit Netherfield to confront Ashcombe.",
+      "choices": [
+        {
+          "id": "walk_the_fields_with_elizabeth",
+          "label": "Walk the fields with Elizabeth",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You and Elizabeth walk three miles across muddy fields, skirts six inches deep in mud, and you talk about everything: about her sisters, about how unfair it is that women must marry or starve, about which of the officers has the silliest moustache. She makes you laugh until you have to sit on a stile. \"Whatever happens,\" she says, linking her arm through yours, \"you shall always have me. And I shall always have someone to be rude about people with.\" It is the best thing anyone has ever said to you."
+        },
+        {
+          "id": "trace_the_rumour_in_meryton",
+          "label": "Trace the rumour in Meryton",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "visit_netherfield_and_mr_ashcombe",
+          "label": "Visit Netherfield and Mr. Ashcombe",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Elizabeth: 'Gossip is like mud, cousin. It's best washed off quickly.'",
+      "page": "Within a week, all Meryton is whispering. Your late father, they say, died in debt. In disgrace. Your mother's family took you in out of pity.\n\nIt is not true. Or at least, it is not the whole truth. But gossip, in Meryton, does not trouble itself with wholes.\n\nMr. Ashcombe, who had been arguing with you very pleasantly about poetry, has gone cold and formal. Captain Fane, on the other hand, has become extremely attentive.\n\nElizabeth is furious on your behalf. \"Gossip is like mud, cousin. It's best washed off quickly.\" The question is where to begin: track the rumour to its source in Meryton, or march up to Netherfield and demand to know why Mr. Ashcombe has turned to ice."
+    },
+    {
+      "id": "path_a",
+      "title": "The Milliner's Shop",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "At the milliner's in Meryton, the gossiping shopkeeper reveals the rumour came from Captain Fane, who was asking about the player's inheritance. Fane's letter to a friend is found in a borrowed book.",
+      "choices": [
+        {
+          "id": "take_fane_s_letter",
+          "label": "Take Fane's letter",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "ask_about_the_inheritance",
+          "label": "Ask about the inheritance",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The shopkeeper whispers: 'He asked how much you were worth, miss. Down to the penny.'",
+      "page": "The milliner's shop in Meryton is the seat of all gossip, all bonnets and all truth.\n\nThe shopkeeper, delighted to have you there, leans across the counter. \"Oh, miss, it was Captain Fane started it. He was here, asking about your inheritance. How much you were worth. Down to the penny.\"\n\nYour inheritance? You have nothing but two gowns and a stack of novels.\n\nOn the counter, among the ribbons, lies a book the captain borrowed and returned. A folded letter slips out of it, in his handwriting, to a friend in London: 'The cousin is rumoured to inherit an uncle's fortune. A little gossip to keep the bookish fellow away, and the field is mine.'"
+    },
+    {
+      "id": "path_b",
+      "title": "Netherfield Library",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In Netherfield's library, the player and Ashcombe argue magnificently, and then he admits he heard the rumour, didn't believe it, but was hurt the player danced with Fane. He has letters proving the player's father's debts were paid by an old friend.",
+      "choices": [
+        {
+          "id": "take_the_letters_about_your_father",
+          "label": "Take the letters about your father",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "admit_you_misjudged_him",
+          "label": "Admit you misjudged him",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "He holds out your favourite novel. 'I reread it. I was wrong. It isn't overpraised.'",
+      "page": "Netherfield's library is enormous, sunlit and full of Mr. Ashcombe, who stands when you enter and looks as though he would rather be anywhere else.\n\nYou argue. Magnificently. About poetry, about pride, about whether a gentleman should believe gossip. You are both quite red in the face.\n\nThen he says, quietly: \"I didn't believe it. Not for a moment. I was simply... hurt that you danced twice with Captain Fane.\"\n\nHe hands you a bundle of letters: proof, from his own family's old friend, that your father's debts were paid in full years ago. \"I wrote to London. I wanted you to have them.\"\n\nHe also holds out your favourite novel. \"I reread it. I was wrong. It isn't overpraised.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Netherfield Ball",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The great ball at Netherfield. Fane proposes to the player in the garden. Ashcombe watches from the terrace. All Meryton is waiting.",
+      "choices": [
+        {
+          "id": "refuse_fane_plainly",
+          "label": "Refuse Fane plainly",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "ask_fane_about_your_inheritance",
+          "label": "Ask Fane about your inheritance",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The music stops. Everyone is looking at you.",
+      "page": "The Netherfield ball. Candles, music, silk.\n\nCaptain Fane leads you out into the moonlit garden, drops to one knee on the gravel and proposes. Beautifully. Charmingly. With a great deal of talk about your shared future and very little about you.\n\nOn the lit terrace above, Mr. Ashcombe stands very still, watching.\n\nThe music inside stops between dances. Somehow, everyone in the ballroom seems to be looking out of the windows. All Meryton is waiting for your answer."
+    },
+    {
+      "id": "finale",
+      "title": "A Morning Walk",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The next morning, a long walk with Elizabeth. The player decides: expose Fane's letter publicly (only if they have it); clear their father's name with Ashcombe's letters (only if they have them); or simply walk to Netherfield and speak plainly to Ashcombe.",
+      "choices": [
+        {
+          "id": "expose_captain_fane_s_letter",
+          "label": "Expose Captain Fane's letter",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_captain_departs"
+        },
+        {
+          "id": "clear_your_father_s_name",
+          "label": "Clear your father's name",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "your_father_s_name"
+        },
+        {
+          "id": "speak_plainly_to_mr_ashcombe",
+          "label": "Speak plainly to Mr. Ashcombe",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "plain_speaking"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_captain_departs",
+        "your_father_s_name",
+        "plain_speaking"
+      ],
+      "isEnding": false,
+      "page": "The morning after the ball is grey and fresh. You walk with Elizabeth along the green lane toward Netherfield, the hem of your gown wet with dew.\n\n\"Well,\" Elizabeth says, \"you have made the season interesting. What now?\"\n\nYou know the truth now. You know your own heart, or nearly. The only question is what to do with them."
+    },
+    {
+      "id": "the_captain_departs",
+      "title": "The Captain Departs",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Fane is exposed and leaves Meryton in disgrace. The player's reputation is restored, and Ashcombe calls on them. Close on a Regency drawing room with a smiling couple and a letter.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Captain Departs",
+      "page": "You give Captain Fane's letter to Elizabeth's father, who reads it, laughs dryly and passes it to the colonel of the regiment.\n\nBy evening, the whole of Meryton knows that the dashing captain was courting a fortune that does not exist, and spreading lies to clear his path. Fane leaves Hertfordshire within the week, in a great hurry and some disgrace.\n\nYour name is restored. Even the milliner apologises.\n\nThree days later, Mr. Ashcombe calls at Longbourn, in his best coat, holding a letter of his own. He asks if you would walk with him. You say yes before he finishes the sentence."
+    },
+    {
+      "id": "your_father_s_name",
+      "title": "Your Father's Name",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The father's debts are proven paid; Meryton apologises. Ashcombe proposes in the rain. Close on two figures under one umbrella in a green lane.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Your Father's Name",
+      "page": "You show Meryton the letters proving that your father's debts were paid in full, by an old friend who loved him, years ago.\n\nThe gossip stops at once. Several ladies call to apologise. One brings cake.\n\nMr. Ashcombe finds you in the green lane, in a sudden rainstorm, both of you soaked. He holds his umbrella over you and forgets to hold it over himself. \"I have argued with you about everything,\" he says, \"and I should like to argue with you for the rest of my life. Will you marry me?\"\n\nYou argue about it, for form's sake. Then you say yes."
+    },
+    {
+      "id": "plain_speaking",
+      "title": "Plain Speaking",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player tells Ashcombe how they feel; he answers in kind. A quiet, perfect proposal at dawn. Close on a misty meadow at sunrise.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Plain Speaking",
+      "page": "You walk to Netherfield alone, at dawn, and find Mr. Ashcombe already walking toward Longbourn.\n\nYou meet in a misty meadow. You do not argue, for once. You tell him plainly that you misjudged him, that you have come to admire him, that you rather think you love him.\n\nHe is quiet for a long moment. Then he tells you, just as plainly, that he has loved you since you called him 'a man who has never finished a novel without disliking it on principle'.\n\nHe proposes in the mist, very properly, with the sun coming up over the meadow, and it is the most perfect morning of your life."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c27a8a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "petals"
+  }
+}

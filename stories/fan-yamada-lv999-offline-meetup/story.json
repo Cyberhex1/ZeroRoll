@@ -7,6 +7,7 @@
     "rating": "everyone",
     "mode": "story",
     "blurb": "Your duo partner in Forest of Savior quit the game and your group chat on the same night. So you join a new guild, with a relentlessly kind healer called Akane and a top player called Yamada who barely talks. Then the guild announces an offline meetup.",
+    "cover": "cover",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "My Love Story with Yamada-kun at Lv999",
@@ -46,14 +47,16 @@
       "name": "Haru Mizuno",
       "appearance": "A gentle-looking young person in their early twenties with soft wavy auburn hair, round glasses, flour often on one sleeve, and a knitted scarf.",
       "voice": "Soft-spoken, patient and teasing in a quiet way; apologises too much and laughs easily.",
-      "stance": "The guild's support player. Has admired the player since the first raid and is too shy to say so."
+      "stance": "The guild's support player. Has admired the player since the first raid and is too shy to say so.",
+      "portrait": "haru"
     },
     {
       "id": "ren",
       "name": "Ren",
       "appearance": "A flashy young man with dyed silver hair, a branded gaming jacket, and a confident grin.",
       "voice": "Breezy and dismissive; talks about 'meta' and 'upgrading teams' like that explains everything.",
-      "stance": "The player's ex-duo partner. Thinks he did nothing wrong by leaving."
+      "stance": "The player's ex-duo partner. Thinks he did nothing wrong by leaving.",
+      "portrait": "ren"
     }
   ],
   "flags": {
@@ -130,7 +133,12 @@
           "target": "first_raid"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "logged-out",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "first_raid"
       ],
@@ -191,7 +199,12 @@
           "target": "meetup"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "first-raid",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "meetup"
       ],
@@ -253,7 +266,12 @@
           "target": "bakery"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "meetup",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "duo_queue",
         "bakery"
@@ -305,7 +323,12 @@
           "target": "tournament"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "duo-queue",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "tournament"
       ],
@@ -356,7 +379,16 @@
           "target": "tournament"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "bakery",
+          "on": "enter"
+        },
+        {
+          "art": "haru",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "tournament"
       ],
@@ -409,7 +441,16 @@
           "target": "party_of_four"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "tournament",
+          "on": "enter"
+        },
+        {
+          "art": "ren",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "level_up",
         "player_two",
@@ -430,7 +471,12 @@
       ],
       "sceneBrief": "A quiet walk to a convenience store at 1 a.m. with Yamada. He buys the player their favourite snack without asking which, says something blunt and kind about how they played, and stands closer than he needs to. Nothing is declared, but something has started. Close on two cans of juice and a streetlight.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "level-up",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Level Up"
@@ -447,7 +493,12 @@
       ],
       "sceneBrief": "On a call with Haru as the sun comes up, the player hears an oven timer and Haru's laugh. Haru asks if the player wants to duo, properly, and maybe get breakfast after. Close on the first light and a 'yes'.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "player-two",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Player Two"
@@ -459,13 +510,67 @@
       "entry": [],
       "sceneBrief": "A chaotic group video call: Akane crying happy tears, Haru holding up bread to the camera, Yamada eating chips silently. Ren messages an apology; the player decides whether to answer, later. Close on the guild screenshot, everyone in a silly pose, and a feeling of having found their people.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "party",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Party of Four"
     }
   ],
-  "art": {},
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "A gamer's desk at night with a glowing monitor showing a fantasy forest, a phone with a guild invite."
+    },
+    "logged-out": {
+      "file": "logged-out.webp",
+      "alt": "A dark bedroom lit by a monitor showing a party-member-left notice."
+    },
+    "first-raid": {
+      "file": "first-raid.webp",
+      "alt": "Fantasy game characters fighting a giant tree boss in a glowing forest temple."
+    },
+    "meetup": {
+      "file": "meetup.webp",
+      "alt": "A cosy izakaya table with drinks, a box of bread, and four friends."
+    },
+    "duo-queue": {
+      "file": "duo-queue.webp",
+      "alt": "A desk at 2 a.m. with headphones and a duel on screen, a voice-chat window open."
+    },
+    "bakery": {
+      "file": "bakery.webp",
+      "alt": "A small warm bakery at dawn with fresh bread and flour on the counter."
+    },
+    "haru": {
+      "file": "haru.webp",
+      "alt": "Portrait of a gentle young person with wavy auburn hair, round glasses and a knitted scarf."
+    },
+    "tournament": {
+      "file": "tournament.webp",
+      "alt": "A screen showing a tense fantasy guild battle, with a voice chat overlay of cheering icons."
+    },
+    "ren": {
+      "file": "ren.webp",
+      "alt": "Portrait of a flashy young man with silver hair and a gaming jacket."
+    },
+    "level-up": {
+      "file": "level-up.webp",
+      "alt": "Two people under a streetlight outside a convenience store at night holding warm drinks."
+    },
+    "player-two": {
+      "file": "player-two.webp",
+      "alt": "A phone on a windowsill showing a call, sunrise over Tokyo rooftops."
+    },
+    "party": {
+      "file": "party.webp",
+      "alt": "A video call grid of friends celebrating, one holding up bread."
+    }
+  },
   "skin": {
     "palette": {
       "accent": "#7ee0a8",
@@ -476,6 +581,7 @@
       "heading": "display",
       "body": "sans"
     },
+    "backgroundArt": "first-raid",
     "particles": "motes"
   }
 }

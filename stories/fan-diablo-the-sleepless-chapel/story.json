@@ -7,6 +7,7 @@
     "rating": "teen",
     "mode": "story",
     "blurb": "In a snowbound village in the Fractured Peaks, nobody has slept for nine nights, and the chapel bell rings at hours no priest keeps. An old Horadric scholar has asked a wanderer for help. Something under the altar is very much awake.",
+    "cover": "cover",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Diablo",
@@ -38,14 +39,16 @@
       "name": "Father Mikhel",
       "appearance": "A gaunt middle-aged priest with a shaved head, deep shadows under red-rimmed eyes, cracked lips, and white-and-gold Cathedral of Light robes stained with wax.",
       "voice": "Too calm, too gentle, repeats scripture as if to drown something out. Cracks into pleading when cornered.",
-      "stance": "Lies to the player to protect his bargain, because he truly believes it is saving the village."
+      "stance": "Lies to the player to protect his bargain, because he truly believes it is saving the village.",
+      "portrait": "mikhel"
     },
     {
       "id": "irinka",
       "name": "Irinka",
       "appearance": "A small girl of about seven with long tangled black hair, a red wool scarf, a patched sheepskin coat and bare feet she never seems to notice.",
       "voice": "Speaks in her sleep in a flat older voice, repeating the demon's words; awake, she is shy and sleepy.",
-      "stance": "The only person in Drevnik who still sleeps, because Vashtul speaks through her dreams. Trusts whoever is kind to her."
+      "stance": "The only person in Drevnik who still sleeps, because Vashtul speaks through her dreams. Trusts whoever is kind to her.",
+      "portrait": "irinka"
     },
     {
       "id": "vashtul",
@@ -134,7 +137,12 @@
           "target": "wakeful_square"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "village-gate",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "wakeful_square"
       ],
@@ -176,7 +184,17 @@
           "target": "chapel"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "wakeful-square",
+          "on": "enter"
+        },
+        {
+          "art": "irinka",
+          "on": "choice",
+          "choice": "watch_irinka"
+        }
+      ],
       "exits": [
         "chapel"
       ],
@@ -222,7 +240,16 @@
           "target": "crypt"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "chapel",
+          "on": "enter"
+        },
+        {
+          "art": "mikhel",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "crypt"
       ],
@@ -264,7 +291,12 @@
           "target": "offered_hand"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "crypt",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "ossuary",
         "offered_hand"
@@ -312,7 +344,12 @@
           "target": "the_bound_one"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "ossuary",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "the_bound_one"
       ],
@@ -349,7 +386,12 @@
           "target": "the_bound_one"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "offered-hand",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "the_bound_one"
       ],
@@ -402,7 +444,12 @@
           "target": "bring_down_the_mountain"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "the-bound-one",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "dawn_over_drevnik",
         "wanderers_bargain",
@@ -423,7 +470,12 @@
       ],
       "sceneBrief": "The seal closes with a sound like a held breath let go. Vashtul sinks into the ice. Above, the whole village falls asleep where it stands, in doorways and by the fire. The avalanche does not come; the bargain is broken but the snow holds, for now. Mikhel weeps. Lorath, gruffly, admits the player did well and lights his pipe. Close on sunrise and snoring.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "dawn",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Dawn Over Drevnik"
@@ -440,7 +492,12 @@
       ],
       "sceneBrief": "The player takes Vashtul's hold into themselves. The demon goes quiet; the village sleeps; the snow stays up. But the player does not sleep, and something behind their eyes is patient. Lorath looks at them for a long time and says he will be watching. Close on the player alone on the chapel steps at dawn, wide awake.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "bargain",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Wanderer's Bargain"
@@ -452,17 +509,76 @@
       "entry": [],
       "sceneBrief": "The crypt comes down on Vashtul; the chapel follows; the snowfield lets go. The player, Lorath and the villagers run for the high pass as the avalanche buries Drevnik behind them. Everyone lives, but the village is gone. On the ridge, the villagers sleep in the snow in heaps, and Lorath says nothing for a long time. Bittersweet, not cruel.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "avalanche",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Bring Down the Mountain"
     }
   ],
-  "art": {},
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "A small snowbound mountain village at dusk with a lit chapel and a bell tower under a hanging snowfield."
+    },
+    "village-gate": {
+      "file": "village-gate.webp",
+      "alt": "A village gate in falling snow, a shrine with candles, an old bearded man with a pipe silhouetted beside it."
+    },
+    "wakeful-square": {
+      "file": "wakeful-square.webp",
+      "alt": "Exhausted villagers huddled around a bonfire in a snowy square at night."
+    },
+    "irinka": {
+      "file": "irinka.webp",
+      "alt": "Portrait of a small sleeping girl with tangled black hair and a red wool scarf."
+    },
+    "chapel": {
+      "file": "chapel.webp",
+      "alt": "A cold chapel interior full of burned-down candles with frost on the windows."
+    },
+    "mikhel": {
+      "file": "mikhel.webp",
+      "alt": "Portrait of a gaunt priest with red-rimmed eyes in white and gold robes."
+    },
+    "crypt": {
+      "file": "crypt.webp",
+      "alt": "A round stone crypt with a cracked circular seal carved into the floor."
+    },
+    "ossuary": {
+      "file": "ossuary.webp",
+      "alt": "A flooded ossuary of skulls and black water with a pale glowing shard beneath the surface."
+    },
+    "offered-hand": {
+      "file": "offered-hand.webp",
+      "alt": "A dark chamber of candles bending toward the viewer, a long grey hand reaching from the shadows."
+    },
+    "the-bound-one": {
+      "file": "the-bound-one.webp",
+      "alt": "A starved grey demon crowned with candles, chained in a pit of black ice."
+    },
+    "dawn": {
+      "file": "dawn.webp",
+      "alt": "Sunrise over a sleeping snowy village, villagers asleep in doorways."
+    },
+    "bargain": {
+      "file": "bargain.webp",
+      "alt": "A lone hooded figure sitting on chapel steps at dawn, eyes faintly glowing."
+    },
+    "avalanche": {
+      "file": "avalanche.webp",
+      "alt": "An avalanche burying a mountain village seen from a high ridge where survivors rest in the snow."
+    }
+  },
   "skin": {
     "palette": {
       "accent": "#c23b2e"
     },
+    "backgroundArt": "crypt",
     "particles": "snow"
   }
 }

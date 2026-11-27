@@ -7,6 +7,7 @@
     "rating": "teen",
     "mode": "story",
     "blurb": "Your first day at J High starts with an app scoring your face at the school gate. By lunch you've met a crew that fights for the bullied, a new kid who moves like a model, and a quiet boy everyone pretends not to see. By the bell, you'll have to decide who you stand with.",
+    "cover": "cover",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Lookism",
@@ -58,7 +59,8 @@
       "name": "Kang Min-chul",
       "appearance": "A wiry second-year with bleached hair styled up, a smug grin, an earring, designer sneakers and a phone always in his hand.",
       "voice": "Mocking, smooth and fake-friendly; calls people by their rank number.",
-      "stance": "Runs Face Rank. Sees the player as a new score to post and later as a threat."
+      "stance": "Runs Face Rank. Sees the player as a new score to post and later as a threat.",
+      "portrait": "minchul"
     }
   ],
   "flags": {
@@ -146,7 +148,16 @@
           "target": "cafeteria"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "gate",
+          "on": "enter"
+        },
+        {
+          "art": "minchul",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "cafeteria"
       ],
@@ -198,7 +209,12 @@
           "target": "photoshoot"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "cafeteria",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "patrol",
         "photoshoot"
@@ -250,7 +266,12 @@
           "target": "rooftop"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "patrol",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "rooftop"
       ],
@@ -297,7 +318,12 @@
           "target": "rooftop"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "photoshoot",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "rooftop"
       ],
@@ -339,7 +365,12 @@
           "target": "finale"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "rooftop",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "finale"
       ],
@@ -392,7 +423,12 @@
           "target": "just_a_student"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "finale",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "newest_member",
         "ranked_number_one",
@@ -412,7 +448,12 @@
       ],
       "sceneBrief": "The laptop meets Vasco's fist; Face Rank is gone. Min-chul is suspended. Vasco solemnly declares the player a member of Burn Knuckles and gives them a terrible nickname. Zack pretends not to care. Close on the crew walking out of the gate together at sunset, and the boy from lunch waving.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "burn-knuckles",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Burn Knuckles' Newest Member"
@@ -429,7 +470,12 @@
       ],
       "sceneBrief": "On Daniel's livestream, the player shows the agency folder and the invoice. The stream explodes; the agency is reported, the app is pulled, Min-chul is finished. Comments call the player the real number one. Daniel says something quietly sincere about faces and worth. Close on the two of them laughing at the view count.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "stream",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Ranked Number One"
@@ -441,13 +487,63 @@
       "entry": [],
       "sceneBrief": "The player hands the laptop to a teacher and goes home. It is slow and unglamorous, but the app is gone by the next week. The next morning, the heavy-set boy from lunch shares his snacks at the gate where nobody is scoring anyone. Close on an ordinary, good school day.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "just-a-student",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Just a Student"
     }
   ],
-  "art": {},
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "A Korean high school gate in the morning with a phone on a tripod flashing at arriving students."
+    },
+    "gate": {
+      "file": "gate.webp",
+      "alt": "Students in uniforms at a school gate, a big phone screen showing face scores."
+    },
+    "minchul": {
+      "file": "minchul.webp",
+      "alt": "Portrait of a smug teen with bleached hair, an earring and a phone."
+    },
+    "cafeteria": {
+      "file": "cafeteria.webp",
+      "alt": "A busy school cafeteria with a spilled lunch tray and students watching."
+    },
+    "patrol": {
+      "file": "patrol.webp",
+      "alt": "Teen fighters squaring off in a narrow Seoul alley after school."
+    },
+    "photoshoot": {
+      "file": "photoshoot.webp",
+      "alt": "A small fashion studio with lights, a model posing, and a laptop full of photos."
+    },
+    "rooftop": {
+      "file": "rooftop.webp",
+      "alt": "A school rooftop at sunset with a small shed full of glowing screens."
+    },
+    "finale": {
+      "file": "finale.webp",
+      "alt": "A teen holding up a laptop on a rooftop at dusk while others face off."
+    },
+    "burn-knuckles": {
+      "file": "burn-knuckles.webp",
+      "alt": "A group of teens walking out of a school gate together at sunset."
+    },
+    "stream": {
+      "file": "stream.webp",
+      "alt": "A livestream screen exploding with comments and hearts."
+    },
+    "just-a-student": {
+      "file": "just-a-student.webp",
+      "alt": "Two students sharing snacks at a school gate on a sunny morning."
+    }
+  },
   "skin": {
     "palette": {
       "accent": "#4fd1ff"
@@ -456,6 +552,7 @@
       "heading": "display",
       "body": "sans"
     },
+    "backgroundArt": "gate",
     "particles": "none"
   }
 }

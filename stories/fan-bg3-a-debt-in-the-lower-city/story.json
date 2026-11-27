@@ -7,6 +7,7 @@
     "rating": "teen",
     "mode": "story",
     "blurb": "You wake above the Elfsong Tavern with a Guild debt marker under your pillow and no memory of the dice game you supposedly lost. Karlach wants to help. Astarion wants something in return. The Guild wants payment by moonset.",
+    "cover": "cover",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Baldur's Gate 3",
@@ -44,14 +45,16 @@
       "name": "Dagny Vell",
       "appearance": "A halfling woman in her fifties with cropped iron-grey hair, small round spectacles, ink-stained fingers and a neat brown waistcoat full of pockets. A Guild signet hangs on a cord at her neck.",
       "voice": "Polite, precise and terrifying, like a clerk reading out a death sentence. Never raises her voice.",
-      "stance": "The Guild collector who planted the marker. Sees the player as a cheap courier and nothing more."
+      "stance": "The Guild collector who planted the marker. Sees the player as a cheap courier and nothing more.",
+      "portrait": "dagny"
     },
     {
       "id": "odric",
       "name": "Odric Thale",
       "appearance": "A lean human man in his forties with a shaved head, a grey beard, a burn scar down one cheek, a long weathered oilskin coat, and a crossbow strapped across his back.",
       "voice": "Soft-spoken and patient, like a man who has waited at many doors. Quotes old prayers against the dead.",
-      "stance": "The buyer. A vampire hunter who will pay well, and who will see anyone who protects a vampire as one more thing to burn."
+      "stance": "The buyer. A vampire hunter who will pay well, and who will see anyone who protects a vampire as one more thing to burn.",
+      "portrait": "odric"
     }
   ],
   "flags": {
@@ -157,7 +160,12 @@
           "target": "the_wide"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "elfsong",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "the_wide"
       ],
@@ -218,7 +226,12 @@
           "target": "guild_den"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "the-wide",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "guild_den"
       ],
@@ -260,7 +273,16 @@
           "target": "lockbox"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "guild-den",
+          "on": "enter"
+        },
+        {
+          "art": "dagny",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "basilisk_gate",
         "lockbox"
@@ -320,7 +342,12 @@
           "target": "basilisk_gate"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "lockbox",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "basilisk_gate"
       ],
@@ -381,7 +408,12 @@
           "target": "wyrms_rock"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "basilisk-gate",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "wyrms_rock"
       ],
@@ -434,7 +466,16 @@
           "target": "hot_engine"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "wyrms-rock",
+          "on": "enter"
+        },
+        {
+          "art": "odric",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "paid_in_full",
         "ashes_on_the_river",
@@ -450,7 +491,12 @@
       "entry": [],
       "sceneBrief": "The player hands over the box. Odric pays and the debt marker burns in Dagny's lamp the next morning. Astarion disappears into the night without a word, and Karlach says she understands, in a voice that means she doesn't. The player is free and richer and alone. Close quietly on the cost, without punishing them further.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "paid-in-full",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Paid in Full"
@@ -467,7 +513,12 @@
       ],
       "sceneBrief": "The player stands beside Astarion; the warrant goes into the river as ash and the stake after it. Odric retreats, promising to return; the Guild will be furious about the lost sale. Astarion, rattled, says something almost sincere and then covers it with a joke, and offers the player a place in their odd company. Close on the three of them walking back up through the Lower City at dawn's edge, Astarion hurrying for shade.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "ashes",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Ashes on the Chionthar"
@@ -484,17 +535,72 @@
       ],
       "sceneBrief": "Karlach settles it: Odric goes over the bridge rail into the Chionthar, crossbow and all (he survives, swearing). The party runs for it through the dock alleys with the Fist's whistles behind them, laughing. At a safe corner Karlach offers a gauntleted fist bump, the closest she can get to a hug, and says the player is welcome to stick around. Astarion grudgingly admits that was fun.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "hot-engine",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Hot Engine, Cold River"
     }
   ],
-  "art": {},
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "A torn black wax seal with a nine-fingered hand on a table by a candle, a fantasy harbour city at night through the window."
+    },
+    "elfsong": {
+      "file": "elfsong.webp",
+      "alt": "A warm, crowded fantasy tavern at midday with a stone fireplace and a stair leading up to rented rooms."
+    },
+    "the-wide": {
+      "file": "the-wide.webp",
+      "alt": "A lantern-lit market square in a medieval harbour city at dusk, with a puppet stall and guards in red."
+    },
+    "guild-den": {
+      "file": "guild-den.webp",
+      "alt": "A dry stone vault under a city, shelves of ledgers, an iron lockbox on a table under a single lamp."
+    },
+    "dagny": {
+      "file": "dagny.webp",
+      "alt": "Portrait of a grey-haired halfling woman in round spectacles and a brown waistcoat."
+    },
+    "lockbox": {
+      "file": "lockbox.webp",
+      "alt": "An open iron lockbox in an alley, holding a sealed warrant and a silver stake etched with prayers."
+    },
+    "basilisk-gate": {
+      "file": "basilisk-gate.webp",
+      "alt": "A fortified city gate at night with a guard checkpoint, torches and a barking hound."
+    },
+    "wyrms-rock": {
+      "file": "wyrms-rock.webp",
+      "alt": "A stone bridge over a dark river under a fortress on a rock, a lone figure with a crossbow waiting at moonset."
+    },
+    "odric": {
+      "file": "odric.webp",
+      "alt": "Portrait of a shaved-headed, grey-bearded hunter with a burn scar and an oilskin coat."
+    },
+    "paid-in-full": {
+      "file": "paid-in-full.webp",
+      "alt": "A purse of gold on a tavern table at dawn beside an empty chair."
+    },
+    "ashes": {
+      "file": "ashes.webp",
+      "alt": "Burning paper falling as ash into a river at night below a fortress."
+    },
+    "hot-engine": {
+      "file": "hot-engine.webp",
+      "alt": "Three figures running and laughing through a wet dockside alley at night, one huge and horned with an orange glow in her chest."
+    }
+  },
   "skin": {
     "palette": {
       "accent": "#c9a0ff"
     },
+    "backgroundArt": "the-wide",
     "particles": "embers"
   }
 }

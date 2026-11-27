@@ -7,6 +7,7 @@
     "rating": "teen",
     "mode": "story",
     "blurb": "You copy letters for the crown in the Red Keep, and today you copied one line too many: a payment that should not exist. By nightfall the Spider and the Mockingbird both want a word with you, and a bored Lannister has noticed you too.",
+    "cover": "cover",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Game of Thrones",
@@ -53,7 +54,8 @@
       "name": "Serjeant Hobb Tarle",
       "appearance": "A heavy-set man in a gold cloak with a broken nose, a patchy red beard, a dented half-helm and a short sword.",
       "voice": "Coarse, mocking, pretends to be friendly before he strikes.",
-      "stance": "A corrupt Gold Cloak paid by Baelish to make the scribe disappear tonight."
+      "stance": "A corrupt Gold Cloak paid by Baelish to make the scribe disappear tonight.",
+      "portrait": "hobb"
     }
   ],
   "flags": {
@@ -139,7 +141,12 @@
           "target": "invitations"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "scriptorium",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "invitations"
       ],
@@ -181,7 +188,12 @@
           "target": "street_of_silk"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "invitations",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "godswood",
         "street_of_silk"
@@ -219,7 +231,12 @@
           "target": "tyrion"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "godswood",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "tyrion"
       ],
@@ -256,7 +273,12 @@
           "target": "tyrion"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "street-of-silk",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "tyrion"
       ],
@@ -302,7 +324,12 @@
           "target": "gold_cloak"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "tyrion-cellar",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "gold_cloak"
       ],
@@ -355,7 +382,16 @@
           "target": "the_page"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "gold-cloak",
+          "on": "enter"
+        },
+        {
+          "art": "hobb",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "the_page"
       ],
@@ -419,7 +455,12 @@
           "target": "ship_to_braavos"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "the-page",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "the_spiders_web",
         "the_mockingbirds_coin",
@@ -441,7 +482,12 @@
       ],
       "sceneBrief": "Varys takes the page with delight and the player becomes one of his informers: safe, paid and watched, a little bird with ink-stained fingers. Baelish smiles at them in a corridor a week later, and they both know. Close on the player reading a whisper in their sleeve.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "spiders-web",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Spider's Web"
@@ -458,7 +504,12 @@
       ],
       "sceneBrief": "Baelish burns the page in front of the player and gives them a treasury post and a purse. They rise fast and sleep badly. Close on a new ledger, their own hand making a false entry for the first time.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "mockingbirds-coin",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Mockingbird's Coin"
@@ -475,7 +526,12 @@
       ],
       "sceneBrief": "Tyrion drops the page on the Small Council table with a joke that makes Baelish's smile freeze. Nothing much happens to Baelish, as always, but the sellsword payments stop, and Tyrion takes the player into his own service as scribe when he leaves the city. Close on the road west and an argument about books.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "imps-scribe",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Imp's Scribe"
@@ -487,17 +543,76 @@
       "entry": [],
       "sceneBrief": "The player slips out through Flea Bottom to the docks and onto a Braavosi ship as the sun rises, with the page sewn into their coat. King's Landing falls behind. Freedom, and a secret worth a fortune, and no idea who will come looking. Close on the Titan of Braavos rising from the sea days later.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "braavos",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "A Ship to Braavos"
     }
   ],
-  "art": {},
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "A candlelit desk in a castle scriptorium with a ledger, a quill and a red seal, a great red castle beyond the window."
+    },
+    "scriptorium": {
+      "file": "scriptorium.webp",
+      "alt": "Rows of scribes copying ledgers in a hot, sunlit castle scriptorium."
+    },
+    "invitations": {
+      "file": "invitations.webp",
+      "alt": "Two folded notes on a desk, one with a lavender sprig, one sealed with a silver bird."
+    },
+    "godswood": {
+      "file": "godswood.webp",
+      "alt": "A white tree with a carved face and red leaves in a castle garden at dusk, a robed figure feeding birds."
+    },
+    "street-of-silk": {
+      "file": "street-of-silk.webp",
+      "alt": "A perfumed, lamp-lit parlour with silk hangings and two cups of wine."
+    },
+    "tyrion-cellar": {
+      "file": "tyrion-cellar.webp",
+      "alt": "A low cellar tavern lit by candles, a wine jug and two cups on a barrel table."
+    },
+    "gold-cloak": {
+      "file": "gold-cloak.webp",
+      "alt": "A dark stone stair at night with a guard in a gold cloak drawing a sword."
+    },
+    "hobb": {
+      "file": "hobb.webp",
+      "alt": "Portrait of a heavy-set guard with a broken nose, red beard and gold cloak."
+    },
+    "the-page": {
+      "file": "the-page.webp",
+      "alt": "A single ledger page beside a candle at the window before dawn over a city of red roofs."
+    },
+    "spiders-web": {
+      "file": "spiders-web.webp",
+      "alt": "A tiny folded note being passed through a gap in a castle wall."
+    },
+    "mockingbirds-coin": {
+      "file": "mockingbirds-coin.webp",
+      "alt": "A burning ledger page and a heavy purse of gold on a desk."
+    },
+    "imps-scribe": {
+      "file": "imps-scribe.webp",
+      "alt": "A small party on horseback on a road leading west under a wide sky, a cart of books behind."
+    },
+    "braavos": {
+      "file": "braavos.webp",
+      "alt": "A ship sailing toward a colossal stone statue guarding a harbour."
+    }
+  },
   "skin": {
     "palette": {
       "accent": "#d4a64a"
     },
+    "backgroundArt": "scriptorium",
     "particles": "motes"
   }
 }

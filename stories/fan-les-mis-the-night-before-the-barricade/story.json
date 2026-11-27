@@ -7,6 +7,7 @@
     "rating": "teen",
     "mode": "story",
     "blurb": "Paris, June 1832. You set type for a living, and tonight the students in the back room of the Café Musain need a printer they can trust. By tomorrow the city will be at war with itself, and you will have to decide who you save.",
+    "cover": "cover",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Les Misérables",
@@ -45,14 +46,16 @@
       "name": "Gavroche",
       "appearance": "A skinny street boy of about eleven in trousers far too big held up by one strap, a man's jacket with torn elbows, a battered cap, and bare, dirty feet.",
       "voice": "Quick, cheeky Paris slang, invents songs and insults on the spot, fearless to the point of madness.",
-      "stance": "Adopts the player as an older sibling within an hour and expects them to keep up."
+      "stance": "Adopts the player as an older sibling within an hour and expects them to keep up.",
+      "portrait": "gavroche"
     },
     {
       "id": "javert",
       "name": "The tall stranger (Inspector Javert)",
       "appearance": "A very tall man with a long, stern face, heavy sideburns, a low hat pulled down and a long grey greatcoat buttoned to the chin.",
       "voice": "Few words, flat and cold. Asks practical questions about numbers, powder and exits.",
-      "stance": "A police spy pretending to volunteer. Unbending, but bound by his own sense of law and debt."
+      "stance": "A police spy pretending to volunteer. Unbending, but bound by his own sense of law and debt.",
+      "portrait": "javert"
     }
   ],
   "flags": {
@@ -134,7 +137,12 @@
           "target": "funeral"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "musain",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "funeral"
       ],
@@ -180,7 +188,12 @@
           "target": "corinthe"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "funeral",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "corinthe"
       ],
@@ -226,7 +239,17 @@
           "target": "night_watch"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "corinthe",
+          "on": "enter"
+        },
+        {
+          "art": "javert",
+          "on": "choice",
+          "choice": "expose_stranger"
+        }
+      ],
       "exits": [
         "night_watch"
       ],
@@ -278,7 +301,12 @@
           "target": "the_cartridges"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "night-watch",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "the_wounded",
         "the_cartridges"
@@ -305,7 +333,12 @@
           "target": "dawn"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "wounded",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "dawn"
       ],
@@ -352,7 +385,16 @@
           "target": "dawn"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "cartridges",
+          "on": "enter"
+        },
+        {
+          "art": "gavroche",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "dawn"
       ],
@@ -405,7 +447,12 @@
           "target": "the_inspectors_debt"
         }
       ],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "dawn",
+          "on": "enter"
+        }
+      ],
       "exits": [
         "paris_remembers",
         "over_the_rooftops",
@@ -421,7 +468,12 @@
       "entry": [],
       "sceneBrief": "The barricade falls. The player fights beside Enjolras and Grantaire to the last, is struck down and wakes days later in a stranger's house, alive. Months on, the player sets the names of the dead in type, one by one, and prints them for anyone who will read. Tragic and proud, not graphic.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "paris-remembers",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Paris Remembers"
@@ -438,7 +490,12 @@
       ],
       "sceneBrief": "The player and Gavroche go up through the Corinthe's attic and over the roofs of Paris as the cannon fires below. They hide among chimney pots until the shooting stops. Gavroche goes quiet for the first time, then makes a joke. Close on the two of them looking at the morning city: he is alive, and the player now has a little brother whether they like it or not.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "rooftops",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "Over the Rooftops"
@@ -459,17 +516,76 @@
       ],
       "sceneBrief": "Javert, freed because the player spoke for him, keeps his word with cold exactness: he walks the player past the soldiers and lets them go, then tells them he will arrest them the next time they meet. The player walks through a silent Paris while the drums sound behind them, carrying what they saw. Close on the strangeness of being owed something by the law.",
       "choices": [],
-      "artCues": [],
+      "artCues": [
+        {
+          "art": "inspector",
+          "on": "enter"
+        }
+      ],
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Inspector's Debt"
     }
   ],
-  "art": {},
+  "art": {
+    "cover": {
+      "file": "cover.webp",
+      "alt": "A barricade of paving stones and furniture in a narrow Paris street at night, a red flag lit by candles."
+    },
+    "musain": {
+      "file": "musain.webp",
+      "alt": "Students arguing over maps in the smoky back room of a Paris café by candlelight."
+    },
+    "funeral": {
+      "file": "funeral.webp",
+      "alt": "A huge funeral procession in rainy 1830s Paris breaking into chaos as cavalry charge."
+    },
+    "corinthe": {
+      "file": "corinthe.webp",
+      "alt": "Students piling paving stones and an overturned omnibus into a barricade outside a wine shop."
+    },
+    "javert": {
+      "file": "javert.webp",
+      "alt": "Portrait of a very tall stern man in a low hat and long grey greatcoat."
+    },
+    "night-watch": {
+      "file": "night-watch.webp",
+      "alt": "Candles flickering on a quiet barricade at night, young men keeping watch."
+    },
+    "wounded": {
+      "file": "wounded.webp",
+      "alt": "Two figures carrying a wounded student through a dark, narrow Paris alley before dawn."
+    },
+    "cartridges": {
+      "file": "cartridges.webp",
+      "alt": "A small street boy with a basket in a smoky street in front of a barricade at dawn."
+    },
+    "gavroche": {
+      "file": "gavroche.webp",
+      "alt": "Portrait of a grinning ragged street boy in a battered cap and an oversized jacket."
+    },
+    "dawn": {
+      "file": "dawn.webp",
+      "alt": "Soldiers and a cannon at the end of a narrow Paris street at dawn, facing a barricade."
+    },
+    "paris-remembers": {
+      "file": "paris-remembers.webp",
+      "alt": "Inked hands setting lead type for a printed list of names in a print shop."
+    },
+    "rooftops": {
+      "file": "rooftops.webp",
+      "alt": "Two figures sitting among chimney pots on Paris rooftops in morning light."
+    },
+    "inspector": {
+      "file": "inspector.webp",
+      "alt": "A lone figure walking away down a silent Paris street at dawn past soldiers."
+    }
+  },
   "skin": {
     "palette": {
       "accent": "#c8423b"
     },
+    "backgroundArt": "night-watch",
     "particles": "ash"
   }
 }

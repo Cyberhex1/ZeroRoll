@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-matrix-the-deja-vu-courier",
+    "title": "The Deja Vu Courier",
+    "category": "psychedelic_trip",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You deliver packages across a city that keeps repeating itself. The same black cat, twice. The same song, the same rain. A woman in black leather says you're noticing the code. A man in mirrored glasses offers you a choice. And an agent in a grey suit has started following your route.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Matrix",
+      "medium": "film",
+      "owner": "Warner Bros. (the Wachowskis)",
+      "aka": [
+        "Matrix",
+        "Neo",
+        "Morpheus",
+        "Trinity",
+        "red pill"
+      ]
+    }
+  },
+  "world": "The Matrix: a simulated reality of a late-1990s city, created by machines to keep humanity asleep while their bodies power the machines in the real, ruined world. Freed humans hack in from the hovercraft Nebuchadnezzar. Morpheus, the captain, offers people a red pill (wake up) or a blue pill (forget). Trinity is a fearless hacker and fighter. Agents (like Agent Kroll) are sentient programs that hunt rebels and can take over anyone in the Matrix. Deja vu means the Matrix has been changed. The player, a courier, has been unknowingly delivering packages containing code that rewrites parts of the city; a rogue program inside the system, the Gardener, is using them to build a hidden safe zone for awakened minds.",
+  "tone": "Mind-bending, stylish cyber-thriller: green code, slow-motion action, existential questions, and the thrill of realising the world isn't real.",
+  "playerRole": "A bicycle courier in the city, with a messenger bag, a battered phone, a bike you trust and a nagging feeling that you've lived this day before.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Hypnotic, stylish narration: green-tinted city, glitches and deja vu, slowed-down time in action, philosophical dialogue, and the vertigo of waking up. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "trinity",
+      "name": "Trinity",
+      "appearance": "A slim woman with short slicked-back black hair, small dark sunglasses, a long black leather coat over a black catsuit.",
+      "voice": "Cool, direct and confident; few words; warm underneath.",
+      "stance": "Guides the player and fights beside them."
+    },
+    {
+      "id": "morpheus",
+      "name": "Morpheus",
+      "appearance": "A tall, calm man with a shaved head, small round mirrored sunglasses, a long dark-green leather coat and a tie pin.",
+      "voice": "Deep, measured and prophetic; speaks in riddles and questions.",
+      "stance": "Offers the player the choice and believes in them."
+    },
+    {
+      "id": "kroll",
+      "name": "Agent Kroll",
+      "appearance": "A man in a plain grey suit and tie, with slicked hair, an earpiece and narrow black sunglasses.",
+      "voice": "Flat, precise and condescending; calls humans 'a virus'.",
+      "stance": "Hunting the courier and the code they carry."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Trace the packages through the code with Trinity; 2 = Meet the Gardener in Room 303."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied the backdoor key."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The Gardener gave the player the seed package."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Deja Vu",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player's delivery route. Same black cat crossing the street twice. Same song on a radio twice. A package marked 'Urgent - Room 303' hums in their bag. A woman in black leather on a rooftop watches them.",
+      "choices": [
+        {
+          "id": "deliver_the_package_to_room_303",
+          "label": "Deliver the package to Room 303",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "open_the_package",
+          "label": "Open the package",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "follow_the_black_cat",
+          "label": "Follow the black cat",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The radio plays the same song for the third time. The cat looks at the player.",
+      "page": "Same black cat. Crossing the street. Then crossing it again, exactly the same, as if someone hit rewind.\n\nYou stop your bike. A radio in a shop doorway is playing a song. You heard it ten minutes ago. Same lyric, same crackle on the same note.\n\nIn your messenger bag, a package marked \"URGENT - ROOM 303\" hums faintly, like a phone on silent.\n\nYou look up. On a rooftop across the street, a woman in a long black leather coat and tiny dark sunglasses is watching you. She doesn't look away.\n\nThe radio plays the song again. The black cat sits down on the kerb and looks right at you."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Choice",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Trinity brings the player to Morpheus in an empty, rainy hotel room. He offers red pill and blue pill and explains the deja vu. Agent Kroll is following the player's route. Two ways to understand the packages: trace them back through the system's code with Trinity, or meet the program receiving them, the Gardener, in Room 303.",
+      "choices": [
+        {
+          "id": "ask_morpheus_why_you",
+          "label": "Ask Morpheus why you",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "\"Why me?\" you ask. Morpheus smiles slightly. \"Why does anyone notice the cat twice? Most people are not ready to be unplugged. You have been looking for the seams in the world since you were a child. I think you already know.\" He sits back. \"I do not know what you are. But I believe in finding out.\" It's the first time anyone has said anything like that to you. Trinity, at the window, glances back, and almost smiles."
+        },
+        {
+          "id": "trace_the_packages_through_the_code_with",
+          "label": "Trace the packages through the code with Trinity",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "meet_the_gardener_in_room_303",
+          "label": "Meet the Gardener in Room 303",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Morpheus: 'You take the red pill, you stay in Wonderland. The packages are already choosing you.'",
+      "page": "Trinity brings you to an old hotel with peeling wallpaper and rain on the windows. In a room with two leather armchairs, a tall bald man in round mirrored sunglasses rises to greet you.\n\n\"Morpheus,\" he says. \"You've felt it your whole life. That there's something wrong with the world.\"\n\nHe explains: the city is a simulation, a Matrix. Deja vu is a glitch, a sign that something has been changed. And your packages are changing it.\n\nHe holds out his hands. A red pill. A blue pill. \"You take the red pill, you stay in Wonderland. But the packages are already choosing you.\"\n\nTrinity, at the window: \"Agents are on your route. One of them is very interested in you.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Code",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The player sees the green code for the first time. With Trinity, they trace the packages: each rewrites a block of the city into a hidden district the agents can't see. They find a backdoor key in the code.",
+      "choices": [
+        {
+          "id": "copy_the_backdoor_key",
+          "label": "Copy the backdoor key",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "follow_the_code_to_its_source",
+          "label": "Follow the code to its source",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Trinity: 'Don't think. Just see.' The walls ripple into falling green symbols.",
+      "page": "\"Don't think,\" Trinity says. \"Just see.\"\n\nYou look at the wall, and it ripples. Then it falls apart into streams of glowing green symbols, pouring down like rain. The whole room. The whole city. Code.\n\nYou and Trinity follow the trail of your packages through it, a thread of brighter green winding across the city. Every delivery rewrote a block: an alley, a park, a street that the system can't see anymore. A hidden district, growing.\n\nAt the heart of it, in the code, is a key: a pattern that could lock the whole district closed.\n\nTrinity's hand is on your arm. \"Copy it. Fast. They've noticed us.\""
+    },
+    {
+      "id": "path_b",
+      "title": "Room 303",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Room 303: an old man tending potted plants in a room that's bigger inside. The Gardener explains he's a program building a refuge where awakened minds can live without fear. He gives the player the final package: the seed of the refuge.",
+      "choices": [
+        {
+          "id": "accept_the_final_package",
+          "label": "Accept the final package",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "ask_the_gardener_what_he_wants",
+          "label": "Ask the Gardener what he wants",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The Gardener waters a plant whose leaves are made of code: 'Every seed needs someone to carry it.'",
+      "page": "Room 303 is a normal hotel room. Then you step inside, and it's enormous: a greenhouse that goes on forever, full of potted plants whose leaves shimmer with tiny green symbols.\n\nAn old man in a cardigan is watering them. \"Ah. My courier. Finally we meet.\"\n\nHe's a program, he says. Old, forgotten, a gardener of code. He's been building a refuge, somewhere awakened minds can live without agents hunting them.\n\nHe hands you a small package, warm in your palm. \"The last seed. Every seed needs someone to carry it.\" He smiles. \"You've been very reliable. Not one delivery late.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Agent Kroll",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "On a rooftop, Agent Kroll confronts the player and Trinity. Time slows. Bullets ripple the air. Agent Kroll jumps from body to body in the crowd below.",
+      "choices": [
+        {
+          "id": "dodge_and_run",
+          "label": "Dodge and run",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "stand_and_fight_with_trinity",
+          "label": "Stand and fight with Trinity",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Kroll: 'You hear that? That is the sound of inevitability.'",
+      "page": "The rooftop. Rain. And a man in a grey suit and narrow sunglasses walking toward you, calm as a bank manager.\n\n\"Agent Kroll,\" he says. \"You hear that? That is the sound of inevitability.\"\n\nHe draws. Time slows. Bullets crawl through the air, rippling it like water, and you see them coming.\n\nTrinity flies past you in slow motion, coat spread like wings. Below, in the crowd on the street, people's faces flicker: Kroll can become any of them."
+    },
+    {
+      "id": "finale",
+      "title": "Wake Up",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The phone rings: exit. The player decides: use the backdoor key to lock agents out of the hidden district (only if they have it); deliver the seed package and complete the Gardener's refuge (only if they have it); or answer the phone and wake up in the real world with Trinity.",
+      "choices": [
+        {
+          "id": "use_the_backdoor_key",
+          "label": "Use the backdoor key",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "locked_out"
+        },
+        {
+          "id": "plant_the_gardener_s_seed",
+          "label": "Plant the Gardener's seed",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_garden"
+        },
+        {
+          "id": "answer_the_phone_and_wake_up",
+          "label": "Answer the phone and wake up",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "real_world"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "locked_out",
+        "the_garden",
+        "real_world"
+      ],
+      "isEnding": false,
+      "page": "Somewhere nearby, a phone is ringing. An old payphone, on the corner of the roof. The exit.\n\nKroll is down, for now, flickering as he tries to take another body. Trinity is breathing hard beside you, sunglasses cracked.\n\n\"Whatever you're going to do,\" she says, \"do it now.\""
+    },
+    {
+      "id": "locked_out",
+      "title": "Locked Out",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The key turns; the agents' code bounces off the hidden district. Rebels cheer on the ship. Trinity smiles. Close on a green district that no agent can enter.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Locked Out",
+      "page": "You reach into the code and turn the key.\n\nAcross the city, the hidden district seals itself shut. When Agent Kroll lunges back into a new body and runs for it, his code simply bounces off, like rain off glass.\n\nBack on the Nebuchadnezzar, the crew is cheering. Trinity pulls off her cracked sunglasses and smiles at you, a real one.\n\nSomewhere in the Matrix, there's now a place glowing green on every rebel screen."
+    },
+    {
+      "id": "the_garden",
+      "title": "The Garden",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The seed blooms into a hidden green district of the city where awakened minds can live safely. The Gardener waves. Close on a park of code-leafed trees and people waking up.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Garden",
+      "page": "You set the seed down on the wet rooftop and step back.\n\nIt sinks into the concrete like water. Then, block by block, the hidden district blooms: streets of glowing trees with leaves made of code, quiet parks, warm windows.\n\nFar below, people step out of doorways, blinking, awake and safe.\n\nIn the middle of it, a small old man in a cardigan waves up at you with his watering can."
+    },
+    {
+      "id": "real_world",
+      "title": "Real World",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player wakes in a pod in the real world, gasping. Trinity is there. Morpheus says 'Welcome to the real world'. Close on the ship's dim interior and a bowl of terrible porridge.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Real World",
+      "page": "You pick up the ringing phone.\n\nThe world falls away. You wake up gasping in cold, slimy liquid, cables in your arms, in a pod among a million pods under a dead black sky.\n\nThen there's light, and hands pulling you out, and you're lying on the metal floor of a ship. Trinity is kneeling over you.\n\nMorpheus's voice: \"Welcome to the real world.\"\n\nLater, someone hands you a bowl of grey, snot-like porridge. It's the worst thing you've ever tasted. You eat all of it."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#39ff6a"
+    },
+    "fonts": {
+      "heading": "mono",
+      "body": "mono"
+    },
+    "particles": "motes"
+  }
+}

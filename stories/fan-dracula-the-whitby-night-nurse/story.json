@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-dracula-the-whitby-night-nurse",
+    "title": "The Whitby Night Nurse",
+    "category": "horror",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "You're a night nurse at a seaside asylum in Whitby, 1897. A ship ran aground in the storm with a dead captain lashed to the wheel and fifty boxes of earth in the hold. Now your patient Renfield talks about 'the Master' every night, a young woman in your ward is growing paler, and a Dutch professor has asked you to keep a very strange kind of watch.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Dracula",
+      "medium": "book",
+      "owner": "based on the novel by Bram Stoker",
+      "aka": [
+        "Dracula",
+        "Van Helsing",
+        "Whitby",
+        "Count Dracula"
+      ]
+    }
+  },
+  "world": "Whitby and its asylum, England, 1897, during the events of Dracula. Count Dracula has arrived by ship (the Demeter), hidden in boxes of Transylvanian earth. Dr. John Seward runs the asylum; his patient Renfield eats flies and speaks of 'the Master'. Professor Abraham Van Helsing has come to investigate. A young patient, Clara Penrose, recovering from a fever, is being visited at night by the Count. Dracula's boxes of earth are his resting places; consecrating them with holy wafers makes them useless to him. He can be repelled by garlic and crucifixes and destroyed at sunrise.",
+  "tone": "Gothic horror of the old school: storms, fog, letters and diaries, creeping dread, wolves howling and a seductive, ancient evil. Frightening rather than gory.",
+  "playerRole": "A young night nurse at the asylum with a lamp, a ring of keys, a diary you write in every night, nerves of steel (mostly) and a stubborn refusal to let a patient come to harm.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Gothic, epistolary-style narration with diary entries, letters and telegrams woven in: fog over the abbey ruins, the tap of something at the window, sudden dread, and an ancient, courteous menace. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "vanhelsing",
+      "name": "Professor Abraham Van Helsing",
+      "appearance": "A stocky older Dutch professor with thick grey hair, bushy eyebrows, a black frock coat, a doctor's bag full of garlic and crucifixes and very bright eyes.",
+      "voice": "Eccentric, excitable, wise; mangled English.",
+      "stance": "Recruits the player into the hunt."
+    },
+    {
+      "id": "renfield",
+      "name": "R. M. Renfield",
+      "appearance": "A thin, wild-haired asylum patient in a straitjacket with feverish eyes and a mad, gentle smile.",
+      "voice": "Rambling, polite, flashes of eerie insight.",
+      "stance": "Torn between the Master and the player's kindness."
+    },
+    {
+      "id": "dracula",
+      "name": "Count Dracula",
+      "appearance": "A tall, pale, aristocratic man with a sharp face, dark hair swept back, red-tinged eyes, a long black cloak and an old-fashioned high collar.",
+      "voice": "Courteous, ancient, hypnotic.",
+      "stance": "Preying on Clara; amused by the player."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search the abbey ruins for the boxes; 2 = Listen to Renfield at midnight."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player sealed Dracula's boxes at the abbey with holy wafers."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player learned from Renfield where Dracula's last box is hidden."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Ship in the Storm",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "A storm-wrecked ship, the Demeter, has run aground at Whitby with its dead captain lashed to the wheel. A huge dog leapt ashore. That night, in the asylum, Renfield is screaming that 'the Master is come'. In ward three, a young patient, Clara, has two small marks on her neck.",
+      "choices": [
+        {
+          "id": "calm_renfield",
+          "label": "Calm Renfield",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "examine_clara_s_marks",
+          "label": "Examine Clara's marks",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "write_it_all_in_your_diary",
+          "label": "Write it all in your diary",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Renfield, suddenly calm: 'He is very polite, nurse. He asked about you.'",
+      "page": "From the diary of the night nurse, Whitby Asylum. 8th August, 1897.\n\nThe storm last night was the worst in living memory. This morning, a Russian ship, the Demeter, was found wrecked on the sands below the abbey, her captain dead and lashed to the wheel, and nothing aboard but fifty great boxes of earth. The fishermen say a huge dog leapt from the deck and ran up the 199 steps to the churchyard.\n\nTonight, Mr. Renfield, who eats flies, has been screaming since sunset. \"The Master is come! The Master is come!\"\n\nAnd in ward three, our sweet patient Clara Penrose, who was recovering so well, is pale as milk. On her neck: two small red marks, close together.\n\nWhen I went back to Renfield, he was suddenly quite calm. \"He is very polite, nurse,\" he said. \"He asked about you.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "The Professor",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Professor Van Helsing arrives. He believes the player. He explains: the Count rests in boxes of his native earth from the ship; and Renfield is connected to him. Two paths: find the boxes at the abbey ruins, or listen to Renfield at night.",
+      "choices": [
+        {
+          "id": "sit_with_clara_through_the_night",
+          "label": "Sit with Clara through the night",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "I sat with Clara all night, with the window shut and garlic flowers around her bed, and I read to her from a silly novel to keep her awake and keep both of us brave. She told me about her little brother and the fishing boats and the shop she wants to open someday, selling ribbons. At 3 a.m., something tapped on the glass. Neither of us looked. I kept reading, louder. She held my hand so tightly it hurt. By dawn, the colour was a little back in her cheeks."
+        },
+        {
+          "id": "search_the_abbey_ruins_for_the_boxes",
+          "label": "Search the abbey ruins for the boxes",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "listen_to_renfield_at_midnight",
+          "label": "Listen to Renfield at midnight",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Van Helsing: 'You must believe, my friend, in things you cannot. That is how we fight.'",
+      "page": "9th August. A telegram, and then a man: Professor Abraham Van Helsing, of Amsterdam, stocky and bright-eyed, with a doctor's bag that smells powerfully of garlic.\n\nHe looked at Clara's neck for a long time. Then he took me into the study and closed the door.\n\n\"You see things, I think. Things the others will not see. You must believe, my friend, in things you cannot. That is how we fight.\" He told me a story about a count, very old, from Transylvania, who cannot rest except in the earth of his homeland. \"The boxes from the ship. He sleeps in them. And your Renfield, poor man, hears him.\"\n\nI could search the abbey ruins for the boxes with the professor. Or I could sit outside Renfield's cell at midnight and listen."
+    },
+    {
+      "id": "path_a",
+      "title": "The Abbey Ruins",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "In the crypt beneath the abbey ruins, the player and Van Helsing find boxes of earth from the ship. Van Helsing gives the player holy wafers to seal them so the Count can't rest. One box is missing.",
+      "choices": [
+        {
+          "id": "seal_the_boxes_with_holy_wafers",
+          "label": "Seal the boxes with holy wafers",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "count_the_boxes",
+          "label": "Count the boxes",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The crypt door groans shut behind you. Rats scatter, all at once, in one direction.",
+      "page": "10th August. The crypt beneath the abbey ruins. Cold. Wet. Smelling of earth that isn't English.\n\nThe boxes are here, stacked in the dark, each one half full of black soil. Van Helsing breathes hard. \"His beds.\"\n\nHe gives me a small packet of holy wafers. \"Crumble one into each box. Then he cannot rest there. Never again.\"\n\nWe work by lantern-light, box after box. When we are done, I count them. Forty-nine. One is missing.\n\nBehind us, the crypt door groans shut on its own. And all the rats in the crypt run, at once, in one direction, squeaking, as if something is coming."
+    },
+    {
+      "id": "path_b",
+      "title": "Renfield's Hour",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "At midnight, Renfield talks: the Master has a final resting box hidden in the asylum's old chapel cellar, and he will come for Clara tomorrow night, the night of the full moon. Renfield asks the player to save him from himself.",
+      "choices": [
+        {
+          "id": "learn_where_the_last_box_is",
+          "label": "Learn where the last box is",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "promise_to_help_renfield",
+          "label": "Promise to help Renfield",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Something taps at the window. Renfield goes silent, trembling.",
+      "page": "Midnight. I sat outside Renfield's cell on a hard chair, with my lamp turned low.\n\nHe talked for an hour about flies, and spiders, and the lives they contain. Then, very quietly, he talked about the Master.\n\n\"He has a bed here, nurse. In the old chapel. In the cellar, where nobody goes. His last box. His favourite.\" His eyes filled with tears. \"Tomorrow is the full moon. He will come for the girl. Then he will come for you.\"\n\nHe gripped the bars. \"Help me, nurse. I don't want to be his. Save me from myself.\"\n\nThen something tapped on his window. Renfield went silent, trembling like a leaf."
+    },
+    {
+      "id": "showdown",
+      "title": "The Full Moon",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The night of the full moon. Mist pours under the doors. Dracula appears in Clara's room, courteous and smiling, and offers the player eternity.",
+      "choices": [
+        {
+          "id": "hold_up_the_crucifix",
+          "label": "Hold up the crucifix",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "refuse_him_and_stand_by_clara",
+          "label": "Refuse him and stand by Clara",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "His eyes glow red. Somewhere, wolves begin to howl.",
+      "page": "11th August. The full moon.\n\nAt midnight, mist began to pour under Clara's door like milk. It gathered by her bed and rose and became a man.\n\nTall. Pale. Aristocratic. Dark hair swept back from a sharp face. A long black cloak. Eyes with a red light in them, like coals.\n\n\"Good evening, nurse,\" he said, in a voice like velvet. \"You have been so very kind to my little Clara. Kindness should be rewarded. Shall I give you eternity?\"\n\nOutside, all the dogs in Whitby began to howl. Then wolves, which there are none of in England."
+    },
+    {
+      "id": "finale",
+      "title": "Before Dawn",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The hour before dawn. The player decides: seal the last box in the chapel cellar so the Count has nowhere to rest (only if they sealed the others at the abbey); trap the Count where Renfield said, until sunrise (only if they know where the last box is); or flee with Clara on the dawn train to London.",
+      "choices": [
+        {
+          "id": "seal_the_last_box",
+          "label": "Seal the last box",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "nowhere_to_rest"
+        },
+        {
+          "id": "trap_the_count_until_sunrise",
+          "label": "Trap the Count until sunrise",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "sunrise"
+        },
+        {
+          "id": "flee_with_clara_on_the_dawn_train",
+          "label": "Flee with Clara on the dawn train",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_dawn_train"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "nowhere_to_rest",
+        "sunrise",
+        "the_dawn_train"
+      ],
+      "isEnding": false,
+      "page": "12th August. The hour before dawn. Grey light at the edge of the sea.\n\nClara sleeps. Van Helsing sits by her, holding his crucifix, exhausted. Renfield is quiet in his cell.\n\nI have my diary, my lamp and my keys. There is perhaps an hour of darkness left. I know what must be done. I only have to choose which way to do it."
+    },
+    {
+      "id": "nowhere_to_rest",
+      "title": "Nowhere to Rest",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Without his boxes, the Count is driven from England, weak and hunted. Clara recovers. Van Helsing toasts the player. Close on Whitby harbour at dawn.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Nowhere to Rest",
+      "page": "I went down into the old chapel cellar with the professor's last holy wafer, found the final box, and crumbled the wafer into the black earth.\n\nSomewhere far off, a terrible cry rang out over the sea.\n\nVan Helsing says the Count has fled England, weak and hunted, with nowhere left to rest. \"Not destroyed. But broken. And we will follow him.\"\n\nClara woke at sunrise and asked for breakfast. Two weeks later, she was well enough to walk on the harbour wall with me, eating chips, laughing at the gulls. Van Helsing raised a glass of brandy to me that night. \"To the nurse,\" he said, \"who believed.\""
+    },
+    {
+      "id": "sunrise",
+      "title": "Sunrise",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Count is trapped in the chapel cellar as dawn breaks; sunlight through a window destroys him. Renfield is freed from his spell. Close on golden light through a chapel window.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Sunrise",
+      "page": "I led the Count, with my lamp and my crucifix and every ounce of nerve I have, down into the chapel cellar, to his last box, and when he went to it to rest, I slammed the iron door and locked it with my keys.\n\nHe raged. He begged. He offered me everything.\n\nThen the sun rose, and its first golden beam came through the little high window of the cellar, straight across the box.\n\nThere was a sound like an old, old sigh, and then nothing but dust, drifting in the light.\n\nIn his cell, Renfield began to laugh and cry. He was free. So were we all."
+    },
+    {
+      "id": "the_dawn_train",
+      "title": "The Dawn Train",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player and Clara escape on the dawn train; Van Helsing stays to fight. The player's diary becomes evidence for the hunt. Close on a steam train leaving a misty seaside town.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Dawn Train",
+      "page": "I wrapped Clara in blankets and took her down the 199 steps in the grey dawn, to the station, and we caught the first train to London.\n\nVan Helsing stayed. \"Go,\" he said. \"Live. I will fight. And your diary, leave it with me. It is evidence. It is a weapon.\"\n\nFrom the train window, I watched Whitby disappear into the sea mist, the abbey ruins last of all, black against the sky.\n\nClara slept with her head on my shoulder. I did not sleep. I watched the window all the way to London, and I wrote everything down again from memory, so the hunt would never be forgotten."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#9a1b2e"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

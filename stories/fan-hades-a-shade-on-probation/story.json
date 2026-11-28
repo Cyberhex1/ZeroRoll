@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-hades-a-shade-on-probation",
+    "title": "A Shade on Probation",
+    "category": "ancient_greek",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You died. Annoying. Worse: you've been assigned a desk job in the House of Hades, the Underworld's most dysfunctional office, and on your first day a very important contract goes missing. The prince keeps escaping, the Fury keeps glaring, and the god of sleep is supposed to be your supervisor.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Hades",
+      "medium": "game",
+      "owner": "Supergiant Games",
+      "aka": [
+        "Hades game",
+        "Zagreus",
+        "Underworld"
+      ]
+    }
+  },
+  "world": "The Underworld of Greek myth, as run by the House of Hades: a grand palace of red and black marble where newly dead shades are processed and sorted to Tartarus, Asphodel, Elysium or the Temple of Styx. Lord Hades rules sternly. His son Zagreus is forever trying to escape to the surface, dying, and coming back through the pool of blood in the courtyard. Megaera, a Fury, punishes wrongdoers and is Zagreus' sometime-rival. Hypnos, the sleepy god of sleep, runs the front desk and the shade intake ledger. A contract between Hades and Poseidon, a peace treaty over who gets the souls of the drowned, has gone missing on the day it must be signed. Charon, the boatman, wheezes and sells things.",
+  "tone": "Witty, warm and mythic: banter, office comedy in a palace of the dead, sudden fights in the underworld's chambers, and family feelings buried under pride.",
+  "playerRole": "A newly arrived shade, recently deceased (how you died is up to you), assigned to the House as a junior clerk on probation, with a ledger, a quill, a name tag and the dawning realisation that eternity is long.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Playful, mythic narration with quick banter, characters who talk over each other, dramatic flourishes from gods, and short, punchy fights in the Underworld's chambers. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "zagreus",
+      "name": "Zagreus",
+      "appearance": "A young man with dark curly hair crowned with a small laurel wreath of fire, mismatched eyes (one red, one green), bare feet wreathed in flame, a red cape and a gleaming sword.",
+      "voice": "Cheeky, warm and defiant; jokes at his father's expense; genuinely kind to the staff.",
+      "stance": "Befriends the player immediately and wants help with an escape attempt."
+    },
+    {
+      "id": "megaera",
+      "name": "Megaera",
+      "appearance": "A fierce woman with dark blue skin, short dark hair, leathery wings, black armour straps and a barbed whip.",
+      "voice": "Clipped, cold and sarcastic, with a dry humour she'll deny.",
+      "stance": "Suspects the player stole the contract; slowly respects competence."
+    },
+    {
+      "id": "hypnos",
+      "name": "Hypnos",
+      "appearance": "A drowsy young god with fluffy white hair and a sleep mask pushed up on his forehead, floating cross-legged above a desk with a ledger.",
+      "voice": "Bubbly, sleepy and tactless; reads people's causes of death out loud like jokes.",
+      "stance": "Lost the contract by falling asleep on it and desperately hopes nobody finds out."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search the House with Megaera watching; 2 = Head out to Asphodel with Zagreus."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the wax seal on Hypnos' pillow."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player recovered the scorched treaty in Asphodel."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Intake",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player arrives in the House of Hades as a shade. Hypnos, floating sleepily over the front desk, reads out their cause of death with delight and assigns them as junior clerk on probation. Then Lord Hades thunders down the hall: the Poseidon treaty is missing and must be found before Charon's boat arrives with Poseidon's envoy tonight.",
+      "choices": [
+        {
+          "id": "volunteer_to_find_the_treaty",
+          "label": "Volunteer to find the treaty",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_hypnos_where_he_last_saw_it",
+          "label": "Ask Hypnos where he last saw it",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "look_for_somewhere_to_hide",
+          "label": "Look for somewhere to hide",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Hades bellows: 'NO ONE leaves this House until that treaty is found!' Zagreus, passing, mutters: 'Except me, as usual.'",
+      "page": "You're dead. That's the first thing. The second thing is the desk.\n\nA sleepy young god with fluffy white hair floats cross-legged over an enormous ledger, sleep mask pushed up on his forehead. \"Welcome to the House of Hades! I'm Hypnos. Let's see, cause of death...\" He reads it out loud, then laughs so hard he almost falls off the air. \"Oh, that's a new one!\"\n\nHe stamps your hand. \"Junior clerk. Probation. Congratulations!\"\n\nThen the whole hall shakes. A huge bearded god in black robes storms past, crown of shadow blazing. \"The Poseidon treaty is MISSING! The envoy arrives tonight! NO ONE leaves this House until it is found!\"\n\nA young man with flaming feet strolls by behind him. \"Except me, as usual,\" he mutters, and winks at you."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Lounge",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The House's lounge, with Cerberus snoring by the fire. Zagreus offers to help (he's escaping anyway). Megaera glares, convinced the newest clerk took it. Two leads: Hypnos' desk, where Zagreus thinks Hypnos fell asleep on it and a sleepy shade carried it off; or the realms outside, where Charon's ledger shows a messenger shade carried 'a scroll' toward Asphodel this morning.",
+      "choices": [
+        {
+          "id": "pet_cerberus_and_ask_zagreus_about_his_e",
+          "label": "Pet Cerberus and ask Zagreus about his escapes",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You kneel and scratch the nearest of Cerberus's three heads. All three thump their tails. Zagreus laughs. \"He likes you. That's rare.\" You ask about his escapes, and he tells you, with relish, about dying in Tartarus, in Asphodel, in Elysium, and coming back through the pool every time. \"Dad hates it.\" He says it like a joke, but there's something sad underneath. You decide you like him."
+        },
+        {
+          "id": "search_the_house_with_megaera_watching",
+          "label": "Search the House with Megaera watching",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "head_out_to_asphodel_with_zagreus",
+          "label": "Head out to Asphodel with Zagreus",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Megaera folds her arms: 'Prove it wasn't you, clerk.'",
+      "page": "The lounge is warm and smells of pomegranate. A three-headed dog the size of a carriage snores by the fire.\n\nThe young man with flaming feet flops onto a couch. \"Zagreus. Prince of the Underworld, professional escapee. I'll help you find it. I'm heading out anyway.\"\n\nA blue-skinned woman with leathery wings and a whip steps between you. \"Megaera. Fury.\" Her eyes narrow. \"The treaty vanished on your first day, clerk. Prove it wasn't you.\"\n\nZagreus taps Charon's boat ledger. \"A messenger shade carried a scroll toward Asphodel this morning. Or we tear the House apart with Meg breathing down our necks.\" He grins. \"Your pick.\""
+    },
+    {
+      "id": "path_a",
+      "title": "Searching the House",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "With Megaera watching over the player's shoulder, they search the House: Hypnos' desk, the kitchen, the administrative chamber. Under the desk is a pillow with the treaty's wax seal stuck to it and a sleeping shade's footprints. Megaera grudgingly concedes the player didn't do it, and that Hypnos is in trouble.",
+      "choices": [
+        {
+          "id": "show_megaera_the_wax_seal",
+          "label": "Show Megaera the wax seal",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "follow_the_sleepy_footprints",
+          "label": "Follow the sleepy footprints",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Megaera picks up the pillow by one corner: 'Hypnos.' Somewhere, a snore stops guiltily.",
+      "page": "You search the House with Megaera so close behind you that you can feel her wings twitch.\n\nThe kitchen: nothing but ambrosia. The administrative chamber: too much paperwork. Then Hypnos' front desk. Underneath it, there's a fluffy pillow with a big blob of red wax stuck to it, stamped with the seal of Hades and Poseidon both. Beside it, faint ghostly footprints, the shuffling kind a very sleepy shade would leave, lead away down the hall.\n\nMegaera picks up the pillow by one corner. \"Hypnos.\"\n\nSomewhere above, a snore stops guiltily.\n\nShe looks at you, and her glare softens by a fraction. \"Fine. It wasn't you.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Fields of Asphodel",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Zagreus and the player cross the burning river fields of Asphodel, fighting a skeletal ship crew and a bone hydra. They find the messenger shade: a confused ex-sailor who thought the scroll was a love letter for Poseidon. He confesses Hypnos asked him to 'hide it until I wake up'. The treaty is badly scorched but readable.",
+      "choices": [
+        {
+          "id": "take_back_the_scorched_treaty",
+          "label": "Take back the scorched treaty",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "help_the_sailor_shade_find_his_way",
+          "label": "Help the sailor shade find his way",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Zagreus wipes ash off his face: 'Asphodel. Lovely this time of never.'",
+      "page": "Asphodel is rivers of lava under a sky like a forge. \"Lovely this time of never,\" says Zagreus, wiping ash off his face.\n\nA skeletal ship crew attacks, then a hydra made entirely of bones. Zagreus's sword flashes; you swing your ledger like a shield and somehow survive.\n\nOn a rock in a sea of fire sits a confused shade in a sailor's hat, clutching a scorched scroll. \"It's a love letter,\" he says. \"For Poseidon. Hypnos asked me to hide it until he woke up. Then he didn't wake up.\"\n\nThe treaty is singed around the edges and smells of smoke, but the words are all there."
+    },
+    {
+      "id": "showdown",
+      "title": "The Envoy Arrives",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Charon's boat glides into the courtyard with Poseidon's envoy, a booming sea nymph. Hades is furious, Hypnos is pretending to sleep, and Megaera has her whip out. The treaty must be presented now.",
+      "choices": [
+        {
+          "id": "step_forward_with_what_you_have",
+          "label": "Step forward with what you have",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "buy_time_with_flattery_for_the_envoy",
+          "label": "Buy time with flattery for the envoy",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Charon wheezes a long 'Hhhhhhhhh...' that sounds very much like a warning.",
+      "page": "A long wheezing groan echoes across the courtyard. Charon's boat glides out of the dark, and standing in it is Poseidon's envoy: a sea nymph with seaweed hair and a voice like a breaking wave.\n\n\"I come for the TREATY!\" she booms.\n\nHades rises from his throne, face like a thunderstorm. Hypnos is floating in the corner with his eyes tightly shut, pretending very hard to be asleep. Megaera's whip uncoils.\n\nCharon says \"Hhhhhhhhh,\" which you are fairly sure means: you're up."
+    },
+    {
+      "id": "finale",
+      "title": "Judgement of Hades",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Hades turns to the clerk. The player decides: reveal Hypnos' nap to Hades with the wax seal evidence and ask for mercy for him (only if they found it); present the scorched treaty and charm the envoy into signing anyway (only if they recovered it); or take the blame themselves to save everyone's face.",
+      "choices": [
+        {
+          "id": "tell_hades_the_truth_about_hypnos_gently",
+          "label": "Tell Hades the truth about Hypnos, gently",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "sleeping_on_the_job"
+        },
+        {
+          "id": "present_the_scorched_treaty_to_the_envoy",
+          "label": "Present the scorched treaty to the envoy",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "signed_in_ash"
+        },
+        {
+          "id": "take_the_blame_yourself",
+          "label": "Take the blame yourself",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_clerk_who_took_the_fall"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "sleeping_on_the_job",
+        "signed_in_ash",
+        "the_clerk_who_took_the_fall"
+      ],
+      "isEnding": false,
+      "page": "Everyone in the courtyard is looking at you. The envoy, the Fury, the prince, the god of sleep, and Lord Hades himself, whose eyes burn like the bottom of Tartarus.\n\n\"Clerk,\" he rumbles. \"Explain.\"\n\nYou're a junior clerk on probation and you have been dead for less than a day. But you know what happened to the treaty, and that means, right now, you're the most important shade in the Underworld."
+    },
+    {
+      "id": "sleeping_on_the_job",
+      "title": "Sleeping on the Job",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Hades sentences Hypnos to an eternity of filing, which Hypnos considers a nap opportunity. Megaera nods to the player with something close to approval. The player's probation is lifted. Close on Hypnos asleep on a stack of paperwork and Cerberus snoring beside him.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Sleeping on the Job",
+      "page": "You hold up the pillow with the wax seal stuck to it. \"Lord Hades, it was an accident. Hypnos fell asleep on it. He's been working very hard.\"\n\nHypnos opens one eye. \"That's true. I'm exhausted. Constantly.\"\n\nHades pinches the bridge of his nose. He sentences Hypnos to an eternity of filing, which Hypnos accepts as a long-term nap opportunity.\n\nMegaera passes you in the hall later and nods, just once. Your probation is lifted by the end of the week. The last thing you see that night is Hypnos snoring on a mountain of paperwork, Cerberus curled up beside him."
+    },
+    {
+      "id": "signed_in_ash",
+      "title": "Signed in Ash",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The envoy laughs at the scorched treaty, finds it charming, and signs. Peace holds. Zagreus raises a goblet of ambrosia to the player at the lounge. Close on the player at their new, slightly bigger desk.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Signed in Ash",
+      "page": "You unroll the scorched treaty with a flourish. \"A little singed. From the journey. Through Asphodel. Where it was very bravely retrieved.\"\n\nThe envoy stares. Then she laughs, a laugh like a wave crashing on rocks. \"Charming! Poseidon will love this.\" She signs it with a dripping quill.\n\nPeace holds between the Underworld and the sea.\n\nThat night in the lounge, Zagreus raises a goblet of ambrosia. \"To the clerk!\" Even Megaera lifts her cup, briefly. The next morning, you're moved to a new desk. It's slightly bigger. It has a window onto the lava."
+    },
+    {
+      "id": "the_clerk_who_took_the_fall",
+      "title": "The Clerk Who Took the Fall",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player takes the blame and is sentenced to scrubbing the courtyard pool for a century. But Zagreus, Megaera and even Hypnos come to help. Close on all of them laughing by the pool of blood with mops.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Clerk Who Took the Fall",
+      "page": "You step forward. \"It was me. I lost it.\"\n\nSilence. Hypnos opens both eyes. Zagreus stares at you. Hades sentences you to scrubbing the courtyard pool for one hundred years.\n\nBut on the first night, there are footsteps beside you. Zagreus, with a mop. \"Can't let you have all the fun.\" Then Megaera, without a word. Then, yawning, Hypnos.\n\nThe four of you scrub the blood-red pool by torchlight, laughing at nothing, until the mop handle snaps and nobody can stop."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e04a2b"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "embers"
+  }
+}

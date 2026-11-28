@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-jurassicpark-night-shift-on-isla-nublar",
+    "title": "Night Shift on Isla Nublar",
+    "category": "adventure",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You're a vet tech on Isla Nublar the week before the park opens, and a triceratops calf is sick with something that isn't in any textbook. Dr. Ellie Sattler thinks it's the plants. The game warden thinks it's the fences. Then the storm hits, the power goes out, and you realise the calf isn't the only thing that's been changed.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Jurassic Park",
+      "medium": "film",
+      "owner": "Universal Pictures, Amblin Entertainment and the estate of Michael Crichton",
+      "aka": [
+        "Jurassic Park",
+        "Isla Nublar",
+        "dinosaurs"
+      ]
+    }
+  },
+  "world": "Isla Nublar, a tropical island off Costa Rica, the week before Jurassic Park opens. InGen has cloned dinosaurs from ancient DNA: triceratops, brachiosaurs, velociraptors, a T. rex, all kept behind electric fences. Dr. Ellie Sattler, a paleobotanist, is visiting to evaluate the park. Robert Muldoon, the game warden, distrusts the raptors. A rival company has bribed a park systems technician, Lyle Brandt, to steal embryos during the storm, and he's planning to cut the power. The sick triceratops calf, Tilly, ate a toxic plant, a poisonous West Indian lilac, that InGen planted for decoration.",
+  "tone": "Awe-struck adventure turning to survival thriller: wonder at living dinosaurs, then rain, darkness and the sound of something big moving in the trees.",
+  "playerRole": "A junior veterinary technician with a medical kit, a radio, a flashlight, a park jeep with a temperamental engine and a deep, nerdy love of dinosaurs.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Cinematic adventure narration: the swell of wonder at first sight of dinosaurs, then rain, broken fences, the thud of footsteps, a cup of water rippling. Danger is real but never gory. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "ellie",
+      "name": "Dr. Ellie Sattler",
+      "appearance": "A capable woman in her thirties with blonde hair in a ponytail, a pink shirt tied at the waist over a tank top, khaki shorts, hiking boots and a field bag.",
+      "voice": "Warm, practical, quick and fearless; loves plants.",
+      "stance": "Helps the player diagnose the calf and stands by them in danger."
+    },
+    {
+      "id": "muldoon",
+      "name": "Robert Muldoon",
+      "appearance": "A lean, weathered game warden with a short grey beard, a wide-brimmed bush hat, khaki safari clothes and a shotgun.",
+      "voice": "Clipped British accent; grimly practical; warns about raptors.",
+      "stance": "Respects competence; wants the fences checked."
+    },
+    {
+      "id": "lyle",
+      "name": "Lyle Brandt",
+      "appearance": "A twitchy systems technician with messy hair, thick glasses, a park polo shirt, a fanny pack and a canister disguised as shaving cream.",
+      "voice": "Nervous, defensive, full of excuses.",
+      "stance": "Planning to cut the power and steal embryos."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search the gardens with Ellie; 2 = Check the fences with Muldoon."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player got a sample of the toxic lilac for an antidote."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Lyle's sabotage device."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "A Sick Calf",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Morning at the triceratops paddock. A calf, Tilly, lies in the grass with blisters on her tongue. The player examines her; Ellie Sattler arrives, fascinated. A storm is coming. In the control room, a technician tells everyone the fences are 'fine, totally fine'.",
+      "choices": [
+        {
+          "id": "examine_the_calf_s_droppings",
+          "label": "Examine the calf's droppings",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_ellie_what_she_thinks",
+          "label": "Ask Ellie what she thinks",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "radio_the_control_room_about_the_storm",
+          "label": "Radio the control room about the storm",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Ellie, kneeling: 'Look at her pupils. This isn't a virus. She ate something.'",
+      "page": "Isla Nublar is impossibly green. Mist curls off the mountains. Somewhere out there, a brachiosaurus is singing, a sound like a whale through a trumpet.\n\nYou're kneeling in the triceratops paddock beside Tilly, a calf the size of a small car, who is lying on her side and breathing hard. Blisters on her tongue. Pupils huge.\n\nA blonde woman in a pink shirt crouches beside you, eyes shining. \"Dr. Ellie Sattler. Is she... can I...?\" She's already touching Tilly's leg with complete wonder.\n\nOut to sea, storm clouds are stacking up like a dark wall.\n\nYour radio crackles. A technician in the control room, Lyle, voice too high: \"The fences are fine. Totally fine. Don't worry about the fences.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Before the Storm",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Ellie suspects a toxic plant somewhere on the island. Muldoon notices fence power fluctuations near the embryo lab. The storm is an hour away. Two jobs: search the paddock's ornamental gardens for the plant with Ellie, or check the lab and fences with Muldoon.",
+      "choices": [
+        {
+          "id": "comfort_tilly_and_feed_her",
+          "label": "Comfort Tilly and feed her",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You sit with your back against Tilly's warm, leathery side and feed her soft leaves from your hand. She takes them slowly. Her mother watches from across the paddock, huge and patient. Ellie sits down beside you. \"Sixty-five million years,\" she whispers, \"and here she is. Eating out of your hand.\" Neither of you says anything for a while. Tilly sighs, and the sound is almost content."
+        },
+        {
+          "id": "search_the_gardens_with_ellie",
+          "label": "Search the gardens with Ellie",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "check_the_fences_with_muldoon",
+          "label": "Check the fences with Muldoon",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Muldoon, eyeing the sky: 'Storm and a fence fault in the same night. I don't like it.'",
+      "page": "\"Look at her pupils,\" Ellie says. \"This isn't a virus. She ate something. Something poisonous.\"\n\nA jeep pulls up. A lean man in a bush hat with a shotgun across his knees: Robert Muldoon, the game warden. \"Fence power dropped near the embryo lab twice this morning. Lyle says it's nothing.\" He watches the sky. \"Storm and a fence fault in the same night. I don't like it.\"\n\nThe storm is an hour away. Ellie wants to search the ornamental gardens by the paddock for whatever Tilly ate. Muldoon wants someone with him on the fences.\n\nTilly groans softly and closes her eyes."
+    },
+    {
+      "id": "path_a",
+      "title": "The Gardens",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Ellie and the player find West Indian lilac planted by the paddock: toxic to triceratops. Ellie gathers a sample to make an antidote. In the gardener's shed, they find Lyle's delivery schedule for a boat at the east dock tonight.",
+      "choices": [
+        {
+          "id": "take_a_sample_for_the_antidote",
+          "label": "Take a sample for the antidote",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "take_lyle_s_boat_schedule",
+          "label": "Take Lyle's boat schedule",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Thunder rolls. Somewhere in the trees, something large stops moving.",
+      "page": "The ornamental garden beside the paddock is all pretty flowering shrubs, planted by InGen's landscapers to make the park look nice for tourists.\n\nEllie stops dead in front of a bush with clusters of purple flowers. \"West Indian lilac. It's toxic. Extremely toxic. And they planted it next to the herbivores.\" She snaps off a cutting carefully. \"If I know the toxin, I can work out an antidote.\"\n\nIn the gardener's shed nearby, you find something that doesn't belong there: a schedule in Lyle's handwriting. A boat. East dock. Tonight. 10 p.m.\n\nThunder rolls. In the trees at the edge of the garden, something large stops moving."
+    },
+    {
+      "id": "path_b",
+      "title": "The Fences",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Muldoon and the player find a timer device wired into the fence controls near the lab, and Lyle's shaving-cream canister rigged to carry embryos. Muldoon wants the raptor pen checked.",
+      "choices": [
+        {
+          "id": "pull_the_timer_device",
+          "label": "Pull the timer device",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "photograph_the_canister_setup",
+          "label": "Photograph the canister setup",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "In the raptor pen, three shapes stand perfectly still, watching.",
+      "page": "Muldoon drives the fence line in silence, rain starting to spit. At the junction box near the embryo lab, he stops the jeep. \"There.\"\n\nWired into the fence controls is a small device with a blinking red timer. Somebody wants the power to go down at exactly the right time.\n\nIn a maintenance locker nearby, you find a can of shaving cream that isn't shaving cream: its bottom unscrews into a cold chamber with slots for tiny vials. Embryos.\n\nMuldoon looks past you at the raptor pen. Three tall shapes stand perfectly still behind the fence, watching you with yellow eyes.\n\n\"Clever girls,\" he mutters. \"Let's not stay.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Lights Out",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The storm hits; the power dies. Fences go dark. Lyle runs for the dock in a jeep. Tilly is getting worse. Somewhere, a T. rex roars.",
+      "choices": [
+        {
+          "id": "race_to_the_calf_with_medicine",
+          "label": "Race to the calf with medicine",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "chase_lyle_through_the_storm",
+          "label": "Chase Lyle through the storm",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "A cup of water on the jeep's dashboard ripples. Then ripples again.",
+      "page": "The storm arrives like a wall. Rain hammers the jeep. Then, all at once, every light on the island goes out.\n\nThe fences are dead.\n\nYour radio crackles: Lyle's jeep has been seen racing for the east dock. Ellie's voice comes next, urgent. \"Tilly's getting worse. Fast.\"\n\nThen, from somewhere in the dark, a roar that shakes the trees. On the jeep's dashboard, a cup of water ripples. Then ripples again."
+    },
+    {
+      "id": "finale",
+      "title": "Dawn on Nublar",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The storm passes. The player decides: give Tilly the antidote from Ellie's sample (only if they have it); show the timer and canister to the park founder so Lyle's employers are caught (only if they have it); or get everyone to the visitor centre and wait for rescue.",
+      "choices": [
+        {
+          "id": "treat_tilly_with_the_antidote",
+          "label": "Treat Tilly with the antidote",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "life_finds_a_way"
+        },
+        {
+          "id": "expose_lyle_s_sabotage",
+          "label": "Expose Lyle's sabotage",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "caught_red_handed"
+        },
+        {
+          "id": "get_everyone_to_safety_and_wait",
+          "label": "Get everyone to safety and wait",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "shelter"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "life_finds_a_way",
+        "caught_red_handed",
+        "shelter"
+      ],
+      "isEnding": false,
+      "page": "By dawn, the storm has passed. Steam rises off the jungle. Somewhere in the trees, birds start singing again as if nothing happened.\n\nYou're soaked to the bone. Your jeep is dented. You're alive.\n\nEllie and Muldoon stand with you at the edge of the paddock, waiting to see what you'll do with what you've learned."
+    },
+    {
+      "id": "life_finds_a_way",
+      "title": "Life Finds a Way",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Tilly recovers and stands, wobbling, nuzzling the player. Ellie has the lilac ripped out. Close on the calf and her mother grazing at dawn in a misty field.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Life Finds a Way",
+      "page": "Ellie mixes the antidote in the vet station by lantern light, and you give it to Tilly with a huge syringe, hands shaking.\n\nFor an hour, nothing. Then Tilly's breathing slows. Her eyes clear. She lurches up onto her wobbly legs and shoves her enormous head into your chest, nearly knocking you over.\n\nEllie laughs and cries at the same time. The next day, every West Indian lilac on the island is ripped out by the roots.\n\nYou watch Tilly and her mother graze together in the misty morning field. \"Life finds a way,\" Ellie mutters, and then, \"Ian is going to be unbearable about this.\""
+    },
+    {
+      "id": "caught_red_handed",
+      "title": "Caught Red-Handed",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Lyle is caught at the dock with the embryos; his employer is exposed. The park's opening is delayed for safety. Muldoon nods at the player. Close on a helicopter landing in the morning sun.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Caught Red-Handed",
+      "page": "You show the park's founder the timer, the canister and the boat schedule. He goes very pale.\n\nLyle is caught at the east dock at dawn, soaked and shaking, with a canister of stolen embryos in his bag. His employer, a rival genetics company, is exposed by the end of the week.\n\nThe park's opening is delayed for a full safety review.\n\nMuldoon finds you by the helicopter pad as the rescue chopper lands in the morning sun. He doesn't say much. He nods, once, and goes to check the fences."
+    },
+    {
+      "id": "shelter",
+      "title": "Shelter",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Everyone survives the night in the visitor centre, listening to the island roar. At dawn, Ellie shares coffee with the player. Close on a brachiosaurus crossing the lagoon at sunrise.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Shelter",
+      "page": "You get everyone you can find into the visitor centre and bar the doors.\n\nAll night you sit in the dark rotunda under the skeletons of dinosaurs, listening to the living ones outside: roars, crashes, rain on glass. Nobody sleeps.\n\nAt dawn, it's quiet. Ellie hands you a paper cup of terrible coffee. You walk out onto the steps together.\n\nAcross the lagoon, through the mist, a brachiosaurus wades slowly through the water, golden in the sunrise, as if the night never happened."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e05a2a"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "rain"
+  }
+}

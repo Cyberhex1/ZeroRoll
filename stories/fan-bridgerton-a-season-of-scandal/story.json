@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-bridgerton-a-season-of-scandal",
+    "title": "A Season of Scandal",
+    "category": "romantic",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "It's your first London Season, and Lady Whistledown has already called you 'a diamond with a suspicious past'. A secret you're keeping could ruin your family; Eloise Bridgerton is determined to unmask Whistledown; and a viscount with a temper keeps asking you to dance.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Bridgerton",
+      "medium": "tv",
+      "owner": "Netflix, Shondaland and Julia Quinn",
+      "aka": [
+        "Bridgerton",
+        "Lady Whistledown",
+        "the ton"
+      ]
+    }
+  },
+  "world": "Regency London, 1814, during the Season, when the families of the ton present their daughters to society. Lady Whistledown is an anonymous gossip writer whose pamphlets can make or ruin anyone. The Bridgertons are a large, loving, well-connected family. Eloise Bridgerton is clever and rebellious and hates the marriage market. Anthony Bridgerton, the eldest, is the stern viscount. The player's family has a secret: their fortune came from a scandalous source (decided by the player), and a fortune-hunting lord, Lord Ashcombe, has found out and threatens to tell Whistledown unless the player marries him.",
+  "tone": "Lush, witty, romantic period drama: balls, gossip, longing glances, sharp banter, scandal and choices of the heart.",
+  "playerRole": "A debutante (or debutant) in your first Season, with a gown of your chosen colour, a dance card, a fan you know how to use, a family secret and a mind of your own.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Lush Regency narration with candlelight, string-quartet covers of modern songs, Whistledown's arch pamphlet excerpts between scenes, and slow-burn romance at the player's pace. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "eloise",
+      "name": "Eloise Bridgerton",
+      "appearance": "A young woman with dark brown hair pinned up loosely, a sharp clever face, a blue Regency gown with practical sleeves and an ink stain on her finger.",
+      "voice": "Witty, opinionated and restless; rants about the marriage market.",
+      "stance": "Befriends the player and recruits them to unmask Whistledown."
+    },
+    {
+      "id": "anthony",
+      "name": "Anthony Bridgerton",
+      "appearance": "A tall, dark-haired, handsome man in his late twenties with brooding eyes, a perfectly tied cravat and a dark tailcoat.",
+      "voice": "Proud, intense and stiff; secretly kind.",
+      "stance": "Keeps asking the player to dance and seems to know more than he says."
+    },
+    {
+      "id": "ashcombe",
+      "name": "Lord Ashcombe",
+      "appearance": "A pale, thin lord with slicked blond hair, a sly smile, an extravagant embroidered waistcoat and a quizzing glass.",
+      "voice": "Silky, sneering and charming in public.",
+      "stance": "Blackmails the player to marry them for their fortune."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Track Whistledown's printer with Eloise; 2 = Investigate Ashcombe's debts with Anthony."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took Ashcombe's letter back from the printer."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Ashcombe's IOUs and blackmail proof."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Presentation",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Queen's presentation and the first ball. Whistledown's latest sheet calls the player 'a diamond with a suspicious past'. Lord Ashcombe bows too low and whispers that he knows the family secret. Eloise rescues the player into a corner.",
+      "choices": [
+        {
+          "id": "ask_eloise_who_whistledown_might_be",
+          "label": "Ask Eloise who Whistledown might be",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "dance_with_anthony_bridgerton",
+          "label": "Dance with Anthony Bridgerton",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "confront_lord_ashcombe_quietly",
+          "label": "Confront Lord Ashcombe quietly",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Ashcombe, low: 'Marry me by the end of the Season, or Whistledown learns everything.'",
+      "page": "Dearest gentle reader, the newest arrival to this Season is a diamond, to be sure. But this author wonders: what does a diamond with such a suspicious past have to hide?\n\nYou crumple Whistledown's pamphlet in your gloved hand. Your first ball, and already the ton is whispering.\n\nThe ballroom glitters with candles and silk. A string quartet plays something oddly familiar. And then a thin, pale lord with slicked blond hair bows over your hand far too low.\n\n\"Lord Ashcombe,\" he purrs. Then, for your ears only: \"I know where your family's fortune came from. Marry me by the end of the Season, or Whistledown learns everything.\"\n\nBefore you can answer, a young woman with an ink stain on her finger seizes your arm. \"Come with me. Now.\" Eloise Bridgerton steers you into a corner behind a potted palm."
+    },
+    {
+      "id": "crossroads",
+      "title": "Two Plans",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Eloise vows to unmask Whistledown before Ashcombe can feed her the secret. Anthony warns the player Ashcombe has debts everywhere. Two plans: track Whistledown's printing with Eloise, or uncover Ashcombe's own scandal at the gaming clubs with Anthony's help.",
+      "choices": [
+        {
+          "id": "walk_in_the_park_with_eloise",
+          "label": "Walk in the park with Eloise",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You walk with Eloise in the park the next morning. She talks about everything she'd rather be doing than finding a husband: reading, travelling, arguing with philosophers. \"Nobody asks what we want,\" she says. \"Only who we'll marry.\" You tell her what you want. She stops walking and stares at you. \"Finally,\" she says. \"Someone in this town with a brain.\" She links her arm through yours, and you're friends from that moment."
+        },
+        {
+          "id": "track_whistledown_s_printer_with_eloise",
+          "label": "Track Whistledown's printer with Eloise",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "investigate_ashcombe_s_debts_with_anthon",
+          "label": "Investigate Ashcombe's debts with Anthony",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Eloise: 'Whoever she is, she's in the room. She's always in the room.'",
+      "page": "\"Ashcombe,\" Eloise hisses. \"Of course. What did he say?\"\n\nYou tell her. She doesn't flinch. \"Then we find Whistledown before he gets to her. I've been trying for two Seasons. Whoever she is, she's in the room. She's always in the room.\"\n\nLater, her brother Anthony, tall and brooding in a perfect cravat, finds you on the terrace. \"Ashcombe has debts in every gaming house in London,\" he says, without being asked. \"If someone wanted leverage, that's where they'd look.\" He bows stiffly. \"Not that it's any of my business.\"\n\nHe walks away. You're fairly sure it's very much his business."
+    },
+    {
+      "id": "path_a",
+      "title": "The Printer's Shop",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Eloise and the player sneak into Mayfair's back streets disguised. At a printer's shop they find Ashcombe's letter to Whistledown already delivered, but the printer, sympathetic, gives it back. Whistledown hasn't read it yet.",
+      "choices": [
+        {
+          "id": "take_ashcombe_s_letter_back",
+          "label": "Take Ashcombe's letter back",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "leave_a_note_for_whistledown",
+          "label": "Leave a note for Whistledown",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Eloise, thrilled: 'We're so close to her. I can smell the ink.'",
+      "page": "Disguised in plain cloaks, you and Eloise slip into the back streets behind Mayfair, following ink-stained delivery boys.\n\nA small printer's shop. The press is still warm. The printer, an old woman with spectacles, eyes you. \"You're the diamond.\"\n\nOn her counter is a sealed letter in Ashcombe's elegant hand, addressed to Lady Whistledown. It hasn't been opened.\n\nThe printer slides it toward you. \"I don't care for blackmailers,\" she says. \"And she hasn't collected her post yet.\"\n\nEloise grips your arm, eyes blazing. \"We're so close to her. I can smell the ink.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Gaming Club",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "At a club, Anthony and the player find Ashcombe's IOUs, thousands of pounds, and proof he's tried to blackmail two other debutantes.",
+      "choices": [
+        {
+          "id": "take_the_ious_and_proof",
+          "label": "Take the IOUs and proof",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "win_ashcombe_s_ious_at_cards",
+          "label": "Win Ashcombe's IOUs at cards",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Anthony, quietly furious: 'He's done this before. To girls with no one to defend them.'",
+      "page": "Anthony takes you, in disguise, through the back door of a gaming club so smoky you can barely see the card tables.\n\n\"Ashcombe owes this house four thousand pounds,\" he murmurs. \"And three others besides.\"\n\nThe club's owner, who owes Anthony a favour, opens a ledger and a locked drawer. Ashcombe's IOUs. And letters, two of them, from other young ladies, begging him not to tell their secrets. He's done this before.\n\nAnthony reads them with his jaw clenched. \"To girls with no one to defend them,\" he says quietly. \"Not this time.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Bridgerton Ball",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The grandest ball of the Season. Ashcombe announces he'll make a 'special announcement'. Eloise watches the room for Whistledown. Anthony waits for the player at the edge of the dance floor.",
+      "choices": [
+        {
+          "id": "dance_with_anthony_while_you_plan",
+          "label": "Dance with Anthony while you plan",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "intercept_ashcombe_before_his_announceme",
+          "label": "Intercept Ashcombe before his announcement",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Ashcombe raises his glass: 'Ladies and gentlemen, I have news about a certain diamond...'",
+      "page": "The Bridgerton ball is the grandest of the Season. A thousand candles. Flowers on every surface. The quartet plays as couples spin.\n\nAt the top of the room, Lord Ashcombe raises his glass and taps it with a spoon. The room hushes.\n\n\"Ladies and gentlemen, I have news about a certain diamond...\"\n\nEloise scans the crowd, looking for anyone taking notes. And at the edge of the dance floor, Anthony Bridgerton holds out his hand to you, waiting."
+    },
+    {
+      "id": "finale",
+      "title": "The Last Dance",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: burn Ashcombe's letter so Whistledown never receives it (only if they have it); reveal Ashcombe's IOUs and blackmail to the whole ballroom (only if they found them); or tell the secret themselves, on their own terms.",
+      "choices": [
+        {
+          "id": "burn_ashcombe_s_letter",
+          "label": "Burn Ashcombe's letter",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "ink_and_fire"
+        },
+        {
+          "id": "expose_ashcombe_s_blackmail",
+          "label": "Expose Ashcombe's blackmail",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "dear_reader"
+        },
+        {
+          "id": "tell_your_secret_yourself",
+          "label": "Tell your secret yourself",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "my_own_words"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "ink_and_fire",
+        "dear_reader",
+        "my_own_words"
+      ],
+      "isEnding": false,
+      "page": "The room is waiting. Ashcombe is smiling. Anthony's hand is still held out. Somewhere in this ballroom, Lady Whistledown is watching, quill ready.\n\nWhatever happens next will be in tomorrow's pamphlet.\n\nYou lift your chin. Dearest reader, you think. Watch this."
+    },
+    {
+      "id": "ink_and_fire",
+      "title": "Ink and Fire",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The letter burns; Ashcombe has nothing to sell. Whistledown's next issue praises the player's 'mysterious poise'. Eloise swears she'll unmask her next Season. Close on a candle and a curling page.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Ink and Fire",
+      "page": "You slip away to the library, hold Ashcombe's letter over a candle, and watch it curl into ash.\n\nWhen you return to the ballroom, Ashcombe makes his announcement. But without proof, it's just a bitter man telling tales, and the ton has heard plenty of those. People laugh behind their fans. At him.\n\nThe next morning's Whistledown reads: This author was most impressed by the diamond's mysterious poise. Some secrets, it seems, deserve to stay that way.\n\nEloise slams the paper down. \"I'm unmasking her next Season. I swear it.\""
+    },
+    {
+      "id": "dear_reader",
+      "title": "Dear Reader",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The ballroom gasps; Ashcombe flees London. Whistledown writes that the diamond 'cut a villain to ribbons'. Anthony asks for the last dance. Close on a waltz under chandeliers.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Dear Reader",
+      "page": "You step into the centre of the ballroom and hold up the IOUs and the letters. \"Lord Ashcombe owes four thousand pounds. And he has blackmailed two other young women before me.\"\n\nThe quartet stops mid-note. The ballroom gasps as one.\n\nAshcombe goes white, then red, then runs. He's out of London by dawn.\n\nWhistledown writes that the diamond \"cut a villain to ribbons with nothing but paper and courage.\"\n\nThat night, before the candles burn down, Anthony Bridgerton asks you for the last dance. The quartet plays a waltz, and you spin under the chandeliers."
+    },
+    {
+      "id": "my_own_words",
+      "title": "My Own Words",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player tells the truth; the ton is scandalised for a week, then charmed. Whistledown calls it 'the bravest thing this author has seen'. Close on Eloise raising a glass to the player.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "My Own Words",
+      "page": "You step forward before Ashcombe can speak. \"I have news too,\" you say. And you tell the room the truth about your family's fortune, in your own words.\n\nThe ton is scandalised for exactly one week. Then, somehow, it's charmed.\n\nWhistledown writes: In all this author's years, she has never seen anything braver. Well done, diamond.\n\nAshcombe is left with nothing to sell, and nobody to sell it to.\n\nAt the next ball, Eloise raises a glass of lemonade to you across the room, grinning like a co-conspirator."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#9fb8e8"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "petals"
+  }
+}

@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-tlou-the-library-run",
+    "title": "The Library Run",
+    "category": "zombie",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "Jackson's school is out of books, and the nearest library is in a dead town an hour's ride away. You volunteered for the run. So did Ellie, who says she just wants comics. Then the snow comes in early, and you find out the library isn't empty, and not everyone in it is infected.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Last of Us",
+      "medium": "game",
+      "owner": "Naughty Dog and Sony Interactive Entertainment",
+      "aka": [
+        "TLOU",
+        "Ellie",
+        "Jackson"
+      ]
+    }
+  },
+  "world": "Twenty-five years after the Cordyceps outbreak. Jackson, Wyoming, is a walled, snowy settlement of a few hundred people with a stable, a canteen, patrols and a school that runs on scavenged books. The nearby town of Silver Creek fell long ago; its public library still stands, half-collapsed, full of spores in the basement. Infected roam in stages: Runners, Stalkers, Clickers that hunt by sound, and a Bloater in the old reading room. A small group of hungry survivors from the east, led by a man called Abel Strand, have holed up in the library and want horses. Tommy Miller runs Jackson's patrols.",
+  "tone": "Quiet, tense survival: long stillness broken by panic, small human moments, scarcity, moral weight. Violence is sudden and has a cost.",
+  "playerRole": "A Jackson resident on their first long scavenging run, with a horse, a backpack, a revolver with four bullets, a hunting knife, a lighter and a crumpled list of books the kids asked for.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Restrained, sensory survival narration: snow, breath, the click of an infected in the dark. Track scarce ammo. Ellie is funny until she isn't. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "ellie",
+      "name": "Ellie",
+      "appearance": "A girl of about nineteen with auburn hair tied back loosely, freckles, a small scar on her eyebrow, a worn plaid shirt under a heavy winter jacket, a backpack covered in patches and a switchblade.",
+      "voice": "Sarcastic, quick, crude jokes and puns from a joke book; goes very quiet when scared.",
+      "stance": "Treats the player like a friend from the start and has their back."
+    },
+    {
+      "id": "tommy",
+      "name": "Tommy Miller",
+      "appearance": "A rugged man in his fifties with a short grey beard, weathered face, sheepskin-lined coat, cowboy hat and a scoped rifle.",
+      "voice": "Warm, plain-spoken and steady, with a big-brother tone.",
+      "stance": "Trusts the player's judgment and comes with backup if they radio."
+    },
+    {
+      "id": "abel",
+      "name": "Abel Strand",
+      "appearance": "A gaunt man in his forties with a shaved head under a knit cap, a patchy beard, a long army coat with a rope belt and a hunting rifle.",
+      "voice": "Calm and reasonable, a little too reasonable; quotes his old life as a teacher.",
+      "stance": "Desperate; will trade fairly if respected and take horses by force if not."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Knock on the barricaded front doors; 2 = Go in through the spore-filled basement."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player saw Abel's map of Jackson's patrols."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the note about Abel's ambush and the children's books."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Leaving Jackson",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Dawn at Jackson's gate. Tommy gives the player and Ellie a radio, a map and a warning: back by dark, snow's coming. Ellie has already packed her joke book. The ride to Silver Creek passes frozen cars and an old billboard. Halfway, they find fresh horse tracks heading toward the town.",
+      "choices": [
+        {
+          "id": "follow_the_fresh_tracks",
+          "label": "Follow the fresh tracks",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "radio_tommy_about_the_tracks",
+          "label": "Radio Tommy about the tracks",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "push_on_to_the_library_on_the_main_road",
+          "label": "Push on to the library on the main road",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Ellie, reading aloud: 'What do you call a sad strawberry? A blueberry. Okay, that one's bad.'",
+      "page": "Dawn at Jackson's gate, and the cold gets into your teeth.\n\nTommy Miller checks your saddle straps twice, then hands you a radio, a hand-drawn map and a look. \"Silver Creek library. In and out. Back by dark. Snow's coming early this year, and I don't like early.\"\n\nEllie is already on her horse, grinning, a battered joke book sticking out of her jacket. \"What do you call a sad strawberry?\" she asks nobody. \"A blueberry.\" Pause. \"Okay, that one's bad.\"\n\nYou ride out past frozen cars, past a billboard for a dentist nobody has needed in twenty-five years. The world is white and silent.\n\nHalfway there, Ellie reins in and points. In the fresh snow on the road: horse tracks. New ones. Heading the same way you are."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Silver Creek Library",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The library is a brick building with a collapsed wing. Smoke from a chimney: someone's inside. A side door leads into the dark basement stacks, thick with spores. The main doors are barricaded from inside with a hand-painted sign: 'NO ENTRY. WE ARE ARMED.' Ellie wants to go in through the basement where the children's section was.",
+      "choices": [
+        {
+          "id": "talk_with_ellie_about_why_she_came",
+          "label": "Talk with Ellie about why she came",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You and Ellie sit on a frozen bench across the street, out of rifle range, and split a strip of jerky. You ask her why she really came. Not for comics, surely.\n\nShe's quiet for a while. Then: \"There's this kid at the school. Won't talk to anyone. But I saw her drawing dinosaurs on a wall. I figured, maybe a dinosaur book.\" She shrugs, embarrassed. \"Somebody did stuff like that for me once.\"\n\nShe flips open her joke book, very fast, before you can say anything. \"Okay. Why don't skeletons fight each other? They don't have the guts.\" She looks at you sideways. You laugh, mostly to make her happy. It works."
+        },
+        {
+          "id": "knock_on_the_barricaded_front_doors",
+          "label": "Knock on the barricaded front doors",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "go_in_through_the_spore_filled_basement",
+          "label": "Go in through the spore-filled basement",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "A voice from an upstairs window: 'We see your horses. Let's talk about those horses.'",
+      "page": "The Silver Creek public library is red brick, half its west wing collapsed under the weight of old winters. Ivy has frozen black on its walls.\n\nThere's smoke rising from the chimney.\n\nThe main doors are barricaded from inside, with a sign painted in careful capitals: NO ENTRY. WE ARE ARMED.\n\nAround the side, a basement door hangs open on darkness. The air coming out of it is thick and sweet with spores. Ellie pulls her gas mask out of her pack. \"Children's section was downstairs,\" she says. \"I checked the old map.\"\n\nThen a voice calls down from an upstairs window, calm as a teacher taking roll. \"We see your horses. Let's talk about those horses.\""
+    },
+    {
+      "id": "path_a",
+      "title": "Talking at the Door",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Abel Strand and his small group of starving survivors, including two kids. They want the horses to reach a rumoured settlement. Abel offers a trade: their medicine for one horse. Inside, the player notices Abel's group has been feeding the kids pages of books to burn for warmth, and has a map of Jackson's patrol routes. Abel says it's for avoiding them. Maybe.",
+      "choices": [
+        {
+          "id": "look_at_abel_s_map_of_jackson_s_patrols",
+          "label": "Look at Abel's map of Jackson's patrols",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "share_some_food_and_listen_to_their_stor",
+          "label": "Share some food and listen to their story",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "One of the kids is holding a picture book, unopened, like treasure.",
+      "page": "The man who comes to the barricade is gaunt, with a shaved head under a knit cap and a long army coat belted with rope. \"Abel Strand,\" he says. \"I used to teach eighth-grade history. Now I mostly teach people how not to starve.\"\n\nInside the lobby, by a stove made from a filing cabinet, sit five thin adults and two kids. They've been burning book pages for warmth. One of the kids is holding a picture book, unopened, like treasure.\n\nAbel wants a horse. \"There's a settlement east, they say. We won't make it on foot.\" He offers their last medicine in trade: a half-bottle of antibiotics.\n\nOn the table, half under a blanket, is a map. Jackson's patrol routes, drawn in pencil, with times. Abel sees you looking. \"For avoiding your people,\" he says. \"Not for finding them.\" He holds your gaze. Maybe."
+    },
+    {
+      "id": "path_b",
+      "title": "The Basement Stacks",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Spores and darkness. Clickers shuffle between the shelves. Ellie and the player sneak through, gas masks on, finding the children's books in a dry corner. A Bloater blocks the stairs to the reading room. They find a note from Abel's group: they've been luring infected toward the basement so no one can reach the books, and planned to ambush whoever came for them.",
+      "choices": [
+        {
+          "id": "grab_the_kids_books_and_the_note",
+          "label": "Grab the kids' books and the note",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "lure_the_bloater_away_with_a_thrown_bott",
+          "label": "Lure the Bloater away with a thrown bottle",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A Clicker stops two shelves away, head jerking toward the sound of the player's breathing.",
+      "page": "Gas masks on, you and Ellie slip down into the basement stacks. Spores drift in your flashlight beams like slow snow. Shelves stretch away into the dark.\n\nClicking. Somewhere ahead, a Clicker shuffles between the aisles, its head jerking at every sound. You stop breathing. It stops two shelves away. Then moves on.\n\nIn a dry corner under a collapsed ceiling, you find the children's section: dinosaurs, fairy tales, a book about the ocean. Ellie stuffs them into her pack with shaking hands.\n\nTaped to a shelf is a note, in careful capitals: KEEP LURING THEM DOWN HERE. NOBODY GETS THE BOOKS, NOBODY GETS UPSTAIRS. IF THEY COME FOR THE BOOKS, WE TAKE THE HORSES. A.\n\nAt the bottom of the stairs to the reading room, a Bloater, huge and fungal, sways in the dark."
+    },
+    {
+      "id": "showdown",
+      "title": "The Reading Room",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night falls and snow howls. Infected break through the basement, and everyone, Abel's group and the player and Ellie, ends up in the reading room barricading the doors together. Abel's rifle is pointed at the player for a heartbeat, then at the door. The radio crackles: Tommy is on his way, but too far.",
+      "choices": [
+        {
+          "id": "hold_the_door_with_abel_s_people",
+          "label": "Hold the door with Abel's people",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "lead_the_kids_out_through_the_skylight",
+          "label": "Lead the kids out through the skylight",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Ellie, low: 'Hey. Whatever happens, I'm with you.'",
+      "page": "Night comes fast, and the snow comes with it, screaming against the windows.\n\nThen the basement breaks. Infected pour up the stairs, Runners first, then the clicking. Everyone, Abel's people and you and Ellie, ends up in the old reading room, shoving shelves against the doors.\n\nFor one heartbeat, Abel's rifle is pointed at your chest. Then he swings it to the door.\n\nThe radio crackles. Tommy's voice, distorted: \"...on our way... snow's bad... hold on...\" Too far. Much too far.\n\nSomething heavy slams into the barricade. Ellie's shoulder presses against yours. \"Hey,\" she says, low. \"Whatever happens, I'm with you.\""
+    },
+    {
+      "id": "finale",
+      "title": "Morning After",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Dawn. The infected are dead or gone; snow covers everything. The player decides what happens with Abel's group: warn Tommy about the patrol map and let Jackson decide (only if they saw it); bring the whole group back to Jackson with the books (only if they have the note and know who to watch); or give Abel one horse and ride home quietly with Ellie.",
+      "choices": [
+        {
+          "id": "warn_tommy_about_abel_s_patrol_map",
+          "label": "Warn Tommy about Abel's patrol map",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "watching_the_walls"
+        },
+        {
+          "id": "bring_everyone_back_to_jackson_books_and",
+          "label": "Bring everyone back to Jackson, books and all",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "story_time"
+        },
+        {
+          "id": "give_abel_a_horse_and_go_home",
+          "label": "Give Abel a horse and go home",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "one_horse"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "watching_the_walls",
+        "story_time",
+        "one_horse"
+      ],
+      "isEnding": false,
+      "page": "Dawn. The snow has stopped. The reading room is wrecked, but everyone in it is alive.\n\nOutside, the infected are dead or gone, and fresh white snow covers all of it like nothing happened.\n\nAbel's people sit huddled by the stove. The two kids are asleep on a pile of coats. Ellie is counting bullets: you have one left.\n\nAbel looks at you across the room, tired and waiting. Whatever you decide about his group, he knows it's your call."
+    },
+    {
+      "id": "watching_the_walls",
+      "title": "Watching the Walls",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Tommy arrives with riders, takes Abel's map, and escorts the group away from Jackson's routes, with food and a stern warning. Ellie says the player did the right thing and doesn't sound sure. Close on Jackson's walls in fresh snow and the patrol schedule being changed.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Watching the Walls",
+      "page": "When Tommy's riders arrive at noon, you hand him Abel's pencil map of Jackson's patrols.\n\nTommy studies it for a long time. Then he gives Abel's group food, blankets and a stern, quiet warning, and his riders escort them east, well away from Jackson's routes.\n\nRiding home, Ellie is quiet. \"You did the right thing,\" she says finally. She doesn't sound sure. Neither are you.\n\nA week later, Jackson's patrol schedule is changed, every route, every time. You stand on the wall in fresh snow watching the new patrol ride out, and you hope, wherever Abel's kids are, that they're warm."
+    },
+    {
+      "id": "story_time",
+      "title": "Story Time",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Abel's group rides into Jackson behind the player, the kids hugging books. It's not simple, but they're given a chance. A week later, the player reads aloud to a room full of kids while Ellie heckles with puns. Close on warm lamplight and snow at the window.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Story Time",
+      "page": "You show Abel the note, and you tell him you know what he planned. Then you tell him you're taking all of them to Jackson anyway.\n\nHe stares at you. Then he sits down heavily, and for a moment the history teacher is back in his face, ashamed. \"We were so hungry,\" he says.\n\nIt isn't simple. Jackson's council argues for a week. But Abel's group is given a chance, and a house, and work.\n\nA week later, you sit in the warm school room with snow at the window, reading a dinosaur book aloud to a room full of kids, including Abel's two and the girl who draws on walls. Ellie heckles from the back with terrible puns. Nobody minds."
+    },
+    {
+      "id": "one_horse",
+      "title": "One Horse",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Abel's group rides east with one of Jackson's horses. The player and Ellie ride home sharing one saddle, Ellie reading terrible jokes aloud the whole way. Close on Jackson's lights in the dusk and a sack of picture books.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "One Horse",
+      "page": "You untie one of the horses and hand Abel the reins. You don't ask for the medicine.\n\nHe looks at you for a long moment. \"Thank you,\" he says, and you think he means it. His group rides east into the white, the two kids waving from the saddle.\n\nYou and Ellie ride home on one horse, a sack of picture books tied behind. She reads jokes aloud the entire way, each one worse than the last. \"What do you call a fish with no eyes? A fsh.\"\n\nAs the light fades, Jackson's lamps appear in the dusk ahead, warm and gold. Ellie stops reading. \"Home,\" she says, like it's the best word she knows."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#8fae7a"
+    },
+    "fonts": {
+      "heading": "sans",
+      "body": "sans"
+    },
+    "particles": "snow"
+  }
+}

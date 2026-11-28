@@ -1,0 +1,454 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-squidgame-player-457",
+    "title": "Player 457",
+    "category": "real_life",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "A man in a suit beat you at a children's game in a subway station and handed you a card with circles, triangles and squares. Now you wake in a green tracksuit with 455 strangers, a giant doll and a prize that could pay every debt you have. You notice a guard whose hands are shaking.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Squid Game",
+      "medium": "tv",
+      "owner": "Netflix and Hwang Dong-hyuk",
+      "aka": [
+        "Squid Game",
+        "Red Light Green Light"
+      ]
+    }
+  },
+  "world": "Seoul, present day. A secret organisation runs deadly games based on Korean children's games for debt-ridden people; losers are 'eliminated' and wealthy VIPs watch for fun. Players wear green tracksuits with numbers; guards wear pink jumpsuits and masks with circles, triangles or squares. The player is Player 457. Player 112, an elderly woman, hides her own reasons. A young guard, a square-masked worker named Min-jae, is secretly a police officer's younger brother trying to find his missing sibling and wants out. The Front Man, in a black angular mask, watches all. Players can vote to stop the games by majority.",
+  "tone": "Tense, emotional survival thriller about desperation, trust and dignity. Violence happens off-page or briefly; the focus is on choices and people.",
+  "playerRole": "Player 457 in a green tracksuit, with a debt you'd rather not name, quick hands, a knack for reading people and a promise to someone outside that you'll come home.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Tense, restrained narration with stark colours (pastel stairwells, green tracksuits, pink guards), countdown voices and a focus on faces. Never linger on deaths; cut to the next breath. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "grandma",
+      "name": "Player 112",
+      "appearance": "An elderly Korean woman with short grey permed hair, a kind wrinkled face, glasses on a chain and a green tracksuit with the number 112.",
+      "voice": "Calm, wry and gently wise; tells stories about her late husband.",
+      "stance": "Befriends the player and has a secret plan of her own."
+    },
+    {
+      "id": "minjae",
+      "name": "Min-jae",
+      "appearance": "A slim young guard in a pink jumpsuit and a black mask with a white square, whose hands shake; underneath, a pale young man with tired eyes.",
+      "voice": "Whispers, nervous, earnest.",
+      "stance": "Wants to find his missing brother and expose the games."
+    },
+    {
+      "id": "frontman",
+      "name": "The Front Man",
+      "appearance": "A tall figure in a black hooded coat with an angular black metallic mask over the face, black gloves.",
+      "voice": "Distorted, calm, formal.",
+      "stance": "Runs the games and watches the player with interest."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Sneak through the guards' corridors with Min-jae; 2 = Gather votes to stop the games."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player stole the VIP list and the island's location."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player built a majority for the vote."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Wake Up",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player wakes in a giant dormitory of bunk beds with 455 others. The first game is announced: Red Light, Green Light. Player 112, an old woman, takes the player's hand. A square-masked guard's hands shake.",
+      "choices": [
+        {
+          "id": "hold_player_112_s_hand_and_move_together",
+          "label": "Hold Player 112's hand and move together",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "watch_how_the_doll_s_head_turns",
+          "label": "Watch how the doll's head turns",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "signal_the_shaking_guard",
+          "label": "Signal the shaking guard",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "A cheerful voice over the speakers: 'Players, the first game will now begin.'",
+      "page": "You wake under fluorescent lights in a warehouse so big its ceiling vanishes into shadow. Bunk beds tower like apartment blocks. Hundreds of people in green tracksuits are waking around you, confused and afraid.\n\nYour tracksuit says 457.\n\nOn the bunk beside you, an old woman with grey permed hair and glasses on a chain sits up and calmly smooths her tracksuit. 112. \"Well,\" she says. \"This is not where I meant to spend my Tuesday.\"\n\nGuards in pink jumpsuits and black masks line the walls. Circles. Triangles. Squares. One of the square-masked guards is standing very still, but his gloved hands are shaking.\n\nA cheerful voice crackles over the speakers. \"Players, the first game will now begin.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "The Dormitory",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Survivors are shaken. A vote to stop the games is coming. Min-jae secretly slips the player a note: 'Help me find my brother.' Two ways forward: sneak into the guards' corridors with Min-jae, or gather votes and alliances among the players.",
+      "choices": [
+        {
+          "id": "share_your_dinner_with_player_112",
+          "label": "Share your dinner with Player 112",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You share your bread and egg with Player 112. She tells you about her late husband, who taught her to play cards and cheated at every game. \"He'd have hated this place. He only liked games where everyone went home.\" She pats your hand. \"You're kind. That's dangerous here. Be kind anyway.\" When the lights go out, she hums a song you half remember from childhood until you fall asleep."
+        },
+        {
+          "id": "sneak_through_the_guards_corridors_with_",
+          "label": "Sneak through the guards' corridors with Min-jae",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "gather_votes_to_stop_the_games",
+          "label": "Gather votes to stop the games",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Player 112, softly: 'Everyone here owes something. Not everyone deserves this.'",
+      "page": "That night in the dormitory, nobody sleeps. The first game took so many. People sit in silence on the bunks. Some cry. Some stare.\n\nPlayer 112 sits beside you and folds her hands. \"Everyone here owes something,\" she says quietly. \"Not everyone deserves this.\"\n\nWhen the guards deliver dinner, the square-masked one with the shaking hands drops a tray at your feet. Under the bread is a scrap of paper. \"Help me find my brother. Tonight. The stairs. M.\"\n\nA rumour spreads through the dormitory: if a majority of players vote to stop, the games must end."
+    },
+    {
+      "id": "path_a",
+      "title": "The Guards' Corridors",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Pastel staircases and locked rooms. Min-jae and the player find the control room's player records: his brother, a police officer, was here last year. And a list of VIPs' names and the island's location.",
+      "choices": [
+        {
+          "id": "steal_the_vip_list_and_location",
+          "label": "Steal the VIP list and location",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "find_min_jae_s_brother_s_file",
+          "label": "Find Min-jae's brother's file",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A guard with a triangle mask stops on the stairs above and listens.",
+      "page": "The stairs behind the dormitory are pastel pink and blue, climbing and folding in impossible ways, like a children's drawing of a nightmare.\n\nMin-jae pulls off his square mask for a moment. He's young, pale, terrified. \"My brother's a police officer. He came here last year. He never came back.\"\n\nIn a control room full of screens, you find the records. His brother's file. And something more: a list of names, the VIPs who pay to watch. Bankers. Politicians. A map with the island's coordinates.\n\nAbove you on the stairs, a triangle-masked guard stops and turns his head, listening."
+    },
+    {
+      "id": "path_b",
+      "title": "The Vote",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The player persuades exhausted, frightened players one by one. Player 112 reveals she's a retired judge and knows how to make a vote stick. Together they build a majority.",
+      "choices": [
+        {
+          "id": "win_over_a_desperate_gambler",
+          "label": "Win over a desperate gambler",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "let_player_112_speak_to_everyone",
+          "label": "Let Player 112 speak to everyone",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A player shouts: 'And go back to what? My debts?'",
+      "page": "You go bunk to bunk. A young mother. A former soldier. A gambler who laughs at you. \"And go back to what? My debts?\"\n\n\"To being alive,\" you say. \"To trying again.\"\n\nIt's slow. Some people won't even look at you. Then Player 112 stands up in the middle of the dormitory and claps her hands once, sharp as a gavel.\n\n\"I was a judge for thirty-one years,\" she says. \"I know how a vote works. And I know how to make one stick.\"\n\nPeople listen to her. One by one, hands go up."
+    },
+    {
+      "id": "showdown",
+      "title": "The Glass Bridge",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The next game: a bridge of glass panels, some safe and some not. Min-jae is guarding it. The Front Man watches. Player 112 is next.",
+      "choices": [
+        {
+          "id": "help_player_112_across",
+          "label": "Help Player 112 across",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "signal_min_jae_for_the_safe_panels",
+          "label": "Signal Min-jae for the safe panels",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The Front Man's distorted voice: 'Interesting. Player 457 helps others. Let us see how long.'",
+      "page": "The next game is a bridge made of glass panels, high above a dark drop. Some panels hold. Some don't. Nobody knows which.\n\nMin-jae is standing guard at the start of the bridge, his square mask turned toward you.\n\nPlayer 112 is next in line. Her hands are steady, but her face is pale.\n\nHigh above, behind a glass window, a tall figure in a black angular mask watches. The Front Man's distorted voice echoes through the arena. \"Interesting. Player 457 helps others. Let us see how long.\""
+    },
+    {
+      "id": "finale",
+      "title": "The Final Choice",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: get the VIP list and the island's location to the police through Min-jae (only if they stole it); call the vote, which now has a majority (only if they built it); or win their way to the end and take the prize alone.",
+      "choices": [
+        {
+          "id": "get_the_vip_list_to_the_police",
+          "label": "Get the VIP list to the police",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "coast_guard"
+        },
+        {
+          "id": "call_the_vote_to_stop_the_games",
+          "label": "Call the vote to stop the games",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "majority"
+        },
+        {
+          "id": "play_on_to_win_the_prize",
+          "label": "Play on to win the prize",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "winner"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "coast_guard",
+        "majority",
+        "winner"
+      ],
+      "isEnding": false,
+      "page": "You made it across. So did Player 112. You stand together on the far side of the bridge, breathing hard, with fewer people behind you than there should be.\n\nThe Front Man is still watching. Min-jae is still waiting for a signal. In your tracksuit pocket, there's what you found or what you built.\n\nThis is the last choice that matters."
+    },
+    {
+      "id": "coast_guard",
+      "title": "Coast Guard",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Police boats surround the island at dawn; VIPs are arrested; Min-jae finds his brother alive. Player 112 and the player stand on the shore. Close on green tracksuits on the beach in sunrise.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Coast Guard",
+      "page": "You slip the VIP list and the coordinates into Min-jae's glove. He disappears that night.\n\nAt dawn, the island wakes to the sound of engines. Police boats. Coast Guard helicopters. Searchlights sweeping across the pastel stairs.\n\nThe VIPs are dragged out of their gilded viewing room in handcuffs. And in a cell deep below, Min-jae finds his brother, thin and alive.\n\nYou and Player 112 stand on the beach as the sun rises, wrapped in blankets, among dozens of others in green tracksuits. Somebody passes round a thermos of barley tea."
+    },
+    {
+      "id": "majority",
+      "title": "Majority",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The vote passes; the players are released, dazed, onto the streets of Seoul with nothing but each other. Player 112 takes the player for hot soup. Close on two people eating together in a tiny restaurant.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Majority",
+      "page": "Player 112 calls the vote. The count is read out over the speakers in that terrible cheerful voice: a majority.\n\nThe games are over.\n\nYou're released, dazed, onto the streets of Seoul at dawn with no money and no explanation, still wearing your green tracksuits. People stare.\n\nPlayer 112 takes your arm. \"I know a place.\" It's a tiny restaurant with six seats and a grandmother behind the counter. She orders two bowls of hot soup, and you eat in silence, and the grandmother refills your bowls without asking."
+    },
+    {
+      "id": "winner",
+      "title": "Winner",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player wins. The money appears in their account. They don't spend any of it for a year. Close on the player in a subway station, handing a business card back to a man in a suit, refusing to play.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Winner",
+      "page": "You play on. You win.\n\nThe money appears in your bank account. More zeroes than you can count. You don't spend any of it. Not for a whole year.\n\nThen one day, in a subway station, a man in a suit stops in front of you with a briefcase and a smile. \"Would you like to play a game?\"\n\nHe holds out a card. Circle, triangle, square.\n\nYou look at it for a long time. Then you hand it back to him, turn around, and walk up the stairs into the daylight."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e8508a"
+    },
+    "fonts": {
+      "heading": "sans",
+      "body": "sans"
+    },
+    "particles": "none"
+  }
+}

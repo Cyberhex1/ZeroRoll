@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-alice-the-mad-hatter-s-missing-hour",
+    "title": "The Mad Hatter's Missing Hour",
+    "category": "psychedelic_trip",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You fell down a rabbit hole during a very boring picnic, which is how these things start. In Wonderland, it's always six o'clock and always tea time, except today someone has stolen an hour from the Mad Hatter's watch, and now it's no o'clock, and everything is slowly forgetting what it was.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Alice's Adventures in Wonderland",
+      "medium": "book",
+      "owner": "based on the books by Lewis Carroll",
+      "aka": [
+        "Alice in Wonderland",
+        "Wonderland",
+        "Mad Hatter",
+        "Cheshire Cat"
+      ]
+    }
+  },
+  "world": "Wonderland, a nonsense dream world beneath a rabbit hole, where logic is upside down. Alice visited years ago. The Mad Hatter and March Hare hold an endless tea party, stuck at six o'clock since Time stopped speaking to the Hatter. Someone stole the Hatter's last hour, and now Wonderland is forgetting itself: flowers forget their colours, the Caterpillar forgets his questions. The thief is the Queen of Hearts, who wants to make it always 'off with their heads o'clock'. The Cheshire Cat knows things.",
+  "tone": "Whimsical, surreal, dreamlike nonsense: riddles, size-changing, talking flowers, impossible logic and gentle wit, with a little Wonderland menace.",
+  "playerRole": "A curious visitor who fell down a rabbit hole, with a picnic basket, a pocket full of crumbs, a slightly too-big coat and a talent for asking questions nobody can answer.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Whimsical, playful narration in the style of a Victorian nonsense tale: puns, riddles, logical absurdities, characters who argue about grammar, sudden size changes and a dreamy, colourful, slightly dizzy tone. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "hatter",
+      "name": "The Mad Hatter",
+      "appearance": "A wiry, wild-haired man with a huge top hat with a price tag still on it, a mismatched patchwork coat, a giant bow tie and a broken pocket watch.",
+      "voice": "Quick, rambling, riddle-loving, sudden bursts of sadness.",
+      "stance": "Needs his hour back."
+    },
+    {
+      "id": "cat",
+      "name": "The Cheshire Cat",
+      "appearance": "A plump, striped purple-and-pink cat with an enormous grin full of teeth and glowing golden eyes, often partly invisible.",
+      "voice": "Purring, cryptic, amused.",
+      "stance": "Knows the truth and gives riddles instead of answers."
+    },
+    {
+      "id": "queen",
+      "name": "The Queen of Hearts",
+      "appearance": "A round, imperious queen in a huge red and black gown covered in hearts, a small crown and a sceptre shaped like a heart.",
+      "voice": "Shrieking, petulant, explosive.",
+      "stance": "Stole the hour to make every hour 'off with their heads o'clock'."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Sneak into the Queen's croquet garden; 2 = Visit the Caterpillar's mushroom."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player holds the Hatter's stolen hour."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player knows the riddle that makes Time speak to the Hatter."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Tea at No O'Clock",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player falls down the rabbit hole and lands at the Mad Hatter's tea party. The Hatter's watch shows no o'clock: an hour was stolen. Wonderland is forgetting itself. The flowers have gone grey.",
+      "choices": [
+        {
+          "id": "ask_the_hatter_a_riddle",
+          "label": "Ask the Hatter a riddle",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "drink_the_tea_labelled_drink_me",
+          "label": "Drink the tea labelled DRINK ME",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "look_for_the_missing_hour",
+          "label": "Look for the missing hour",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The Hatter, waving his broken watch: 'Somebody's stolen an hour, and I was rather fond of it!'",
+      "page": "The picnic was terribly boring, so when a white rabbit in a waistcoat ran past checking a pocket watch, you followed it. Naturally.\n\nYou fall for a very long time, past cupboards and bookshelves and jars of marmalade, and land with a bump at a long table in a garden, set for a tea party.\n\nA wild-haired man in an enormous top hat with a price tag on it leaps up. \"Late! You're late! Well, everyone's late, because there's no time to be late for!\" He waves a broken pocket watch in your face. \"Somebody's stolen an hour, and I was rather fond of it!\"\n\nThe watch says: no o'clock.\n\nAll around the garden, the flowers have gone grey. A rose is trying to remember what colour it was. \"Red?\" it asks. \"Or was it Tuesday?\""
+    },
+    {
+      "id": "crossroads",
+      "title": "The Forgetful Wood",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Cheshire Cat appears, grinning. It says the hour was 'taken by someone with a lot of hearts and not much heart'. Two paths: the Queen's croquet garden, or the Caterpillar's mushroom, where forgotten things go.",
+      "choices": [
+        {
+          "id": "have_tea_with_the_hatter_and_march_hare",
+          "label": "Have tea with the Hatter and March Hare",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You sit down at the tea party and accept a cup of tea with no tea in it, a slice of cake that's mostly a riddle, and a seat that the March Hare insists is his but isn't. The Hatter asks you why a raven is like a writing desk. You say, \"Because Poe wrote on both,\" and he looks at you with such astonishment and delight that he spills his tea. \"Nobody's ever answered it before!\" He shakes your hand for a full minute. Then he gets sad, briefly. \"I do miss six o'clock moving on.\" You promise to fix it. He believes you completely, which is lovely and also slightly worrying."
+        },
+        {
+          "id": "sneak_into_the_queen_s_croquet_garden",
+          "label": "Sneak into the Queen's croquet garden",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "visit_the_caterpillar_s_mushroom",
+          "label": "Visit the Caterpillar's mushroom",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "The Cheshire Cat: 'Every adventure begins with a wrong turn. Choose a wrong one.'",
+      "page": "In a misty wood where the signposts have forgotten which way they point, a grin appears in a tree. Then eyes. Then a fat, striped, purple-and-pink cat.\n\n\"Lost?\" purrs the Cheshire Cat. \"Everyone here is. It's a requirement.\"\n\n\"Who stole the Hatter's hour?\"\n\n\"Someone with a lot of hearts,\" says the Cat, \"and not much heart.\" Its body begins to vanish. \"You could go to the croquet garden, where the roses are painted. Or to the Caterpillar's mushroom, where forgotten things go to be remembered.\" Now only its grin is left. \"Every adventure begins with a wrong turn. Choose a wrong one.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Croquet Garden",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "In the Queen's croquet garden, card soldiers paint roses red. The player finds the stolen hour, a glowing clock hand, used as a croquet hoop. The player shrinks with a nibble of mushroom to reach it.",
+      "choices": [
+        {
+          "id": "take_the_glowing_clock_hand",
+          "label": "Take the glowing clock hand",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "ask_the_playing_cards_about_it",
+          "label": "Ask the playing cards about it",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A flamingo croquet mallet looks at you and winks.",
+      "page": "The Queen's croquet garden is frantic. Playing-card soldiers dash about with paintbrushes, painting the white roses red. Flamingos are being used as croquet mallets, which they hate. Hedgehogs are the balls, which they hate more.\n\nAnd there, stuck into the grass as a croquet hoop: a long, glowing golden clock hand. The Hatter's missing hour.\n\nIt's guarded by a card soldier. You're too big to sneak past. You nibble a piece of mushroom from your pocket, shrink to the size of a teacup, and slip between his feet.\n\nThe glowing hand is warm, and it ticks. A flamingo mallet looks down at you and winks."
+    },
+    {
+      "id": "path_b",
+      "title": "The Caterpillar's Mushroom",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "On a giant mushroom, the Caterpillar has forgotten his own name but remembers a riddle: the answer is the spell that sets Time talking to the Hatter again. The player solves it.",
+      "choices": [
+        {
+          "id": "learn_the_riddle_s_answer",
+          "label": "Learn the riddle's answer",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "take_a_piece_of_mushroom",
+          "label": "Take a piece of mushroom",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The Caterpillar blows a smoke ring shaped like a question mark.",
+      "page": "On top of a giant mushroom sits a blue caterpillar, smoking a hookah and blowing rings that turn into letters.\n\n\"Who,\" says the Caterpillar, \"are you?\" Then he frowns. \"Who... am I? I've forgotten. Everything here is forgetting.\"\n\nBut he still remembers one thing: a riddle. \"What can be lost but never found, kept but never held, and runs without legs?\"\n\nYou think about it for a long time, while the smoke rings drift past shaped like question marks.\n\n\"Time,\" you say.\n\n\"Yes,\" says the Caterpillar. \"And Time, you know, is a person. Say his name kindly, and he'll start speaking to the Hatter again.\" He hands you a piece of his mushroom. \"One side makes you taller. The other side makes you shorter. I've forgotten which.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Trial",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Queen of Hearts puts the player on trial for 'having too much hour about them'. The jury is made of animals; the judge is the King. The Queen screams 'Off with their head!'",
+      "choices": [
+        {
+          "id": "argue_nonsense_back",
+          "label": "Argue nonsense back",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "grow_very_big",
+          "label": "Grow very big",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The courtroom starts to spin, and all the cards are falling.",
+      "page": "You are put on trial.\n\nThe courtroom is enormous: the jury is twelve animals with slates, the judge is the King of Hearts wearing his crown on top of a wig, and the Queen of Hearts stands in the middle, purple with fury.\n\n\"The prisoner,\" shrieks the Queen, \"is accused of having too much hour about them!\"\n\n\"That isn't a crime,\" you say.\n\n\"It is now! Sentence first! Verdict afterwards! Off with their head!\"\n\nThe courtroom starts to spin. The playing cards rise into the air, whirling around you like a storm."
+    },
+    {
+      "id": "finale",
+      "title": "Six O'Clock",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Before the sentence falls, the player decides: return the stolen hour to the Hatter's watch (only if they have the clock hand); make Time speak to the Hatter again with the riddle's answer (only if they have it); or wake up.",
+      "choices": [
+        {
+          "id": "return_the_stolen_hour",
+          "label": "Return the stolen hour",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_hour_restored"
+        },
+        {
+          "id": "speak_the_riddle_s_answer",
+          "label": "Speak the riddle's answer",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "time_speaks_again"
+        },
+        {
+          "id": "wake_up",
+          "label": "Wake up",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "down_the_rabbit_hole_again"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_hour_restored",
+        "time_speaks_again",
+        "down_the_rabbit_hole_again"
+      ],
+      "isEnding": false,
+      "page": "The cards whirl. The Queen shrieks. The Hatter is standing on the jury box waving his watch. The Cheshire Cat's grin floats above the judge's chair.\n\nEverything in Wonderland is waiting, as it always does, for someone to do something sensible in a ridiculous way."
+    },
+    {
+      "id": "the_hour_restored",
+      "title": "The Hour Restored",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Hatter's watch ticks; the tea party moves on to seven o'clock for the first time in years. Colours return. Close on a rainbow tea party in a sunny garden.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Hour Restored",
+      "page": "You hold up the glowing golden clock hand and slot it into the Hatter's broken watch.\n\nTick.\n\nThe watch starts. Tick, tock. And for the first time in years, it moves past six o'clock to seven.\n\nThe Hatter bursts into tears and throws his hat in the air. The flowers flood back into colour: reds, pinks, golds, blues. The rose shouts \"RED! I'm RED!\" The Queen's sentence is forgotten, because nobody can remember what time it is anymore, and the party moves on.\n\nThat evening, there's a new tea party in the sunny garden, at seven o'clock, with fresh cake and actual tea, and you're the guest of honour."
+    },
+    {
+      "id": "time_speaks_again",
+      "title": "Time Speaks Again",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Time forgives the Hatter, and Wonderland's clocks all chime at once. The Queen's tantrum fizzles into nonsense. Close on a sky full of floating clocks.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Time Speaks Again",
+      "page": "You stand up in the courtroom and say, kindly and clearly: \"Time, please. The Hatter's sorry. He'd like to be friends again.\"\n\nThere is a long pause. Then every clock in Wonderland begins to chime at once: grandfather clocks, cuckoo clocks, pocket watches, the clock on the courtroom wall, clocks you didn't even know were there.\n\nTime has forgiven the Hatter. The hour comes back on its own, floating down like a golden leaf.\n\nThe Queen's tantrum fizzles into nonsense, because nobody can hear her over the chiming. You walk outside, and the sky is full of floating clocks, ticking together like a happy heartbeat."
+    },
+    {
+      "id": "down_the_rabbit_hole_again",
+      "title": "Down the Rabbit Hole Again",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player wakes on the picnic blanket. In their pocket: a tea cup with a tiny grin painted on it. Close on a sunny riverbank with a white rabbit running past.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Down the Rabbit Hole Again",
+      "page": "You close your eyes and say, firmly: \"You're nothing but a pack of cards.\"\n\nYou wake up on the picnic blanket by the river. Sunlight. Bees. The boring picnic, exactly as you left it.\n\nIt was a dream. Of course it was.\n\nBut in your pocket, there's a tiny china teacup, and painted on its side is a wide, toothy grin. It's still warm.\n\nAcross the riverbank, a white rabbit in a waistcoat runs past, checking his watch. He glances at you. He tips his hat."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#d64a7a"
+    },
+    "fonts": {
+      "heading": "hand",
+      "body": "sans"
+    },
+    "particles": "petals"
+  }
+}

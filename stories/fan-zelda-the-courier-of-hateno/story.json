@@ -1,0 +1,457 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-zelda-the-courier-of-hateno",
+    "title": "The Courier of Hateno",
+    "category": "adventure",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You carry letters across Hyrule for a living, and today's delivery is a sealed package from Hateno's eccentric researcher. Somewhere between the village and the highlands it starts to hum, a shrine nobody has seen wakes up, and a quiet swordsman in blue keeps turning up exactly when you need him.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Legend of Zelda",
+      "medium": "game",
+      "owner": "Nintendo",
+      "aka": [
+        "Zelda",
+        "Breath of the Wild",
+        "Tears of the Kingdom",
+        "BOTW",
+        "TOTK"
+      ]
+    }
+  },
+  "world": "Hyrule after the Calamity has been sealed away: green hills, ruined towers, stables along the roads, Bokoblin camps in the woods and strange ancient Sheikah technology that still hums in the ground. Hateno Village sits at the eastern edge, with its tech lab on the hill run by Purah, a brilliant researcher who looks like a child after an experiment went wrong. Purah has built a 'Resonance Lens' from shrine parts and needs it carried to a lost shrine in the Dueling Peaks, where it should wake a sealed stone guardian she believes can protect the stables. A Yiga Clan agent, disguised as a friendly traveller, wants the lens for the clan. Link, the silent knight, is travelling the same road for reasons of his own.",
+  "tone": "Bright, open-air adventure with puzzles, cooking, small kindnesses and sudden danger. Wonder first, fights short and readable.",
+  "playerRole": "A young courier with a sturdy satchel, a borrowed horse called Biscuit, a paraglider that is mostly patches, three apples and a stubborn sense of duty. Brave, clever or charming is up to you.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Wide, sunny storytelling: describe the landscape like a game camera pulling back, puzzles as physical problems with a clear solution, and Link's silence through gestures and expressions. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "purah",
+      "name": "Purah",
+      "appearance": "A small, energetic researcher who looks about eight, with white hair in a big bun held by a pair of chopsticks, red-framed goggles pushed up on her head, and a long red-and-white lab coat with oversized sleeves.",
+      "voice": "Fast, cheerful and full of jargon; strikes a victory pose when something works.",
+      "stance": "Trusts the player with her invention and expects a full report."
+    },
+    {
+      "id": "link",
+      "name": "Link",
+      "appearance": "A young man with dark-blond hair tied back, sharp blue eyes, a worn blue tunic, a sword and shield on his back and a pale stone tablet on his hip.",
+      "voice": "Never speaks. Nods, points, shrugs, and occasionally smiles in a way that says a lot.",
+      "stance": "Helps the player quietly when it matters, and lets them take the lead."
+    },
+    {
+      "id": "koga",
+      "name": "The Friendly Traveller",
+      "appearance": "A tall, thin traveller in a wide straw hat and patched brown cloak, with a too-wide smile, narrow eyes and a bundle of bananas tied to his pack.",
+      "voice": "Overly friendly, keeps offering to carry the package; slips into odd formal phrases when nervous.",
+      "stance": "A Yiga Clan spy who wants the lens and will drop the disguise if cornered."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Sneak through the Bokoblin camp by the river; 2 = Climb the cliff path toward the ticking."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took the Yiga map from the Bokoblin camp."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player saw the old Guardian's message about the lens."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "A Package for the Peaks",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Purah's lab on the hill above Hateno, morning. She hands over the Resonance Lens in a padded box with strict instructions: deliver it to the sealed shrine in the Dueling Peaks before the next blood moon, two nights away. The box hums when the player touches it. On the road out of the village, a smiling traveller in a straw hat falls into step and offers to share the journey.",
+      "choices": [
+        {
+          "id": "accept_the_traveller_s_company_and_keep_",
+          "label": "Accept the traveller's company and keep an eye on him",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "politely_ride_off_at_a_gallop",
+          "label": "Politely ride off at a gallop",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_purah_one_more_question_before_you_l",
+          "label": "Ask Purah one more question before you leave",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Purah shouts from the lab balcony: 'Two nights! Don't drop it! Don't open it! Okay, maybe peek!'",
+      "page": "The lab on the hill above Hateno smells of oil, burnt toast and something faintly electric. Purah bounces on her heels as she presses a padded box into your hands.\n\n\"The Resonance Lens! My masterpiece! Well, this week's masterpiece.\" The box hums against your palms like a sleepy cat. \"Shrine in the Dueling Peaks. Two nights. Before the blood moon. Don't drop it, don't open it, and if a guardian wakes up, write down everything it does!\"\n\nYou tuck the box into your satchel, climb onto Biscuit, and ride down past the windmills. At the edge of the village a tall traveller in a straw hat falls into step beside your horse, smiling far too widely, a bundle of bananas swinging from his pack.\n\n\"What a heavy little box, friend! Going far? I could carry it for you.\"\n\nBehind you, Purah shouts from her balcony that you should absolutely, definitely not open it. Probably."
+    },
+    {
+      "id": "crossroads",
+      "title": "Dueling Peaks Stable",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Evening at the stable under the twin peaks. A Bokoblin camp has taken the river crossing to the shrine. Link is at the cooking pot, wordlessly making far too much food. The stable hand says there are two ways up: through the river camp at night, or the old cliff path where something mechanical ticks in the rocks. Link offers the player a plate and waits to see which way they're going.",
+      "choices": [
+        {
+          "id": "share_the_meal_and_try_to_talk_with_link",
+          "label": "Share the meal and try to talk with Link",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You sit beside him and eat. The stew is ridiculous, too many mushrooms and somehow perfect. He doesn't say a word, but when you tell him about Purah's lens and the blood moon, he listens with his whole face. When you finish, he taps the stone tablet on his hip and gives you a small nod: he's going the same way. You feel braver than you did an hour ago."
+        },
+        {
+          "id": "sneak_through_the_bokoblin_camp_by_the_r",
+          "label": "Sneak through the Bokoblin camp by the river",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "climb_the_cliff_path_toward_the_ticking",
+          "label": "Climb the cliff path toward the ticking",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Link points at the river, then at the cliff, then holds up a skewer of mushrooms as if that settles it.",
+      "page": "Two days of road later, the twin peaks rise over Dueling Peaks Stable, the big horse-head tent glowing in the dusk. The traveller has finally wandered off \"to pick mushrooms.\"\n\nAt the cooking pot sits a young man in a worn blue tunic, stirring a stew that could feed twenty. A sword and shield rest on his back and a pale stone tablet hangs at his hip. He looks at your satchel, then at you, and silently holds out a bowl.\n\nThe stable hand leans on the fence. \"Shrine's up the gorge. Bokoblins have taken the river crossing, dancing round a fire every night like they own it. There's the old cliff path too, but something up there ticks. Like a clock. A big one.\"\n\nThe swordsman points at the river, then at the cliff, then raises a skewer of mushrooms as if that settles everything."
+    },
+    {
+      "id": "path_a",
+      "title": "Camp at the Crossing",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Night at the river. The Bokoblins are dancing around a fire and have a stolen chest of stable supplies. Getting past means stealth, a distraction, or a fight. Inside the chest is a Yiga map marked with the shrine and a note: 'Take the lens at the shrine door.' The traveller was never alone.",
+      "choices": [
+        {
+          "id": "steal_the_yiga_map_from_the_chest",
+          "label": "Steal the Yiga map from the chest",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "start_a_stampede_and_grab_the_map_in_the",
+          "label": "Start a stampede and grab the map in the chaos",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A Bokoblin hiccups, looks right at the player's hiding spot, and squints.",
+      "page": "Night falls over the river crossing. A ring of red-skinned Bokoblins whoops and stamps around a bonfire, clubs waving, a stolen wooden chest of stable supplies at the centre of their dance. You crawl through the long grass until the firelight dances across your knuckles.\n\nOne of them hiccups, squints right at your hiding place, and then falls over laughing at nothing.\n\nWhen the moment comes, you get the chest open. Under the apples and rope is a rolled map stamped with a red upside-down eye. The shrine is marked on it, and a note in neat, cold handwriting: \"Take the lens at the shrine door.\"\n\nThe friendly traveller was never picking mushrooms. He was never alone."
+    },
+    {
+      "id": "path_b",
+      "title": "The Ticking Cliff",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The cliff path climbs past a half-buried Guardian, ancient and almost dead, its eye flickering. It notices the lens and goes calm, projecting a faded image of the shrine opening and the stone guardian inside waking. The player learns the lens must be set in the guardian's chest, not the shrine door. A broken stair needs a clever climb or paraglide.",
+      "choices": [
+        {
+          "id": "watch_the_guardian_s_message_to_the_end",
+          "label": "Watch the Guardian's message to the end",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "glide_across_the_gap_with_the_lens_held_",
+          "label": "Glide across the gap with the lens held tight",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The old Guardian's eye swings to the box and the ticking slows, almost like breathing.",
+      "page": "The cliff path climbs into the wind. Halfway up, half-buried in rock and moss, lies an ancient Guardian, its spider legs rusted solid. Its single eye flickers blue, then swings toward your satchel.\n\nYou freeze. The ticking slows, almost like breathing.\n\nA pale light pours from the eye and paints a picture on the rock: the shrine door opening, a sleeping giant of stone inside, and a small glowing lens being set not in the door but in the giant's chest. The giant stands and bows. The picture fades. The eye dims, content, like something that has finally passed on a message it was holding for a hundred years.\n\nPast the Guardian the stair is broken across a gap, wind howling through it. Biscuit will have to wait here. You and the lens are going across."
+    },
+    {
+      "id": "showdown",
+      "title": "The Shrine Door",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Dawn on the peak. The shrine is glowing orange. The friendly traveller is waiting at the door, and with a puff of smoke he becomes a red-suited Yiga footsoldier with a sickle, with two more behind him. He wants the lens. Link arrives a beat later, but the player is the one holding the box.",
+      "choices": [
+        {
+          "id": "refuse_and_protect_the_lens",
+          "label": "Refuse and protect the lens",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "bluff_the_yiga_with_an_empty_box",
+          "label": "Bluff the Yiga with an empty box",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The Yiga agent bows mockingly: 'Hand it over and you can keep your little horse.'",
+      "page": "Dawn breaks pink over the Dueling Peaks. The shrine glows orange at the top of the gorge, humming the same note as the box in your satchel.\n\nThe friendly traveller is waiting at the door. He bows, and in a puff of smoke his straw hat and bananas are gone: in his place stands a figure in a skin-tight red suit and a white mask painted with an upside-down eye, a sickle in his hand. Two more drop from the rocks behind him.\n\n\"Hand it over, courier, and you can keep your little horse.\"\n\nHooves clatter on the path below. The swordsman in blue is coming, but he is still a long way off. The box is in your hands, and every masked face is turned toward it."
+    },
+    {
+      "id": "finale",
+      "title": "The Guardian Wakes",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Inside the shrine, a huge stone guardian sleeps. The lens must go somewhere now. The player can set it in the guardian's chest as the cliff Guardian showed (only works if they saw the message), use the Yiga map to trap the agents in their own ambush (only if they took it), or simply carry the lens home to Purah and let the experts decide.",
+      "choices": [
+        {
+          "id": "use_the_yiga_map_to_turn_their_ambush_on",
+          "label": "Use the Yiga map to turn their ambush on them",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "ambush_reversed"
+        },
+        {
+          "id": "set_the_lens_in_the_guardian_s_chest",
+          "label": "Set the lens in the guardian's chest",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_stable_guardian"
+        },
+        {
+          "id": "bring_the_lens_safely_back_to_purah",
+          "label": "Bring the lens safely back to Purah",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "delivered_safely"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "ambush_reversed",
+        "the_stable_guardian",
+        "delivered_safely"
+      ],
+      "isEnding": false,
+      "page": "The shrine door grinds open. Inside, in a hall of blue stone and glowing lines, kneels a giant made of carved rock, its chest an empty socket the exact size of the lens.\n\nThe Yiga are regrouping at the door, sickles flashing, while the swordsman holds them back with his shield. The lens in your hands has stopped humming. It is waiting for you.\n\nYou know more than you did two days ago. The question is what to do with it."
+    },
+    {
+      "id": "ambush_reversed",
+      "title": "Ambush Reversed",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The player leads the Yiga into the trap marked on their own map; the agents vanish in smoke, sputtering. The shrine stays sealed for Purah to study properly. Link gives a slow approving nod. Close on Biscuit grazing outside the stable at sunset and a new delivery list from Purah that's three pages long.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Ambush Reversed",
+      "page": "You spread the Yiga's own map across the stone floor, trace the ambush they planned for you, and lead them straight into it. A rockslide they rigged for travellers comes down between the agents and the shrine. With a chorus of furious puffs of smoke, they are gone.\n\nThe shrine stays sealed for Purah to study properly. The swordsman gives you one slow, approving nod, which from him is practically a speech.\n\nA week later, back at Dueling Peaks Stable, Biscuit grazes in the evening light while you read your new delivery list from Purah. It is three pages long. Page two just says: \"ALSO: SNACKS.\""
+    },
+    {
+      "id": "the_stable_guardian",
+      "title": "The Stable Guardian",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The lens clicks into place and the stone guardian stands, bows to the player, and walks down the mountain to stand watch over the stables. Travellers will tell the story for years. Purah demands every detail and names the guardian after the player. Close on the giant silhouette at the river crossing at dusk.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Stable Guardian",
+      "page": "The lens clicks into the giant's chest. Light runs along every carved line of its body. Slowly, grinding like a mountain clearing its throat, the guardian stands, bows to you exactly as the old Guardian showed, and walks out past the stunned Yiga, who flee without a word.\n\nIt walks all the way down the gorge and plants itself at the river crossing, where it will watch over travellers for years to come.\n\nPurah demands every detail, twice, and names it after you. Travellers at the stable tell the story by the fire. At dusk you can see its silhouette from the road: patient, enormous, keeping the river safe."
+    },
+    {
+      "id": "delivered_safely",
+      "title": "Delivered Safely",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player rides two nights back to Hateno with the lens unharmed. Purah is disappointed for one second, then delighted by everything the player saw. She signs them up as her official field courier. Close on the lab lights on the hill and a warm meal by the fire.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Delivered Safely",
+      "page": "You close the box, back away from the giant, and run.\n\nIt takes two nights to reach Hateno, sleeping in turns under the stars while Biscuit keeps watch. The lens never so much as scratches. When you hand it back, Purah is disappointed for exactly one second, then delighted by everything you saw: the Yiga map, the giant, the swordsman's mushroom stew.\n\n\"Field notes! Real field notes!\" She signs you up on the spot as her official courier. That night you eat by the fire in the village while the lab lights glow on the hill above, and you sleep better than you have in years."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#5fbf8f"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

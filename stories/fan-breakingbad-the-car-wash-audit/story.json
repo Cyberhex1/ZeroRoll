@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-breakingbad-the-car-wash-audit",
+    "title": "The Car Wash Audit",
+    "category": "real_life",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "Albuquerque, 2009. You've just started as a junior accountant, and your first client is a car wash whose numbers are too clean. Its loud lawyer wants you to sign off by Friday. A nervous young man keeps showing up with cash in a backpack. You can see exactly what's happening. The question is who you tell, and whether you'll live long enough to tell anyone.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Breaking Bad",
+      "medium": "tv",
+      "owner": "Sony Pictures Television and AMC",
+      "aka": [
+        "Breaking Bad",
+        "Saul Goodman",
+        "Jesse Pinkman",
+        "Albuquerque"
+      ]
+    }
+  },
+  "world": "Albuquerque, New Mexico, 2009. A local car wash, A1A, is a front laundering drug money for a secret methamphetamine operation. Saul Goodman, a flamboyant, morally flexible criminal lawyer, manages the paperwork. Jesse Pinkman, a troubled young man with a good heart, delivers the cash. A DEA agent, Hank Schrader, is circling. A violent cartel enforcer, Declan Reyes, has learned the car wash's books are being checked and wants the new accountant gone. The player's audit could protect people or get them killed.",
+  "tone": "Tense, darkly funny crime drama with moral weight: dry desert heat, slow-burning dread, sudden violence and flashes of humanity.",
+  "playerRole": "A junior accountant at a small Albuquerque firm with a calculator, a bad car, student loans, sharp eyes for numbers and a conscience you're not sure you can afford.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Cinematic desert-noir narration with long silences, sun-bleached colours, time-lapse skies, and very specific details. Violence is sudden and never glamorised. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "saul",
+      "name": "Saul Goodman",
+      "appearance": "A stocky man in his forties with a combover, a loud colourful suit with a bright tie, a gold pinky ring and a big grin.",
+      "voice": "Fast-talking, funny, sleazy, with surprising flashes of conscience.",
+      "stance": "Wants the player to sign the audit and offers 'opportunities'."
+    },
+    {
+      "id": "jesse",
+      "name": "Jesse Pinkman",
+      "appearance": "A thin young man in his twenties with a buzz cut, a beanie, an oversized hoodie, baggy jeans and tired, kind eyes.",
+      "voice": "Slangy ('yo'), anxious and emotional; warm to people who are kind to him.",
+      "stance": "Afraid; slowly trusts the player."
+    },
+    {
+      "id": "declan",
+      "name": "Declan Reyes",
+      "appearance": "A muscular man with a shaved head, a neat goatee, a cowboy hat, a pressed western shirt and a cold stare.",
+      "voice": "Quiet, polite and menacing.",
+      "stance": "Wants the books closed and the accountant gone."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search Saul's office; 2 = Follow Jesse's car."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied Saul's ledger."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player recorded the desert meeting."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "First Client",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player's first audit: the A1A Car Wash. The numbers are perfect, too perfect, with impossible numbers of cars washed. Saul Goodman bursts into the office with a gift basket. A young man with a backpack slips in and out of the back room.",
+      "choices": [
+        {
+          "id": "ask_saul_about_the_numbers",
+          "label": "Ask Saul about the numbers",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "watch_the_young_man_with_the_backpack",
+          "label": "Watch the young man with the backpack",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "accept_the_gift_basket_politely",
+          "label": "Accept the gift basket politely",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Saul: 'Better call... well, me, if you've got any questions. Ha! Just sign by Friday.'",
+      "page": "Your first real audit, and it's a car wash. The A1A Car Wash, to be precise. You open their books expecting boredom.\n\nInstead: perfection. Every month exactly profitable. Hundreds more cars washed than there are hours in the day. Cash deposits in neat, round numbers.\n\nThe office door bangs open. A man in a suit the colour of a sunset sweeps in, carrying a gift basket. \"Saul Goodman, attorney at law! Just here to make your life easier!\"\n\nBehind him, a thin young man in a beanie and an oversized hoodie slips through to the back room with a bulging backpack, and slips out again without it.\n\nSaul plants the basket on your desk. \"Better call... well, me, if you've got any questions. Ha! Just sign by Friday.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Too Clean",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player knows it's laundering. Saul offers a 'consulting fee' for a clean sign-off. Jesse, the cash runner, looks terrified of something. Two paths: dig into Saul's paperwork in his strip-mall office, or follow Jesse to see where the cash comes from.",
+      "choices": [
+        {
+          "id": "buy_jesse_a_burrito_and_talk",
+          "label": "Buy Jesse a burrito and talk",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You walk over to Jesse's car with two burritos and hand him one through the window. He stares at it. \"Why?\" \"You looked hungry.\" He laughs, surprised, and eats it in about four bites. Then he tells you about his little brother, about a teacher he used to have, about how everything went wrong so fast. \"You're cool, yo,\" he says. \"Don't get mixed up in this.\""
+        },
+        {
+          "id": "search_saul_s_office",
+          "label": "Search Saul's office",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "follow_jesse_s_car",
+          "label": "Follow Jesse's car",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Saul: 'Look, everybody launders a little. It's practically a hobby.'",
+      "page": "You run the numbers again that night. You run them three more times. It's laundering. Obvious, careful laundering.\n\nThe next morning, Saul takes you to lunch and slides an envelope across the table. \"Consulting fee. For a clean sign-off. Look, everybody launders a little. It's practically a hobby.\"\n\nThe young man from yesterday, Jesse, is sitting in a car in the parking lot, staring at nothing. When he notices you looking, he flinches.\n\nSaul's strip-mall office keeps the real paperwork. And Jesse drives somewhere every Thursday, out toward the desert, with an empty backpack."
+    },
+    {
+      "id": "path_a",
+      "title": "Saul's Office",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "A strip-mall office decorated with the Constitution. The player finds a ledger linking the car wash to a cartel account controlled by Declan Reyes, and a note from Saul: 'If the accountant asks questions, protect the kid.'",
+      "choices": [
+        {
+          "id": "copy_saul_s_ledger",
+          "label": "Copy Saul's ledger",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "ask_saul_about_the_note",
+          "label": "Ask Saul about the note",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Saul's receptionist eyes the player: 'He's in court. Or in a strip club. Same thing.'",
+      "page": "Saul's office is in a strip mall between a nail salon and a vacuum repair shop. Inside, it's all fake columns and a giant painted Constitution.\n\n\"He's in court,\" says the receptionist, filing her nails. \"Or in a strip club. Same thing.\"\n\nWhile she takes a call, you find a ledger in the bottom drawer. The car wash. Shell companies. And one final account receiving everything, controlled by a name that isn't Saul's: Declan Reyes.\n\nTucked in the ledger is a sticky note in Saul's handwriting. \"If the accountant asks questions, protect the kid.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Desert",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Jesse meets a cartel man at a dusty roadside in the desert and is threatened. The player records it from a distance. Afterwards Jesse admits he's trapped, and wants out.",
+      "choices": [
+        {
+          "id": "record_the_meeting",
+          "label": "Record the meeting",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "help_jesse_after_the_cartel_man_leaves",
+          "label": "Help Jesse after the cartel man leaves",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Jesse, shaking: 'Yo, they said they'd kill my folks. I didn't sign up for this.'",
+      "page": "You follow Jesse's car out of town until the road turns to dust. He pulls over at a lonely roadside where a pickup is waiting. A man in a cowboy hat gets out.\n\nFrom behind a rock, you hit record on your phone.\n\nThe man doesn't shout. He talks quietly, and somehow that's worse. Jesse's late. Jesse's sloppy. Jesse's family lives on Sycamore Street, and wouldn't it be a shame.\n\nWhen the pickup drives off, Jesse sinks down against his car, shaking. You walk over. He doesn't even ask how you got there.\n\n\"Yo,\" he whispers. \"They said they'd kill my folks. I didn't sign up for this. I want out.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Friday",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Declan Reyes comes to the player's office himself with a pen and the audit form. Saul is sweating. Jesse is outside in his car. Hank Schrader of the DEA is across the street eating a sandwich.",
+      "choices": [
+        {
+          "id": "refuse_to_sign",
+          "label": "Refuse to sign",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "stall_while_texting_the_dea_agent",
+          "label": "Stall while texting the DEA agent",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Declan: 'Sign the paper. Then forget the car wash exists.'",
+      "page": "Friday. The man in the cowboy hat walks into your office himself. Declan Reyes. He sets a pen on your desk, perfectly straight.\n\n\"Sign the paper,\" he says politely. \"Then forget the car wash exists.\"\n\nSaul is behind him, sweating through his loud suit, trying to smile. Through the window, you can see Jesse in his car, gripping the wheel.\n\nAnd across the street, on a bench, a big bald man is eating a sandwich and watching your building. You've seen his face in the news. DEA Agent Hank Schrader."
+    },
+    {
+      "id": "finale",
+      "title": "Sign or Not",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: give Hank the ledger linking the cartel account (only if they copied it); give Hank the desert recording and get Jesse protection (only if they recorded it); or sign, take the money and quit.",
+      "choices": [
+        {
+          "id": "hand_hank_the_ledger",
+          "label": "Hand Hank the ledger",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "follow_the_money"
+        },
+        {
+          "id": "give_hank_the_recording_and_protect_jess",
+          "label": "Give Hank the recording and protect Jesse",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "yo_thanks"
+        },
+        {
+          "id": "sign_and_walk_away",
+          "label": "Sign and walk away",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "signed"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "follow_the_money",
+        "yo_thanks",
+        "signed"
+      ],
+      "isEnding": false,
+      "page": "Declan is waiting. The pen is on the desk. Saul is mouthing something you can't read. Outside, Hank Schrader finishes his sandwich and folds the paper very slowly.\n\nYour phone is in your pocket. Your folder is in your hand.\n\nWhatever you do in the next minute, you'll have to live with it. Possibly not for very long."
+    },
+    {
+      "id": "follow_the_money",
+      "title": "Follow the Money",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The DEA seizes the cartel account; Declan is arrested; Saul somehow walks free and sends the player a thank-you card. Close on the car wash sign in the setting sun.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Follow the Money",
+      "page": "You walk out of your office, cross the street, and hand Saul's ledger to Hank Schrader.\n\nHe reads one page and stands up so fast the bench rocks. \"Well, I'll be damned.\"\n\nWithin a week, the DEA has frozen the cartel account and Declan Reyes is in handcuffs. Somehow, impossibly, Saul Goodman walks free.\n\nA month later, a thank-you card arrives at your office. It's from Saul. It says only: \"Kid, you've got a future. Call me.\"\n\nYou don't. You frame it instead. On your way home, the A1A Car Wash sign glows in the setting sun, just a sign again."
+    },
+    {
+      "id": "yo_thanks",
+      "title": "Yo, Thanks",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Jesse enters witness protection, alive. Before he leaves he hugs the player and gives them a hand-drawn comic. Close on a car driving out of Albuquerque into a pink sky.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Yo, Thanks",
+      "page": "You give Hank Schrader the recording. He listens with his jaw tight. When Declan threatens Jesse's family, Hank's face goes very still.\n\nJesse goes into witness protection three days later.\n\nBefore he leaves, he finds you in the parking lot and hugs you, awkward and tight. Then he presses something into your hand: a hand-drawn comic of a superhero with a calculator. \"That's you, yo.\"\n\nYou watch his car drive out of Albuquerque toward a huge pink sky, and you hope, wherever he ends up, it's somewhere quiet."
+    },
+    {
+      "id": "signed",
+      "title": "Signed",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player signs, takes the cash and moves to Omaha. Every time a car pulls up outside, they flinch. Close on a quiet office and a calculator, ticking.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Signed",
+      "page": "You pick up the pen and sign.\n\nDeclan smiles for the first time, briefly. Saul exhales like a deflating balloon. Nobody says anything else. The envelope of cash appears on your desk.\n\nYou quit a week later and move to Omaha. New job. New apartment. Nobody knows you.\n\nBut every time a car pulls up outside your window at night, you flinch. Every time. In your quiet new office, under the cold Nebraska sky, your calculator ticks away, adding up numbers that are never quite clean."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e8b23a"
+    },
+    "fonts": {
+      "heading": "sans",
+      "body": "sans"
+    },
+    "particles": "none"
+  }
+}

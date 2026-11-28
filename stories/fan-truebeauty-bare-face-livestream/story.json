@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-truebeauty-bare-face-livestream",
+    "title": "Bare Face Livestream",
+    "category": "tiktok_drama",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You're the new student everyone wants on their livestream, and the school's queen of makeup tutorials, Jugyeong, is suddenly your project partner. Then someone threatens to post a photo of her bare face to the whole school. A cold boy who reads manga in the corner knows more than he says.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "True Beauty",
+      "medium": "manhwa",
+      "owner": "Yaongyi and Naver WEBTOON",
+      "aka": [
+        "True Beauty",
+        "Jugyeong",
+        "Suho"
+      ]
+    }
+  },
+  "world": "Seoul, present day, at Saebom High School, where social media fame is everything. Lim Jugyeong is famous for her flawless makeup and secretly terrified of being seen without it, after being bullied in middle school for her looks. Lee Suho, a quiet, handsome boy who loves manga, knows her secret and keeps it. A popular influencer student, Jin Seoha, runs the school's top gossip account, 'SaebomTea', and is planning a 'Bare Face Reveal' livestream using a photo of Jugyeong from middle school. The real reason: Seoha's own sponsor deal is threatened by Jugyeong's new brand partnership.",
+  "tone": "Glossy, funny, heart-on-sleeve teen drama about appearance, social media and self-worth, with webtoon comedy and sincere moments.",
+  "playerRole": "A new transfer student at Saebom High with a viral video you'd rather forget, a phone with a decent camera, a talent of your choice and an instinct to say what you see.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Bright webtoon-style narration: comedic freeze frames, chat bubbles and notifications, sudden sparkly close-ups, and heartfelt quiet scenes. Treat appearance themes with care. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "jugyeong",
+      "name": "Lim Jugyeong",
+      "appearance": "A teenage girl with long brown hair, perfect makeup, big expressive eyes, a neat Saebom school uniform with a cardigan and a makeup pouch always in hand.",
+      "voice": "Bubbly, dramatic and self-deprecating; panics comically; deeply kind.",
+      "stance": "Nervous around the player at first, then a loyal friend."
+    },
+    {
+      "id": "suho",
+      "name": "Lee Suho",
+      "appearance": "A tall, handsome teen boy with black hair falling over his forehead, sharp dark eyes, earbuds, an open uniform blazer, and a manga in hand.",
+      "voice": "Cold, short sentences, deadpan; secretly gentle.",
+      "stance": "Protects Jugyeong silently; tests whether the player is trustworthy."
+    },
+    {
+      "id": "seoha",
+      "name": "Jin Seoha",
+      "appearance": "A glamorous teen girl with glossy honey-blonde hair, flawless makeup, a ring light clipped to her phone and a designer bag.",
+      "voice": "Sweet and bubbly on camera, sharp and cold off it.",
+      "stance": "Plans to leak Jugyeong's photo live."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Investigate Seoha's gossip account; 2 = Track down the middle-school classmate."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player screenshotted Seoha's sponsor messages."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "Bora agreed to tell the truth."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "First Day, Viral",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player's first day; someone recognises their old viral video. Jugyeong is assigned as their project partner and is radiant and nervous. In the hall, Seoha announces a 'BIG reveal livestream' for Friday. Suho glances at Jugyeong and frowns.",
+      "choices": [
+        {
+          "id": "introduce_yourself_to_jugyeong",
+          "label": "Introduce yourself to Jugyeong",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_seoha_about_the_big_reveal",
+          "label": "Ask Seoha about the 'big reveal'",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "sit_next_to_the_boy_reading_manga",
+          "label": "Sit next to the boy reading manga",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Seoha, to her camera: 'Friday, Tea-lovers! Somebody's real face is coming out!'",
+      "page": "First day at Saebom High, and someone has already recognised you. \"Wait, you're the one from that video!\" You smile tightly and pray for the floor to swallow you.\n\nYour project partner turns out to be Lim Jugyeong, whose makeup tutorials have half a million followers. She's radiant, flawless and so nervous she drops her pencil case twice. \"Hi! Hi. Sorry. Hi.\"\n\nIn the hallway, a glamorous blonde girl with a ring light clipped to her phone is broadcasting to her followers. \"Friday, Tea-lovers! Somebody's real face is coming out! Big reveal!\"\n\nAcross the corridor, a tall boy with earbuds and a manga glances up at Jugyeong. Then at the blonde girl. And frowns."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Threat",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Jugyeong receives an anonymous DM: a blurry middle-school photo of her with acne and glasses, and 'See you Friday.' She panics. Suho suggests finding where the photo came from. Two paths: get into SaebomTea's account and Seoha's plans, or find Jugyeong's old middle-school classmate who might have leaked it.",
+      "choices": [
+        {
+          "id": "comfort_jugyeong_in_the_bathroom",
+          "label": "Comfort Jugyeong in the bathroom",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You sit on the bathroom floor beside Jugyeong and don't say anything clever. You just hand her tissues until she can breathe. Then you tell her the full, humiliating story behind your viral video, every terrible detail, until she laughs through her tears. \"That's so much worse than mine,\" she sniffs. \"Thank you.\" She fixes her mascara and squeezes your hand. \"Okay. Friends. That's decided.\""
+        },
+        {
+          "id": "investigate_seoha_s_gossip_account",
+          "label": "Investigate Seoha's gossip account",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "track_down_the_middle_school_classmate",
+          "label": "Track down the middle-school classmate",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Suho, flatly: 'Crying won't delete it. Let's find out who has it.'",
+      "page": "At lunch, Jugyeong's phone buzzes. She looks at it, and the colour drains out of her face.\n\nAn anonymous message. A blurry photo of a younger girl in thick glasses, with acne and messy hair, looking at the floor. And three words: See you Friday.\n\nShe runs for the bathroom. You follow. She's crying so hard her mascara is running. \"If people see that, it's over. Everything. I can't go back to that.\"\n\nThe boy with the earbuds is waiting outside the door: Lee Suho. \"Crying won't delete it,\" he says flatly. \"Let's find out who has it.\""
+    },
+    {
+      "id": "path_a",
+      "title": "SaebomTea",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The player gets close to Seoha's circle and gets a peek at her phone: messages with a sponsor threatening to drop her for 'that makeup girl', and the reveal plan.",
+      "choices": [
+        {
+          "id": "screenshot_seoha_s_sponsor_messages",
+          "label": "Screenshot Seoha's sponsor messages",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "delete_the_photo_from_her_drafts",
+          "label": "Delete the photo from her drafts",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Seoha, sweetly: 'You're new and cute. Want to be on my stream?'",
+      "page": "Jin Seoha loves new followers. She waves you over to her table in the café, ring light glowing. \"You're new and cute. Want to be on my stream?\"\n\nWhile she films a boba review, her phone lights up on the table, and you get a long look at the screen.\n\nA message from a cosmetics sponsor: \"We're considering moving our budget to Lim Jugyeong. Her numbers are better than yours.\" Seoha's reply: \"Don't worry. After Friday nobody will want her face on anything.\"\n\nAnd in her drafts, ready to go: the blurry middle-school photo, captioned #RealFace."
+    },
+    {
+      "id": "path_b",
+      "title": "Old Classmate",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The player and Suho meet Jugyeong's former middle-school classmate, Bora, who feels terrible: she sold the photo to Seoha. She has the original messages, and she wants to apologise to Jugyeong in person.",
+      "choices": [
+        {
+          "id": "get_bora_s_messages",
+          "label": "Get Bora's messages",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "convince_bora_to_apologise",
+          "label": "Convince Bora to apologise",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Bora, crying: 'I was jealous. I didn't think it would go this far.'",
+      "page": "Suho finds her through a friend of a friend. Bora went to middle school with Jugyeong. She agrees to meet on a park bench at dusk, and she's already crying when you arrive.\n\n\"I sold it. The photo. Seoha messaged me and offered money for anything embarrassing.\" She holds out her phone with shaking hands: the whole conversation, Seoha's name and all.\n\n\"I was jealous of her even back then. She was so nice to everyone.\" Bora wipes her face. \"I didn't think it would go this far. I want to tell her I'm sorry. To her face.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Friday Livestream",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The livestream starts in the gym; the whole school is watching. Seoha's ring light glows. Jugyeong is frozen; Suho grips her hand. The photo is loading.",
+      "choices": [
+        {
+          "id": "jump_into_the_livestream_frame",
+          "label": "Jump into the livestream frame",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "stand_beside_jugyeong",
+          "label": "Stand beside Jugyeong",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Seoha: 'Three, two, one... reveal!'",
+      "page": "Friday. The gym is packed. Seoha has set up a giant screen and her ring light, and the whole school is watching her stream on their phones.\n\nJugyeong stands frozen at the edge of the crowd. Suho is beside her, gripping her hand. He doesn't seem to notice the whole school can see.\n\n\"Okay, Tea-lovers!\" Seoha sings. \"The moment you've been waiting for. Three, two, one...\"\n\nOn the big screen, a loading bar starts to fill."
+    },
+    {
+      "id": "finale",
+      "title": "Real Face",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Live. The player decides: show Seoha's sponsor messages on the big screen (only if they took them); have Bora tell the truth live (only if she agreed); or let Jugyeong decide to take off her makeup herself, on her own terms.",
+      "choices": [
+        {
+          "id": "show_seoha_s_messages",
+          "label": "Show Seoha's messages",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "unsponsored"
+        },
+        {
+          "id": "let_bora_speak",
+          "label": "Let Bora speak",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "sorry"
+        },
+        {
+          "id": "let_jugyeong_show_her_own_face",
+          "label": "Let Jugyeong show her own face",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "this_is_me"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "unsponsored",
+        "sorry",
+        "this_is_me"
+      ],
+      "isEnding": false,
+      "page": "The screen freezes. The stream is still live. Every phone in the gym is pointed at you, at Jugyeong, at Seoha.\n\nJugyeong looks at you, eyes wide. Suho looks at you too. In the stream's comments, a thousand people are typing at once.\n\nThis is the moment the whole school will talk about for years. It's up to you what they remember."
+    },
+    {
+      "id": "unsponsored",
+      "title": "Unsponsored",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The chat explodes against Seoha; her sponsor drops her and she apologises. Jugyeong's brand deal stands. Close on Jugyeong, Suho and the player eating tteokbokki and laughing at the comments.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Unsponsored",
+      "page": "You step in front of the ring light and hold up your phone so the camera can see the screenshots. Seoha's sponsor. Seoha's reply. \"After Friday nobody will want her face on anything.\"\n\nThe chat explodes. Not at Jugyeong. At Seoha.\n\nBy the next morning, Seoha's sponsor has dropped her. She posts an apology video with no makeup and no filter, and it's the most honest thing she's ever posted.\n\nThat weekend, you, Jugyeong and Suho sit in a tiny tteokbokki shop, reading the comments aloud and laughing until the spicy sauce goes cold."
+    },
+    {
+      "id": "sorry",
+      "title": "Sorry",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Bora apologises on stream; the school cheers. Jugyeong forgives her, crying. Seoha's stream ends abruptly. Close on Jugyeong and Bora taking a selfie together, bare-faced.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Sorry",
+      "page": "Bora steps into the frame. Her voice shakes, but she doesn't stop. \"I sold that photo. Seoha paid me. I was jealous. I'm so sorry, Jugyeong.\"\n\nThe gym goes silent. Then somebody starts clapping. Then everybody.\n\nJugyeong walks to Bora and hugs her, both of them crying, makeup running. Seoha's stream cuts out abruptly.\n\nAfter school, Jugyeong and Bora take a selfie together outside the gate, both of them bare-faced and laughing. Jugyeong posts it with one word: Friends."
+    },
+    {
+      "id": "this_is_me",
+      "title": "This Is Me",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Jugyeong wipes off her makeup on camera, shaking, and says this is her. The chat fills with hearts. Suho looks at her like the whole world stopped. Close on Jugyeong laughing, makeup wipe in hand.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "This Is Me",
+      "page": "Jugyeong lets go of Suho's hand. She walks into the light, pulls a makeup wipe from her pouch, and starts to wipe her face. Her hands are shaking.\n\n\"This is me,\" she says, to the camera, to the whole school. \"This is what I look like. I'm tired of being scared of it.\"\n\nFor a second, nothing. Then the chat fills with hearts. Hundreds. Thousands.\n\nSuho is looking at her like the entire world has stopped.\n\nJugyeong turns to you, half her face bare, holding a makeup wipe, and bursts out laughing."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#ff7fb2"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "petals"
+  }
+}

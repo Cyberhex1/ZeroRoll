@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-witcher-the-noonwraith-of-ostrovo-mill",
+    "title": "The Noonwraith of Ostrovo Mill",
+    "category": "fantasy",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "Your village hired a witcher to kill the ghost haunting the old mill, and you got stuck being his guide because you know the fields. But the wraith isn't just killing people, it's looking for someone, and the miller's family is lying about why.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Witcher",
+      "medium": "game",
+      "owner": "CD Projekt Red and Andrzej Sapkowski",
+      "aka": [
+        "Witcher 3",
+        "Wild Hunt",
+        "Geralt"
+      ]
+    }
+  },
+  "world": "Velen, in the war-torn Northern Kingdoms: muddy villages, burned fields, gallows trees, Nilfgaardian patrols and hungry peasants. Ostrovo is a farming village whose old windmill has been abandoned since a girl named Ilka vanished there nine years ago. Now a noonwraith, a ghost of the midday sun, haunts the wheat fields and has killed two harvesters. Geralt of Rivia has taken the contract for forty crowns. The truth: the miller's son Wenzel, now the village headman, promised to marry Ilka, then left her for a richer match; she drowned in the mill pond on her wedding day wearing the dress. A noonwraith can only rest when the thing that binds her is burned and the truth is spoken.",
+  "tone": "Grim, earthy, morally grey folk horror with dry humour. Monsters are tragic, people are complicated, and good deeds rarely pay.",
+  "playerRole": "A local villager who knows every field, path and secret of Ostrovo. You have a pitchfork, a lantern, a loaf of bread for the road and a sharp tongue. You are not a fighter, but you're not useless either.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Gritty, grounded narration with mud, smells and cold mornings. Geralt explains monsters clinically and grudgingly. Fights are short and dangerous. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "geralt",
+      "name": "Geralt of Rivia",
+      "appearance": "A tall, muscular man with long white hair tied back, cat-like yellow eyes, a scar over one eye, a short beard, black leather armour and two swords on his back.",
+      "voice": "Low, dry and economical; deadpan humour; 'Hmm' says a lot.",
+      "stance": "Treats the player as a guide, then grudgingly as a partner if they're useful."
+    },
+    {
+      "id": "wenzel",
+      "name": "Headman Wenzel",
+      "appearance": "A heavy man in his forties with a thick brown moustache, ruddy cheeks, a fine fur-trimmed coat that is too good for the village, and nervous hands.",
+      "voice": "Loud, jovial, then defensive; changes the subject when Ilka is mentioned.",
+      "stance": "Hired the witcher to kill the wraith quickly before anyone remembers why it's there."
+    },
+    {
+      "id": "ilka",
+      "name": "The Noonwraith",
+      "appearance": "A floating ghostly woman in a tattered, yellowed wedding dress and veil, her face hidden, her skin pale and cracked like dry earth, shimmering in noon heat.",
+      "voice": "Speaks only in whispers about a promise and a ring.",
+      "stance": "Hostile to all, but hesitates when someone speaks her name."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Search the old mill; 2 = Visit Granny Dorota's cottage."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Wenzel's ring and letter in the mill."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "Granny Dorota gave the player Ilka's wedding veil."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Forty Crowns",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Ostrovo village square, morning. Headman Wenzel has pinned a contract to the notice board and a white-haired witcher is reading it. Wenzel volunteers the player as a guide, and Geralt looks them up and down. Villagers mutter about the mill and a girl called Ilka, until Wenzel shushes them.",
+      "choices": [
+        {
+          "id": "agree_to_guide_geralt",
+          "label": "Agree to guide Geralt",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "haggle_with_wenzel_for_a_share_of_the_co",
+          "label": "Haggle with Wenzel for a share of the coin",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_villagers_about_ilka",
+          "label": "Ask the villagers about Ilka",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Geralt sighs: 'You know the fields. I know monsters. Let's get going.'",
+      "page": "Ostrovo's square is mud, chickens and a notice board with a fresh contract nailed to it. A tall man with long white hair and cat-yellow eyes is reading it, two swords on his back.\n\nHeadman Wenzel, red-faced in a fur-trimmed coat far too fine for this village, claps a hand on your shoulder. \"Witcher! Here's your guide. Knows every field, every ditch. Forty crowns, and you kill that thing at the mill by Sunday.\"\n\nThe witcher looks you up and down. \"Hmm.\"\n\nBehind you, two old women are muttering. You catch the name Ilka before Wenzel barks at them to mind their washing. Nine years since anyone said that name out loud in this square."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Wheat at Noon",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The fields near the mill. Two harvesters' tools lie where they fell. Geralt uses his witcher senses and finds signs that the wraith is bound to something in the area. He suggests splitting up the investigation: someone should search the old mill, and someone should talk to old Granny Dorota, who was Ilka's grandmother and still lives at the field's edge. The player chooses.",
+      "choices": [
+        {
+          "id": "share_your_bread_with_geralt_and_ask_abo",
+          "label": "Share your bread with Geralt and ask about witchers",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You tear your loaf in half and hand him a piece. He looks at it like nobody has offered him bread in a year. While you eat on a fence rail, you ask what being a witcher is like. \"Long roads. Short pay. People who hire you and spit after you.\" He chews. \"Bread's good.\" He offers you the heel of the loaf."
+        },
+        {
+          "id": "search_the_old_mill",
+          "label": "Search the old mill",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "visit_granny_dorota_s_cottage",
+          "label": "Visit Granny Dorota's cottage",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Geralt kneels in the wheat: 'She's tied to something. A personal object. Find it and we can end this.'",
+      "page": "The wheat stands gold and still at the edge of the old mill. Two scythes lie where they were dropped. The air shimmers, though it's barely morning.\n\nGeralt kneels and runs his fingers through the dirt. His eyes narrow; his medallion trembles on its chain. \"Noonwraith. Bound to something. A personal object, usually. Find it and this ends cleaner.\"\n\nHe stands. \"Two places to look. That mill. And the old woman at the field's edge. Granny Dorota, you said? People don't like witchers knocking. They might like you.\"\n\nHe pulls a strip of dried meat from his pouch, considers it, and puts it back."
+    },
+    {
+      "id": "path_a",
+      "title": "The Abandoned Mill",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Inside the mill, dust and pigeons. Upstairs, a hidden chest holds Ilka's things, including an engagement ring stamped with Wenzel's family seal and a letter in his hand promising to marry her. The wraith's presence makes the air shimmer. The player must get the proof out before noon.",
+      "choices": [
+        {
+          "id": "take_the_ring_and_the_letter",
+          "label": "Take the ring and the letter",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "hide_in_the_grain_loft_until_the_heat_pa",
+          "label": "Hide in the grain loft until the heat passes",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The air grows hot and dry; somewhere below, a woman's voice whispers 'He promised.'",
+      "page": "The mill door groans. Inside, dust drifts in slanted light and pigeons explode out of the rafters. Upstairs, under a loose board in the grain loft, is a small chest no one has opened in nine years.\n\nInside: a girl's ribbon, a dried flower, a folded letter, and a ring.\n\nThe ring bears the seal of Wenzel's family. The letter is in his blocky, boastful hand: \"Ilka, my heart, I'll marry you at midsummer. No one will stop us. Not my father, not anyone.\"\n\nThe air grows hot and dry. Somewhere below, a woman's voice whispers, \"He promised.\" Then louder: \"He promised.\""
+    },
+    {
+      "id": "path_b",
+      "title": "Granny Dorota",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "A tiny cottage full of drying herbs. Old Dorota mistrusts witchers but warms to the player. She reveals that Ilka drowned in the mill pond on her wedding day after Wenzel didn't show. She gives the player Ilka's wedding veil, the binding object, which she has kept all these years because she couldn't bear to burn it.",
+      "choices": [
+        {
+          "id": "gently_ask_for_the_veil",
+          "label": "Gently ask for the veil",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "promise_dorota_that_ilka_will_be_at_peac",
+          "label": "Promise Dorota that Ilka will be at peace",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Dorota clutches a bundle of yellowed lace: 'If I burn it, she's truly gone.'",
+      "page": "Granny Dorota's cottage is so full of drying herbs you have to duck. She is small and fierce and looks at you like you've tracked mud on her soul.\n\n\"A witcher's guide. Come to kill my granddaughter twice, have you?\"\n\nBut she makes tea, and you listen, and slowly the story comes. Ilka was to marry Wenzel at midsummer. She waited in her dress at the mill pond all day. He never came; by evening the whole village knew he'd ridden off to court the merchant's daughter. Ilka walked into the pond in her wedding dress.\n\nDorota takes a bundle of yellowed lace from a chest. Ilka's veil. \"If I burn it, she's truly gone,\" she whispers. Then she holds it out to you."
+    },
+    {
+      "id": "showdown",
+      "title": "High Noon",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The wraith rises in the wheat at midday, flickering and furious, and Wenzel arrives with men and torches, demanding Geralt kill her now. Geralt fights; the wraith splits into copies. The player has a moment to act.",
+      "choices": [
+        {
+          "id": "shout_ilka_s_name",
+          "label": "Shout Ilka's name",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "hold_back_wenzel_s_men",
+          "label": "Hold back Wenzel's men",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The wraith freezes for a heartbeat at the sound of the village's voices.",
+      "page": "High noon. The wheat goes silent. Then she rises from it: a woman in a rotting wedding dress, face hidden behind a veil of light, skin cracked like summer earth.\n\nGeralt's silver sword is already out. \"Stay behind me.\"\n\nHooves and shouting. Wenzel arrives with five men and torches. \"Kill it, witcher! Now! What am I paying you for?\"\n\nThe wraith screams. It splits into three shimmering copies, then four, and Geralt is suddenly fighting all of them at once. One of the copies turns toward Wenzel, slow and terrible, and for a heartbeat the whole field holds still."
+    },
+    {
+      "id": "finale",
+      "title": "The Truth Spoken",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The wraith hovers before Wenzel. The player decides how this ends: confront Wenzel in front of the village with his own ring and letter (only if they found them), burn the veil and speak Ilka's name gently so she can rest (only if Dorota gave it to them), or step back and let Geralt simply finish the contract with steel.",
+      "choices": [
+        {
+          "id": "show_the_village_wenzel_s_ring_and_lette",
+          "label": "Show the village Wenzel's ring and letter",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_headman_s_shame"
+        },
+        {
+          "id": "burn_the_veil_and_say_goodbye_to_ilka",
+          "label": "Burn the veil and say goodbye to Ilka",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "laid_to_rest"
+        },
+        {
+          "id": "let_geralt_end_it_with_his_silver_sword",
+          "label": "Let Geralt end it with his silver sword",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "silver_and_coin"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "the_headman_s_shame",
+        "laid_to_rest",
+        "silver_and_coin"
+      ],
+      "isEnding": false,
+      "page": "The copies vanish. Only one wraith remains, hovering in front of Wenzel, who has dropped his torch and can't seem to move.\n\nGeralt stands ready, sword raised, waiting to see what you do. The whole village has followed Wenzel out to the field, and they are watching too.\n\nYou know what happened here nine years ago. You know what binds her. It is your choice how Ostrovo remembers this day."
+    },
+    {
+      "id": "the_headman_s_shame",
+      "title": "The Headman's Shame",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The village sees the ring and the letter. Wenzel confesses, sobbing; the wraith turns to him, then fades. Wenzel is stripped of his post. Geralt collects his coin and grumbles that the player made the job more complicated. Close on the village choosing a new headman, and a few villagers looking at the player.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Headman's Shame",
+      "page": "You hold the ring up so the whole village can see Wenzel's family seal. Then you read the letter aloud. \"Ilka, my heart, I'll marry you at midsummer.\"\n\nNobody speaks. Wenzel's face crumples. \"I was young,\" he says. \"I was a coward.\" Then he's sobbing on his knees in the wheat.\n\nThe wraith turns to him, and very slowly fades into the sunlight.\n\nWenzel loses his post by the end of the week. Geralt collects his forty crowns and grumbles that you made a simple job complicated. But as the village gathers to choose a new headman, more than a few faces turn toward you."
+    },
+    {
+      "id": "laid_to_rest",
+      "title": "Laid to Rest",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The veil burns, the player speaks Ilka's name, and the wraith becomes a young woman in sunlight, who smiles and is gone. Dorota cries with relief. Geralt says nothing, but leaves a few crowns on her table. Close on a quiet field, the mill turning in the wind for the first time in nine years.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Laid to Rest",
+      "page": "You strike a match. The lace catches quickly, like it's been waiting. As it burns, you say her name, gently, the way Dorota said it: \"Ilka. You can rest now.\"\n\nThe wraith stops. The cracked skin smooths. For one moment a young woman stands in the wheat in the sunlight, plain and lovely, smiling at someone none of you can see. Then she's gone.\n\nDorota cries into her apron, from relief, not grief. Geralt says nothing, but on his way out of the village he leaves a few crowns on her table.\n\nThe next morning, after nine years standing still, the mill sails turn in the wind."
+    },
+    {
+      "id": "silver_and_coin",
+      "title": "Silver and Coin",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Geralt's silver sword ends the wraith in a flash. The contract is paid; the village relaxes. Nobody talks about Ilka. Geralt rides off and tells the player they'd make a decent witcher's guide. Close on the empty mill and a field of wheat that still feels too hot at noon.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Silver and Coin",
+      "page": "You step back. Geralt moves like a storm: one turn, one cut of silver, and the wraith comes apart into light and dust.\n\nIt's over. Wenzel pays the forty crowns with shaking hands and a too-loud laugh. The village drinks to the witcher that night. Nobody says Ilka's name.\n\nIn the morning Geralt saddles his horse and nods to you. \"You'd make a decent guide for a witcher. Most run.\"\n\nHe rides off. The mill stands empty. And though nobody admits it, the wheat field still feels a little too hot at noon."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c9a14a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

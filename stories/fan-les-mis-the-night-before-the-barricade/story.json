@@ -147,7 +147,8 @@
         "funeral"
       ],
       "isEnding": false,
-      "hint": "Enjolras looks straight at the player: 'Will you stand with us, or only print for us?'"
+      "hint": "Enjolras looks straight at the player: 'Will you stand with us, or only print for us?'",
+      "page": "Night of the fourth of June, 1832. The back room of the Café Musain, thick with pipe smoke and argument.\n\nThe students who call themselves the Friends of the ABC are bent over maps of Paris. At their centre stands Enjolras, beautiful and fierce as a marble statue. \"Tomorrow, at General Lamarque's funeral, the people will rise. And we will rise with them.\"\n\nIn the corner, Grantaire raises his bottle. \"To the people! Who have never once done what you expected.\"\n\nThey need your printing press to run one last proclamation tonight. They need someone who knows the back streets. A ragged little boy, Gavroche, has sneaked in to sit by the fire.\n\nEnjolras looks straight at you. \"Will you stand with us, or only print for us?\""
     },
     {
       "id": "funeral",
@@ -198,7 +199,8 @@
         "corinthe"
       ],
       "isEnding": false,
-      "hint": "A dragoon's horse rears over the crowd. Gavroche is right beneath it, cheering."
+      "hint": "A dragoon's horse rears over the crowd. Gavroche is right beneath it, cheering.",
+      "page": "The fifth of June. The funeral procession crosses Paris in the rain: thousands of mourners, workers, students, exiles, all walking behind the general's hearse.\n\nNear the Austerlitz bridge, it happens. The dragoons charge. Shots ring out. The crowd breaks like a wave.\n\nEverywhere, people are running. The students are heading for the rue de la Chanvrerie.\n\nAnd right in front of the rearing horses, laughing and cheering, is Gavroche."
     },
     {
       "id": "corinthe",
@@ -254,7 +256,8 @@
         "night_watch"
       ],
       "isEnding": false,
-      "hint": "The tall stranger is counting the guns under his breath."
+      "hint": "The tall stranger is counting the guns under his breath.",
+      "page": "The rue de la Chanvrerie. The students are tearing up the paving stones with their bare hands. They overturn an omnibus. They drag tables and chairs out of the Corinthe wine shop while the widow Hucheloup scolds them from the doorway.\n\nThe barricade grows, stone by stone.\n\nA tall stranger in a grey greatcoat joins the work. He's helpful. He asks careful questions: how many men? How much powder? How many guns?\n\nGavroche is watching him with narrowed eyes. So, now, are you. The tall stranger is counting the guns under his breath."
     },
     {
       "id": "night_watch",
@@ -276,7 +279,8 @@
               "flag": "javert_spared",
               "set": true
             }
-          ]
+          ],
+          "outcome": "You go to Enjolras and ask him to spare the spy. Javert is tied to the post, watching you with cold, unblinking eyes.\n\nEnjolras listens. He doesn't like it. But he respects you. \"When the end comes,\" he says at last, \"you may be the one to set him free. Not before.\"\n\nJavert says nothing. But he looks at you differently now, as if adding something to a ledger in his head."
         },
         {
           "id": "carry_wounded",
@@ -312,7 +316,8 @@
         "the_cartridges"
       ],
       "isEnding": false,
-      "hint": "The candles are burning low. Gavroche is creeping toward the top of the barricade."
+      "hint": "The candles are burning low. Gavroche is creeping toward the top of the barricade.",
+      "page": "Night on the barricade. The city has not risen. The students know they're alone.\n\nCandles flicker in the windows of the Corinthe. Someone is singing quietly. Combeferre tends the wounded on a table. Grantaire is asleep, drunk, in the corner of the wine shop.\n\nIf the spy was unmasked, he's tied to a post inside, waiting to be shot when the soldiers come.\n\nBefore dawn, there are things worth doing: the badly wounded could be carried out through a gap in the back alleys, and Gavroche, you notice, is eyeing the cartridge pouches of the dead soldiers lying in the street.\n\nThe candles are burning low."
     },
     {
       "id": "the_wounded",
@@ -343,7 +348,8 @@
         "dawn"
       ],
       "isEnding": false,
-      "hint": "Far off, the army's drums begin."
+      "hint": "Far off, the army's drums begin.",
+      "page": "You and Combeferre carry two wounded students through the twisting alleys behind the Corinthe, one between you, one leaning on your shoulder.\n\nA National Guard patrol passes the end of the alley. You flatten against the wall, holding your breath, the wounded boy biting his lip so he won't cry out.\n\nThey pass. You keep moving.\n\nThe doctor's house has a blue door. He lets you in without a word. Your two students are safe.\n\nFar off, as you hurry back through the grey streets, the army's drums begin."
     },
     {
       "id": "the_cartridges",
@@ -399,7 +405,8 @@
         "dawn"
       ],
       "isEnding": false,
-      "hint": "A bullet knocks Gavroche's cap from his head. He laughs and keeps going."
+      "hint": "A bullet knocks Gavroche's cap from his head. He laughs and keeps going.",
+      "page": "Dawn. The fighting has begun.\n\nGavroche slips over the top of the barricade with a basket, out into the street, where the dead soldiers lie. He's collecting their cartridges. And he's singing, a cheeky song, mocking the troops, while bullets strike the cobbles all around him.\n\nA bullet knocks his cap from his head. He laughs and keeps going.\n\nThis is the moment. You know it in your bones. What you do now decides whether the boy lives."
     },
     {
       "id": "dawn",
@@ -459,7 +466,8 @@
         "the_inspectors_debt"
       ],
       "isEnding": false,
-      "hint": "The cannon is rolled into place at the end of the street."
+      "hint": "The cannon is rolled into place at the end of the street.",
+      "page": "The sixth of June. The army brings cannon.\n\nThe barricade will fall within the hour. Everyone on it knows.\n\nEnjolras is calm, standing at the top with the red flag. Grantaire has woken, and he's sober, and he's standing beside Enjolras.\n\nThe cannon is rolled into place at the end of the street.\n\nWhere will you be at the end?"
     },
     {
       "id": "paris_remembers",
@@ -476,7 +484,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Paris Remembers"
+      "endingTitle": "Paris Remembers",
+      "page": "You stand on the barricade beside Enjolras and Grantaire until the very end.\n\nYou remember the smoke. The noise. Then nothing.\n\nYou wake days later in a stranger's house, bandaged, alive. A kind woman found you in the street and carried you in. Most of the others did not live.\n\nMonths later, in your little print shop, you set the names of the dead in type, one by one, letter by letter. Enjolras. Combeferre. Grantaire. You print them, and you give the pages away to anyone in Paris who will read them."
     },
     {
       "id": "over_the_rooftops",
@@ -498,7 +507,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Over the Rooftops"
+      "endingTitle": "Over the Rooftops",
+      "page": "You grab Gavroche by the collar and haul him up through the Corinthe's attic, out of a skylight and onto the roofs of Paris.\n\nBelow you, the cannon fires. The barricade shakes.\n\nYou run across the slates, the two of you, ducking between chimney pots, until you find a hiding place behind a great stone chimney. You stay there until the shooting stops.\n\nFor the first time since you've known him, Gavroche is quiet. Then he wipes his nose on his sleeve and makes a terrible joke about the soldiers' hats.\n\nYou sit together, looking out at the morning city. He's alive. And you, apparently, have a little brother now, whether you like it or not."
     },
     {
       "id": "the_inspectors_debt",
@@ -524,7 +534,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The Inspector's Debt"
+      "endingTitle": "The Inspector's Debt",
+      "page": "The inspector, Javert, freed because you spoke for him, keeps his word with cold, exact precision.\n\nHe walks you past the soldiers' lines, showing his card. Nobody stops you.\n\nAt the corner of a silent street, he turns to you. \"We are even now. The next time we meet, I will arrest you.\" He touches his hat, and walks away.\n\nYou walk through a silent Paris while the drums sound behind you, carrying everything you saw."
     }
   ],
   "art": {

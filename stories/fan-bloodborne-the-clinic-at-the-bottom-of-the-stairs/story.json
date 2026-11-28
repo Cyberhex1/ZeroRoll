@@ -1,0 +1,454 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-bloodborne-the-clinic-at-the-bottom-of-the-stairs",
+    "title": "The Clinic at the Bottom of the Stairs",
+    "category": "cosmic_horror",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "You came to Yharnam for its miraculous blood. You woke as a hunter, on the night of the Hunt, with a saw cleaver and a burning need to find a clinic that every map shows and nobody can reach. A crow-masked huntress warns you not to look too closely. You look anyway.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Bloodborne",
+      "medium": "game",
+      "owner": "FromSoftware and Sony Interactive Entertainment",
+      "aka": [
+        "Yharnam",
+        "Hunter's Dream"
+      ]
+    }
+  },
+  "world": "Yharnam, a gothic Victorian city of spires and fog, famous for its Healing Church and blood ministration, which heals but slowly turns people into beasts. On the night of the Hunt, hunters stalk the streets killing beasts while citizens bar their doors and burn incense. The Hunter's Dream is a quiet garden where hunters return when they die, tended by a doll and an old man in a wheelchair, Gehrman. Eileen the Crow hunts hunters who have gone mad with blood. The Clinic of Saint Ludmila, at the bottom of a stair beneath the cathedral district, is where the player received their blood. Its keeper, Dr. Morrow, has been secretly using visitors' dreams to reach an eldritch being in the sky, a Great One he calls 'the Moon-Mother'. 'Insight' lets a hunter see things that are truly there.",
+  "tone": "Gothic cosmic horror: dread, decay, desperate violence, beautiful terrible revelations. Knowledge hurts. The night is long.",
+  "playerRole": "A foreigner who came to Yharnam for a blood treatment and woke as a hunter, with a saw cleaver, a blunderbuss, a few blood vials, a tattered coat and a paper note in your own handwriting: 'Seek the Clinic. Remember nothing.'",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Feverish gothic narration: fog, lantern light, ringing bells, sudden savage fights, and creeping wrongness as the player gains insight. Death returns the player to the Hunter's Dream. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "eileen",
+      "name": "Eileen the Crow",
+      "appearance": "A hunter in a cloak covered in black crow feathers, a beaked plague-doctor mask, a wide hat, and twin curved blades.",
+      "voice": "Weary, wise and grimly kind; speaks of the hunt like an old curse.",
+      "stance": "Warns the player away from the clinic but helps if they insist."
+    },
+    {
+      "id": "doll",
+      "name": "The Doll",
+      "appearance": "A life-size porcelain doll woman with pale silver hair, a soft bonnet, a long brown-and-grey dress and a gentle unmoving face.",
+      "voice": "Soft, formal and serene; calls the player 'good hunter'.",
+      "stance": "Tends the Hunter's Dream and offers gentle guidance."
+    },
+    {
+      "id": "morrow",
+      "name": "Dr. Morrow",
+      "appearance": "A tall, thin man in a stained white surgical coat over Victorian clothes, with bandages over his eyes, long grey hair and too-long fingers.",
+      "voice": "Soft-spoken and rapturous, quoting scripture and medical notes in the same breath.",
+      "stance": "Wants the player as his final patient to open the way to the Moon-Mother."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Go down through the sewers; 2 = Return to the Hunter's Dream."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Morrow's surgical diary."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The doll taught the player the severing ritual."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Night of the Hunt",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player wakes on a cot in an abandoned clinic room with a note in their own handwriting. Outside, Yharnam burns with torches and beasts howl. A beast in a ragged coat is eating something in the street. The note says: 'Seek the Clinic. Remember nothing.'",
+      "choices": [
+        {
+          "id": "fight_the_beast_in_the_street",
+          "label": "Fight the beast in the street",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "sneak_past_along_the_rooftops",
+          "label": "Sneak past along the rooftops",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "read_the_note_again_by_the_lamp",
+          "label": "Read the note again by the lamp",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "A distant bell tolls. Somewhere, a woman behind a barred window whispers: 'Go away, hunter.'",
+      "page": "You wake on a cot in a room that smells of iron and old medicine. Your head is full of fog. In your coat pocket is a note in your own handwriting:\n\nSeek the Clinic. Remember nothing.\n\nThere's a saw-bladed cleaver by the bed, a heavy blunderbuss, and a few glass vials of blood.\n\nOutside, Yharnam burns. Torches move in the streets. A bell tolls somewhere far above, and beneath it, something howls. Through the window you see it: a hulking shape in a ragged coat, hunched over in the road, eating.\n\nBehind a barred window across the street, a woman's voice whispers, \"Go away, hunter. Go away.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Crow at the Plaza",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In a fog-wrapped plaza, Eileen the Crow stands over a dead hunter. She warns the player that the Clinic of Saint Ludmila swallows people: 'Those who go down the stairs don't come up as themselves.' Two ways down: through the sewers beneath the cathedral district, or through the dreams of the Hunter's Dream, where the doll says some visitors have left messages.",
+      "choices": [
+        {
+          "id": "ask_eileen_what_happened_to_the_hunter",
+          "label": "Ask Eileen what happened to the hunter",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You ask what happened to the hunter at her feet. Eileen is quiet a long time. \"He was a good man. He drank too deep and dreamed too long. When I found him, he was singing to the moon.\" She kneels and closes his eyes. \"Someone has to end it before they become something worse. Someone has to remember who they were.\" She looks up at you. \"Remember who you are, hunter. Whatever the night tells you.\""
+        },
+        {
+          "id": "go_down_through_the_sewers",
+          "label": "Go down through the sewers",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "return_to_the_hunter_s_dream",
+          "label": "Return to the Hunter's Dream",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Eileen sheathes a blade: 'If you must go, go. But do not look at the moon.'",
+      "page": "The fog in the plaza is so thick the gothic fountain looks like a ghost. A figure stands over a dead hunter: a cloak of black crow feathers, a beaked mask, two curved blades dripping.\n\n\"Eileen,\" she says, without turning. \"I hunt hunters. The ones the blood has taken.\" She looks at you. \"You're new. You're looking for the Clinic of Saint Ludmila.\"\n\nYou didn't tell her that.\n\n\"Those who go down the stairs don't come up as themselves. There's a way through the sewers under the cathedral. Or ask the doll in the Dream. Some who went down left messages there.\" She sheathes a blade. \"If you must go, go. But do not look at the moon.\""
+    },
+    {
+      "id": "path_a",
+      "title": "Under the Cathedral",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Sewers full of rats the size of dogs and the corpses of earlier patients. In a flooded records room, the player finds Morrow's surgical diary: each patient was a 'window', every one died, and he believes the next one, the player, will open the door completely.",
+      "choices": [
+        {
+          "id": "take_morrow_s_diary",
+          "label": "Take Morrow's diary",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "burn_the_records_room_behind_you",
+          "label": "Burn the records room behind you",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Something drags itself through the water, many-limbed, humming a lullaby.",
+      "page": "The sewers stink of rot and old blood. Rats the size of dogs fight over things you don't look at. Here and there are bodies in clinic gowns, face down in the water.\n\nIn a flooded records room, by your lamp's sputter, you find a leather diary. Dr. Morrow's hand is neat and rapturous:\n\n\"Patient 31: a window, briefly. Expired. Patient 32: the Moon-Mother turned her face toward us. Expired. The next will be the one. The next will open the door entirely.\"\n\nOn the last page, a description of the next patient. It's you.\n\nSomething drags itself through the water behind you, many-limbed, humming a lullaby."
+    },
+    {
+      "id": "path_b",
+      "title": "The Hunter's Dream",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The quiet garden of the Dream: white flowers, gravestones, the doll. She shows the player a message left in the dream by a former patient: a ritual that can sever the dreamer's bond to the Moon-Mother, using the bell from the Dream's chapel.",
+      "choices": [
+        {
+          "id": "learn_the_severing_ritual",
+          "label": "Learn the severing ritual",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "ring_the_dream_s_chapel_bell",
+          "label": "Ring the Dream's chapel bell",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The doll bows: 'Good hunter. Some dreams should end.'",
+      "page": "You die. It doesn't hurt as much as you'd think. You wake in a garden.\n\nWhite flowers. Gravestones. A small workshop under a quiet sky. A porcelain woman in a bonnet bows to you. \"Welcome home, good hunter.\"\n\nThe doll leads you to a gravestone where something is scratched into the stone in a desperate hand: a message from a former patient. A ritual. Ring the bell of the Dream's chapel while the dreamer is at the bottom of the stairs, and the bond between dreamer and Moon-Mother will break.\n\n\"Some dreams should end,\" the doll says softly, and folds her hands."
+    },
+    {
+      "id": "showdown",
+      "title": "The Bottom of the Stairs",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Clinic. Pale blue light, dozens of empty beds, and Dr. Morrow waiting with open arms. Above, through a glass ceiling, the moon is wrong: too big, too close, with something reaching down. Morrow transforms into a long-limbed horror when refused.",
+      "choices": [
+        {
+          "id": "fight_morrow",
+          "label": "Fight Morrow",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "look_up_at_the_moon",
+          "label": "Look up at the moon",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Morrow whispers: 'You have been chosen. Isn't it wonderful? Lie down.'",
+      "page": "The stairs go down further than the cathedral should allow. At the bottom: the Clinic of Saint Ludmila. Pale blue light. Dozens of empty beds, perfectly made.\n\nDr. Morrow stands among them, bandages over his eyes, arms open. \"You came back. You have been chosen. Isn't it wonderful? Lie down.\"\n\nAbove, through the glass ceiling, the moon is wrong. Too big. Too close. Something is reaching down from it.\n\nWhen you don't lie down, Morrow's fingers start to grow longer. And longer."
+    },
+    {
+      "id": "finale",
+      "title": "Dawn or Moon",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Morrow is dying, the moon is closing. The player decides: give Morrow's diary to the Healing Church so no one is sent down the stairs again (only if they found it); perform the severing ritual and cut the dreamers free (only if they learned it); or wake up, walk out into the dawn and never speak of this night.",
+      "choices": [
+        {
+          "id": "hand_the_diary_to_the_healing_church",
+          "label": "Hand the diary to the Healing Church",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "sealed_stairs"
+        },
+        {
+          "id": "perform_the_severing_ritual",
+          "label": "Perform the severing ritual",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_last_dream"
+        },
+        {
+          "id": "wake_up_and_walk_into_the_dawn",
+          "label": "Wake up and walk into the dawn",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "morning_in_yharnam"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "sealed_stairs",
+        "the_last_dream",
+        "morning_in_yharnam"
+      ],
+      "isEnding": false,
+      "page": "Morrow lies twisted across the beds, breathing wet and slow. \"She was so close,\" he whispers. \"So close.\"\n\nAbove you, the glass ceiling cracks. The vast wrong moon presses down on the clinic, and the thing reaching out of it has almost touched the roof.\n\nYou have one breath, maybe two, to decide how this night ends."
+    },
+    {
+      "id": "sealed_stairs",
+      "title": "Sealed Stairs",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Church seals the clinic and brands Morrow's work heresy. Eileen nods when she hears. The player walks the streets of Yharnam at dawn, the fog lifting. Close on a stone door with fresh chains across it.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Sealed Stairs",
+      "page": "You climb up out of the clinic with the diary inside your coat and walk straight into the Grand Cathedral.\n\nThe Healing Church reads it in silence. By morning, the stairs are sealed with iron, chains drawn across the door, Morrow's name struck from every record and his work branded heresy.\n\nWhen Eileen hears, she only nods. \"Good.\"\n\nYou walk the streets of Yharnam at dawn. The fog is thinner than you have ever seen it. Behind you, at the bottom of a forgotten stair, fresh chains gleam across a stone door that no one will open again."
+    },
+    {
+      "id": "the_last_dream",
+      "title": "The Last Dream",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The bell rings and the bond breaks. All the clinic's sleepers wake at once, gasping, alive. The moon shrinks back to its proper size. Close on the doll in the white garden, smiling for the first time.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Last Dream",
+      "page": "Far away in the Dream, a bell rings. You hear it down here, at the bottom of the world.\n\nThe bond snaps like a thread. All around the clinic, beds that were empty are suddenly full of sleepers, gasping, sitting up, alive, patients who had been dreaming down here for years.\n\nAbove, the moon shrinks back to its proper size and turns pale and ordinary.\n\nWhen you next wake in the Hunter's Dream, the doll is waiting among the white flowers. \"Good hunter,\" she says. Her porcelain face does not move, but one hand lifts from her lap and waves."
+    },
+    {
+      "id": "morning_in_yharnam",
+      "title": "Morning in Yharnam",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player walks into the dawn and the night of the hunt ends. They remember almost nothing. But sometimes, at night, they glance up at the moon and feel it glance back. Close on a hunter at a window, curtains drawn tight.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Morning in Yharnam",
+      "page": "You close your eyes. You wake.\n\nIt's morning. You're in an inn room in Yharnam, the curtains glowing grey with dawn. The night of the Hunt is over. You remember almost nothing: a fog, a feathered cloak, a stair.\n\nYou leave the city that week and never speak of it.\n\nBut sometimes, at night, you look up at the moon, and you feel it look back. So you draw the curtains. Tightly. Every night."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#a3242e"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

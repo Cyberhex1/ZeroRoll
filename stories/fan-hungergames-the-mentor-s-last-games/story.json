@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-hungergames-the-mentor-s-last-games",
+    "title": "The Mentor's Last Games",
+    "category": "apocalypse",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You won the Hunger Games twelve years ago. Now you're a mentor, and this year's two tributes from your district are a fourteen-year-old who doesn't talk and a seventeen-year-old who won't stop. The Capitol has changed the rules. A stylist slips you a note. Someone wants to end the Games for good, and they need a victor.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Hunger Games",
+      "medium": "book",
+      "owner": "Suzanne Collins and Lionsgate",
+      "aka": [
+        "Hunger Games",
+        "Panem",
+        "District 12",
+        "Capitol"
+      ]
+    }
+  },
+  "world": "Panem, years before the rebellion led by Katniss Everdeen. The Capitol forces twelve districts to send two children each to fight to the death in the annual televised Hunger Games. The player is a victor from District 7 (lumber) who now mentors tributes. This year's tributes: Ash, 14, silent and clever, and Juniper, 17, fierce and loud. The head Gamemaker, Livia Crane, has rigged a new arena hazard. A secret network of victors and stylists plans to sabotage the Games' broadcast so the districts see something the Capitol doesn't want them to see.",
+  "tone": "Tense, emotional dystopian drama: Capitol glamour versus district poverty, the agony of mentoring, small acts of resistance and hope as a weapon. Violence is implied and never graphic.",
+  "playerRole": "A District 7 victor and mentor with a fancy Capitol apartment you hate, nightmares, an axe-thrower's arms, a sponsor list and a fierce need to bring at least one kid home.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Taut, emotional present-tense narration: Capitol excess in glittering detail, district hunger in plain words, cameras always watching, and courage measured in small acts. Violence happens off-page. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "juniper",
+      "name": "Juniper",
+      "appearance": "A tall seventeen-year-old girl from a lumber district with a long auburn braid, freckles, calloused hands and a tribute jacket.",
+      "voice": "Loud, defiant, funny, protective of Ash.",
+      "stance": "Wants to survive, and wants to make the Capitol pay."
+    },
+    {
+      "id": "ash",
+      "name": "Ash",
+      "appearance": "A small, thin fourteen-year-old boy with shaggy dark hair, watchful grey eyes and a carved wooden bird on a cord.",
+      "voice": "Almost silent; sharp observations when he speaks.",
+      "stance": "Notices everything; trusts the player slowly."
+    },
+    {
+      "id": "livia",
+      "name": "Livia Crane",
+      "appearance": "A sleek Capitol Gamemaker with silver hair sculpted into waves, metallic lipstick, a high-collared gown and a holographic clipboard.",
+      "voice": "Bright, charming, chillingly cheerful.",
+      "stance": "Rigged the arena; suspects the player."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Steal the arena plans; 2 = Meet the secret victors' network."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied the arena plans and found the safe clock tower."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has the broadcast hijack device."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Reaping Day",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The train to the Capitol. The player's new tributes: Juniper, loud and fierce, and Ash, silent and watchful. The Capitol is all glitter and cameras. Gamemaker Livia Crane welcomes the mentors with a smile and a secret new arena hazard.",
+      "choices": [
+        {
+          "id": "tell_the_tributes_the_truth_about_the_ga",
+          "label": "Tell the tributes the truth about the Games",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "find_out_about_the_arena",
+          "label": "Find out about the arena",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_ash_what_he_noticed",
+          "label": "Ask Ash what he noticed",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Ash, quietly, after hours of silence: 'The Gamemaker has a wound under her glove. Someone bit her.'",
+      "page": "The train to the Capitol is all velvet seats and crystal glasses and more food than your whole district sees in a week. It makes you sick, the way it does every year.\n\nAcross from you sit this year's tributes from District 7. Juniper, seventeen, with an auburn braid and a voice that fills the carriage. She's already promised to 'make them sorry'. And Ash, fourteen, small and thin, turning a carved wooden bird over and over in his fingers. He hasn't said a word since the reaping.\n\nTwelve years ago, you sat where they're sitting. You came home. Most don't.\n\nAt the station, the cameras flash. A Gamemaker with silver sculpted hair and metallic lipstick, Livia Crane, greets the mentors. \"Wait till you see the arena this year,\" she trills. \"It's a real surprise.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Training Days",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The tributes train. A stylist, Octavia, slips the player a note: 'The victors are planning something. Meet us.' Ash says he's seen the arena plans on Livia's clipboard: it's a flooded city. Two paths: steal the arena plans, or meet the secret network.",
+      "choices": [
+        {
+          "id": "sit_with_juniper_and_ash_on_the_rooftop",
+          "label": "Sit with Juniper and Ash on the rooftop",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You take Juniper and Ash up to the training centre roof, where the wind chimes ring and the Capitol glitters below like a jewel box. You teach Juniper the axe grip that saved your life. You show Ash the stars that are the same over District 7. He shows you his wooden bird: his little sister carved it. \"She said it'd bring me home.\" Juniper puts her arm around him. \"Then it will.\" Nobody believes it, and all three of you choose to anyway."
+        },
+        {
+          "id": "steal_the_arena_plans",
+          "label": "Steal the arena plans",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "meet_the_secret_victors_network",
+          "label": "Meet the secret victors' network",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Juniper, grinning: 'Teach me how to throw an axe and I'll do the rest.'",
+      "page": "Training days. Juniper throws axes like she was born doing it. Ash hides in the plant-identification station and somehow learns everything.\n\nThat night, Ash speaks for the first time. \"The Gamemaker has a clipboard. I saw the arena on it. It's a city. Full of water.\"\n\nThe next morning, your stylist, Octavia, a woman with green-dyed eyebrows and kind eyes, pins a note inside your jacket while she fixes your collar. 'The victors are planning something. Meet us. Basement level 3.'\n\nTwo chances. Steal the arena plans. Or meet whoever's planning something against the Capitol.\n\nEither way, the cameras are always watching."
+    },
+    {
+      "id": "path_a",
+      "title": "The Gamemaker's Office",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "At a Capitol party, the player sneaks into Livia's office and copies the arena plans: a flooded city with a flood-gate trap timed for the third night. Safe ground on a clock tower.",
+      "choices": [
+        {
+          "id": "copy_the_arena_plans",
+          "label": "Copy the arena plans",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "mark_the_safe_clock_tower",
+          "label": "Mark the safe clock tower",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Footsteps in the hall: Livia's heels, clicking closer.",
+      "page": "At a Capitol party full of people with feathers growing from their skin, you slip down a corridor and into Livia Crane's office.\n\nThe holographic clipboard is on her desk. You tap it. A map blooms into the air: a flooded ruined city, streets of black water, crumbling towers. A note in red: FLOOD-GATE: NIGHT 3. And one building, highlighted in green, untouched by the flood: an old clock tower.\n\nSafe ground. The only safe ground.\n\nYou copy it fast onto a napkin, hands shaking.\n\nFootsteps in the corridor. Heels. Clicking closer. You slip out the other door just as the handle turns."
+    },
+    {
+      "id": "path_b",
+      "title": "The Network",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In a hidden room behind the Capitol's training centre, old victors and stylists meet. They've built a device to hijack the Games' broadcast for sixty seconds and show the districts the Capitol's real treatment of them. They need the player's help.",
+      "choices": [
+        {
+          "id": "take_the_broadcast_device",
+          "label": "Take the broadcast device",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "learn_the_signal",
+          "label": "Learn the signal",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "An old victor puts a hand on your shoulder: 'Sixty seconds. That's all the districts need.'",
+      "page": "Basement level 3, behind a door that looks like a broom cupboard, is a room full of people who aren't supposed to be together: old victors from five districts, two stylists, a Capitol technician.\n\n\"We've built this,\" says an old victor from District 11, showing you a small grey device. \"It hijacks the Games' broadcast. Sixty seconds. We show the districts the truth: what the Capitol does to them, what it does to us. A spark.\"\n\nShe presses the device into your hands. \"You're a mentor. You'll be in the control room. You can plug it in.\"\n\nShe puts her hand on your shoulder. \"Sixty seconds. That's all the districts need.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Arena",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Games begin in a flooded city. Juniper and Ash are inside. On the third night, the flood-gate opens. The player watches from the mentor room with Livia watching them.",
+      "choices": [
+        {
+          "id": "send_a_sponsor_gift_with_a_hidden_messag",
+          "label": "Send a sponsor gift with a hidden message",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "stall_livia_in_the_control_room",
+          "label": "Stall Livia in the control room",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The water rises in the streets. Ash looks straight into a hidden camera.",
+      "page": "The Games begin. The arena is a flooded ruined city, and Juniper and Ash are somewhere inside it.\n\nYou watch from the mentor room, surrounded by screens. On the third night, a siren sounds. The flood-gate opens. Black water pours through the streets, rising fast.\n\nLivia Crane sits beside you, smiling, watching your face more than the screens.\n\nOn one screen, Ash looks straight up at a hidden camera, right at you, as if he knows you're watching. He holds up his carved bird. Juniper grabs his hand and they start to run."
+    },
+    {
+      "id": "finale",
+      "title": "The Third Night",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: guide the tributes to the safe clock tower with sponsor gifts (only if they have the plans); hijack the broadcast for sixty seconds (only if they have the device); or publicly refuse to mentor on live TV and face the consequences.",
+      "choices": [
+        {
+          "id": "guide_them_to_the_safe_clock_tower",
+          "label": "Guide them to the safe clock tower",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "two_come_home"
+        },
+        {
+          "id": "hijack_the_broadcast",
+          "label": "Hijack the broadcast",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "sixty_seconds"
+        },
+        {
+          "id": "refuse_on_live_television",
+          "label": "Refuse on live television",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_mentor_who_said_no"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "two_come_home",
+        "sixty_seconds",
+        "the_mentor_who_said_no"
+      ],
+      "isEnding": false,
+      "page": "The water is rising. The screens are full of panic and dark streets. The Capitol audience is cheering.\n\nLivia leans close. \"Whatever you're thinking,\" she murmurs, \"I'd think again.\"\n\nYou've been thinking for twelve years. Now you choose."
+    },
+    {
+      "id": "two_come_home",
+      "title": "Two Come Home",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Both tributes reach the clock tower; the Capitol, embarrassed by a double survival, rushes the Games to an end. Juniper and Ash come home alive. Close on the district train station with families waiting.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Two Come Home",
+      "page": "You spend every sponsor credit you have on one parachute: a map, drawn in the code you taught Juniper on the roof. CLOCK TOWER.\n\nJuniper opens it, looks up, nods. She half-carries Ash through the rising water and up the tower stairs while the flood swallows the city beneath them.\n\nThey're the only two left above water. The Capitol, humiliated by a double survival on live television, rushes the Games to an end.\n\nWeeks later, you stand on the platform at District 7 station as the train pulls in. Juniper and Ash step off, alive. Ash's little sister screams his name and runs, and the whole district is crying."
+    },
+    {
+      "id": "sixty_seconds",
+      "title": "Sixty Seconds",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The districts see the truth for sixty seconds; a spark is lit. Juniper and Ash survive in the chaos. The player becomes a quiet legend. Close on a district wall painted with a mockingjay-like bird.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Sixty Seconds",
+      "page": "You plug the device into the control room console while Livia is shouting at a technician.\n\nFor sixty seconds, every screen in Panem goes dark. Then it shows the truth: the hunger, the punishments, the mentors' tears, the children. The districts watch in silence.\n\nChaos breaks out in the control room. The Games are halted in the confusion; Juniper and Ash survive the night on a rooftop.\n\nNobody ever proves it was you. But a few months later, on a district wall, someone paints a bird with its wings spread wide, and under it the words: SIXTY SECONDS. You keep your head down. You don't paint over it."
+    },
+    {
+      "id": "the_mentor_who_said_no",
+      "title": "The Mentor Who Said No",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player refuses on live TV. The Capitol punishes them, but the districts saw it. Ash survives; Juniper becomes a symbol. Close on a lone mentor standing tall before cameras.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Mentor Who Said No",
+      "page": "You stand up in front of the mentor-room camera, live, and you say, very calmly: \"No. I won't mentor children to their deaths. Not anymore.\"\n\nThe cameras cut away. Peacekeepers take you out of the room.\n\nThe Capitol punishes you: your house, your privileges, your freedom. But the districts saw it. Every one of them.\n\nAsh survives the flood. Juniper doesn't, but she dies a symbol, defiant to the end, and her name is whispered across Panem. You stand on your district's platform as the cameras film you, and you look straight into them."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#c2402a"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "embers"
+  }
+}

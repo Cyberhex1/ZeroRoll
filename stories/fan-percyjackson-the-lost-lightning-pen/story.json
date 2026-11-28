@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-percyjackson-the-lost-lightning-pen",
+    "title": "The Lost Lightning Pen",
+    "category": "mythology",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You just found out you're a demigod, which is a lot to take in at breakfast. On your first day at Camp Half-Blood, Hermes's magic pen goes missing, the one he uses to sign every delivery between gods. Without it, the gods can't get their messages. You have three days, a satyr guide and absolutely no idea who your godly parent is.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Percy Jackson and the Olympians",
+      "medium": "book",
+      "owner": "Rick Riordan and Disney",
+      "aka": [
+        "Percy Jackson",
+        "Camp Half-Blood",
+        "demigods"
+      ]
+    }
+  },
+  "world": "Camp Half-Blood on Long Island, a summer camp for demigods (children of Greek gods and mortals), protected by a magical border. Percy Jackson is now a senior camper and counsellor who helps new arrivals. Grover Underwood is a satyr (half goat). Hermes's magical signing pen, which seals deliveries between Olympus and the world, has been stolen by a minor goddess's daughter, Delia, a camper who wants her mother Eris (goddess of discord) to be noticed. Delia has hidden it in the camp's climbing wall, and plans to give it to her mother at the old pavilion at dusk on the third day.",
+  "tone": "Funny, fast, modern mythology adventure: sarcastic narration, monsters in everyday places, capture-the-flag, lava climbing walls and real friendship.",
+  "playerRole": "A brand-new demigod with a bronze sword you're still getting used to, a backpack of snacks, ADHD battle reflexes and an unknown godly parent (your choice is revealed in play).",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Funny, sarcastic first-person-style narration in modern teenage voice, with Greek monsters in strange places, quick action, and gods who are both awesome and ridiculous. Never too dark. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "percy",
+      "name": "Percy Jackson",
+      "appearance": "A lanky teenage boy with messy black hair, sea-green eyes, an orange camp T-shirt, jeans, a leather necklace with clay beads and a ballpoint pen that turns into a bronze sword.",
+      "voice": "Sarcastic, warm, loyal and brave.",
+      "stance": "Mentors the player."
+    },
+    {
+      "id": "grover",
+      "name": "Grover Underwood",
+      "appearance": "A curly-haired satyr with small horns, a scruffy goatee, a Rasta cap, an orange camp shirt and furry goat legs with hooves.",
+      "voice": "Nervous, kind, eats tin cans when stressed.",
+      "stance": "The player's guide and friend."
+    },
+    {
+      "id": "delia",
+      "name": "Delia",
+      "appearance": "A teen girl with sharp features, wild dark curls, a golden apple necklace and a smug, restless expression.",
+      "voice": "Snarky, charming, provoking.",
+      "stance": "Stole the pen to impress her mother Eris."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Investigate the climbing wall; 2 = Follow the golden apple clue."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player retrieved Hermes's pen from the lava wall."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Delia's plan to meet Eris."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Welcome to Camp",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player arrives at Camp Half-Blood, still reeling. Percy Jackson gives them the tour. Then an alarm: Hermes's signing pen is gone. Gods can't send messages. The camp is in chaos. A girl with a golden apple necklace smiles a bit too much.",
+      "choices": [
+        {
+          "id": "ask_percy_what_the_pen_does",
+          "label": "Ask Percy what the pen does",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "look_around_the_hermes_cabin",
+          "label": "Look around the Hermes cabin",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "talk_to_the_girl_with_the_golden_apple",
+          "label": "Talk to the girl with the golden apple",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Percy: 'Welcome to camp. Usually we do the orientation video first.'",
+      "page": "Okay. So. Turns out your dad (or mom) is a Greek god, monsters are real and summer camp has a lava wall.\n\nYou're standing on a hill on Long Island, looking down at Camp Half-Blood: cabins shaped like Greek temples, strawberry fields, a lake, kids in orange T-shirts practising sword fights like it's normal.\n\nPercy Jackson, the lanky counsellor showing you around, grins. \"Welcome to camp. Usually we do the orientation video first.\"\n\nThen a conch horn blows. Kids start running. Someone shouts: \"Hermes's pen is gone!\"\n\nPercy's grin disappears. \"Okay. That's bad.\"\n\nAcross the field, a girl with wild dark curls and a golden apple necklace leans against a tree, smiling as if this is the best day of her life."
+    },
+    {
+      "id": "crossroads",
+      "title": "Three Days",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Chiron, the centaur camp director, gives the camp three days. Grover sniffs magical ink on the climbing wall. Percy says a golden apple was left in the Hermes cabin, a symbol of Eris, goddess of discord. Two leads: the climbing wall, or the Eris clue.",
+      "choices": [
+        {
+          "id": "share_snacks_with_grover_at_the_lake",
+          "label": "Share snacks with Grover at the lake",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You and Grover sit on the dock at the lake, sharing your stash of snacks (he eats the wrappers too). He tells you about the first time he met Percy, and the bus that exploded, and the time he got turned into a bridesmaid. You laugh until you cry. \"I was scared when I came here too,\" he says. \"Everyone is. It's okay. You found your people now.\" Somewhere in the lake, a naiad waves. You wave back."
+        },
+        {
+          "id": "investigate_the_climbing_wall",
+          "label": "Investigate the climbing wall",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "follow_the_golden_apple_clue",
+          "label": "Follow the golden apple clue",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Grover, chewing a can nervously: 'I smell magic ink. And lava. Mostly lava.'",
+      "page": "In the Big House, Chiron, who is a centaur, which you are absolutely not going to stare at, explains. \"Hermes's pen seals every message between Olympus and the world. Without it, the gods cannot speak to us. Or each other. Zeus is already upset.\" He looks grave. \"Three days. Then Hermes will blame camp.\"\n\nGrover, the satyr, is chewing a tin can very fast. \"I smelled magic ink near the climbing wall. And lava. Mostly lava.\"\n\nPercy holds up something he found in the Hermes cabin: a golden apple. \"This is Eris's symbol. Goddess of discord. Big fan of chaos.\"\n\nTwo leads. Neither sounds safe."
+    },
+    {
+      "id": "path_a",
+      "title": "The Lava Wall",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The camp's lava climbing wall. Halfway up, in a crack between hot rocks, the player finds Hermes's pen hidden in a lava-proof pouch. Climbing down with it is the problem.",
+      "choices": [
+        {
+          "id": "grab_the_pen",
+          "label": "Grab the pen",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "note_the_golden_thread_on_the_pouch",
+          "label": "Note the golden thread on the pouch",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The wall rumbles. Lava starts pouring faster.",
+      "page": "The lava climbing wall is exactly what it sounds like. It rumbles. It shakes. Every so often, it pours lava down its sides, and the kids who are climbing it scream and keep going like that's fine.\n\nYou start climbing. Halfway up, sweating, you spot it: a silvery pouch wedged in a crack between two hot rocks. Inside, glowing faintly, a pen with little wings carved on the cap. Hermes's pen.\n\nYou grab it. On the pouch, caught on a rough edge, is a golden thread, the same gold as a certain someone's apple necklace.\n\nThen the wall rumbles. Lava starts pouring faster. Now you just need to get down."
+    },
+    {
+      "id": "path_b",
+      "title": "The Golden Apple",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The player and Percy follow the golden apple clue to the camp's old pavilion. They find Delia's notes: she plans to meet her mother Eris there at dusk on the third day and give her the pen, so the gods will finally argue over who lost it.",
+      "choices": [
+        {
+          "id": "take_delia_s_plan",
+          "label": "Take Delia's plan",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "leave_the_notes_and_set_a_trap",
+          "label": "Leave the notes and set a trap",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A golden apple sits on the altar, inscribed 'For the Most Ignored'.",
+      "page": "You and Percy follow the golden apple clue into the woods to an old pavilion, all crumbling marble columns and vines.\n\nOn the altar sits another golden apple, inscribed: FOR THE MOST IGNORED.\n\nAnd there are notes. Lots of notes, in neat, furious handwriting. Delia's. Daughter of Eris. 'Mom never notices me. But if I give her the pen, the gods will fight about who lost it, and she'll LOVE that. She'll finally see me. Dusk. Day three. The pavilion.'\n\nPercy reads them and goes quiet. \"That's not a villain,\" he says. \"That's a kid who wants her mom to notice her.\"\n\nYou know the feeling."
+    },
+    {
+      "id": "showdown",
+      "title": "Capture the Pen",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Day three. A giant capture-the-flag game. Delia makes her move for the pen. A monster, a Fury, sent by Eris, swoops over the forest.",
+      "choices": [
+        {
+          "id": "fight_the_fury",
+          "label": "Fight the Fury",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "chase_delia_through_the_woods",
+          "label": "Chase Delia through the woods",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Percy uncaps his pen. It grows into a glowing bronze sword.",
+      "page": "Day three. Capture the flag. The whole camp is in the woods with swords and shields, and you're supposed to guard the creek.\n\nInstead, you see Delia slipping through the trees toward the pavilion.\n\nThen something leathery shrieks overhead: a Fury, bat-winged, claws out, sent by Eris to make sure the delivery happens. It dives straight at you.\n\nPercy uncaps his ballpoint pen. It grows into a glowing bronze sword. \"Go!\" he yells. \"I've got the bat lady!\" Or does he? The Fury is fast. Delia is getting away."
+    },
+    {
+      "id": "finale",
+      "title": "Dusk at the Pavilion",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Dusk on the third day. The player decides: return the pen to Hermes directly (only if they found it); expose Delia's plan to Chiron so she gets help instead of punishment (only if they have the notes); or confront Eris herself at the pavilion with Percy and Grover.",
+      "choices": [
+        {
+          "id": "return_the_pen_to_hermes",
+          "label": "Return the pen to Hermes",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "special_delivery"
+        },
+        {
+          "id": "expose_delia_s_plan_to_chiron",
+          "label": "Expose Delia's plan to Chiron",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_different_kind_of_hero"
+        },
+        {
+          "id": "confront_eris_at_the_pavilion",
+          "label": "Confront Eris at the pavilion",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "discord_dismissed"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "special_delivery",
+        "a_different_kind_of_hero",
+        "discord_dismissed"
+      ],
+      "isEnding": false,
+      "page": "Dusk falls on the third day. Fireflies blink over the strawberry fields.\n\nAt the pavilion in the woods, the golden apple glows on the altar. Delia stands there, waiting for her mother. Percy and Grover are at your side, battered but grinning.\n\nEverything comes down to now."
+    },
+    {
+      "id": "special_delivery",
+      "title": "Special Delivery",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Hermes appears in a flash, grateful, and claims the player in front of the camp... with a twist about their godly parent. Close on campfire flames rising high and golden.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Special Delivery",
+      "page": "You hold up Hermes's pen, and there's a flash like a camera, and suddenly a man in a jogging suit with winged sneakers is standing in front of you, talking on three phones at once.\n\n\"Is that, oh, thank Zeus.\" Hermes takes the pen and kisses it. Messages start flying out of it like birds.\n\nThat night at the campfire, in front of the whole camp, a glowing symbol appears above your head: you're claimed. Your godly parent has finally noticed you, and it's not who anyone expected.\n\nThe campfire flames rise high and golden, and everyone cheers your name."
+    },
+    {
+      "id": "a_different_kind_of_hero",
+      "title": "A Different Kind of Hero",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Delia confesses; Chiron helps her; she becomes the player's unlikely friend. Close on the two of them laughing at the campfire sing-along.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Different Kind of Hero",
+      "page": "You take Delia's notes to Chiron, and you ask him to help her, not punish her.\n\nChiron reads them and his eyes go soft. He talks to Delia for a long time. She cries. Then she gives back the pen.\n\nShe doesn't get kicked out. She gets a counsellor, and a cabin where she isn't alone, and a camp full of kids who know exactly what it's like to have a parent who doesn't call.\n\nAt the campfire sing-along that night, Delia sits next to you and sings very badly and laughs about it. Turns out, she's pretty fun when she isn't plotting chaos."
+    },
+    {
+      "id": "discord_dismissed",
+      "title": "Discord Dismissed",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Eris appears and is outwitted; the pen is lost but Hermes forgives the camp, and the player earns a camp bead. Close on the camp's bead necklace in the player's hand.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Discord Dismissed",
+      "page": "Eris appears at the pavilion in a swirl of black and gold, all sharp smiles and chaos. \"Ooh, a party.\"\n\nYou don't fight her. You argue with her. You tell her that the gods are definitely going to fight about this, but they'll fight about how Eris couldn't even manage a simple theft without being outwitted by a new camper. Her own daughter, embarrassed in front of everyone.\n\nEris hates being laughed at. She vanishes in a huff, and the pen vanishes with her. But Hermes, hearing the story, laughs so hard he forgives the whole camp.\n\nAt the end of summer, you get your first camp bead: a tiny painted golden apple. You wear it proudly."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#f07c2a"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

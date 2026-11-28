@@ -23,6 +23,7 @@
         "category": {
           "type": "string",
           "enum": [
+            "dnd",
             "fantasy",
             "adventure",
             "historical_adventure",
@@ -360,6 +361,11 @@
             "minLength": 20,
             "maxLength": 1500
           },
+          "page": {
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 5000
+          },
           "choices": {
             "default": [],
             "type": "array",
@@ -415,6 +421,11 @@
                     ],
                     "additionalProperties": false
                   }
+                },
+                "outcome": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 1500
                 }
               },
               "required": [

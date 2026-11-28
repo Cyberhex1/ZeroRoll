@@ -147,7 +147,8 @@
         "wakeful_square"
       ],
       "isEnding": false,
-      "hint": "Lorath taps out his pipe: 'Well? Are you staying or shall I find someone with a sword and fewer questions?'"
+      "hint": "Lorath taps out his pipe: 'Well? Are you staying or shall I find someone with a sword and fewer questions?'",
+      "page": "Dusk at Drevnik, a village in the Fractured Peaks, and the snow is falling thick and quiet.\n\nThe chapel bell rings. Then rings again, out of time, at an hour no priest keeps.\n\nVillagers stand in their doorways with red-rimmed eyes, too tired even to speak. A woman stares at you without blinking. A child sways on his feet.\n\nAt the shrine by the gate, an old scholar in a fur-lined robe waits with his pipe: Lorath Nahr, Horadrim. \"Got a letter,\" he says, \"from the priest's acolyte. Said nobody here has slept for nine nights. The acolyte's vanished since.\" He looks you over. \"I need someone who can fight.\"\n\nHe taps out his pipe. \"Well? Are you staying or shall I find someone with a sword and fewer questions?\""
     },
     {
       "id": "wakeful_square",
@@ -199,7 +200,8 @@
         "chapel"
       ],
       "isEnding": false,
-      "hint": "The bell rings again, and every head in the square turns toward the chapel at once."
+      "hint": "The bell rings again, and every head in the square turns toward the chapel at once.",
+      "page": "The village square at night. People sit around a bonfire, talking in circles, pinching themselves, anything to stay awake.\n\nThey all tell you the same thing. They've all had the same waking dream: a door under the chapel floor, and a soft voice saying, rest is a price.\n\nIn one cottage, a girl named Irinka is the only person in Drevnik who sleeps. Her mother sits beside her, terrified. In her sleep, Irinka murmurs in a flat, old voice that isn't hers.\n\nThe priest's house is dark and locked.\n\nThe bell rings again, and every head in the square turns toward the chapel at once."
     },
     {
       "id": "chapel",
@@ -254,7 +256,8 @@
         "crypt"
       ],
       "isEnding": false,
-      "hint": "Cold air breathes out from a gap behind the altar."
+      "hint": "Cold air breathes out from a gap behind the altar.",
+      "page": "The chapel is an outpost of the Cathedral of Light: hundreds of candles burned down to stubs, frost on the inside of the windows.\n\nFather Mikhel meets you at the altar, smiling too much. \"All is well. The village is being tested by the Light. They must endure.\"\n\nHe's lying. You can see it in his hands, shaking around his prayer book.\n\nLorath leans close to you. He's spotted the old Horadric marks carved into the stone behind the altar, and cold air breathing out from a gap where no gap should be."
     },
     {
       "id": "crypt",
@@ -302,7 +305,8 @@
         "offered_hand"
       ],
       "isEnding": false,
-      "hint": "Lorath grips the player's arm: 'Down, or out. Not toward the voice.'"
+      "hint": "Lorath grips the player's arm: 'Down, or out. Not toward the voice.'",
+      "page": "Down a hidden stair, into a round crypt. On the floor: a great Horadric seal, a ring of carved stone, with a wedge-shaped piece missing. Something breathes beneath it. Slow. Huge.\n\nFather Mikhel has confessed by now, or will. He made a bargain with the thing below, to hold back the avalanche hanging over the village. The price was the village's sleep.\n\n\"The seal can be made whole,\" Lorath says, \"if the shard can be found. Likely it fell into the flooded ossuary below.\"\n\nThen a voice fills the crypt, soft and kind. It offers you strength. Enough to end all this quickly.\n\nLorath grips your arm. \"Down, or out. Not toward the voice.\""
     },
     {
       "id": "ossuary",
@@ -354,7 +358,8 @@
         "the_bound_one"
       ],
       "isEnding": false,
-      "hint": "The shard's pale glow pulses under the black water, a few strides away."
+      "hint": "The shard's pale glow pulses under the black water, a few strides away.",
+      "page": "The flooded ossuary is knee-deep in black water, and the ceiling is made of skulls. Ice is forming on everything. Your breath hangs in the air.\n\nThe sleepless dead of Drevnik's oldest graves stir in the water, rise, slow and confused, and turn toward you. They're guarding something.\n\nA few strides away, under the black water, a shard of carved stone glows with a pale light, pulsing like a heartbeat.\n\nLorath holds the stair behind you. \"Quickly,\" he says. \"They're waking.\""
     },
     {
       "id": "offered_hand",
@@ -396,7 +401,8 @@
         "the_bound_one"
       ],
       "isEnding": false,
-      "hint": "The candles lean toward the player as if listening."
+      "hint": "The candles lean toward the player as if listening.",
+      "page": "In a side chamber lit by candles nobody lit, the voice speaks only to you. Vashtul.\n\nIt offers strength. No more cold. No more fear. A blade that would cut anything, a spell that would burn anything. The price is small, it says. Only your sleep. For a while.\n\nThe candles lean toward you, as if listening.\n\nFrom the crypt, faintly, you hear Lorath shouting your name."
     },
     {
       "id": "the_bound_one",
@@ -456,7 +462,8 @@
         "bring_down_the_mountain"
       ],
       "isEnding": false,
-      "hint": "A chain snaps. Lorath shouts: 'Whatever you're going to do, do it now!'"
+      "hint": "A chain snaps. Lorath shouts: 'Whatever you're going to do, do it now!'",
+      "page": "Beneath the seal: a pit of black ice. In it, Vashtul is chained, enormous, eyes opening one by one along its arms. The chains are slipping.\n\nFather Mikhel has followed you down, desperate, weeping. Above you, the whole snowfield groans like a living thing.\n\nA chain snaps with a sound like a bell breaking.\n\nLorath shouts: \"Whatever you're going to do, do it now!\""
     },
     {
       "id": "dawn_over_drevnik",
@@ -478,7 +485,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Dawn Over Drevnik"
+      "endingTitle": "Dawn Over Drevnik",
+      "page": "You press the shard into the seal.\n\nIt fits. The stone closes with a sound like a held breath, finally let go. Vashtul sinks into the ice, eyes closing one by one, and is still.\n\nAbove, in the village, everyone falls asleep where they stand. In doorways. By the fire. In the middle of the street. The avalanche doesn't come; the snow holds, for now.\n\nFather Mikhel weeps. Lorath, gruffly, says you did well, and lights his pipe with shaking hands.\n\nYou climb out into a sunrise full of snoring."
     },
     {
       "id": "wanderers_bargain",
@@ -500,7 +508,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The Wanderer's Bargain"
+      "endingTitle": "The Wanderer's Bargain",
+      "page": "You take Vashtul's hold into yourself.\n\nThe demon goes quiet. The chains stop slipping. In the village above, everyone sleeps. The snow stays on the mountain.\n\nBut you don't sleep. Not that night, nor the next.\n\nLorath looks at you for a long time, and you see him decide something. \"I'll be watching you, wanderer,\" he says. Not unkindly. Just honestly.\n\nYou sit alone on the chapel steps at dawn, wide awake, while something patient waits behind your eyes."
     },
     {
       "id": "bring_down_the_mountain",
@@ -517,7 +526,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Bring Down the Mountain"
+      "endingTitle": "Bring Down the Mountain",
+      "page": "You bring the crypt down on Vashtul.\n\nThe ceiling falls. The chapel falls after it. Then, with a roar like the end of the world, the snowfield lets go.\n\nYou, Lorath and the villagers run for the high pass as the avalanche buries Drevnik behind you, every house, every street, the chapel and the demon under it.\n\nEveryone lives. But the village is gone.\n\nOn the ridge, the villagers fall asleep in the snow in heaps, finally, curled together like puppies. Lorath doesn't say anything for a long time. Then he hands you his pipe. You don't smoke. You hold it anyway."
     }
   ],
   "art": {

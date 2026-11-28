@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-jjk-the-cursed-vending-machine",
+    "title": "The Cursed Vending Machine",
+    "category": "horror",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "It's your first week at Tokyo Jujutsu High, and your first mission is embarrassing: a vending machine in a Shibuya underpass that gives out cursed drinks. Then the drinks start working. People who drink them can see their worst fear, and three of them haven't woken up. Yuji Itadori thinks it's hilarious. Gojo thinks you can handle it. You're not sure.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Jujutsu Kaisen",
+      "medium": "anime",
+      "owner": "Gege Akutami, Shueisha and MAPPA",
+      "aka": [
+        "JJK",
+        "Gojo",
+        "Itadori",
+        "Jujutsu High"
+      ]
+    }
+  },
+  "world": "Modern Tokyo, where negative human emotions create cursed spirits, invisible to normal people. Jujutsu sorcerers fight them with cursed energy and personal techniques. Tokyo Jujutsu High trains young sorcerers. Satoru Gojo, the strongest sorcerer alive, teaches there with a blindfold and a grin. Yuji Itadori, a first-year with superhuman strength, carries the cursed king Sukuna inside him. In a Shibuya underpass, a vending machine has become home to a cursed spirit born from the fear of people trapped in a crowd crush years ago. It sells 'Fear Fizz', which traps drinkers in their worst nightmare. A curse user, Akagi Ren, feeds it to grow it into a special-grade curse.",
+  "tone": "Stylish, funny and horrifying modern dark fantasy: banter, brutal fights, weird curses, and real compassion for victims.",
+  "playerRole": "A first-year student at Tokyo Jujutsu High with a navy uniform, a cursed tool of your choice, a cursed technique you've only half figured out, and a coin purse full of hundred-yen coins.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Snappy modern horror narration with manga-style fight beats, cursed energy described as colour and pressure, comedic banter, and grotesque, imaginative curses. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "yuji",
+      "name": "Yuji Itadori",
+      "appearance": "A muscular teenage boy with spiky pink hair with a dark undercut, warm brown eyes, a navy Jujutsu High uniform with a red hood and a big grin.",
+      "voice": "Upbeat, funny and big-hearted; takes fights seriously and death personally.",
+      "stance": "Instantly friendly; treats the player as a partner."
+    },
+    {
+      "id": "gojo",
+      "name": "Satoru Gojo",
+      "appearance": "A very tall man with spiky white hair, a black blindfold over his eyes, a high-collared black teacher's uniform and a playful smirk.",
+      "voice": "Playful, cocky, teasing; terrifying when serious.",
+      "stance": "Believes in the player and deliberately lets them struggle."
+    },
+    {
+      "id": "akagi",
+      "name": "Akagi Ren",
+      "appearance": "A thin young man in his twenties with dyed grey hair, a black face mask, a convenience store uniform, and stitched-together fingers.",
+      "voice": "Polite customer-service voice hiding glee.",
+      "stance": "A curse user feeding the vending machine."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Stake out the machine at night; 2 = Enter a victim's nightmare."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player stole Akagi's notebook."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found and comforted the curse's core in the nightmare."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "First Mission",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Gojo sends the player and Yuji to a Shibuya underpass where a vending machine sells drinks that don't exist. Three people who drank 'Fear Fizz' are in comas. The underpass is cold and the machine glows. A salaryman is about to buy a can.",
+      "choices": [
+        {
+          "id": "stop_the_salaryman",
+          "label": "Stop the salaryman",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "study_the_vending_machine_s_cursed_energ",
+          "label": "Study the vending machine's cursed energy",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "buy_a_can_yourself_to_see_what_happens",
+          "label": "Buy a can yourself to see what happens",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The machine whirrs: 'Thank you for your purchase. Please enjoy your fear.'",
+      "page": "\"Your first mission!\" Gojo had said, grinning under his blindfold. \"A haunted vending machine. Very low-stakes. Have fun!\"\n\nThe Shibuya underpass is colder than it should be. Fluorescent lights buzz. And at the end, glowing, stands a vending machine selling a drink that does not exist: Fear Fizz, in a purple can with a smiley face.\n\nThree people who drank it are in comas.\n\nYuji Itadori, pink-haired and grinning, cracks his knuckles beside you. \"A cursed vending machine. That's amazing. That's the stupidest thing I've ever heard.\"\n\nA tired salaryman is shuffling toward it, coin already in hand.\n\nThe machine whirrs cheerfully. \"Thank you for your purchase. Please enjoy your fear.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Cursed Energy Readings",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Yuji punches the machine and it absorbs the blow, giggling. The curse is growing. Two ways to understand it: track who restocks the machine at night, or enter the dream of one of the coma victims at the hospital with a technique Gojo set up.",
+      "choices": [
+        {
+          "id": "get_a_drink_a_normal_one_with_yuji_and_t",
+          "label": "Get a drink (a normal one) with Yuji and talk",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You walk to a normal vending machine a block away and buy two very normal drinks. Yuji drinks his in one go. He tells you about his grandpa, and why he joined: \"People should die surrounded by people. Not alone, not like this.\" He laughs to lighten it. \"Sorry. Heavy.\" You tell him why you're here. He nods seriously, then bumps your can with his. \"Partners, then.\""
+        },
+        {
+          "id": "stake_out_the_machine_at_night",
+          "label": "Stake out the machine at night",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "enter_a_victim_s_nightmare",
+          "label": "Enter a victim's nightmare",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Yuji, rubbing his fist: 'It laughed at me. The machine laughed at me.'",
+      "page": "Yuji punches the vending machine with enough force to dent a truck. It absorbs the blow like jelly. Then it giggles.\n\n\"It laughed at me,\" Yuji says, offended. \"The machine laughed at me.\"\n\nThe cursed energy pouring off it is getting thicker by the hour. It's growing.\n\nGojo's text arrives on your phone: Two options, kiddo. Somebody's restocking that thing. Or I set up a technique at the hospital so you can visit a victim's nightmare. Choose wisely! Or don't! It's your mission!\n\nYuji reads it over your shoulder. \"He sends emojis too. So many emojis.\""
+    },
+    {
+      "id": "path_a",
+      "title": "Night Restock",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "At 3 a.m., a thin convenience-store worker in a mask restocks the machine with cans from a backpack. Following him leads to an abandoned konbini full of cursed objects, and his notebook: he's growing the curse into a special grade for a mysterious buyer.",
+      "choices": [
+        {
+          "id": "steal_akagi_s_notebook",
+          "label": "Steal Akagi's notebook",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "follow_him_to_his_buyer",
+          "label": "Follow him to his buyer",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Akagi hums a store jingle as he loads cans, his stitched fingers glowing.",
+      "page": "You wait in the dark across from the machine. 3 a.m. A thin young man in a convenience-store uniform and black mask walks in, humming a store jingle, and starts loading purple cans from his backpack. His fingers are stitched together like a doll's, and they glow.\n\nYou follow him to an abandoned konbini two streets away. Inside, shelves full of cursed objects instead of snacks.\n\nOn the counter, a notebook. \"Fear Fizz batch 14. Grade rising nicely. Special grade by Friday. Buyer will pay in fingers.\" A name on the last page: Akagi Ren."
+    },
+    {
+      "id": "path_b",
+      "title": "Inside the Fear",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The player dives into a coma victim's nightmare: an endless crowd crush in an underpass. They find the curse's core: the memory of a little boy who was lost in a crowd crush here years ago. Calming that memory weakens the curse.",
+      "choices": [
+        {
+          "id": "comfort_the_lost_boy_in_the_dream",
+          "label": "Comfort the lost boy in the dream",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "find_the_dream_s_exit",
+          "label": "Find the dream's exit",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The crowd presses tighter. Somewhere a small voice cries: 'I can't find my mum.'",
+      "page": "The hospital room smells of antiseptic. You lay a hand on the coma patient's forehead and Gojo's technique pulls you down, down, into the dark.\n\nYou're in an underpass. It's full of people. Too full. They press in from every side, faceless, pushing, and you can't breathe.\n\nSomewhere in the crush, a small voice is crying. \"I can't find my mum.\"\n\nYou push through the crowd until you find him: a little boy, maybe six, clutching an old toy. The curse's core. Years ago a real boy was lost in a real crush right here, and all that terror never left."
+    },
+    {
+      "id": "showdown",
+      "title": "Special Grade",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Akagi feeds the machine one last can and the curse bursts out: a huge, many-armed shape made of crushed people and vending machine parts. Yuji fights it. Akagi smiles. Gojo is watching from a rooftop and not helping.",
+      "choices": [
+        {
+          "id": "fight_the_curse_with_yuji",
+          "label": "Fight the curse with Yuji",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "go_after_akagi",
+          "label": "Go after Akagi",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Gojo's voice from somewhere above: 'You've got this. Probably!'",
+      "page": "Akagi feeds the machine one last can and steps back with his hands up, like a showman. \"Thank you for your patience!\"\n\nThe vending machine splits open. Out of it pours a curse the size of a building: arms made of crushed bodies, faces in its chest, buttons and coin slots blinking where its eyes should be. The underpass roof cracks.\n\nYuji's fist meets it with a sound like a car crash.\n\nUp on a rooftop, a tall figure in a blindfold is sitting with his legs crossed, eating a crepe. \"You've got this,\" Gojo calls down. \"Probably!\""
+    },
+    {
+      "id": "finale",
+      "title": "Exorcism",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides how to end it: expose Akagi's buyer by giving his notebook to Jujutsu High (only if they have it); use what they learned in the dream to calm the curse's core so it dissolves (only if they did it); or exorcise it with raw force and Yuji's fists.",
+      "choices": [
+        {
+          "id": "hand_akagi_s_notebook_to_the_school",
+          "label": "Hand Akagi's notebook to the school",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "following_the_money"
+        },
+        {
+          "id": "calm_the_lost_boy_at_the_curse_s_core",
+          "label": "Calm the lost boy at the curse's core",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "found"
+        },
+        {
+          "id": "overwhelm_it_with_force",
+          "label": "Overwhelm it with force",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "punch_through"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "following_the_money",
+        "found",
+        "punch_through"
+      ],
+      "isEnding": false,
+      "page": "The curse is on its knees in the rubble, arms twitching. Akagi is pinned under a fallen beam, still smiling behind his mask. Yuji is bleeding from the forehead and grinning anyway.\n\nGojo drops down from the roof, lands softly, and tilts his head. \"Okay, first-year. How does this end?\""
+    },
+    {
+      "id": "following_the_money",
+      "title": "Following the Money",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The notebook leads Jujutsu High to a network of curse traders. Gojo pats the player's head and calls it 'good homework'. Close on the player and Yuji eating ramen as Gojo pays.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Following the Money",
+      "page": "You toss Akagi's notebook to Gojo. He flips through it, and for a moment his smile disappears entirely. Then it comes back.\n\n\"Ooh. Fingers. That's very bad. Good homework.\"\n\nThe notebook leads Jujutsu High to a whole network of curse traders across Tokyo. Arrests are made. Akagi doesn't smile much in custody.\n\nThat night, Gojo takes you and Yuji out for ramen. He pays. He makes a big deal of paying. Yuji orders three bowls just to spite him."
+    },
+    {
+      "id": "found",
+      "title": "Found",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The curse melts into the image of a small boy who finds his mother's hand and fades. The coma victims wake. Yuji cries and pretends it's onion. Close on the underpass, quiet and warm.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Found",
+      "page": "You close your eyes and reach for the boy inside the curse, the way you found him in the dream. You tell him it's okay. You tell him his mum is waiting just over there.\n\nThe curse goes very still. Then it melts, layer by layer, until all that's left is the faint shape of a small boy, who turns, sees someone you can't see, and runs to take their hand. He's gone.\n\nAcross the city, three people wake up in hospital beds.\n\nYuji is crying. \"It's onion,\" he says. \"Somebody's cutting onion.\" There is no onion. The underpass is quiet and, oddly, warm."
+    },
+    {
+      "id": "punch_through",
+      "title": "Punch Through",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player and Yuji smash through the curse together. It's loud and ugly and it works. Gojo appears and says 'not bad'. Close on the broken vending machine in an empty underpass.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Punch Through",
+      "page": "\"Together?\" Yuji says. \"Together,\" you say.\n\nYou hit the curse at the same time, your technique and his fist, and the whole underpass flashes white. It's loud and ugly and absolutely works.\n\nWhen the dust clears, the curse is gone and the vending machine is a heap of twisted metal, one sad can of Fear Fizz rolling across the floor.\n\nGojo strolls over and pats you both on the head. \"Not bad.\" Then he eats your onigiri."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#5a6cff"
+    },
+    "fonts": {
+      "heading": "sans",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

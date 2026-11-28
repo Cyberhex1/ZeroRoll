@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-masseffect-shore-leave-on-the-citadel",
+    "title": "Shore Leave on the Citadel",
+    "category": "adventure",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "Your first week as a C-Sec rookie on the Citadel, and a quarian pilgrim has vanished from the Wards. Nobody upstairs cares. A sharpshooting turian with a grudge against paperwork does, and so does a very polite AI who shouldn't exist.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Mass Effect",
+      "medium": "game",
+      "owner": "BioWare and Electronic Arts",
+      "aka": [
+        "ME",
+        "Normandy",
+        "Shepard"
+      ]
+    }
+  },
+  "world": "The Citadel, a vast ancient space station that is the political heart of the galaxy, home to millions of humans, asari, turians, salarians, krogan, volus, quarians and more. C-Sec is its police force: underfunded, overstretched and full of politics. Garrus Vakarian, a turian officer who hates red tape, is between missions and helping C-Sec off the books. A young quarian pilgrim, Tali'Kesh, has gone missing from the Zakera Ward docks after trying to sell a strange data module. The truth: a volus broker, Pell Durrin, sold her location to a Cerberus-funded smuggling crew that wants the module, a fragment of a geth memory core. A rogue but friendly VI, Avina's glitchy cousin calling itself 'Halcyon', is helping her from inside the station's systems.",
+  "tone": "Hopeful space-opera police procedural: neon markets, alien banter, moral choices, and tense firefights in cramped corridors.",
+  "playerRole": "A brand-new C-Sec officer, any species you like, with a standard pistol, an omni-tool that crashes too often, a badge, and a patrol route on the Zakera Ward docks.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Cinematic space opera: alien details, crowd chatter, holograms and elevator rides. Offer clear diplomatic, investigative and renegade approaches without naming them. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "garrus",
+      "name": "Garrus Vakarian",
+      "appearance": "A tall turian with grey plated skin, a fringe of bony crest, blue facial markings, sharp blue eyes and blue-and-black armour with a sniper rifle on his back; a scar on the right side of his face.",
+      "voice": "Dry, wry and principled; jokes about calibrations and hates bureaucracy.",
+      "stance": "Helps the player because C-Sec won't, and pushes them to bend rules for the right reasons."
+    },
+    {
+      "id": "tali",
+      "name": "Tali'Kesh",
+      "appearance": "A small quarian in a purple-and-silver environment suit and hooded veil, with a glowing tinted visor showing only her bright eyes, carrying a shotgun and tool satchel.",
+      "voice": "Nervous, rapid-fire, brilliant with tech; apologises a lot, then gets fierce.",
+      "stance": "Hiding from the smugglers and suspicious of anyone in a uniform."
+    },
+    {
+      "id": "pell",
+      "name": "Pell Durrin",
+      "appearance": "A short, round volus in a brown pressure suit with a breathing mask and a cluster of glowing credit chits on his belt.",
+      "voice": "Wheezy, condescending and businesslike; calls everyone 'Earth-clan' or 'officer'.",
+      "stance": "Sold Tali out; wants to keep his license and his profits."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Press the volus broker for answers; 2 = Follow Halcyon into the lower ducts."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied Pell's payment records."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "Tali trusts the player and showed them the module."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Day One, Zakera Ward",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The docks on the player's first shift. A quarian merchant's stall has been ransacked, and witnesses saw a young quarian dragged into an elevator. The desk sergeant says quarians go missing all the time and assigns the player to parking fines. A turian in blue armour at the noodle bar listens a little too closely.",
+      "choices": [
+        {
+          "id": "file_the_report_and_quietly_keep_investi",
+          "label": "File the report and quietly keep investigating",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "question_the_stall_s_neighbours",
+          "label": "Question the stall's neighbours",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_the_turian_what_he_s_listening_for",
+          "label": "Ask the turian what he's listening for",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Halcyon's voice crackles out of a nearby kiosk: 'Officer, please. Nobody else is looking.'",
+      "page": "Zakera Ward, your first shift. The docks smell of ozone and fried noodles. Holograms advertise things you can't afford in languages you can't read.\n\nThen a quarian stall is turned inside out, crates smashed, and three witnesses swear a young quarian was dragged into an elevator by men in black armour.\n\nYour desk sergeant doesn't look up. \"Quarians go missing all the time. Here.\" He hands you a pad of parking fines.\n\nAt the noodle bar, a tall turian in blue armour sips something steaming, mandibles twitching, listening a little too closely. And from a public info kiosk beside you, a crackly voice whispers, \"Officer, please. Nobody else is looking.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "A Voice in the Kiosk",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Garrus introduces himself and offers help off the books. A rogue VI calling itself Halcyon speaks through terminals, claiming it's protecting the missing pilgrim, Tali. Two leads: Pell Durrin, the volus broker who bought the quarian's data module, or Tali's hideout signal in the lower ducts that Halcyon can guide the player to.",
+      "choices": [
+        {
+          "id": "ask_garrus_why_he_left_c_sec",
+          "label": "Ask Garrus why he left C-Sec",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You ask Garrus why he really left. He's quiet for a moment. \"Because there were rules for catching criminals and rules for protecting them, and the second book was always thicker.\" He shrugs, the turian kind, all plates and spikes. \"You followed a stranger's voice out of a kiosk on day one. That's either reckless or the right instinct. Let's find out which.\" He slides you a bowl of noodles."
+        },
+        {
+          "id": "press_the_volus_broker_for_answers",
+          "label": "Press the volus broker for answers",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "follow_halcyon_into_the_lower_ducts",
+          "label": "Follow Halcyon into the lower ducts",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Garrus taps his visor: 'Two leads. I'd go with the one that makes paperwork angrier.'",
+      "page": "The turian sets down his bowl. \"Garrus Vakarian. Used to be C-Sec. Hated the paperwork, so I left. Now I just hate it as a hobby.\" He nods at the kiosk. \"You heard it too.\"\n\nThe kiosk flickers with a simple glowing face. \"My designation is Halcyon. I am an unregistered intelligence and I am very sorry about that. The pilgrim is called Tali'Kesh. She is hiding. I am helping her. Badly.\"\n\nTwo leads. The volus broker Pell Durrin, who bought something from Tali yesterday. Or Tali herself, somewhere in the lower ducts where Halcyon can guide you.\n\nGarrus taps his visor. \"I'd pick the one that makes the paperwork angrier.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Broker's Office",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Pell's office overlooks the Presidium ponds. He's slippery and wheezy, protected by a lawyer. The player can bargain, bluff or intimidate. In his records: a payment from a shell company tied to Cerberus and the smugglers' docking bay number.",
+      "choices": [
+        {
+          "id": "copy_pell_s_payment_records",
+          "label": "Copy Pell's payment records",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "trade_your_silence_for_the_docking_bay_n",
+          "label": "Trade your silence for the docking bay number",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Pell wheezes: 'Officer, my lawyer is very expensive. Your career is not.'",
+      "page": "Pell Durrin's office overlooks the Presidium's perfect ponds. The volus sits behind a desk too big for him, breathing wetly through his mask, a lawyer at his elbow.\n\n\"Officer,\" he wheezes. \"My lawyer is very expensive. Your career is not.\"\n\nIt takes patience, a bluff and one well-timed look at his terminal. Then you're in: a payment from a shell company with a tiny Cerberus logo buried in the metadata, made the hour Tali vanished, and a booking for Docking Bay 42 under a false name.\n\nPell sees what's on your screen and stops wheezing for a full second."
+    },
+    {
+      "id": "path_b",
+      "title": "The Lower Ducts",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Cramped maintenance ducts full of keepers, the silent bug-like caretakers of the Citadel. Halcyon leads the player to Tali, armed and terrified. She shows them the module: a geth memory fragment that could prove the geth are planning something. She'll trust the player if they prove they aren't selling her out.",
+      "choices": [
+        {
+          "id": "earn_tali_s_trust_and_see_the_module",
+          "label": "Earn Tali's trust and see the module",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "promise_to_get_her_off_the_station_safel",
+          "label": "Promise to get her off the station safely",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A keeper stops, tilts its head at the player, and moves on.",
+      "page": "The lower ducts are tight, hot and full of keepers, the silent bug-like caretakers of the Citadel. One stops, tilts its head at you, and moves on, as if you were a strange flower.\n\nHalcyon's voice guides you through vents until you're staring down the barrel of a shotgun held by a small quarian in a purple suit, eyes bright and terrified behind her visor.\n\n\"Don't! Don't come closer! I'm sorry! I will shoot you! Sorry!\"\n\nWhen she finally lowers the gun, she shows you why they're hunting her: a data module holding a fragment of a geth memory core. If what's on it is true, the geth are building something. Her people need to see it. But she won't go anywhere with someone in a uniform unless they give her a reason."
+    },
+    {
+      "id": "showdown",
+      "title": "Docking Bay 42",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The smugglers' freighter is prepping to leave with or without the module. A tense standoff on the gantry: mercenaries in black armour, Garrus on overwatch, Halcyon controlling the bay doors. The smugglers' leader offers the player a cut.",
+      "choices": [
+        {
+          "id": "order_everyone_to_drop_their_weapons",
+          "label": "Order everyone to drop their weapons",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "have_halcyon_seal_the_bay_doors",
+          "label": "Have Halcyon seal the bay doors",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Garrus on comms: 'I have the shot. Your call, rookie.'",
+      "page": "Docking Bay 42. A freighter's ramp is down and its engines are warming. Mercenaries in black armour stand on the gantry, rifles up, and their leader steps forward with a smile.\n\n\"Officer. There's a share in this for you. More than C-Sec pays in a decade.\"\n\nGarrus's voice crackles in your ear from somewhere high above. \"I have the shot. Your call, rookie.\"\n\nHalcyon hums through the bay speakers: \"I can close the doors. I would very much like to close the doors.\"\n\nEvery rifle on the gantry is pointed at you."
+    },
+    {
+      "id": "finale",
+      "title": "Report to the Council",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "It's over in the bay. Now the player decides what goes in the official record: Pell's Cerberus payments sent straight to C-Sec internal affairs (only if they copied them); Tali and her module safely aboard a quarian ship with the player's protection (only if she trusts them); or a quiet, by-the-book report that says nothing about VIs or geth.",
+      "choices": [
+        {
+          "id": "send_pell_s_records_to_internal_affairs",
+          "label": "Send Pell's records to internal affairs",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "following_the_money"
+        },
+        {
+          "id": "get_tali_and_the_module_onto_a_quarian_s",
+          "label": "Get Tali and the module onto a quarian ship",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "keelah_se_lai"
+        },
+        {
+          "id": "file_a_quiet_by_the_book_report",
+          "label": "File a quiet, by-the-book report",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "by_the_book"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "following_the_money",
+        "keelah_se_lai",
+        "by_the_book"
+      ],
+      "isEnding": false,
+      "page": "It's over. The mercenaries are on the deck with their hands on their heads, and the freighter isn't going anywhere.\n\nGarrus drops down from the catwalk, rifle on his shoulder. Halcyon's kiosk faces glow on every screen in the bay. Somewhere, a report is waiting to be written. The words you choose will decide who gets protected and who gets caught."
+    },
+    {
+      "id": "following_the_money",
+      "title": "Following the Money",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Internal affairs raids Pell's office and a Cerberus front collapses. The player gets an awkward commendation from a sergeant who hates them. Garrus raises a glass at the noodle bar. Close on the neon docks and Halcyon's kiosk flashing a smiley face.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Following the Money",
+      "page": "You send Pell's payment records to C-Sec Internal Affairs with a note so polite it's practically a threat.\n\nBy morning, they've raided his office. A Cerberus front collapses like a cheap hologram. Your sergeant gives you a commendation with the face of a man chewing glass.\n\nThat night, Garrus raises a glass at the noodle bar. \"To angry paperwork.\" Across the dock, a public kiosk flashes a little glowing smiley face at you, then goes dark."
+    },
+    {
+      "id": "keelah_se_lai",
+      "title": "Keelah Se'lai",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Tali boards a quarian shuttle and presses her visor to the player's forehead in thanks, then sends the module to her people's admirals. Garrus pretends not to be touched. Close on the shuttle leaving the Citadel arms, the nebula glowing behind.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Keelah Se'lai",
+      "page": "You walk Tali to a quarian shuttle at the far end of the docks, module tucked safely in her suit.\n\nAt the ramp she hesitates, then presses her visor gently to your forehead, the way quarians thank family. \"Keelah se'lai. I will tell the admirals who helped me.\" Her voice cracks. \"I'm sorry I pointed a shotgun at you.\"\n\nGarrus clears his throat and looks very interested in the ceiling.\n\nYou watch the shuttle slip out between the Citadel's glowing arms into the purple nebula, carrying a warning that might save a whole people."
+    },
+    {
+      "id": "by_the_book",
+      "title": "By the Book",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The report is tidy, Pell walks free, and Halcyon goes quiet. The player keeps their badge. Weeks later, a message arrives from an unknown quarian ship: 'Thank you, officer.' Close on the player on patrol, looking at the stars a little differently.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "By the Book",
+      "page": "You write the report by the book: a smuggling ring, broken up by C-Sec. No mention of a rogue intelligence. No mention of geth. Pell's lawyer has him out by lunch.\n\nHalcyon goes quiet after that. You check the kiosk sometimes. Nothing.\n\nThen, three weeks later, a message arrives from an unregistered quarian ship: \"Thank you, officer. She got home.\" You read it twice, then go back out on patrol."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#3fb6e0"
+    },
+    "fonts": {
+      "heading": "sans",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

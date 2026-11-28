@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-wednesday-the-nevermore-exchange",
+    "title": "The Nevermore Exchange",
+    "category": "tiktok_drama",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You're the new exchange student at Nevermore Academy, a school for outcasts, and your roommate's 'perfect' influencer life is falling apart: someone is posting anonymous videos exposing students' secrets, and the latest one is about you. Wednesday Addams has agreed to investigate, on the condition that you never, ever hug her.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Wednesday",
+      "medium": "tv",
+      "owner": "Netflix and MGM Television (the Addams Family by Charles Addams)",
+      "aka": [
+        "Wednesday Addams",
+        "Nevermore Academy",
+        "Addams Family"
+      ]
+    }
+  },
+  "world": "Nevermore Academy, a gothic boarding school in Vermont for 'outcasts': vampires, werewolves, sirens, gorgons, psychics. Wednesday Addams, a deadpan, morbid psychic with a disembodied hand called Thing, solves mysteries. Her roommate Enid Sinclair, a bubbly werewolf, is the opposite. An anonymous account, @NevermoreTruth, is posting edited videos exposing students' secrets and sparking feuds. The culprit: Celeste Marlowe, a popular siren and student council favourite, uses a hidden camera network to blackmail students into voting for her as head of the new school council. The player is an exchange student with an outcast ability of their own.",
+  "tone": "Gothic dark comedy and school drama: deadpan humour, social media scandal, gothic mystery, and outcasts finding each other.",
+  "playerRole": "An exchange student at Nevermore with a suitcase of black clothes (or not), a phone with too many notifications, an outcast power of your choosing and a secret you'd rather keep.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Gothic deadpan narration, Wednesday's sardonic voice-overs, cello music, social media notifications popping up, sudden macabre comedy and a creeping mystery. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "wednesday",
+      "name": "Wednesday Addams",
+      "appearance": "A pale teen girl with long black hair in two tight braids, a blunt fringe, dark expressionless eyes and a black-and-white striped Nevermore uniform with a white collar.",
+      "voice": "Deadpan, morbid and razor-sharp; never smiles; dry insults.",
+      "stance": "Investigates with the player; respects competence; despises hugs."
+    },
+    {
+      "id": "enid",
+      "name": "Enid Sinclair",
+      "appearance": "A bubbly teen girl with blonde hair with pink and blue streaks, rainbow nails, a colourful oversized sweater and a phone with a glitter case.",
+      "voice": "Enthusiastic, chatty and kind; uses lots of slang and emojis aloud.",
+      "stance": "Befriends the player instantly and is devastated by the leaks."
+    },
+    {
+      "id": "celeste",
+      "name": "Celeste Marlowe",
+      "appearance": "A glamorous teen siren with long wavy sea-green hair, shimmering scales at her temples, a perfect Nevermore uniform with a council pin and a pearl necklace.",
+      "voice": "Sweet, charming and smooth; her voice has a musical lilt.",
+      "stance": "Runs the anonymous account and wants the council seat."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Follow the hidden cameras with Wednesday; 2 = Talk to the exposed students with Enid."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied Celeste's raw footage."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The exposed students agreed to stand together."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Welcome to Nevermore",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player arrives at the gothic school. A new @NevermoreTruth video posts: an edited clip exposing the player's secret. Everyone stares. Enid hugs them. Wednesday watches from the stairs and says she'll investigate, under conditions.",
+      "choices": [
+        {
+          "id": "agree_to_wednesday_s_conditions",
+          "label": "Agree to Wednesday's conditions",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "let_enid_show_you_around",
+          "label": "Let Enid show you around",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "confront_the_crowd_staring_at_you",
+          "label": "Confront the crowd staring at you",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Wednesday: 'I'll find whoever did it. Condition one: no hugging. Condition two: no hugging.'",
+      "page": "Nevermore Academy is all spires, gargoyles and rain. You've barely dragged your suitcase into the great hall when every phone in the room buzzes at once.\n\n@NevermoreTruth has posted a new video. It's about you. Edited, twisted, your secret dragged out for everyone to see.\n\nA hundred heads turn.\n\nA girl with blonde hair streaked pink and blue flings her arms around you. \"Oh my god, I'm so sorry, that account is literally evil! I'm Enid! You're my new roommate! Welcome!\"\n\nOn the stairs, a pale girl with two black braids and a striped uniform watches without blinking. \"I'll find whoever did it,\" says Wednesday Addams. \"Condition one: no hugging. Condition two: no hugging.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Two Threads",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Wednesday notes the videos are filmed from impossible angles. Thing finds a tiny camera in a gargoyle. Two leads: trace the camera network through the school's hidden passages with Wednesday and Thing, or win the trust of the students who were exposed, with Enid.",
+      "choices": [
+        {
+          "id": "fix_enid_s_ruined_phone_case_and_talk",
+          "label": "Fix Enid's ruined phone case and talk",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "Enid's glitter phone case got crushed in the stampede. You sit cross-legged on her bed and fix it with superglue and a pack of rhinestones while she talks a hundred miles an hour about wolves, boys and her mom. Halfway through she goes quiet. \"That video was about you, and you're fixing MY phone.\" She sniffles. \"You're the best roommate ever.\" From the black half of the room, Wednesday says, \"Debatable.\" But she doesn't leave."
+        },
+        {
+          "id": "follow_the_hidden_cameras_with_wednesday",
+          "label": "Follow the hidden cameras with Wednesday",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "talk_to_the_exposed_students_with_enid",
+          "label": "Talk to the exposed students with Enid",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Thing taps urgently on the desk, holding up a tiny lens.",
+      "page": "Your dorm room is split down the middle: Enid's side a rainbow explosion, Wednesday's side black, tidy and faintly smelling of formaldehyde.\n\nWednesday replays the video. \"Filmed from above. From the gargoyles. Impossible angles.\" Something scuttles across the desk: a disembodied hand, which taps urgently and holds up a lens no bigger than a fingernail.\n\n\"Thing found a camera,\" Wednesday says. \"There will be others. They lead somewhere.\"\n\nEnid hugs her knees. \"Six people have been exposed this month. Everyone's too scared to talk.\" She looks at you. \"Maybe they'd talk to someone who's been exposed too?\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Hidden Passages",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Secret corridors behind the walls. The cameras all wire to a hidden room under the siren dorms, with Celeste's council campaign posters and a laptop full of raw, unedited footage proving the clips were faked.",
+      "choices": [
+        {
+          "id": "copy_the_raw_footage",
+          "label": "Copy the raw footage",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "photograph_the_hidden_room",
+          "label": "Photograph the hidden room",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Wednesday, admiring a cobweb: 'Finally, some decent architecture.'",
+      "page": "Behind a tapestry on the third floor, Wednesday pushes a stone and the wall slides open. \"Nevermore has more secret passages than honest students.\"\n\nThing scuttles ahead along hair-thin wires running through the walls. Every hidden camera connects here, down a spiral stair, to a room beneath the siren dormitory.\n\nInside: Celeste Marlowe's council campaign posters. A ring light. And a laptop full of raw, unedited footage. Every leaked video, before it was cut. The real conversations. The lies spliced in.\n\nWednesday admires a cobweb in the corner. \"Finally, some decent architecture.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Exposed",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Enid and the player talk to the students who were exposed. Each was told to vote for Celeste or face another leak. They agree to stand together if someone goes first.",
+      "choices": [
+        {
+          "id": "get_the_students_to_stand_together",
+          "label": "Get the students to stand together",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "share_your_own_secret_first",
+          "label": "Share your own secret first",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A shy gorgon student whispers: 'If I speak up, she'll post the rest.'",
+      "page": "Enid takes you to the courtyard where the exposed students huddle: a vampire, a werewolf, a psychic, a shy gorgon with her hood up to hide her snakes.\n\nThey don't want to talk. Then you tell them about your video, and slowly they do. Each of them got a message after their leak: Vote for Celeste Marlowe for council, or there's more.\n\n\"If I speak up,\" whispers the gorgon, \"she'll post the rest.\"\n\n\"Not if we all speak up,\" says Enid. \"Together. She can't post all of you at once.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Raven Debate",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The school council debate in the great hall. Celeste is on stage, singing her speech. Her siren song makes people agreeable. The screen behind her is ready for a new leak.",
+      "choices": [
+        {
+          "id": "take_the_stage",
+          "label": "Take the stage",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "cut_celeste_s_microphone",
+          "label": "Cut Celeste's microphone",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Celeste, sweetly: 'And now, a little truth about our newest student...'",
+      "page": "The great hall is packed for the school council debate. Candles flicker. Rain hammers the windows.\n\nCeleste Marlowe glides to the stage, sea-green hair shimmering. When she speaks, her voice sings, and you feel it: the warm, foggy urge to agree with everything she says.\n\n\"Nevermore deserves honesty,\" she sings. Behind her, a huge screen lights up. \"And now, a little truth about our newest student...\"\n\nWednesday, beside you, doesn't blink. \"Now would be the time.\""
+    },
+    {
+      "id": "finale",
+      "title": "The Truth",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: play the raw footage showing the videos were faked (only if they copied it); have the exposed students stand up together on stage (only if they rallied them); or walk out and post their own secret first, owning it.",
+      "choices": [
+        {
+          "id": "play_the_raw_footage",
+          "label": "Play the raw footage",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "unedited"
+        },
+        {
+          "id": "stand_together_with_the_exposed_students",
+          "label": "Stand together with the exposed students",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "outcasts_together"
+        },
+        {
+          "id": "post_your_own_secret_yourself",
+          "label": "Post your own secret yourself",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "my_own_story"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "unedited",
+        "outcasts_together",
+        "my_own_story"
+      ],
+      "isEnding": false,
+      "page": "The screen behind Celeste flickers. Her song falters. Every phone in the hall is up, recording.\n\nWednesday stands at your shoulder, arms folded. Enid is gripping your hand. Thing is perched on your shoulder, drumming its fingers.\n\nCeleste looks at you with sweet, cold eyes, daring you.\n\nThe truth is yours to tell."
+    },
+    {
+      "id": "unedited",
+      "title": "Unedited",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The raw footage plays; the school sees Celeste editing lies. She's removed from the council race. Wednesday says 'adequate', the highest praise. Close on Wednesday playing a victorious cello piece in the window.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Unedited",
+      "page": "Thing plugs your phone into the projector. The raw footage plays: Celeste in her hidden room, laughing as she splices words into other people's mouths.\n\nThe hall goes silent. Then it roars.\n\nCeleste is removed from the council race before the night ends. @NevermoreTruth is deleted by morning.\n\nBack in the dorm, Wednesday sits at her cello. \"Adequate,\" she says to you. From her, it's practically a parade.\n\nThen she plays something fierce and triumphant, and the music pours out of the rainy window across the whole of Nevermore."
+    },
+    {
+      "id": "outcasts_together",
+      "title": "Outcasts Together",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The students stand together; Celeste's threat collapses. Enid cries and hugs everyone, including, briefly, Wednesday. Close on the exposed students laughing together at a table.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Outcasts Together",
+      "page": "You walk onto the stage. Then Enid. Then the vampire, the werewolf, the psychic, and finally, slowly, the shy gorgon, who lowers her hood.\n\n\"She threatened all of us,\" you say. \"We're not scared anymore.\"\n\nCeleste's song breaks on a sour note. There's nothing left for her to threaten.\n\nAfterwards, Enid cries happy tears and hugs everyone in sight. Then, before anyone can stop her, Wednesday. Wednesday stands rigid for exactly one second.\n\nThat night, the exposed students take over a whole table in the dining hall, laughing louder than anyone."
+    },
+    {
+      "id": "my_own_story",
+      "title": "My Own Story",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player posts their own secret first; it goes viral for the right reasons. Celeste has nothing left to threaten. Close on the player and Enid reading supportive comments in their dorm.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "My Own Story",
+      "page": "You don't wait. You pull out your phone and post it yourself: your secret, in your own words, unedited.\n\nBy the time Celeste's screen loads, there's nothing left to reveal. The hall has already read it. And the comments aren't cruel. They're kind. Hundreds of them.\n\nCeleste stands on stage with nothing to say.\n\nThat night you lie on Enid's rainbow bed while she reads the comments aloud, crying at each one. From the dark side of the room, Wednesday says, \"Bold.\""
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#9b7ad8"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "rain"
+  }
+}

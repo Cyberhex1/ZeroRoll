@@ -1,0 +1,454 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-eldenring-ashes-under-liurnia",
+    "title": "Ashes Under Liurnia",
+    "category": "fantasy",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You are Tarnished, called back to the Lands Between with nothing but a lantern and a debt. A lost wolf knight, a merchant who smiles too much, and a sorcerer's sealed tower all want something from you on the flooded plains of Liurnia.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Elden Ring",
+      "medium": "game",
+      "owner": "FromSoftware and Bandai Namco",
+      "aka": [
+        "ER",
+        "Lands Between"
+      ]
+    }
+  },
+  "world": "The Lands Between after the Shattering: a vast, broken kingdom of golden trees, ruined castles and demigods gone mad. Liurnia of the Lakes is a flooded plain of misty shallows, sunken villages and sorcerers' towers, ruled from afar by the Academy of Raya Lucaria. A sealed tower on the lake, the Tower of the Drowned Bell, holds a sorcerer's lantern said to show the roads Grace has hidden. Blaidd, a half-wolf knight, hunts a traitor who stole his lady's star map and hid in that tower. Patches, a cheerful merchant, wants the lantern sold to the Academy and has a habit of 'helping' travellers into traps. Golden lights of Grace guide the Tarnished; death sends them back to the last one they touched.",
+  "tone": "Melancholy, majestic dark fantasy: ruin and beauty side by side, terse dialogue, dangerous fights where patience wins, and dry humour from scoundrels.",
+  "playerRole": "A Tarnished with a cracked shield, a sword that has seen better centuries, a small lantern on their belt, a few runes and a spirit horse they can call with a whistle. Your class and fighting style are yours to choose.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Sparse, grave narration with long views of ruined beauty. Bosses get one striking image and a clear tell the player can learn from. Death can happen; when it does, the player wakes at the last Grace a little wiser. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "blaidd",
+      "name": "Blaidd",
+      "appearance": "A huge half-wolf warrior with a grey wolf's head and amber eyes, wearing dark plate armour and a tattered blue-black cloak, carrying a great curved sword.",
+      "voice": "Formal, gruff and loyal; speaks of 'my lady' with deep respect and laughs rarely, like a growl.",
+      "stance": "Wary of the player but honours anyone who keeps their word."
+    },
+    {
+      "id": "patches",
+      "name": "Patches",
+      "appearance": "A bald, round-faced man with a crooked grin, bushy eyebrows and a scruffy beard, wearing mismatched scavenged armour and carrying a heavy pack of loot.",
+      "voice": "Oily and friendly, full of apologies and excuses; begs shamelessly when caught.",
+      "stance": "Wants to profit from the player and will betray them once, then apologise."
+    },
+    {
+      "id": "seluvis_pupil",
+      "name": "Ysolde the Sealed",
+      "appearance": "A pale young sorcerer with long silver hair, glowing blue eyes and a crystal circlet, wearing deep blue academy robes stitched with star patterns.",
+      "voice": "Quiet, precise, almost cold; speaks like someone reading from a book.",
+      "stance": "The 'traitor' who stole the map, who claims she did it to save Blaidd's lady from the Academy."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Follow Patches into the sunken village; 2 = Ride with Blaidd to the crystal bridge."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Patches' smuggling ledger."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the sorcerer's burned letter."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Grace by the Lake",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player wakes beside a site of Grace on a ruined bridge at the edge of Liurnia. Mist covers the lake, a sealed tower glows on an island, and something huge wades in the shallows. A merchant's campfire flickers under the bridge. The first test is simply getting down to the water.",
+      "choices": [
+        {
+          "id": "rest_at_the_grace_and_study_the_lake",
+          "label": "Rest at the Grace and study the lake",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "approach_the_campfire_under_the_bridge",
+          "label": "Approach the campfire under the bridge",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "call_your_spirit_horse_and_ride_for_the_",
+          "label": "Call your spirit horse and ride for the shallows",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "A distant bell tolls from the tower, though it has no bell anymore.",
+      "page": "You wake beside a small golden light on a ruined bridge. Grace. It warms your hands and nothing else.\n\nBelow, Liurnia of the Lakes stretches into the mist: shallow water as far as you can see, sunken roofs poking through it, the drowned spire of a sorcerer's tower glowing faintly on an island. Something enormous wades through the shallows in the distance, slow as a moving hill.\n\nA bell tolls from the tower. It has no bell.\n\nUnder the arch of the bridge, a campfire flickers, and someone is humming a cheerful tune that doesn't fit this place at all. Your sword is old, your shield is cracked, and the lantern on your belt is the only warm thing you own. The lake is waiting."
+    },
+    {
+      "id": "crossroads",
+      "title": "A Wolf at the Campfire",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Patches is selling 'genuine' maps at his fire, and a half-wolf knight, Blaidd, is questioning him with a sword at his throat. Blaidd seeks the thief in the tower. Patches swears there's a secret way in through the sunken village. Blaidd says the honest way is through the Academy's crystal bridge and its guardian. The player picks a road.",
+      "choices": [
+        {
+          "id": "ask_blaidd_about_his_lady",
+          "label": "Ask Blaidd about his lady",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You ask Blaidd about his lady. For a long moment he says nothing, and you think he won't answer. Then he looks up at the night sky. \"She walks the path of the stars, away from the order the gods built. I am her shadow. When she is threatened, I bare my teeth.\" He almost smiles. \"You ask good questions, Tarnished. Few bother.\" From then on he stands a little closer to you, like a wolf deciding you are pack."
+        },
+        {
+          "id": "follow_patches_into_the_sunken_village",
+          "label": "Follow Patches into the sunken village",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "ride_with_blaidd_to_the_crystal_bridge",
+          "label": "Ride with Blaidd to the crystal bridge",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Patches spreads his hands: 'Friend! Friend! Would I lie to a fellow Tarnished? Only a little!'",
+      "page": "Under the bridge, a bald merchant kneels among piles of loot with a great curved sword resting against his throat. The sword belongs to a knight with the head of a grey wolf, dark plate armour and a cloak like the night sky torn at the edges.\n\n\"The thief,\" growls the wolf, \"who stole my lady's star map. Where.\"\n\n\"Friend! Friend!\" squeaks the merchant, Patches by the sign on his pack. \"Would I lie to a fellow Tarnished? Only a little! There's a secret way into the tower, through the sunken village. Very secret. Very safe.\"\n\nThe wolf knight, Blaidd, turns his amber eyes on you. \"The honest road is the crystal bridge. It has a guardian. I could use a second blade.\" Patches waggles his eyebrows at you and mouths: this way."
+    },
+    {
+      "id": "path_a",
+      "title": "The Sunken Village",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "A half-drowned village of crooked roofs and lantern-eyed fishmen. Patches leads the player to a cellar 'shortcut' and then kicks them down it, apologising all the while. At the bottom is a flooded passage under the lake, a Grace, and a smuggler's ledger proving Patches sold Blaidd's star map to the Academy, not the sorcerer.",
+      "choices": [
+        {
+          "id": "take_the_ledger_and_climb_out",
+          "label": "Take the ledger and climb out",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "catch_up_to_patches_and_make_him_talk",
+          "label": "Catch up to Patches and make him talk",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Patches' voice echoes down the hole: 'No hard feelings! Business is business!'",
+      "page": "The sunken village is a ruin of crooked roofs half-swallowed by the lake. Lanterns hang from posts that should not still be standing, and pale fishmen with lantern eyes watch you from the water.\n\nPatches leads you to a cellar door, all smiles. \"Shortcut! Right down there. After you.\" You lean in to look, and his boot meets your back.\n\nYou fall into cold water and darkness. Above, his voice echoes down: \"No hard feelings! Business is business!\"\n\nAt the bottom is a flooded passage, a flickering Grace, and Patches' stash, which he clearly never expected anyone to see. Tucked in a waxed pouch is a smuggler's ledger in his cramped handwriting: one star map, sold to the Academy of Raya Lucaria for nine thousand runes. Not stolen by the sorcerer at all."
+    },
+    {
+      "id": "path_b",
+      "title": "The Crystal Bridge",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "A shimmering bridge of crystal over the lake, guarded by a crystal-skinned giant that shatters and reforms. Blaidd fights beside the player. Past it, on the tower steps, they find a burned letter in the sorcerer's hand: the Academy planned to use the map to imprison Blaidd's lady, and the sorcerer stole it to hide it.",
+      "choices": [
+        {
+          "id": "defeat_the_crystal_guardian_with_blaidd",
+          "label": "Defeat the crystal guardian with Blaidd",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "slip_past_while_blaidd_holds_its_attenti",
+          "label": "Slip past while Blaidd holds its attention",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Blaidd growls: 'It reforms when it touches the lake. Keep it on the bridge.'",
+      "page": "The crystal bridge shimmers across the lake like frozen moonlight. In the middle stands its guardian: a giant made of blue crystal shards, its body cracking and re-forming with every step.\n\n\"It reforms when it touches the lake,\" Blaidd growls, lifting his greatsword. \"Keep it on the bridge.\"\n\nThe fight is glass and thunder. Shards scream past your face. Blaidd howls and charges, and the giant turns its full weight on him, and that is the opening you need.\n\nWhen the last crystal falls silent, the bridge leads you to the tower steps. In a scorch mark by the door lies a letter half burned, in a careful hand: \"The Academy means to use the map to imprison her. I have taken it so they cannot. Forgive me, wolf. Y.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Drowned Bell",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The top of the tower: a room full of floating books and a dead bell. Ysolde the sorcerer waits with the star map glowing in her hands. Blaidd's sword is drawn. Patches, of course, has sneaked in too, hoping to grab the lantern in the confusion. Everyone waits for the player.",
+      "choices": [
+        {
+          "id": "stand_between_blaidd_and_ysolde",
+          "label": "Stand between Blaidd and Ysolde",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "grab_the_lantern_before_patches_can",
+          "label": "Grab the lantern before Patches can",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The star map pulses. Somewhere below, the Academy's knights are climbing the stairs.",
+      "page": "The top of the tower is a round room where books float in the air, turning their own pages, and a huge cracked bell hangs silent over everything.\n\nBeneath it stands a pale sorcerer with silver hair and a crystal circlet, a star map blazing blue in her hands. Ysolde.\n\nBlaidd's sword comes up. Ysolde's free hand fills with cold light. And from behind a bookshelf, very quietly, Patches is creeping toward the pedestal where a small sorcerer's lantern burns with a strange silver flame.\n\nFar below, armoured feet are climbing the stairs. The Academy is coming. Everyone in the room turns to look at you."
+    },
+    {
+      "id": "finale",
+      "title": "What Grace Shows",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player holds the sorcerer's lantern; its light reveals hidden roads. They can expose Patches as the real seller with the ledger (only if they found it), prove Ysolde's innocence to Blaidd with the burned letter (only if they found it), or take the lantern and walk away into the mist on their own road.",
+      "choices": [
+        {
+          "id": "show_everyone_patches_ledger",
+          "label": "Show everyone Patches' ledger",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_merchant_s_apology"
+        },
+        {
+          "id": "give_blaidd_the_burned_letter",
+          "label": "Give Blaidd the burned letter",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_wolf_s_oath"
+        },
+        {
+          "id": "take_the_lantern_and_follow_your_own_gra",
+          "label": "Take the lantern and follow your own Grace",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "your_own_grace"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "a_merchant_s_apology",
+        "the_wolf_s_oath",
+        "your_own_grace"
+      ],
+      "isEnding": false,
+      "page": "The lantern is in your hand. Its silver light falls across the room and shows things that weren't there before: faint golden roads running through the walls, out of the tower, across the lake and far away.\n\nBlaidd has not lowered his sword. Ysolde has not lowered her hand. Patches has his hands in the air and a hopeful smile on his face.\n\nGrace has led you here. What you do with it is yours alone."
+    },
+    {
+      "id": "a_merchant_s_apology",
+      "title": "A Merchant's Apology",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Faced with the ledger, Patches grovels hilariously, returns the Academy's gold and swears loyalty (for now). Blaidd sheathes his sword. The map returns to his lady. Close on Patches setting up shop by the Grace again, with a sign that offers the player a discount, forever.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Merchant's Apology",
+      "page": "You hold up the ledger and read aloud: one star map, sold to the Academy, nine thousand runes.\n\nPatches drops to his knees so fast it echoes. \"A misunderstanding! A clerical error! I was going to give them back! Most of them!\" He pours a sack of runes onto the floor as tribute, sobbing about his poor old mother.\n\nBlaidd sheathes his sword with a sound like a sigh. Ysolde hands him the map. The Academy's knights arrive to find nothing worth fighting over.\n\nThe next morning, Patches has set up shop again by your Grace on the bridge. There is a new hand-painted sign above his wares, just for you: PERMANENT DISCOUNT (SORRY)."
+    },
+    {
+      "id": "the_wolf_s_oath",
+      "title": "The Wolf's Oath",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Blaidd reads the letter and kneels to Ysolde in apology. Together they hide the map where the Academy will never find it. Blaidd swears an oath to the player, the first he has sworn to anyone but his lady. Close on the wolf and the Tarnished riding out across the lake under a starry sky.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Wolf's Oath",
+      "page": "You hand Blaidd the burned letter. He reads it twice. Then the great wolf knight kneels before the sorcerer and bows his head. \"I named you thief. You were her guardian, as I am. Forgive me.\"\n\nTogether, the three of you hide the star map where the Academy will never think to look. When it is done, Blaidd turns to you, draws his sword, and lays it across his palms.\n\n\"I swear an oath to you, Tarnished. The first I have sworn to any but my lady.\"\n\nThat night the wolf and the Tarnished ride out across the shallows, spirit horse and great grey stride side by side, under more stars than you have ever seen."
+    },
+    {
+      "id": "your_own_grace",
+      "title": "Your Own Grace",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player leaves the tower with the lantern while the others argue. Its light shows a hidden road toward the golden tree on the horizon. Close on a lone rider crossing misty water, guided by a thread of gold only they can see.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Your Own Grace",
+      "page": "While the others argue, you walk to the window, lantern raised. The silver light finds a road nobody else can see, a thread of gold leading east across the water toward the vast glowing tree on the horizon.\n\nNo one stops you. Perhaps no one notices.\n\nYou whistle for your spirit horse and ride down into the mist. Behind you the tower bell finally rings, once, for no reason anyone will ever know. Ahead of you the thread of gold runs on, over water and ruin and the bones of old kings, toward whatever is waiting at the end of it."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#d4b45a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

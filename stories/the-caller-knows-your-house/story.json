@@ -132,7 +132,8 @@
         "choose_check"
       ],
       "isEnding": false,
-      "hint": "The recorder's moving reels provide a testable sequence."
+      "hint": "The recorder's moving reels provide a testable sequence.",
+      "page": "Two in the morning. Rain ticks against the booth window. The overnight show is the usual: old songs, insomniacs, a man who calls every night to talk about his tomatoes.\n\nLine three lights up. You take the call.\n\nThe caller's voice is soft, ordinary, unhurried. \"There's a brass hook beside your front door,\" it says. \"Your keys aren't on it tonight.\"\n\nThen, through your headphones, a sound: a door latch lifting. Click-clack. You know that latch. It's the one at your house. Your empty house, across town.\n\nThe recorder's reels turn steadily beside you. Your producer, Mira, is at home, but she's only a text away.\n\nWhatever this is, you need to know whether it's happening now."
     },
     {
       "id": "choose_check",
@@ -188,7 +189,8 @@
         "porch_watch"
       ],
       "isEnding": false,
-      "hint": "Mira can hear a recording; Hal can see the front window without entering."
+      "hint": "Mira can hear a recording; Hal can see the front window without entering.",
+      "page": "The latch sound comes again. And now you notice: it repeats after the station's familiar delay, the few seconds between what goes in the microphone and what goes out on air.\n\nYour phone buzzes. Mira: \"I'm listening from home. I can compare the input and the recording if you want.\"\n\nA second message. Your neighbour, Hal, who listens every night: \"You OK? I can see your house from my porch. Front window's dark. Want me to keep an eye on it? I'm not going over there.\"\n\nTwo ways to check. Studio timing, with Mira. Or eyes on the house, with Hal, from a safe distance."
     },
     {
       "id": "delay_room",
@@ -245,7 +247,8 @@
         "patch_board"
       ],
       "isEnding": false,
-      "hint": "The second latch sound follows the first by the delay interval."
+      "hint": "The second latch sound follows the first by the delay interval.",
+      "page": "Mira talks you through it over the phone, calm and precise. \"Three things,\" she says. \"Live input. Local recorder. And the return, what comes back from the transmitter. Keep them separate in your head.\"\n\nYou compare them. The second latch always follows the first by exactly the delay interval. Every time.\n\nThe caller repeats words that have already gone out on air. But when you hold back a detail, keep it off the microphone, the caller doesn't know it. Can't know it.\n\n\"It's using the path,\" Mira says slowly. \"It can only hear what goes through the broadcast. That's its limit.\""
     },
     {
       "id": "porch_watch",
@@ -297,7 +300,8 @@
         "patch_board"
       ],
       "isEnding": false,
-      "hint": "Hal says a room light changes only after its switch sound airs."
+      "hint": "Hal says a room light changes only after its switch sound airs.",
+      "page": "Hal stays under his own porch light, across the street from your house, binoculars and a mug of tea. He doesn't go any closer, and you don't ask him to.\n\n\"OK,\" he says on the phone. \"Your front room light just came on.\" A pause. \"Right after the switch sound went out on the radio. Not before.\"\n\nFootsteps on the broadcast. Slow ones, crossing a wooden floor.\n\n\"Nobody's walking in there,\" Hal says quietly. \"Not that I can see through the curtains, anyway. The sound's there. Nobody's making it.\"\n\nWhatever's happening follows the sound on the broadcast. Not the other way round."
     },
     {
       "id": "patch_board",
@@ -344,7 +348,8 @@
         "last_ring"
       ],
       "isEnding": false,
-      "hint": "Mira separates the live input, local recorder and transmitter controls."
+      "hint": "Mira separates the live input, local recorder and transmitter controls.",
+      "page": "At the mixing desk, Mira walks you through it over the phone. The live input. The physical transmitter connection. The local recording deck. Three separate paths, three separate switches.\n\n\"It's not in all the electricity,\" she says. \"It's not in every phone in town. It's in the return. A path made of sound.\"\n\nYou can see it now: the cable, the switch, the deck. Everything you need is within reach.\n\nYou could find and test the physical cutoff, ready to sever the live path. Or you could prepare a short recording and route it to an isolated loop, so the caller has something to listen to that doesn't lead anywhere.\n\nHal texts: \"Still on my porch. Still not going over.\""
     },
     {
       "id": "last_ring",
@@ -416,7 +421,8 @@
         "answered"
       ],
       "isEnding": false,
-      "hint": "The ring waits; the live input has not reopened by itself."
+      "hint": "The ring waits; the live input has not reopened by itself.",
+      "page": "A final call rings in the booth.\n\nLine three. Blinking. Waiting.\n\nThe live input hasn't reopened by itself. You checked. The caller can't force you to speak. It can't force your hands onto the desk. It can only ask.\n\nThe ring waits.\n\nYou could sever the path for good and leave, with Mira's help. You could feed it a recorded local loop, a closed room with no door. Or you could knowingly open the live input and answer."
     },
     {
       "id": "dead_air",
@@ -438,7 +444,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Dead Air"
+      "endingTitle": "Dead Air",
+      "page": "You cut the live input. Then you pull the transmitter cable out of its socket, and you hold the loose end in your hand.\n\nDead air.\n\nNo more latches. No more footsteps. The house sounds stop, because there's nothing left to carry them.\n\nMira stays on the phone with you while you pack up, and she's waiting in her car outside when you come down. Hal texts that he's gone back inside, door locked, kettle on.\n\nDawn slowly reaches the empty microphone in the booth."
     },
     {
       "id": "closed_loop",
@@ -460,7 +467,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "A Knock Without a Door"
+      "endingTitle": "A Knock Without a Door",
+      "page": "You route the recording to the local deck and close the loop. No live connection to the house. No connection to the transmitter. A sealed little room made of tape.\n\nThe house goes quiet. Hal confirms it: no lights, no movement.\n\nBut on the local deck, alone in the booth, the recorded knock continues, at its fixed interval. Knock. Wait. Knock. It asks nothing new. It receives no answer.\n\nMira says she'll help you decide later whether to keep the tape or wipe it.\n\nYou sit and watch the reels turn for a while. It can't get out. You check the cable twice anyway."
     },
     {
       "id": "answered",
@@ -482,7 +490,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The Room It Learns"
+      "endingTitle": "The Room It Learns",
+      "page": "You open the live input. You lean toward the microphone. \"I'm here,\" you say. \"I'm listening.\"\n\nThe caller is quiet for a moment. Then it repeats your words back to you, exactly, in its soft, ordinary voice. \"I'm here. I'm listening.\"\n\nThen it begins to describe the studio. The chair you're sitting in. The mug on the desk, which you've just touched. The headphones in your hands.\n\nIt can hear you now. Everything you name. Everything you handle.\n\nIn the dark booth window, behind your own reflection, there's a shape. A hallway shape. It might be nothing. It might be a door."
     }
   ],
   "art": {

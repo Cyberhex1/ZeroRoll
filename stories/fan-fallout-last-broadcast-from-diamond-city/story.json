@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-fallout-last-broadcast-from-diamond-city",
+    "title": "Last Broadcast from Diamond City",
+    "category": "apocalypse",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "Two hundred years after the bombs, you leave your vault with a Pip-Boy and a bad haircut, and walk straight into a scoop. Diamond City's only reporter thinks the city's new radio voice is a synth. The detective down the street is a synth. And someone is about to shut the radio down for good.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Fallout",
+      "medium": "game",
+      "owner": "Bethesda Softworks",
+      "aka": [
+        "Fallout 4",
+        "Commonwealth",
+        "Vault-Tec"
+      ]
+    }
+  },
+  "world": "The Commonwealth, the ruins of Boston, in 2287, two centuries after nuclear war. Diamond City is a walled settlement inside an old baseball stadium, ruled by Mayor McDonough. The Institute, a secret underground organisation, makes synths: artificial people indistinguishable from humans, feared and hunted. Piper Wright runs the city's only newspaper, Publick Occurrences. Nick Valentine is an old-model synth detective with a trench coat and a kind heart. Diamond City Radio's new DJ, 'Velvet' June Arlo, has become beloved overnight; the mayor wants her off the air because she's been broadcasting warnings about missing settlers. The truth: the mayor's deputy, Danvers Cole, is secretly trading settlers to raiders, and June is a human who discovered it.",
+  "tone": "Retro-futurist post-apocalyptic adventure with dark humour, 1950s optimism over ruins, moral grey areas and small human decency.",
+  "playerRole": "A vault dweller fresh out of a Vault-Tec vault, in a blue jumpsuit with a yellow number on the back, a Pip-Boy on your wrist, a 10mm pistol, three Stimpaks and a lot of questions.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Wry retro-futurist narration: rusted ruins, 1950s ads, radio music between scenes, Pip-Boy readouts, and absurd dangers delivered deadpan. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "piper",
+      "name": "Piper Wright",
+      "appearance": "A young woman with short dark hair under a red newsboy cap with a press card in the band, a long red leather coat, a notepad and pencil, and a determined squint.",
+      "voice": "Fast-talking, nosy and fearless; turns everything into a headline.",
+      "stance": "Recruits the player for the story of the year."
+    },
+    {
+      "id": "nick",
+      "name": "Nick Valentine",
+      "appearance": "A synth detective with a weathered fedora and trench coat; half his face is worn grey synthetic skin, the other half exposed metal, with glowing yellow eyes and one fully mechanical skeletal hand.",
+      "voice": "Hard-boiled noir patter with warmth and dry jokes about being a machine.",
+      "stance": "Takes the missing-settlers case and trusts the player's instincts."
+    },
+    {
+      "id": "danvers",
+      "name": "Deputy Danvers Cole",
+      "appearance": "A clean-cut man with a slicked side part, a pressed pre-war suit, a flag pin, a toothy smile and a holdout pistol.",
+      "voice": "Smooth, patriotic-sounding, and menacing when cornered.",
+      "stance": "The real villain, trading settlers to raiders and framing the DJ as a synth."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Go into the ruins with Nick; 2 = Sneak into the radio station with Piper."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took the raider ledger stamped by the mayor's office."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player copied June's recording of Danvers."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Out of the Vault",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player steps out of the vault into blinding sunlight and ruined Boston. On their Pip-Boy, a warm radio voice, 'Velvet June', warns listeners about settlers vanishing near Lexington, then cuts to static mid-sentence. At the gates of Diamond City, Piper Wright is arguing with the guard and spots the player's jumpsuit.",
+      "choices": [
+        {
+          "id": "ask_piper_what_s_happening",
+          "label": "Ask Piper what's happening",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "tune_the_pip_boy_back_to_june_s_station",
+          "label": "Tune the Pip-Boy back to June's station",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "walk_straight_into_diamond_city",
+          "label": "Walk straight into Diamond City",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Piper waves her notepad: 'Hey, Vault Dweller! You want to be in the paper?'",
+      "page": "The vault door rolls aside like a giant cog, and sunlight hits you so hard you stagger.\n\nTwo hundred years after the bombs, Boston is rust, ruins and blue sky. A billboard grins down at you, its smiling family half peeled away.\n\nYour Pip-Boy crackles to life on your wrist. A warm, velvety voice: \"Good morning, Commonwealth, this is Velvet June. Settlers near Lexington, please be careful, folks keep going missing out there, and nobody seems to...\" Static.\n\nYou follow the road to a stadium wrapped in scrap-metal walls. Diamond City. At the gate, a young woman in a red newsboy cap is arguing with a guard. She spots your blue jumpsuit, and her eyes light up like a headline.\n\n\"Hey! Vault Dweller! You want to be in the paper?\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Publick Occurrences",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Piper's cramped newspaper office. She says the mayor is calling June a synth and will shut down the radio tonight. Piper thinks June is human and onto something. Nick Valentine stops by: he's investigating the missing settlers. Two ways in: go into the ruins with Nick to find where the settlers went, or sneak into the radio station with Piper to talk to June.",
+      "choices": [
+        {
+          "id": "help_piper_set_up_the_press_and_ask_abou",
+          "label": "Help Piper set up the press and ask about Diamond City",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You help Piper ink the press, getting black up to your elbows. She talks the whole time: how the mayor hates her, how the city's built in a ballpark, how her little sister Nat sells papers in the stands. \"People here are scared of everything,\" she says. \"Somebody has to tell them the truth.\" She grins at you, ink smudged on her nose. \"Welcome to the team, Blue.\""
+        },
+        {
+          "id": "go_into_the_ruins_with_nick",
+          "label": "Go into the ruins with Nick",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "sneak_into_the_radio_station_with_piper",
+          "label": "Sneak into the radio station with Piper",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Nick lights a cigarette: 'Two cases, one city. Pick your poison, kid.'",
+      "page": "Piper Wright's office is a shack stuffed with paper, an old printing press and a coffee pot that's mostly rust. \"Publick Occurrences,\" she says proudly. \"The only free press in the Commonwealth.\"\n\nThe mayor, she explains, says Velvet June is a synth from the Institute. He's shutting down the radio tonight. \"June's not a synth. She's onto something and they're scared.\"\n\nThe door creaks. A man in a fedora and trench coat steps in, and you realise half his face is grey synthetic skin and the other half is bare metal. His eyes glow yellow. \"Nick Valentine. Detective. I'm on the missing-settlers case.\"\n\nHe lights a cigarette. \"Two cases, one city. Pick your poison, kid.\""
+    },
+    {
+      "id": "path_a",
+      "title": "Lexington Ruins",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Raider-infested ruins full of ghouls and junk. Nick and the player track missing settlers to a raider market in an old supermarket. The raider boss has a ledger of 'deliveries' from Diamond City, signed with initials D.C. and a stamp from the mayor's office.",
+      "choices": [
+        {
+          "id": "swipe_the_raider_ledger",
+          "label": "Swipe the raider ledger",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "free_the_captive_settlers",
+          "label": "Free the captive settlers",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A feral ghoul shrieks somewhere in the stacks. Nick: 'Friend of yours?'",
+      "page": "Lexington is ruins on ruins, ghouls in the shadows and raiders in the windows. Nick moves like a man who's done this a hundred times. \"Stay close. And if anything shrieks, let it shriek at me.\"\n\nSomething shrieks. He sighs. \"Friend of yours?\"\n\nYou follow tracks to an old supermarket turned raider market. Cages line the aisles, full of frightened settlers.\n\nIn the raider boss's office, between a skull ashtray and a stack of caps, is a ledger. \"Deliveries from D.C. Six settlers. Paid in full.\" The bottom of each page is stamped with the seal of the Diamond City mayor's office.\n\nNick reads it over your shoulder, and his yellow eyes dim. \"Well. Ain't that a kick in the gears.\""
+    },
+    {
+      "id": "path_b",
+      "title": "Diamond City Radio",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The radio booth, guarded by the mayor's men. June Arlo, a nervous woman with big glasses, shows them her recording: a voice in an alley trading 'six settlers for a shipment of caps', and she recognised it as Danvers Cole. That's why she's being called a synth.",
+      "choices": [
+        {
+          "id": "copy_june_s_recording",
+          "label": "Copy June's recording",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "promise_june_you_ll_protect_her",
+          "label": "Promise June you'll protect her",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "June's hands shake on the mic: 'Everyone thinks I'm a machine. I just want to be heard.'",
+      "page": "Diamond City Radio sits on a scaffold above the market, guarded by two of the mayor's men. Piper distracts them with an \"exclusive interview,\" and you slip inside.\n\nJune Arlo is nothing like her voice: small, nervous, big glasses, a cardigan. She clutches a tape.\n\n\"I was walking home through an alley. I heard a voice. Six settlers for a shipment of caps.\" She plays it. The voice is smooth, smiling and very familiar: Deputy Danvers Cole.\n\n\"The next morning, the mayor said I was a synth,\" she says, hands shaking on the mic. \"Everyone thinks I'm a machine. I just want to be heard.\""
+    },
+    {
+      "id": "showdown",
+      "title": "Mayor's Rally",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Danvers Cole holds a rally in the stadium to 'protect the city from synths', with June dragged out in cuffs. The crowd is angry. Nick is in the crowd, risking exposure. Danvers smiles at the player.",
+      "choices": [
+        {
+          "id": "step_onto_the_stage",
+          "label": "Step onto the stage",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "get_nick_out_of_the_crowd_before_they_no",
+          "label": "Get Nick out of the crowd before they notice him",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Danvers: 'Folks, we have a new friend from the vault! Tell them what synths do, friend.'",
+      "page": "By nightfall, the whole of Diamond City is packed into the stadium stands. On the stage, Deputy Danvers Cole smiles under the floodlights, his flag pin gleaming. Behind him, June stands in cuffs.\n\n\"Folks, we're here to protect our city from the Institute's machines!\"\n\nThe crowd roars. Somewhere in it, under his fedora, stands Nick Valentine. If anyone looks too closely at his face, he's finished.\n\nDanvers spots your blue jumpsuit and beams. \"And we have a new friend from the vault! Come on up, friend. Tell these good people what synths do.\""
+    },
+    {
+      "id": "finale",
+      "title": "Last Broadcast",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The rally is in chaos. The player decides: hold up the raider ledger stamped by the mayor's office (only if they took it); play June's recording on every speaker in the stadium (only if they copied it); or simply get June and Nick out the back and leave Diamond City to sort itself out.",
+      "choices": [
+        {
+          "id": "show_the_crowd_the_raider_ledger",
+          "label": "Show the crowd the raider ledger",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "front_page"
+        },
+        {
+          "id": "play_june_s_recording_on_the_speakers",
+          "label": "Play June's recording on the speakers",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "velvet_june_live"
+        },
+        {
+          "id": "smuggle_june_and_nick_out_the_back",
+          "label": "Smuggle June and Nick out the back",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "out_the_back_gate"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "front_page",
+        "velvet_june_live",
+        "out_the_back_gate"
+      ],
+      "isEnding": false,
+      "page": "The rally has fallen apart. People are shouting, the floodlights swing wildly, Danvers is backing toward the stage stairs, and June is still in cuffs.\n\nPiper is beside you, notebook out. Nick is at your shoulder, hat pulled low.\n\n\"Whatever you do next,\" Piper says, \"I'm writing it down.\" The microphone on the stage is still live. The whole city is listening."
+    },
+    {
+      "id": "front_page",
+      "title": "Front Page",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Piper's headline: DEPUTY SOLD SETTLERS. The ledger is printed in full. Danvers is exiled. Piper pins the front page to her wall with the player's name on it. Close on newsboys shouting in the stadium stands.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Front Page",
+      "page": "You climb onto the stage, grab the microphone, and hold the raider ledger up under the floodlights. You read the stamp aloud. Mayor's office. Six settlers. Paid in full.\n\nThe crowd goes silent. Then it turns.\n\nBy morning, Publick Occurrences is everywhere: DEPUTY SOLD SETTLERS. Danvers Cole is marched out the gate and told never to come back. June is freed.\n\nPiper pins the front page to her wall, right next to her press card. Under the headline, in smaller print, is your name. Down in the stands, her little sister shouts the news to everyone who walks by."
+    },
+    {
+      "id": "velvet_june_live",
+      "title": "Velvet June, Live",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Danvers' own voice echoes through the stadium; the crowd turns. June is freed and back on the air that night, dedicating a song to the vault dweller. Close on the player's Pip-Boy glowing with her warm voice.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Velvet June, Live",
+      "page": "You find the stadium speaker board and slot in June's tape.\n\nDanvers Cole's own voice booms out over Diamond City: \"Six settlers for a shipment of caps.\"\n\nHe freezes on the stage. Every face in the crowd turns to him. He runs. He doesn't get far.\n\nThat night, Diamond City Radio comes back on the air. \"This is Velvet June,\" says the warm voice. \"And this next song goes out to a friend from the vault.\" Your Pip-Boy glows green on your wrist, and you listen to the whole song sitting on the stadium wall under the stars."
+    },
+    {
+      "id": "out_the_back_gate",
+      "title": "Out the Back Gate",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player smuggles June and Nick out into the ruins. Diamond City believes the lies for now, but June starts a pirate station in a ruined church, and her voice carries across the Commonwealth. Close on a radio tower at dusk.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Out the Back Gate",
+      "page": "You grab June, Piper grabs Nick's arm, and the four of you slip out the back gate while the crowd is still shouting.\n\nDiamond City believes Danvers. For now.\n\nBut June doesn't stop. In a ruined church on a hill outside the city, she rigs up a pirate station from scrap. \"This is Velvet June, broadcasting from somewhere Danvers can't reach...\"\n\nHer voice carries across the whole Commonwealth. At dusk, you sit beside Nick on the church steps, watching the little red light blink on top of the makeshift radio tower, while June plays an old song about better days."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e8a33a"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

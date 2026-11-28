@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-doctorwho-the-clockwork-tea-room",
+    "title": "The Clockwork Tea Room",
+    "category": "adventure",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "You work at a tea room in 1920s Bath, and the clocks have started going backwards. Then a blue police box appears in the pantry, and a stranger with a sonic device says time itself is being nibbled away by something hiding in the teapots. You have a tray, a sharp mind and about an hour before teatime stops existing.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Doctor Who",
+      "medium": "tv",
+      "owner": "BBC",
+      "aka": [
+        "Doctor Who",
+        "the Doctor",
+        "TARDIS"
+      ]
+    }
+  },
+  "world": "Bath, England, 1923, in the elegant Pump Room tea rooms. The Doctor is a Time Lord who travels through time and space in the TARDIS, a time machine shaped like a blue 1960s police box, bigger on the inside. The Doctor has regenerated many times; this face is new. In the tea room, clockwork creatures called the Tickers, tiny brass time-eaters from a broken alien clock-ship, are hiding in the teapots and eating seconds, making time loop and stutter. Their queen, the Mainspring, wants to wind the whole city back to before its ship crashed. A local inventor, Mr. Ambrose Pell, has been 'fixing' the clocks and is secretly helping the Mainspring.",
+  "tone": "Whimsical, clever sci-fi adventure: running down corridors, brilliant ideas, alien wonder, a little scary, very British and kind.",
+  "playerRole": "A waiter (or waitress) at the Pump Room tea rooms in 1923, with a silver tray, a notepad, sensible shoes, a keen eye for detail and a strong opinion on how tea should be made.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Breathless, witty narration: the Doctor's rapid-fire explanations, the TARDIS groan, period detail, clocks ticking wrongly, cliffhangers, and moments of wonder. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "doctor",
+      "name": "The Doctor",
+      "appearance": "A tall, lanky traveller with wild curly dark hair, bright eager eyes, a long patchwork coat over a striped waistcoat, a loose bow tie, odd socks and a glowing sonic screwdriver.",
+      "voice": "Rapid-fire, enthusiastic, eccentric, kind and occasionally very serious.",
+      "stance": "Treats the player as a natural companion."
+    },
+    {
+      "id": "pell",
+      "name": "Mr. Ambrose Pell",
+      "appearance": "A tidy elderly inventor with a white moustache, round spectacles, a tweed suit, oil-stained fingers and a pocket full of tiny screwdrivers.",
+      "voice": "Fussy, nervous and kindly; becomes evasive under pressure.",
+      "stance": "Helping the Mainspring because she promised to bring back his late wife."
+    },
+    {
+      "id": "mainspring",
+      "name": "The Mainspring",
+      "appearance": "A tall elegant alien made of brass gears and spinning springs, with a clock-face for a face and long jointed fingers that tick.",
+      "voice": "Speaks in a chiming, ticking voice; patient and sad.",
+      "stance": "Wants to rewind time to before her ship crashed."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Investigate Mr. Pell's workshop; 2 = Explore the cellar with the Doctor."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took the Great Winding blueprints."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player learned the Tickers' lullaby."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Teatime, Again",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The tea room at four o'clock. The clocks strike four. Then strike four again. A customer spills the same tea twice. A strange wheezing groan comes from the pantry, where a blue police box has appeared among the jam jars.",
+      "choices": [
+        {
+          "id": "open_the_police_box",
+          "label": "Open the police box",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "check_the_clocks",
+          "label": "Check the clocks",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "pour_a_cup_of_tea_and_wait",
+          "label": "Pour a cup of tea and wait",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "A voice from inside the box: 'Ah! Tea room! Brilliant! Is it still four o'clock? It's always four o'clock, isn't it.'",
+      "page": "Four o'clock at the Pump Room tea rooms, the busiest hour of the day. You balance a silver tray of scones through the crowd.\n\nThe great clock above the door strikes four.\n\nThen it strikes four again.\n\nLady Penhallow at table nine spills her tea, apologises, and spills her tea again in exactly the same way. Outside the window, a pigeon lands on the same railing twice.\n\nFrom the pantry comes a sound like an elephant gargling a saxophone. You push open the door. Squeezed between the jam shelves is a tall blue box with a light on top and a sign: POLICE PUBLIC CALL BOX.\n\nThe door opens. A voice: \"Ah! Tea room! Brilliant! Is it still four o'clock? It's always four o'clock, isn't it.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Bigger on the Inside",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Doctor shows the player the TARDIS (bigger on the inside!) and explains: time-eating clockwork creatures are in the teapots. Two leads: Mr. Pell's workshop, since he 'fixed' all the clocks last week, or the tea room's cellar, where the creatures' signal is strongest.",
+      "choices": [
+        {
+          "id": "make_the_doctor_a_proper_cup_of_tea",
+          "label": "Make the Doctor a proper cup of tea",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You march the Doctor into the kitchen and make a proper pot of tea: warmed pot, fresh water, four minutes, no more. He watches, fascinated, as if it's the most advanced science he's ever seen. He takes a sip, closes his eyes and sighs. \"Oh, that's marvellous. You've got the knack. You notice things. People who notice things make the best travelling companions.\" He winks. \"Just saying.\""
+        },
+        {
+          "id": "investigate_mr_pell_s_workshop",
+          "label": "Investigate Mr. Pell's workshop",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "explore_the_cellar_with_the_doctor",
+          "label": "Explore the cellar with the Doctor",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "The Doctor, sonic whirring: 'Something's nibbling at time. Tiny bites. Like a mouse in a biscuit tin.'",
+      "page": "A lanky stranger in a patchwork coat and a loose bow tie bounds out of the box, waving a glowing silver tool. \"The Doctor. Hello. Love the scones. Quick, come and look at this.\"\n\nYou step into the box. It's bigger inside. A great glowing room with a round console and coral pillars, humming like a living thing.\n\n\"Something's nibbling at time,\" the Doctor says, sonic whirring. \"Tiny bites. Like a mouse in a biscuit tin. Hiding in your teapots, of all places.\"\n\nOld Mr. Pell, the inventor, \"fixed\" every clock in the tea rooms last week. And the signal is strongest in the cellar under the kitchen."
+    },
+    {
+      "id": "path_a",
+      "title": "Pell's Workshop",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Mr. Pell's workshop is full of clocks and blueprints. The player finds a letter from the Mainspring promising to rewind time to before his wife died, and blueprints of a 'Great Winding' device in the tea room's clock tower.",
+      "choices": [
+        {
+          "id": "take_the_great_winding_blueprints",
+          "label": "Take the Great Winding blueprints",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "talk_kindly_to_mr_pell",
+          "label": "Talk kindly to Mr. Pell",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Every clock in the workshop ticks in unison, then stops.",
+      "page": "Mr. Pell's workshop is two streets away, full of clocks: grandfather clocks, cuckoo clocks, pocket watches spread across a bench like silver beetles.\n\nEvery one of them ticks in perfect unison. Then, as you step inside, they all stop.\n\nOn the bench, under a magnifying glass, is a letter written in strange, gear-like script, with a translation pinned beside it in Pell's shaky hand: \"Help me wind back the city, and I will give you back the morning before she died.\"\n\nAnd blueprints. A great machine in the tea rooms' clock tower, labelled THE GREAT WINDING. In the corner, in small print: \"Effect radius: entire city. Reversal: complete.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Cellar",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In the cellar, a nest of tiny brass Tickers around a broken crystal: the alien ship's time core. The Doctor works out the Tickers are scared and lost. The player discovers a lullaby frequency that calms them.",
+      "choices": [
+        {
+          "id": "learn_the_tickers_calming_tune",
+          "label": "Learn the Tickers' calming tune",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "rescue_a_tiny_ticker",
+          "label": "Rescue a tiny Ticker",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A tiny brass creature climbs onto the player's tray and ticks curiously.",
+      "page": "The cellar under the kitchen is dusty and dim. The Doctor's sonic lights it blue.\n\nNestled among the old wine racks is a nest of tiny brass creatures, each no bigger than a teacup, ticking softly, huddled around a broken glowing crystal.\n\n\"Oh, look at you,\" the Doctor whispers. \"Tickers. Time-eaters. Their ship crashed. They're not attacking. They're lost.\"\n\nOne of them climbs onto your silver tray and ticks at you curiously. Without thinking, you hum a tune your gran used to sing, and all the Tickers go still, swaying gently.\n\nThe Doctor stares at you. \"Do that again. That's it. That's the frequency.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Clock Tower",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "At the top of the tea room's clock tower, the Mainspring begins the Great Winding. The city outside starts going backwards: people walking in reverse, rain falling up. Pell is at the controls.",
+      "choices": [
+        {
+          "id": "stop_pell_at_the_controls",
+          "label": "Stop Pell at the controls",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "face_the_mainspring_with_the_doctor",
+          "label": "Face the Mainspring with the Doctor",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "The Mainspring: 'Just a little backwards. Just to before. Is that so much to ask?'",
+      "page": "At the top of the clock tower, the wind is wrong. It blows backwards.\n\nBelow, the whole of Bath is reversing: people walking backwards along the crescents, rain falling up into the clouds, a horse un-trotting down the street.\n\nIn the middle of the clock room stands the Mainspring: tall, elegant, made of brass gears and spinning springs, a clock-face for a face. Old Mr. Pell is at a huge lever, trembling.\n\n\"Just a little backwards,\" the Mainspring chimes softly. \"Just to before. Is that so much to ask?\""
+    },
+    {
+      "id": "finale",
+      "title": "Four O'Clock",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: show Pell the blueprints proving the Winding would erase Bath entirely, not just bring back his wife (only if they have them); sing the Tickers' lullaby so they lead the Mainspring gently home (only if they learned it); or let the Doctor reverse the polarity and send the Mainspring away.",
+      "choices": [
+        {
+          "id": "show_pell_the_truth_in_the_blueprints",
+          "label": "Show Pell the truth in the blueprints",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "mr_pell_s_choice"
+        },
+        {
+          "id": "sing_the_tickers_lullaby",
+          "label": "Sing the Tickers' lullaby",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "lullaby"
+        },
+        {
+          "id": "let_the_doctor_reverse_the_polarity",
+          "label": "Let the Doctor reverse the polarity",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "reverse_the_polarity"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "mr_pell_s_choice",
+        "lullaby",
+        "reverse_the_polarity"
+      ],
+      "isEnding": false,
+      "page": "The great lever is halfway down. The city below is caught between forwards and backwards, flickering. The Doctor stands beside you, hair wild, sonic in hand, looking at you rather than at the alien.\n\n\"I could do this,\" the Doctor says. \"But you've seen more of it than me. What's the kind thing to do here?\""
+    },
+    {
+      "id": "mr_pell_s_choice",
+      "title": "Mr. Pell's Choice",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Pell sees the truth and pulls the lever back himself, weeping. Time runs forward again. The Doctor offers the player a trip. Close on the TARDIS door open in the pantry, full of light.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Mr. Pell's Choice",
+      "page": "You unroll the blueprints in front of Mr. Pell and point to the small print. \"Effect radius: entire city. Reversal: complete. Not just the morning before she died, Mr. Pell. Everything. Everyone. Gone.\"\n\nHe reads it twice. His hands shake. Then, weeping, he pulls the lever back up himself.\n\nTime lurches, groans, and runs forward again. Rain falls down. The clocks strike five.\n\nLater, in the pantry, the blue box's door stands open, full of golden light. The Doctor leans out. \"So. All of time and space. Fancy it?\""
+    },
+    {
+      "id": "lullaby",
+      "title": "Lullaby",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Tickers sing, the Mainspring softens and follows them into the TARDIS to be taken home among the stars. Close on a tiny Ticker left behind as a gift, ticking on the player's tray.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Lullaby",
+      "page": "You start to hum. Your gran's tune. The Doctor joins in, terribly off-key.\n\nThe Tickers pour up the tower stairs, hundreds of them, humming along in tiny ticking voices. They climb into the Mainspring's arms, and the alien queen goes still, listening.\n\n\"My children,\" she chimes softly. \"You found a song.\"\n\nShe lets the Tickers lead her into the TARDIS, to be taken home among the stars.\n\nWhen it's gone, one tiny Ticker is left on your silver tray, ticking happily. A gift. It still sits by the till today, keeping perfect time."
+    },
+    {
+      "id": "reverse_the_polarity",
+      "title": "Reverse the Polarity",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "A flash of light, a groan, and the Mainspring is gone. Clocks strike five o'clock at last. The Doctor says 'Brilliant!' and vanishes. Close on the player pouring tea at five past five.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Reverse the Polarity",
+      "page": "The Doctor jams the sonic into the clock's workings. \"Reversing the polarity! I've always wanted to say that properly!\"\n\nA flash of blue light. A groan like an elephant gargling a saxophone. The Mainspring, the Tickers and the blue box are gone.\n\nThe great clock above the tea room door strikes five o'clock. Finally.\n\nYou look around. The tea room is perfectly normal. Lady Penhallow has her tea. Nobody remembers a thing.\n\nAt five past five, you pour a cup and set it on an empty table, just in case."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#2f6fd6"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "motes"
+  }
+}

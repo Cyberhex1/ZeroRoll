@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-johnwick-the-continental-s-night-porter",
+    "title": "The Continental's Night Porter",
+    "category": "revenge",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "You've just started as night porter at the Continental, a hotel where assassins can't do business on the premises. Tonight someone broke that rule and blamed you. Winston gives you until sunrise to find who. Charon gives you a gold coin and very good advice. Somewhere in the city, the man who killed your mentor is checking in.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "John Wick",
+      "medium": "film",
+      "owner": "Lionsgate and Thunder Road Pictures",
+      "aka": [
+        "John Wick",
+        "The Continental",
+        "Winston",
+        "Charon"
+      ]
+    }
+  },
+  "world": "New York, present day, in the hidden world of the High Table: assassins who follow strict rules, pay with gold coins and honour 'markers' (blood oaths). The Continental Hotel is neutral ground where no 'business' (killing) may happen. Winston, the manager, enforces its rules; Charon, the concierge, runs the front desk with impeccable calm. The player, a new night porter, was mentored by an old porter, Augustin, murdered last month by a hitman named Viktor Sarno. Tonight a guest has been killed on Continental grounds and evidence points to the player. Viktor is staying at the hotel.",
+  "tone": "Stylish, operatic neo-noir action about rules, honour and grief: neon, rain, gold coins, quiet menace and balletic violence (never gory).",
+  "playerRole": "A night porter at the Continental with a pressed uniform, a ring of keys to every room, a gold coin from your late mentor, steady hands and a secret skill (your choice) that got you hired.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Stylish, terse neo-noir narration with neon reflections, rain, rules spoken like scripture, quiet threats, and choreographed action described like dance. Consequences of breaking rules are absolute. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "charon",
+      "name": "Charon",
+      "appearance": "A dignified man in his fifties with close-cropped hair, a neat beard, a dark tailored suit, a crisp white shirt and a concierge's composure.",
+      "voice": "Formal, calm, gently amused; says 'Certainly' a lot.",
+      "stance": "Protects the player within the rules and offers subtle guidance."
+    },
+    {
+      "id": "winston",
+      "name": "Winston",
+      "appearance": "An elegant older man with silver hair, a trimmed beard, a three-piece suit and a pocket square.",
+      "voice": "Smooth, witty and absolutely final.",
+      "stance": "Gives the player until sunrise to clear themselves."
+    },
+    {
+      "id": "viktor",
+      "name": "Viktor Sarno",
+      "appearance": "A tall, lean hitman with a shaved head, a scar through one eyebrow, a black overcoat and a glint of a gold tooth.",
+      "voice": "Quiet, polite, amused.",
+      "stance": "Killed the player's mentor; framed the player for tonight's death."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Check the service elevator logs; 2 = Open Augustin's old locker."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player took the service elevator log."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found Viktor's blood marker."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Checking In",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Continental lobby at midnight. The player's first month as night porter. A guest is found dead in room 1207; the master key that opened it was the player's. Winston summons them. Viktor Sarno, the man who killed the player's mentor, smiles from the bar.",
+      "choices": [
+        {
+          "id": "go_straight_to_winston",
+          "label": "Go straight to Winston",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_charon_what_happened",
+          "label": "Ask Charon what happened",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "watch_viktor_from_across_the_lobby",
+          "label": "Watch Viktor from across the lobby",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Charon, quietly: 'The rules are the rules. Even for porters. Especially for porters.'",
+      "page": "Midnight at the Continental. The lobby glows gold. Somewhere a piano plays. You straighten your porter's jacket and check the keys on your belt, the way Augustin taught you, before Augustin was killed.\n\nThen the phone on the desk rings, and Charon answers. His face doesn't change at all. \"Certainly.\"\n\nHe hangs up. \"A guest in 1207 has been found dead. On the premises.\" He looks at you. \"The door was opened with your master key.\"\n\nAcross the lobby, at the bar, a lean man with a shaved head and a scar through one eyebrow lifts his glass to you. Viktor Sarno. The man who killed your mentor.\n\nCharon, quietly: \"The rules are the rules. Even for porters. Especially for porters.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "Until Sunrise",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Winston gives the player until sunrise. Charon hints: the hotel's old service elevator logs everything; and Augustin, the late mentor, left something in his locker. Two leads.",
+      "choices": [
+        {
+          "id": "share_a_quiet_drink_with_charon_after_hi",
+          "label": "Share a quiet drink with Charon after his shift",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "At four, when the lobby is empty, Charon pours two small glasses of something amber and sets one in front of you. \"Augustin trained me too,\" he says. \"Forty years ago. He was the only porter who ever made Winston laugh.\" He lifts his glass. \"To Augustin.\" You drink. Afterwards, he says only, \"Stand up straight. You represent the hotel.\" But his hand rests on your shoulder for a moment as he passes."
+        },
+        {
+          "id": "check_the_service_elevator_logs",
+          "label": "Check the service elevator logs",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "open_augustin_s_old_locker",
+          "label": "Open Augustin's old locker",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Winston, swirling brandy: 'Sunrise. Not a minute later.'",
+      "page": "Winston's office is wood, leather and old money. He swirls brandy and studies you.\n\n\"Business on Continental grounds. A grave matter. Your key, your hands, by all appearances.\" He sets down his glass. \"You have until sunrise to show me otherwise. Not a minute later.\"\n\nCharon walks you back to the lobby. He speaks without looking at you, as if talking about the weather. \"The old service elevator keeps a paper log. Nobody remembers that.\" A pause. \"And Augustin's locker was never emptied. Sentiment, I suppose.\"\n\nHe straightens a pen on the desk. \"Good luck.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Service Elevator",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The old brass service elevator keeps a paper log. At 11:48, someone used the player's master key code. Security footage shows Viktor's hands, with his gold ring, on the panel.",
+      "choices": [
+        {
+          "id": "take_the_elevator_log",
+          "label": "Take the elevator log",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "copy_the_footage",
+          "label": "Copy the footage",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The elevator hums up without anyone calling it.",
+      "page": "The service elevator lives in the basement, brass and ancient, with a cage door and a lever. Beside it hangs a paper log, filled in automatically by a little brass pen that scratches every time the car moves.\n\n11:48 p.m. Floor 12. Master key code: yours.\n\nBut you were in the lobby at 11:48. Charon saw you.\n\nThe hotel's security footage from the basement camera shows a pair of hands at the elevator panel. Long fingers. A thick gold ring with a black stone. You've seen that ring before, at the bar, lifting a glass.\n\nThe elevator hums and rises, all on its own, though nobody called it."
+    },
+    {
+      "id": "path_b",
+      "title": "Augustin's Locker",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "Augustin's locker holds his old gold coins, a marker with Viktor's blood oath to Augustin, and a letter: Viktor owes Augustin a life and swore never to harm the hotel's staff.",
+      "choices": [
+        {
+          "id": "take_viktor_s_marker",
+          "label": "Take Viktor's marker",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "read_augustin_s_letter",
+          "label": "Read Augustin's letter",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A small photo of the player and Augustin is taped inside the locker door.",
+      "page": "Augustin's locker still has his name on it in neat brass letters. Your hands shake on the dial.\n\nInside: his spare uniform. A handful of old gold coins. A photo taped inside the door, of you and him on your first day, him pretending to be stern.\n\nAnd a small leather folio. Inside it, a marker: a medallion stamped with a bloody thumbprint. Viktor Sarno's. A blood oath, made to Augustin years ago, for a life Augustin saved.\n\nThere's a letter too, in Augustin's careful hand. \"Viktor owes me. He swore never to harm the hotel or its staff. If anything happens to me, this marker passes to my apprentice.\""
+    },
+    {
+      "id": "showdown",
+      "title": "The Rooftop",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "On the hotel roof in the rain, Viktor waits. He confesses nothing but offers a deal: walk away and live. Two of his men appear.",
+      "choices": [
+        {
+          "id": "refuse_viktor_s_deal",
+          "label": "Refuse Viktor's deal",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "keep_him_talking_until_charon_arrives",
+          "label": "Keep him talking until Charon arrives",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Viktor: 'Your mentor was sentimental. Don't be.'",
+      "page": "The hotel roof is all rain and neon. Viktor Sarno stands at the edge, coat snapping in the wind, looking out over New York.\n\n\"You're clever,\" he says, without turning. \"Augustin was clever too. And sentimental.\" He turns. \"Walk away. Leave the hotel tonight, and you live. That's my offer.\"\n\nTwo men step out of the shadows behind him.\n\n\"Your mentor was sentimental,\" Viktor says softly. \"Don't be.\""
+    },
+    {
+      "id": "finale",
+      "title": "Sunrise",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player decides: present the elevator log to Winston, proving Viktor did business on Continental grounds (only if they have it); present Viktor's marker, which binds him to confess (only if they have it); or take your revenge yourself, off the grounds, and accept the consequences.",
+      "choices": [
+        {
+          "id": "show_winston_the_elevator_log",
+          "label": "Show Winston the elevator log",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "excommunicado"
+        },
+        {
+          "id": "present_viktor_s_marker",
+          "label": "Present Viktor's marker",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_marker_honoured"
+        },
+        {
+          "id": "take_revenge_yourself",
+          "label": "Take revenge yourself",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_porter_s_revenge"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "excommunicado",
+        "a_marker_honoured",
+        "a_porter_s_revenge"
+      ],
+      "isEnding": false,
+      "page": "The sky over the city is turning grey. Sunrise is close.\n\nYou stand in Winston's office again. Winston behind his desk. Charon by the door. Viktor Sarno in a chair, legs crossed, smiling, sure he's won.\n\n\"Well?\" says Winston.\n\nEverything you found is in your pocket. The rules will decide what happens. You decide which rules."
+    },
+    {
+      "id": "excommunicado",
+      "title": "Excommunicado",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Winston declares Viktor excommunicado. The player is cleared, promoted, and Charon gives them a nod. Close on the lobby at dawn, the player behind the desk.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Excommunicado",
+      "page": "You lay the elevator log on Winston's desk, and beside it, the footage. The gold ring on the panel.\n\nWinston reads it. He looks at Viktor for a long time.\n\n\"You conducted business on Continental grounds,\" he says. \"And then you tried to blame my staff.\" He picks up a phone. \"Mr. Sarno, you are excommunicado. Effective in one hour.\"\n\nViktor's smile finally disappears.\n\nAt dawn, you're back behind the front desk, in a new jacket with a new pin. Charon glances at you and nods once, then hands you the night's ledger."
+    },
+    {
+      "id": "a_marker_honoured",
+      "title": "A Marker Honoured",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Bound by blood, Viktor confesses before Winston and pays the price the rules demand. The player places Augustin's coin on the bar. Close on a single coin glinting in the morning light.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Marker Honoured",
+      "page": "You set Viktor's marker on Winston's desk. The bloody thumbprint gleams.\n\nViktor stares at it. \"Augustin's,\" he whispers.\n\n\"And now mine,\" you say. \"I call in the marker. Tell Winston the truth.\"\n\nA blood oath cannot be refused. Not here. Not anywhere. Viktor confesses everything, and pays the price the rules demand.\n\nAfterwards, in the empty bar, you place one of Augustin's old gold coins on the counter and leave it there. It glints in the first light of morning."
+    },
+    {
+      "id": "a_porter_s_revenge",
+      "title": "A Porter's Revenge",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player faces Viktor in the rain in the street outside. It ends. Winston, watching from a window, says nothing; the player is no longer a porter. Close on a lone figure walking away in the rain.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Porter's Revenge",
+      "page": "You walk out of the Continental at dawn, out past the brass doors, off the grounds. Viktor is waiting in the rain across the street. He knew you would come.\n\nWhat happens between you is quick, and quiet, and final.\n\nWhen it's over, you look up. In a high window of the hotel, Winston is watching. He says nothing. He doesn't need to.\n\nYou leave your ring of keys on the front desk. You turn your collar up against the rain and walk away down the empty street, alone."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#d4af37"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans"
+    },
+    "particles": "rain"
+  }
+}

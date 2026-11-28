@@ -1,0 +1,454 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-stardew-the-lost-lantern-of-the-night-market",
+    "title": "The Lost Lantern of the Night Market",
+    "category": "cozy_ghibli",
+    "rating": "everyone",
+    "mode": "story",
+    "blurb": "It's your first winter in Pelican Town, and the lantern that lights the Night Market boats has been stolen the week before the festival. Without it, the mermaid won't sing and the submarine won't sail. Everyone has a theory. You have a watering can, a lot of parsnips, and the whole town to ask.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Stardew Valley",
+      "medium": "game",
+      "owner": "ConcernedApe",
+      "aka": [
+        "Stardew",
+        "Pelican Town"
+      ]
+    }
+  },
+  "world": "Pelican Town in the valley, winter: snow on the farms, the Saloon glowing at night, the Community Center half-restored, the beach where the Night Market's boats dock for three nights each winter. The market's great paper lantern, a gift from the Junimos generations ago, is what calls the singing mermaid and lights the deep-sea submarine. It has vanished. The truth: Linus, the shy man who lives in a tent, borrowed it to light the mountain cave where an injured snow-owl is nesting, meaning to return it, but Mayor Lewis blamed 'outsiders' before he could. Separately, a mischievous Junimo has been moving things around town. Abigail, who loves mysteries, is eager to investigate.",
+  "tone": "Warm, gentle, small-town cosy: snow, cooking, festivals, kindness, mild mystery, no villains, only misunderstandings.",
+  "playerRole": "A new farmer who moved into their grandfather's old farm this year, with a watering can, a backpack of parsnips and winter roots, a battered hoe and a dog or cat (your choice) waiting at home.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Cosy pixel-warm narration: crunching snow, the smell of the Saloon, townsfolk with little routines. Gifts and small favours matter. Nobody is cruel. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "abigail",
+      "name": "Abigail",
+      "appearance": "A young woman with purple hair cut in a bob, pale skin, a dark purple top with a white collar, a long brown skirt and a little sword charm on her bag.",
+      "voice": "Bubbly, adventurous and a bit spooky; loves video games and mysteries.",
+      "stance": "Wants to investigate with the player and is thrilled to have a partner."
+    },
+    {
+      "id": "linus",
+      "name": "Linus",
+      "appearance": "A quiet older man with a wild grey beard and messy hair, a patched brown-and-green outfit, a warm scarf and a lantern of his own.",
+      "voice": "Gentle, shy and thoughtful; speaks slowly and appreciates small kindnesses.",
+      "stance": "Has the lantern and is afraid nobody will believe him."
+    },
+    {
+      "id": "lewis",
+      "name": "Mayor Lewis",
+      "appearance": "A plump older man with a grey moustache, a green flat cap, a brown vest over a white shirt and suspenders.",
+      "voice": "Fussy, kind-hearted and a bit pompous; worried about the town's reputation.",
+      "stance": "Desperate to save the festival and quick to blame outsiders."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Follow the footprints up the mountain; 2 = Investigate the glowing scraps at the Community Center."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player heard Linus' story in the cave."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The Junimos gave the player star-dust for a new lantern."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Snow on the Farm",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The player's farm on the first snowy morning. Mayor Lewis arrives in a panic: the Night Market lantern has been stolen from the community centre, and the festival is in a week. He asks the player, as the town's newest resident, to help, partly because he suspects 'drifters' and doesn't want to accuse a neighbour.",
+      "choices": [
+        {
+          "id": "agree_to_help_lewis",
+          "label": "Agree to help Lewis",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_lewis_why_he_suspects_drifters",
+          "label": "Ask Lewis why he suspects drifters",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "offer_lewis_some_hot_tea_first",
+          "label": "Offer Lewis some hot tea first",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Lewis wrings his cap: 'Without that lantern, the mermaid won't sing! Do you know how long I practised my festival speech?'",
+      "page": "The first snow came overnight. Your farm is a white quilt with lumpy bits where the parsnips used to be, and your breath puffs like a little kettle.\n\nThen Mayor Lewis comes crunching up the path, cap in hands, moustache trembling.\n\n\"It's gone! The Night Market lantern! Stolen right out of the Community Center!\" He wrings his cap. \"The festival's in a week. Without that lantern the mermaid won't sing, the submarine won't sail, and do you know how long I practised my festival speech?\"\n\nHe lowers his voice. \"I think it was a drifter. Someone from outside. But I can't go accusing people. You're new here. Nobody will mind if you ask around.\"\n\nYour dog flops down on his boots, which seems to comfort him a little."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Saloon Gossip",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Stardrop Saloon at night. Everyone has a theory: the wizard, the Joja manager, aliens. Abigail grabs the player and declares herself their detective partner. Two leads: footprints in the snow leading up the mountain, and odd scraps of glowing paper near the Community Center, where something small and green keeps darting out of sight.",
+      "choices": [
+        {
+          "id": "buy_abigail_a_hot_drink_and_plan_togethe",
+          "label": "Buy Abigail a hot drink and plan together",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You buy two hot chocolates and spread Abigail's notebook between you. She has drawn a map of the whole town with suspects circled in red, including, worryingly, the Mayor. You plan late into the evening, laughing at her wilder theories. When the Saloon closes, she says, \"This is the best thing that's happened all winter,\" and you clink mugs."
+        },
+        {
+          "id": "follow_the_footprints_up_the_mountain",
+          "label": "Follow the footprints up the mountain",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "investigate_the_glowing_scraps_at_the_co",
+          "label": "Investigate the glowing scraps at the Community Center",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Abigail whispers: 'This is the best thing that's happened all winter.'",
+      "page": "The Stardrop Saloon glows like a lantern itself on a snowy night. Everyone has a theory. The wizard did it. Joja did it. Aliens did it. Someone at the bar is sure it was a very large crow.\n\nA purple-haired young woman slides onto the stool beside you, eyes shining. \"You're investigating the lantern thing, right? I'm Abigail. I'm your partner now. No arguments.\"\n\nShe pulls out a notebook. \"Two leads. Somebody's footprints going up the mountain, right after the theft. And there are scraps of glowing paper all around the Community Center.\" She lowers her voice. \"And something small and green keeps darting around in there. I've seen it. I swear.\""
+    },
+    {
+      "id": "path_a",
+      "title": "Footprints in the Snow",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "The footprints lead up the snowy mountain to a cave. Inside, warm lantern light: the Night Market lantern is hanging over a nest, and an injured snow-owl is resting beside Linus. He's mortified and explains he borrowed it to keep the bird warm and tried to tell Lewis, who wouldn't listen.",
+      "choices": [
+        {
+          "id": "listen_to_linus_whole_story",
+          "label": "Listen to Linus' whole story",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "help_linus_tend_the_snow_owl",
+          "label": "Help Linus tend the snow-owl",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The snow-owl ruffles its feathers and blinks huge amber eyes at the player.",
+      "page": "The footprints climb the mountain path, past the frozen lake, to a small cave you've never noticed. Warm golden light spills out of it.\n\nInside, the Night Market lantern hangs from a hook in the rock, glowing like a little sun over a nest of straw. In the nest sits a snow-owl with a bandaged wing, blinking huge amber eyes at you.\n\nBeside it, Linus jumps to his feet, blushing to the tips of his beard. \"Oh. Oh no. I can explain.\"\n\nHe found the owl half-frozen in the snow. It needed warmth. He borrowed the lantern for just a few nights and tried to tell Lewis, but the Mayor was too busy blaming \"outsiders\" to listen. \"I was going to put it back,\" he says quietly. \"I didn't think anyone would believe me.\""
+    },
+    {
+      "id": "path_b",
+      "title": "The Junimo's Trail",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In the dusty Community Center, a tiny green Junimo is gathering scraps of glowing lantern paper. Following it (and offering it the right gift) leads to the Junimo hut, where the forest spirits show the player how the lantern was first made, and give them a pinch of star-dust that can light a new one.",
+      "choices": [
+        {
+          "id": "offer_the_junimo_a_gift",
+          "label": "Offer the Junimo a gift",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "follow_the_junimo_into_the_bundle_room",
+          "label": "Follow the Junimo into the bundle room",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A Junimo peeks out from behind a bundle, squeaks, and drops a scrap of paper at the player's feet.",
+      "page": "The Community Center is dusty and quiet, sunlight slanting through the broken roof. A scrap of glowing paper drifts across the floor all on its own.\n\nThen you see it: a tiny round green creature with a leaf on its head, gathering paper scraps in its arms. It squeaks, drops one at your feet, and hides behind a bundle tile.\n\nA Junimo.\n\nYou leave a gift, and after a long, shy pause it waddles out and beckons. It leads you to its little hut, where more Junimos dance and chirp and show you, in pictures of light on the walls, how the very first lantern was made long ago. Before you leave, they press a pinch of glittering star-dust into your palm. Enough to light a brand new lantern."
+    },
+    {
+      "id": "showdown",
+      "title": "Town Meeting",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The night before the festival. Lewis has called a town meeting at the Saloon and is about to announce the lantern was stolen by 'that man in the tent'. Linus is outside in the snow, too nervous to come in. Everyone turns as the player and Abigail walk in.",
+      "choices": [
+        {
+          "id": "stand_up_in_front_of_the_whole_town",
+          "label": "Stand up in front of the whole town",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "bring_linus_inside_to_speak_for_himself",
+          "label": "Bring Linus inside to speak for himself",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Lewis taps his glass: 'Ahem. I'm sorry to say we have a thief among us...'",
+      "page": "The night before the festival, Lewis calls a town meeting at the Saloon. Everyone is there, wrapped in scarves, steaming mugs in hand.\n\nLewis taps his glass. \"Ahem. I'm sorry to say we have a thief among us. And I have it on good authority that it's that man in the tent...\"\n\nThe door creaks open. Snow blows in. Every head turns to look at you and Abigail.\n\nThrough the window you can see Linus standing outside in the snow, lantern-less, too nervous to come in."
+    },
+    {
+      "id": "finale",
+      "title": "Night Market",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The festival night. The player decides how the market is lit: bring Linus and the snow-owl to the beach with the original lantern, and let him tell the town himself (only if they heard his story); light a brand new lantern with the Junimos' star-dust (only if they found it); or let the town light ordinary candles and hope the mermaid comes anyway.",
+      "choices": [
+        {
+          "id": "walk_linus_and_the_lantern_down_to_the_b",
+          "label": "Walk Linus and the lantern down to the beach",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "linus_lantern"
+        },
+        {
+          "id": "light_a_new_lantern_with_junimo_star_dus",
+          "label": "Light a new lantern with Junimo star-dust",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "junimo_light"
+        },
+        {
+          "id": "light_candles_together_and_hope",
+          "label": "Light candles together and hope",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "a_hundred_candles"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "linus_lantern",
+        "junimo_light",
+        "a_hundred_candles"
+      ],
+      "isEnding": false,
+      "page": "Festival night. The beach is strung with ribbons, the boats bob at the dock, and the whole town waits in the cold with mittens and hot cider. The Night Market can't begin without light.\n\nAbigail squeezes your arm. \"Okay, partner. This is your call.\"\n\nThe mermaid's rock is dark out in the water. Somewhere out there she is listening, waiting to see what Pelican Town does."
+    },
+    {
+      "id": "linus_lantern",
+      "title": "Linus' Lantern",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "Linus carries the lantern down to the beach with the snow-owl on his shoulder. Lewis apologises in front of everyone. The mermaid sings. Close on Linus being invited to sit at the Saloon's big table for the first time.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Linus' Lantern",
+      "page": "Linus walks down to the beach with the great lantern held high, the snow-owl perched on his shoulder, wing healed.\n\nLewis meets him at the dock, takes off his cap, and apologises in front of the whole town. Linus doesn't know what to do with his hands.\n\nThey hang the lantern on the first boat. Out in the bay, a voice rises: the mermaid, singing a song about warmth in winter.\n\nLater, at the Saloon, Gus pulls out a chair at the big table and says, \"Linus. Sit.\" And Linus does."
+    },
+    {
+      "id": "junimo_light",
+      "title": "Junimo Light",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The new lantern glows green and gold, brighter than the old one, and the mermaid sings a song nobody has heard before. Somewhere in the dunes, tiny Junimos dance. Abigail is beside herself. Close on the player's farm in the snow, a little Junimo waving from behind a bush.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Junimo Light",
+      "page": "You sprinkle the star-dust into a paper lantern Abigail and Robin built in an afternoon. It flickers, then blazes up green and gold, brighter than the old one ever was.\n\nThe mermaid rises from the water and sings a song nobody in town has heard before. Out in the dunes, tiny figures with leaves on their heads hold hands and dance.\n\nAbigail is beside herself. \"We're telling everyone. Nobody's going to believe us. I don't care.\"\n\nLater, walking home through the snow, you see one small green shape peek out from behind a bush at the edge of your farm and wave."
+    },
+    {
+      "id": "a_hundred_candles",
+      "title": "A Hundred Candles",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "Everyone in town lights a candle on the beach. It's dim and imperfect, but the mermaid comes anyway, curious. Close on the whole town sitting together in the snow, Abigail leaning on the player's shoulder.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "A Hundred Candles",
+      "page": "Everyone in town lights a candle. Two hundred little flames along the beach, wobbling in the wind, and none of them as bright as the lantern was.\n\nIt's dim and imperfect and very cold. But out in the dark water, curious, the mermaid comes anyway. She sings softly, as if she's not sure of the tune, and the whole town goes quiet to listen.\n\nYou end up sitting in the snow with half of Pelican Town, Abigail's head on your shoulder, watching the candle-lit boats sail out. The lantern is still out there somewhere. Maybe next year."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e8a95c"
+    },
+    "fonts": {
+      "heading": "hand",
+      "body": "serif"
+    },
+    "particles": "snow"
+  }
+}

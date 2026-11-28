@@ -145,7 +145,8 @@
         "the_call"
       ],
       "isEnding": false,
-      "hint": "The trunk buzzes again. Marisol whispers: 'Bro. Bro. Open it.'"
+      "hint": "The trunk buzzes again. Marisol whispers: 'Bro. Bro. Open it.'",
+      "page": "Midnight at the Starfish Grand valet stand on Vice Beach. Neon pink and teal. Bass thumping from a club across the street. Tourists filming a man walking an iguana on a leash.\n\nA sweaty guest in mirrored sunglasses tosses you the keys to a cherry-red supercar, presses a hundred-dollar bill into your hand and says, \"Don't touch anything.\" Then he's gone into the lobby.\n\nYou park it in the side lot. As you lock it, the trunk buzzes. And buzzes again.\n\nYour coworker Marisol is right behind you, phone already up, eyes huge. \"Bro. Bro. Open it.\""
     },
     {
       "id": "the_call",
@@ -197,7 +198,8 @@
         "garage"
       ],
       "isEnding": false,
-      "hint": "The guest is pointing at the valet stand and asking questions."
+      "hint": "The guest is pointing at the valet stand and asking questions.",
+      "page": "The trunk holds a burner phone, still buzzing, sitting on top of a duffel bag stuffed with cash. Like, movie-amounts of cash.\n\nThe caller is calm and polite. \"This is Dez. You're running late. Car and bag at the dock in the Leonida Keys by sunrise. Don't stop for gas.\" Click.\n\nHe thinks you're the courier.\n\nA minute later, the sweaty guest comes back down the hotel steps with two very large friends, scanning the lot.\n\nMarisol grabs your arm. \"His belt. That's a badge clip. He's a cop.\" She looks at you. \"We need to decide something right now.\""
     },
     {
       "id": "causeway",
@@ -253,7 +255,8 @@
         "keys_dock"
       ],
       "isEnding": false,
-      "hint": "Headlights in the mirror, closing. The causeway is long and straight."
+      "hint": "Headlights in the mirror, closing. The causeway is long and straight.",
+      "page": "Night drive south out of Vice City. The radio's blasting. Marisol starts livestreaming, then thinks better of it and throws her phone in the footwell.\n\nBehind you, an unmarked black SUV. It's been there since the city limits.\n\nAhead, the causeway stretches out over the dark water, long and straight, nowhere to turn off. Off to the side, the Grassrivers swamp, where Marisol swears her cousin knows an airboat captain who owes him a favour.\n\nThe headlights in the mirror are getting closer."
     },
     {
       "id": "garage",
@@ -309,7 +312,8 @@
         "keys_dock"
       ],
       "isEnding": false,
-      "hint": "Boone's hand drifts to the holster under his shirt."
+      "hint": "Boone's hand drifts to the holster under his shirt.",
+      "page": "The hotel garage at 2 a.m., level B3. Humming lights. Dripping pipes. The cherry-red supercar hidden in a corner.\n\nThe sweaty guest finds you anyway. He drops the friendly act. \"Detective Boone. Hand over the car and the bag, or I arrest you for grand theft. Who's anybody going to believe? Me, or a valet?\"\n\nHis hand drifts to the holster under his shirt.\n\nBut behind a concrete pillar, Marisol is filming. And the duffel bag still has evidence-room tags zip-tied to the handles."
     },
     {
       "id": "keys_dock",
@@ -377,7 +381,8 @@
         "back_on_the_stand"
       ],
       "isEnding": false,
-      "hint": "Dez rolls his toothpick: 'Somebody make a decision. The fish are biting.'"
+      "hint": "Dez rolls his toothpick: 'Somebody make a decision. The fish are biting.'",
+      "page": "Sunrise on a fishing dock in the Leonida Keys. Pelicans on the posts. Pastel water. A fast boat idling at the end of the pier.\n\nDez waits there, chewing a toothpick. He looks at you, at your valet vest, at Marisol, and he laughs. \"A valet. They sent a valet.\" He nods slowly. \"And you made it. I'm impressed.\"\n\nThen a black SUV pulls up at the end of the dock, and Detective Boone gets out with his two friends.\n\nEverybody wants the bag. Everybody's looking at you.\n\nDez rolls his toothpick. \"Somebody make a decision. The fish are biting.\""
     },
     {
       "id": "keys_to_the_keys",
@@ -399,7 +404,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Keys to the Keys"
+      "endingTitle": "Keys to the Keys",
+      "page": "You hand Dez the bag.\n\nHe pays you more than a year of valet tips, in cash, and gives you a number to call. \"I like people who show up.\" He tells Boone, very politely, that this is his business now, and Boone, looking at Dez's friends on the boat, decides to agree.\n\nYou and Marisol drive back north as the sun comes up over the water, rich, nervous and in a brand new line of work.\n\nSomewhere near the city limits, the burner phone buzzes again. New job."
     },
     {
       "id": "gone_viral",
@@ -421,7 +427,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Gone Viral"
+      "endingTitle": "Gone Viral",
+      "page": "\"Post it,\" you say. \"Everything.\"\n\nMarisol posts the footage: a Vice City detective, on camera, with a duffel bag of cash still tagged from his own department's evidence room, threatening a valet.\n\nIt explodes. A million views in an hour. Memes by breakfast. A news helicopter hovering over the dock.\n\nBy lunch, Boone is arrested by his own department. Dez is long gone by boat, waving.\n\nYou and Marisol sit on the dock eating gas-station burritos, watching the comments scroll past faster than you can read them. You are, briefly, the most famous valet in Leonida."
     },
     {
       "id": "back_on_the_stand",
@@ -438,7 +445,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "Back on the Stand"
+      "endingTitle": "Back on the Stand",
+      "page": "You drop the car keys on top of the duffel bag, turn around and walk away. Let the crooks sort it out.\n\nMarisol complains the entire bus ride back. \"We could've been rich. We could've been famous. We could've been rich AND famous.\"\n\nNobody comes looking for you. Not Dez, not Boone, nobody.\n\nMonday night, you're back on the valet stand on Vice Beach, neon buzzing, bass thumping, with a hundred-dollar tip still in your pocket and a much better story than anyone you park cars for.\n\nA new car pulls up. You smile and hold out your hand for the keys."
     }
   ],
   "art": {

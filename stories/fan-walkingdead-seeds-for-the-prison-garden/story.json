@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-walkingdead-seeds-for-the-prison-garden",
+    "title": "Seeds for the Prison Garden",
+    "category": "zombie",
+    "rating": "mature",
+    "mode": "story",
+    "blurb": "The prison's garden is dying and the only seed vault left is in a farm-supply warehouse two days' ride away. Daryl doesn't talk much. Michonne talks even less. You know plants. Out there, the walkers are only half the problem; a family of survivors has already claimed the warehouse, and they're hungry too.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "The Walking Dead",
+      "medium": "tv",
+      "owner": "AMC and Robert Kirkman",
+      "aka": [
+        "TWD",
+        "Daryl",
+        "Michonne"
+      ]
+    }
+  },
+  "world": "Rural Georgia, a year and a half into the walker apocalypse. The dead rise as slow, hungry 'walkers' that swarm in herds; a bite is fatal. A community lives in a fortified prison with a garden that has failed from blight. The nearest seed stock is at a farm-supply warehouse near the town of Senoia. Daryl Dixon, a quiet hunter with a crossbow, and Michonne, a swordswoman, go with the player. At the warehouse, the Pruitt family, a father, his teenage daughter and two young sons, are barricaded inside with the seeds, starving. A ruthless group called the Claimers is also heading there.",
+  "tone": "Bleak, tense survival drama with tenderness: hunger and fear, quiet campfires, sudden walker attacks, and the question of what kind of people survive.",
+  "playerRole": "The prison's best gardener, with a seed list, a hunting knife, a revolver with five bullets, a backpack of jars and a stubborn belief that things can still grow.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Gritty, quiet survival narration: cicadas, rotting smell, the groan of distant walkers, short brutal fights, and long silences between people who've lost a lot. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "daryl",
+      "name": "Daryl Dixon",
+      "appearance": "A rugged man with shaggy brown hair falling into his eyes, stubble, a sleeveless leather vest with angel wings on the back over a work shirt, and a crossbow.",
+      "voice": "Laconic, gruff, southern; mumbles; unexpectedly gentle.",
+      "stance": "Respects the player's quiet competence."
+    },
+    {
+      "id": "michonne",
+      "name": "Michonne",
+      "appearance": "A tall, athletic woman with long dreadlocks tied back, sharp eyes, a sleeveless top, a katana on her back.",
+      "voice": "Calm, dry and few words; warm once trust is earned.",
+      "stance": "Protective; assesses everyone."
+    },
+    {
+      "id": "pruitt",
+      "name": "Ellis Pruitt",
+      "appearance": "A gaunt farmer in his fifties with a grey beard, a sweat-stained cap, overalls, and a shotgun held across his chest.",
+      "voice": "Frightened, defensive, desperate to protect his kids.",
+      "stance": "Holds the warehouse and won't give up the seeds easily."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Take the irrigation tunnels; 2 = Walk up the road and knock."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player found the Claimers' map."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player met the Pruitts and saw the rooftop greenhouse."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "The Blight",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The prison garden, early morning: withered plants, grey leaves. The council agrees to the seed run. Daryl and Michonne are coming. Outside the fence, walkers press against the wire.",
+      "choices": [
+        {
+          "id": "pack_the_seed_list_and_jars",
+          "label": "Pack the seed list and jars",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "ask_daryl_about_the_route",
+          "label": "Ask Daryl about the route",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "clear_the_fence_with_michonne",
+          "label": "Clear the fence with Michonne",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "Daryl, adjusting his crossbow: 'Two days there, two back. Don't get bit.'",
+      "page": "The tomatoes are the worst. Grey leaves, black spots, stems that snap like paper. Blight. By the time you've walked the whole prison garden, there's nothing left worth saving.\n\nThe council meets in the cafeteria. The nearest seed stock is a farm-supply warehouse near Senoia. Two days' ride.\n\n\"I'll go,\" you say.\n\nA rugged man with a crossbow and a leather vest with wings on the back grunts from the doorway. \"Me too.\" Daryl. A tall woman with a katana on her back just nods. Michonne.\n\nOutside the fence, the walkers press against the wire, groaning, fingers curled through the links.\n\nDaryl adjusts his crossbow strap. \"Two days there, two back. Don't get bit.\""
+    },
+    {
+      "id": "crossroads",
+      "title": "The Road to Senoia",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Night camp in an abandoned church. Daryl found tracks: the Claimers are heading to the warehouse too. Two ways in: through the old irrigation tunnels under the fields, or straight up the road to talk to whoever's inside.",
+      "choices": [
+        {
+          "id": "sit_by_the_fire_with_michonne",
+          "label": "Sit by the fire with Michonne",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You sit beside Michonne by the fire. For a long time neither of you speaks. Then she asks what you grew before all this. You tell her: roses, mostly, for your mother. She's quiet. \"My son liked strawberries,\" she says at last. That's all. But when you lie down to sleep, she moves her bedroll a little closer to yours, between you and the door."
+        },
+        {
+          "id": "take_the_irrigation_tunnels",
+          "label": "Take the irrigation tunnels",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "walk_up_the_road_and_knock",
+          "label": "Walk up the road and knock",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Michonne, sharpening her blade: 'Whoever's in that warehouse is scared. Scared people shoot first.'",
+      "page": "You camp the first night in an abandoned country church. Pews pushed against the doors. A small fire in the aisle.\n\nDaryl comes back from scouting, crouches by the flames and speaks for the longest you've heard yet. \"Tracks. Lots of 'em. Men on foot, heading for Senoia. Same way we're going.\" He spits. \"Claimers. Bad people.\"\n\nThe warehouse sits by the fields outside town. There's an old irrigation tunnel under the fields that comes up near its back wall. Or you walk up the road and knock.\n\nMichonne sharpens her blade, slow strokes. \"Whoever's in that warehouse is scared. Scared people shoot first.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Tunnels",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Flooded irrigation tunnels full of walkers. The player and Daryl come up inside the warehouse's back room, where they find the Claimers' map: they plan to attack the warehouse tonight and the prison next.",
+      "choices": [
+        {
+          "id": "take_the_claimers_map",
+          "label": "Take the Claimers' map",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "lead_the_walkers_away",
+          "label": "Lead the walkers away",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "A walker drags itself through the water toward the player, jaw clacking.",
+      "page": "The irrigation tunnel is knee-deep in black water and stinks of rot. Daryl goes first, crossbow up, flashlight clamped in his teeth.\n\nA walker drags itself through the water toward you, jaw clacking, half its body gone. Daryl puts a bolt through its head without breaking stride.\n\nYou come up through a grate inside the warehouse's back room. Empty. But on a crate, someone left a map, and it isn't the people who live here. Hand-drawn, covered in Claimer marks: tonight's attack on the warehouse. And another circle, further away, around a building you know well.\n\nThe prison."
+    },
+    {
+      "id": "path_b",
+      "title": "The Pruitts",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "The player knocks. Ellis Pruitt points a shotgun. After a long conversation, his daughter Ruth lets them in. The family has seeds but no food. Ruth shows the player a hidden greenhouse she's kept alive on the roof.",
+      "choices": [
+        {
+          "id": "share_food_with_the_pruitts",
+          "label": "Share food with the Pruitts",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "look_at_ruth_s_rooftop_greenhouse",
+          "label": "Look at Ruth's rooftop greenhouse",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "Ellis: 'You take those seeds, my kids starve. You understand?'",
+      "page": "You walk up the road with your hands raised. The warehouse door opens a crack, and a shotgun pokes out, held by a gaunt man with a grey beard. \"That's far enough.\"\n\nYou talk. For a long time. About blight, about the prison, about kids who'll go hungry without a garden.\n\n\"You take those seeds,\" Ellis Pruitt says, \"my kids starve. You understand?\"\n\nThen the door opens wider. A teenage girl with dirt under her nails pushes past him. \"Dad. Let them in.\" Inside, two little boys peer at you from behind sacks of feed.\n\nRuth takes you to the roof. Up there, impossibly, is a greenhouse made from old windows: beans, peppers, lettuce, alive and green."
+    },
+    {
+      "id": "showdown",
+      "title": "Night Raid",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "The Claimers arrive with a herd of walkers they've lured as cover. Everyone in the warehouse must fight together. Michonne cuts a path; Daryl's crossbow sings.",
+      "choices": [
+        {
+          "id": "hold_the_door_with_ellis",
+          "label": "Hold the door with Ellis",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "get_the_kids_to_the_roof",
+          "label": "Get the kids to the roof",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Daryl, reloading: 'Pick a direction, gardener!'",
+      "page": "They come at midnight. Torches on the road, men shouting, and with them, in front of them, a herd of walkers they've lured as cover: dozens, groaning, pouring across the fields.\n\nEveryone in the warehouse fights now. Ellis with his shotgun at the main door. Michonne cutting a path through the herd, sword flashing silver. Daryl on the stacked crates, bolts singing.\n\nThe little Pruitt boys are crying somewhere behind you.\n\nDaryl, reloading: \"Pick a direction, gardener!\""
+    },
+    {
+      "id": "finale",
+      "title": "What Grows",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Dawn after the raid. The player decides: warn the prison with the Claimers' map so they can prepare (only if they have it); bring the Pruitts and Ruth's greenhouse knowledge back to the prison (only if they met them); or take half the seeds and leave the family the rest.",
+      "choices": [
+        {
+          "id": "rush_the_claimers_map_back_to_the_prison",
+          "label": "Rush the Claimers' map back to the prison",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "forewarned"
+        },
+        {
+          "id": "invite_the_pruitts_to_the_prison",
+          "label": "Invite the Pruitts to the prison",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "new_neighbours"
+        },
+        {
+          "id": "split_the_seeds_and_go",
+          "label": "Split the seeds and go",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "half_and_half"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "forewarned",
+        "new_neighbours",
+        "half_and_half"
+      ],
+      "isEnding": false,
+      "page": "Dawn. The fields are quiet, littered with bodies, living and dead. The Claimers who survived have run.\n\nEllis Pruitt sits on an upturned bucket, shotgun across his knees, his kids asleep against him. Ruth watches you from the roof.\n\nThe seeds are in sacks by the door, the whole reason you came. Daryl and Michonne are waiting for you to decide how you're leaving."
+    },
+    {
+      "id": "forewarned",
+      "title": "Forewarned",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The prison sets traps and the Claimers' attack fails. The council thanks the player. Close on the first green shoots in the garden.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Forewarned",
+      "page": "You ride hard for two days with the Claimers' map in your shirt, Daryl at your side.\n\nThe prison council reads it and moves fast. Traps on the road. Lookouts in the towers. When the Claimers come a week later, they walk straight into it, and they don't come again.\n\nThe council thanks you in front of everyone. You barely hear them.\n\nYou're already in the garden, kneeling in fresh soil. And a few days later, between the dead stalks, the first green shoots push up out of the ground."
+    },
+    {
+      "id": "new_neighbours",
+      "title": "New Neighbours",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Pruitts come to the prison; Ruth and the player build a greenhouse on the guard tower. Close on Daryl, almost smiling, holding a tomato.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "New Neighbours",
+      "page": "\"Come with us,\" you say. Ellis stares at you like you've spoken another language. Then he looks at his kids, and nods.\n\nThe Pruitts settle in at the prison. Ruth and you build a greenhouse on top of the guard tower, out of old windows and stubbornness. By midsummer it's full of tomatoes, peppers and beans.\n\nOne evening, Daryl climbs up to the tower, holds a ripe tomato in his hand for a long time, and almost smiles.\n\n\"Huh,\" he says, and goes back to digging."
+    },
+    {
+      "id": "half_and_half",
+      "title": "Half and Half",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player leaves half the seeds. The prison garden grows slowly. Months later, Ruth Pruitt rides up with a basket of vegetables. Close on two gardeners trading seeds at the fence.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Half and Half",
+      "page": "You split the seeds in half on the warehouse floor, sack by sack, while Ellis watches. Half for the prison. Half for the Pruitts.\n\nThe prison garden grows slowly that year. Not enough. Almost enough.\n\nMonths later, a girl rides up to the prison fence on a horse with a basket on her arm. Ruth Pruitt. The basket is full of vegetables, and a little bag of seeds you don't have.\n\nYou meet her at the fence, and you trade seeds through the chain-link, two gardeners at the end of the world, making something grow."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#a5b84a"
+    },
+    "fonts": {
+      "heading": "sans",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

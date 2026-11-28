@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "meta": {
+    "id": "fan-dune-the-water-seller-s-daughter",
+    "title": "The Water-Seller's Daughter",
+    "category": "adventure",
+    "rating": "teen",
+    "mode": "story",
+    "blurb": "You sell water in the streets of Arrakeen, ringing a bell and calling 'Soo-soo sook!' Every drop on Arrakis is worth more than gold. Then a dying Fremen courier presses a stillsuit message into your hand, and Harkonnen soldiers start asking questions. Somewhere in the deep desert, a sietch is waiting for what you're carrying.",
+    "author": "ZeroRoll fan fiction",
+    "source": {
+      "title": "Dune",
+      "medium": "book",
+      "owner": "the Frank Herbert estate and Legendary Pictures",
+      "aka": [
+        "Dune",
+        "Arrakis",
+        "Fremen",
+        "spice"
+      ]
+    }
+  },
+  "world": "Arrakis, the desert planet known as Dune, in the far future, during the Harkonnen occupation. Water is priceless; spice melange, found only on Arrakis, enables space travel. Giant sandworms rule the open desert. The Fremen are fierce desert people living in hidden caves called sietches. The player is a water-seller in Arrakeen. A Fremen courier, dying, has given them a message: the location of a hidden Harkonnen spice stockpile that the Fremen can use to buy water for their dream of a green Arrakis. A Harkonnen captain, Rabban's cousin Vorian Harkonnen, is hunting it.",
+  "tone": "Epic desert adventure with survival, politics, prophecy, sandworms, spice-blue eyes and the harsh beauty of the deep desert. Tense and awe-filled.",
+  "playerRole": "A street water-seller from Arrakeen with a bell, a water-skin, a worn stillsuit, a crysknife you're not supposed to have, quick wits and an ear for the desert.",
+  "lengthTarget": "medium",
+  "narratorStyle": "Second person, present tense. Grave, poetic narration with epigraphs and desert proverbs: heat haze, blowing sand, the rhythm of walking without rhythm, worm-signs on the horizon, political whispers and the vast, silent desert. Use what fans know of the world and characters without quoting the source or retelling its plot. Never decide what the player says or does.",
+  "strictness": "hard",
+  "hintAfterTurns": 4,
+  "cast": [
+    {
+      "id": "chani",
+      "name": "Leyla",
+      "appearance": "A fierce young Fremen woman with deep-blue spice eyes, dark curls under a hood, a stillsuit, a nose tube and a crysknife at her belt.",
+      "voice": "Terse, proud, wry, unflinching.",
+      "stance": "Fremen guide; distrusts outsiders but learns to trust the player."
+    },
+    {
+      "id": "kynes",
+      "name": "Dr. Liet Kynes",
+      "appearance": "A woman of quiet authority in a dusty imperial ecologist's robe over a stillsuit, with sun-dark skin, cropped hair and blue-within-blue eyes.",
+      "voice": "Calm, scientific, visionary.",
+      "stance": "Secret Fremen leader; dreams of a green Arrakis."
+    },
+    {
+      "id": "vorian",
+      "name": "Captain Vorian Harkonnen",
+      "appearance": "A pale, bald, heavy-set man in black Harkonnen armour with an orange-red cape and cold pale eyes.",
+      "voice": "Soft, cruel, mocking.",
+      "stance": "Hunting the courier's message."
+    }
+  ],
+  "flags": {
+    "first_move": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made their first move."
+    },
+    "bond": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player made a friend at the crossroads."
+    },
+    "path": {
+      "type": "counter",
+      "initial": 0,
+      "description": "1 = Cross the deep desert; 2 = Decode the message in the city."
+    },
+    "clue_a": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player marked the hidden spice stockpile's location."
+    },
+    "clue_b": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has the Harkonnen silo code key."
+    },
+    "faced": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has faced the showdown."
+    },
+    "decided": {
+      "type": "bool",
+      "initial": false,
+      "description": "The player has made the final choice."
+    }
+  },
+  "start": "opening",
+  "beats": [
+    {
+      "id": "opening",
+      "title": "Soo-Soo Sook",
+      "goal": [
+        {
+          "flag": "first_move",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "In the scorching streets of Arrakeen, the player rings their water-seller's bell. A dying Fremen courier collapses against them, pressing a message cylinder into their hand. Harkonnen soldiers in black come running.",
+      "choices": [
+        {
+          "id": "hide_the_message_in_your_water_skin",
+          "label": "Hide the message in your water-skin",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "help_the_courier",
+          "label": "Help the courier",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        },
+        {
+          "id": "run_into_the_crowd",
+          "label": "Run into the crowd",
+          "sets": [
+            {
+              "flag": "first_move",
+              "set": true
+            }
+          ],
+          "target": "crossroads"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "crossroads"
+      ],
+      "isEnding": false,
+      "hint": "The courier, gasping: 'To Sietch Tabr. To Liet. Water is life.'",
+      "page": "'Water is life. Life is water. Pay for it, or die.' (street saying of Arrakeen)\n\nThe heat in Arrakeen hits like a hammer. You walk the narrow stone streets in your patched stillsuit, ringing your water-seller's bell. \"Soo-soo sook! Water! Soo-soo sook!\"\n\nA hooded figure stumbles out of a doorway and collapses against you. Fremen: blue-within-blue eyes, a stillsuit torn and bloody. He presses a small message cylinder into your hand.\n\n\"To Sietch Tabr,\" he gasps. \"To Liet. Water is life.\" His eyes close.\n\nDown the street, soldiers in black armour and orange capes come running. Harkonnens. Pointing at you."
+    },
+    {
+      "id": "crossroads",
+      "title": "The Edge of the Desert",
+      "goal": [
+        {
+          "flag": "path",
+          "atLeast": 1
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "A young Fremen woman, Leyla, finds the player in the alley and offers to guide them to Sietch Tabr through the open desert. Captain Vorian is searching the city. Two paths: cross the desert with Leyla, or decode the message first in the city.",
+      "choices": [
+        {
+          "id": "share_water_with_leyla",
+          "label": "Share water with Leyla",
+          "sets": [
+            {
+              "flag": "bond",
+              "set": true
+            }
+          ],
+          "outcome": "You offer Leyla water from your skin. She stares at you. To the Fremen, sharing water is sacred, almost a promise. She drinks, carefully, one sip. Then she sits beside you in the shade and tells you about the sietch: the caves, the children, the dream of a green Arrakis that her people have kept for generations. \"One day,\" she says, \"there will be open water here. Rain. Trees.\" She looks at the burning sky. \"I will not see it. But my children will.\" You find yourself believing it."
+        },
+        {
+          "id": "cross_the_deep_desert",
+          "label": "Cross the deep desert",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 1
+            }
+          ],
+          "target": "path_a"
+        },
+        {
+          "id": "decode_the_message_in_the_city",
+          "label": "Decode the message in the city",
+          "sets": [
+            {
+              "flag": "path",
+              "set": 2
+            }
+          ],
+          "target": "path_b"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "path_a",
+        "path_b"
+      ],
+      "isEnding": false,
+      "hint": "Leyla: 'Walk without rhythm, city-dweller, or the desert will eat you.'",
+      "page": "You hide in an alley behind a spice merchant's stall, heart pounding, the message cylinder buried in your water-skin.\n\nA shadow falls over you. A young Fremen woman, hooded, with deep-blue spice eyes and a crysknife at her belt. \"You have something of ours,\" she says. \"I am Leyla. The courier was my cousin.\"\n\nShe looks at you with cool contempt. \"I can take you to Sietch Tabr. Across the deep desert. Or you can stay in the city and try to read his message first. Harkonnen Captain Vorian is searching every street.\"\n\nShe pauses. \"Walk without rhythm, city-dweller, or the desert will eat you.\""
+    },
+    {
+      "id": "path_a",
+      "title": "The Deep Desert",
+      "goal": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 1
+        }
+      ],
+      "sceneBrief": "Leyla teaches the player to walk without rhythm and call a sandworm with a thumper. They ride a worm across the dunes. At the edge of the Shield Wall, they find the hidden Harkonnen spice stockpile from the message.",
+      "choices": [
+        {
+          "id": "mark_the_stockpile_s_location",
+          "label": "Mark the stockpile's location",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "learn_to_ride_the_worm",
+          "label": "Learn to ride the worm",
+          "sets": [
+            {
+              "flag": "clue_a",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The worm rises, huge as a mountain, its mouth glittering with crystal teeth.",
+      "page": "Leyla teaches you to walk the desert without rhythm, stepping randomly so the worms won't hear. She plants a thumper in the sand, and its steady thump-thump-thump calls something.\n\nThe ground shakes. A sandworm rises out of the dunes, huge as a mountain, its mouth a cavern glittering with crystal teeth.\n\nLeyla throws her hooks into its ring segments and climbs. \"Come!\" You climb after her, terrified and exhilarated, and the worm carries you across the desert faster than any ornithopter.\n\nAt the edge of the Shield Wall, the cliffs, you see it: a hidden Harkonnen spice stockpile in a canyon. Tons of blue-glowing melange. Exactly where the courier's message said."
+    },
+    {
+      "id": "path_b",
+      "title": "The Smuggler's Den",
+      "goal": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "entry": [
+        {
+          "flag": "path",
+          "equals": 2
+        }
+      ],
+      "sceneBrief": "In a smuggler's den in Arrakeen, an old decoder reads the message: the stockpile's location, and a Harkonnen code key that unlocks their spice silos. The player takes the code key.",
+      "choices": [
+        {
+          "id": "take_the_harkonnen_code_key",
+          "label": "Take the Harkonnen code key",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        },
+        {
+          "id": "learn_the_stockpile_s_location",
+          "label": "Learn the stockpile's location",
+          "sets": [
+            {
+              "flag": "clue_b",
+              "set": true
+            }
+          ],
+          "target": "showdown"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "showdown"
+      ],
+      "isEnding": false,
+      "hint": "The smuggler: 'You're carrying a war, little water-seller.'",
+      "page": "In a smuggler's den deep in Arrakeen, lit by hanging glowglobes, an old decoder with mechanical eyes reads the courier's message cylinder.\n\n\"The location of a Harkonnen spice stockpile,\" he murmurs. \"And something more valuable.\" He pulls a thin crystal from the cylinder. \"A Harkonnen code key. It unlocks their spice silos. All of them.\"\n\nHe looks at you with new respect, and a little fear. \"You're carrying a war, little water-seller.\"\n\nHe hands you the key. Outside, Harkonnen boots march past the door."
+    },
+    {
+      "id": "showdown",
+      "title": "The Ornithopter",
+      "goal": [
+        {
+          "flag": "faced",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Captain Vorian's ornithopters hunt the player in the desert. A sandstorm rises. Leyla wants to run into the storm; the player has other ideas.",
+      "choices": [
+        {
+          "id": "ride_into_the_sandstorm",
+          "label": "Ride into the sandstorm",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        },
+        {
+          "id": "call_a_worm_to_the_ornithopters",
+          "label": "Call a worm to the ornithopters",
+          "sets": [
+            {
+              "flag": "faced",
+              "set": true
+            }
+          ],
+          "target": "finale"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "finale"
+      ],
+      "isEnding": false,
+      "hint": "Worm-sign. A ripple in the sand, moving fast.",
+      "page": "Out on the open desert, the sound comes first: a high, droning whine. Ornithopters, dragonfly-winged, black and orange, diving out of the sun. Captain Vorian Harkonnen is hunting you.\n\nOn the horizon, a sandstorm rises, a wall of brown fury miles high.\n\nLeyla grabs your arm. \"Into the storm! They can't follow!\"\n\nThen you see it: a ripple in the sand, moving fast, toward the vibrations of the landing ornithopters. Worm-sign."
+    },
+    {
+      "id": "finale",
+      "title": "Sietch Tabr",
+      "goal": [
+        {
+          "flag": "decided",
+          "is": true
+        }
+      ],
+      "entry": [],
+      "sceneBrief": "Inside the hidden Sietch Tabr, Liet Kynes waits. The player decides: lead the Fremen to the stockpile (only if they marked its location); use the code key to open the Harkonnen silos (only if they have it); or offer their water to the tribe and join the Fremen.",
+      "choices": [
+        {
+          "id": "lead_the_fremen_to_the_stockpile",
+          "label": "Lead the Fremen to the stockpile",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "spice_for_water"
+        },
+        {
+          "id": "open_the_harkonnen_silos",
+          "label": "Open the Harkonnen silos",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "the_silos_open"
+        },
+        {
+          "id": "give_your_water_and_join_the_fremen",
+          "label": "Give your water and join the Fremen",
+          "sets": [
+            {
+              "flag": "decided",
+              "set": true
+            }
+          ],
+          "target": "water_of_life"
+        }
+      ],
+      "artCues": [],
+      "exits": [
+        "spice_for_water",
+        "the_silos_open",
+        "water_of_life"
+      ],
+      "isEnding": false,
+      "page": "Sietch Tabr. A hidden city of caves inside the rock, cool and dark and full of the quiet sound of dripping water, collected drop by precious drop.\n\nDr. Liet Kynes, the Imperial ecologist who is secretly a Fremen leader, waits for you in a chamber lit by glowglobes. She has blue-within-blue eyes and the patience of a desert. \"You've carried something a long way,\" she says. \"Now. What will you do with it?\""
+    },
+    {
+      "id": "spice_for_water",
+      "title": "Spice for Water",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_a",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Fremen seize the stockpile and trade it for water; Kynes's dream of a green Arrakis moves a step closer. Close on a small green garden growing in a desert cave.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Spice for Water",
+      "page": "You lead a Fremen raiding party back across the desert to the Shield Wall, and the stockpile of spice is taken in a single night.\n\nThe Fremen trade it to smugglers for water: thousands of litres, more than the sietch has ever had. Kynes weeps when she sees it.\n\nMonths later, she shows you something deep inside Sietch Tabr: a small cave with a hole in the roof, and under it, in the precious light, a garden. Green plants. Real ones. Growing on Arrakis.\n\n\"This is how it begins,\" she says. \"One garden. Then a valley. Then a world.\""
+    },
+    {
+      "id": "the_silos_open",
+      "title": "The Silos Open",
+      "goal": [],
+      "entry": [
+        {
+          "flag": "clue_b",
+          "is": true
+        }
+      ],
+      "sceneBrief": "The Harkonnen silos are emptied in a night; Vorian is disgraced. The player is honoured as a Fremen friend. Close on a Harkonnen silo spilling blue spice into the sand.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "The Silos Open",
+      "page": "With the Harkonnen code key, Fremen fighters slip into the Harkonnen spice silos in Arrakeen and open every one of them. By dawn, the silos are empty, the spice carried away into the deep desert.\n\nCaptain Vorian Harkonnen is recalled in disgrace. The Baron is said to be furious enough to bite through a goblet.\n\nThe Fremen hold a feast in your honour, and Leyla, grudgingly, embraces you. \"City-dweller,\" she says. \"Friend.\"\n\nFrom the ridge at sunrise you watch a Harkonnen silo, empty and broken, spill the last of its blue spice into the sand."
+    },
+    {
+      "id": "water_of_life",
+      "title": "Water of Life",
+      "goal": [],
+      "entry": [],
+      "sceneBrief": "The player gives their water to the sietch and is given a Fremen name. They walk the desert as one of the people. Close on two figures on a dune at twin moonrise.",
+      "choices": [],
+      "artCues": [],
+      "exits": [],
+      "isEnding": true,
+      "endingTitle": "Water of Life",
+      "page": "You stand before the sietch and pour your water-skin into the tribe's water, every drop, freely.\n\nThere's a silence. Then Kynes smiles. Leyla laughs.\n\nThat night, in a ceremony you don't fully understand, you're given a Fremen name, a crysknife of your own and a place among the people.\n\nYou stand on a dune beside Leyla at twin moonrise, the desert silver and endless before you. She teaches you the Fremen word for the wind that comes before dawn. You get it wrong. She makes you say it again."
+    }
+  ],
+  "art": {},
+  "skin": {
+    "palette": {
+      "accent": "#e08a2a"
+    },
+    "fonts": {
+      "heading": "display",
+      "body": "sans"
+    },
+    "particles": "ash"
+  }
+}

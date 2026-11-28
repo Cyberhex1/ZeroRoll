@@ -52,7 +52,9 @@ export const ChoiceSchema = z
     label: z.string().min(2).max(120),
     /** A beat in this beat's exits. Picking the choice moves there once the gate is open. */
     target: id.optional(),
-    sets: z.array(FlagEffectSchema).default([])
+    sets: z.array(FlagEffectSchema).default([]),
+    /** Book mode: what happens when the player picks a choice that stays in this beat. */
+    outcome: z.string().min(5).max(1500).optional()
   })
   .strict();
 
@@ -77,6 +79,11 @@ export const BeatSchema = z
     entry: z.array(ConditionSchema).default([]),
     /** What the narrator knows here that the player does not yet. */
     sceneBrief: z.string().min(20).max(1500),
+    /**
+     * Book mode: the written page the player reads on entering this beat, so the story plays
+     * offline without AI. "{name}" becomes the player's name.
+     */
+    page: z.string().min(20).max(5000).optional(),
     choices: z.array(ChoiceSchema).default([]),
     artCues: z.array(ArtCueSchema).default([]),
     /** Beats reachable next. */

@@ -138,7 +138,8 @@
         "guest_tokens"
       ],
       "isEnding": false,
-      "hint": "Genzo sets a spare cup beside the sighing kettle."
+      "hint": "Genzo sets a spare cup beside the sighing kettle.",
+      "page": "Your first night at the bathhouse for tired spirits, up in the misty hills, where the lanterns glow amber and the steam smells of cedar.\n\nThe owner, Genzo, is a grumpy old tanuki in a russet apron. When you arrive, he's arguing with a copper kettle.\n\nThe kettle sighs. A long, mournful sigh. Genzo glares at it. \"There's nothing wrong with the stove. I've checked it three times.\"\n\nBy the doorway, a small grey moth traveller waits, wings folded tight. Her name is Suzu. Every time the draft from the door touches her wings, she shivers, and the kettle sighs.\n\nGenzo has set out two cups of tea, but he hasn't noticed the draft. He gives you a look. \"Seven nights. That's your trial. Let's see what you notice.\""
     },
     {
       "id": "guest_tokens",
@@ -194,7 +195,8 @@
         "river_bath"
       ],
       "isEnding": false,
-      "hint": "Genzo places the two swapped tokens side by side."
+      "hint": "Genzo places the two swapped tokens side by side.",
+      "page": "Night two. Two guest tokens lie in the wrong places.\n\nA little moth token sits beside the river tub. A carp token sits beside the cosy roof niche. Someone mixed them up. An honest mistake.\n\nSuzu, the moth, needs shelter from a cold vent near her resting place. Raku, a big, gentle carp spirit, misses the sound of running water from his travels.\n\nNeither of them wants to be more important than the other.\n\nGenzo sets the two tokens on his palm, side by side, and looks at you. \"Which one should we understand first, together?\" He'll cover the towels and the routine chores while you follow whichever you choose."
     },
     {
       "id": "steam_roof",
@@ -246,7 +248,8 @@
         "shared_rota"
       ],
       "isEnding": false,
-      "hint": "Suzu warms her wings around the copper bottle."
+      "hint": "Suzu warms her wings around the copper bottle.",
+      "page": "Nights three and four, up at the sheltered roof landing, where the steam drifts up into the stars.\n\nSuzu shows you her resting niche. A thin, cold draft from the vent whistles straight across it. She's been calling it \"a little chilly\" all week, because she didn't want to be a troublesome guest.\n\nGenzo stands beside you, frowning at the vent. He's not good at noticing small things. But he's good at listening, once he knows to.\n\nThere's a free-standing screen nearby that could redirect the draft. There's also a sheltered nook just around the corner, warm from the bath pipes.\n\nSuzu warms her wings around a copper hot-water bottle, waiting to see what you'll suggest."
     },
     {
       "id": "river_bath",
@@ -298,7 +301,8 @@
         "shared_rota"
       ],
       "isEnding": false,
-      "hint": "Raku listens toward the silent inlet instead of testing the water."
+      "hint": "Raku listens toward the silent inlet instead of testing the water.",
+      "page": "Nights three and four, by the river inlet, where a cedar tub sits beside the stream.\n\nRaku, the big carp spirit, sits fully clothed beside the tub. He isn't bathing. He's listening.\n\nThe water in the tub is already warm and lovely. That isn't the problem. The problem is that it's silent. The inlet is closed, and Raku, who travelled down a hundred rivers to get here, misses the sound of moving water.\n\nGenzo stands with you, scratching his ear. He could open a small bypass, safely, to let the water run again. Or there's a smaller tub nearby, already fed by a running inlet.\n\nRaku listens toward the silent inlet, patient, hopeful."
     },
     {
       "id": "shared_rota",
@@ -345,7 +349,8 @@
         "seventh_night"
       ],
       "isEnding": false,
-      "hint": "Genzo counts the same task twice on his fingers."
+      "hint": "Genzo counts the same task twice on his fingers.",
+      "page": "Nights five and six. Folded towels everywhere, and in the middle of them, an open notebook.\n\nWhatever guest you helped first, Genzo has quietly followed up on the other one himself during his rounds. Suzu is warm. Raku can hear running water. Both of them are sleeping well.\n\nBut Genzo is tired. You watch him count the same task twice on his fingers, frown and start again.\n\n\"I remember every guest's preferences,\" he admits, finally. \"All of them. Alone. And it's... a lot.\"\n\nYou could suggest writing guest notes together, so nobody has to remember everything. Or paired rounds, with proper rest for both of you."
     },
     {
       "id": "seventh_night",
@@ -417,7 +422,8 @@
         "depart"
       ],
       "isEnding": false,
-      "hint": "Genzo says he has asked what the house needs but not what you need."
+      "hint": "Genzo says he has asked what the house needs but not what you need.",
+      "page": "Night seven. The rooms are ready. The guests are resting. The lanterns glow softly in the steam.\n\nGenzo puts down two cups of tea on the low table, sits across from you and is quiet for a while.\n\n\"I can offer you a regular place,\" he says at last. \"Here, with me.\" He pauses. \"But I realised. All week I've asked what the house needs. I haven't asked what you need.\"\n\nHe waits. He's not going to push. Whatever you choose, the guests will be fine. That isn't the question.\n\nThe question is what you actually want."
     },
     {
       "id": "stay",
@@ -439,7 +445,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "An Apron Beside His"
+      "endingTitle": "An Apron Beside His",
+      "page": "You accept the regular post, with rest days agreed, and training, and time off when you need it.\n\nGenzo nods, gruffly, and gets up. He hangs a clean apron on its own peg, right beside his russet one. Then he clears a space on the shelf for your notebook.\n\n\"I trust you to ask,\" he says, awkwardly, not looking at you, \"when you need another pair of hands. That's all I ask.\" It's the plainest praise you've ever had, and the best.\n\nHe pours you another cup of tea. The kettle, for once, isn't sighing."
     },
     {
       "id": "share",
@@ -461,7 +468,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "A Lantern for Returning"
+      "endingTitle": "A Lantern for Returning",
+      "page": "You propose a visiting rota: you'll come back regularly, on a schedule you can actually keep.\n\nGenzo considers this, nods slowly, and agrees. He places a small lantern by the gate. \"For when you come back,\" he says.\n\nThe guest notes, he decides, belong to the whole staff now, not to one person who has to remember everything.\n\n\"I'll have to learn your towel fold,\" he grumbles. \"It's ridiculous. It's far too neat.\" That's his way of saying the place will remember you.\n\nThe doorway glows warm behind you as you step out into the night, knowing you'll be back."
     },
     {
       "id": "depart",
@@ -483,7 +491,8 @@
       ],
       "exits": [],
       "isEnding": true,
-      "endingTitle": "The Path in Morning Light"
+      "endingTitle": "The Path in Morning Light",
+      "page": "You tell Genzo that you'll finish the trial, and then you'll go.\n\nHe nods. There's no anger in it. \"Thank you,\" he says, \"for a week of careful listening.\" He packs you a modest breakfast for the road: rice balls, pickles, a little flask of tea.\n\n\"The invitation's open,\" he says. \"Not a debt. Just open.\"\n\nThe guest notes and the shared rota stay, useful long after you've gone.\n\nFrom the bathhouse threshold, morning light spills across the hillside path. Genzo stands in the doorway, watching the sun come up, waiting to see which way you'll walk."
     }
   ],
   "art": {

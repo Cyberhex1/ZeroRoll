@@ -83,7 +83,7 @@ below them by kind of work, with search (title, blurb, genre, the work and its `
 genre chips. The narrator gets a SOURCE block: use the work's world and canon characters as
 fans know them, but tell a new story and never quote the original. Fan fiction is always new
 writing with the player as a new character; art shows places, moods and original characters,
-never logos or copies of official character designs.
+never logos or copies of official character designs. The player is a self-insert, so art never shows the player's character: draw what they see, or the scene without them.
 
 **Create your own fanfic** (`/story/create`, `src/story/createFanfic.ts`) asks for the work and
 an optional idea, and the player's story model writes a whole story in this format. The code

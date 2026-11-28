@@ -1,16 +1,16 @@
-# Art for the 50 new fan fiction stories (Gemini app)
+# Art for all 57 fan fiction stories (one prompt, Gemini app)
 
-350 images across 50 stories, 7 per story. Made in the **free Gemini app** (gemini.google.com or the phone app), not the API, so it costs nothing.
+436 images across 57 stories. Made in the **free Gemini app** (gemini.google.com or the phone app), not the API, so it costs nothing. This one file replaces both older prompt files.
 
-Every story block resets the style and characters, restates them in full, and repeats a short style tag on every image line, so one story's look never leaks into the next. Every label (like `ZEL-03`) is unique across all 50 stories and tells me exactly which file it is.
+**The reader is the hero, so no picture ever shows the hero.** Every image is what the reader sees, or the scene without them. The rule is in Block 0, in every story block and in the style tag on every image line.
 
 **How to do it**
 
-1. The stories are split into 10 parts of 5. Start a **new Gemini chat for each part**, so the chat never gets too long to remember the rules.
+1. The stories are split into 12 parts of up to 5. Start a **new Gemini chat for each part**, so the chat never gets too long to remember the rules.
 2. In the new chat, paste **Block 0** first. It sets the rules.
 3. Paste the part's first story block. Gemini makes 4 images per reply. Type `next` for the next ones. If it skips or mixes one up, type `redo ZEL-05` (that image's label).
 4. When Gemini says the story is finished, paste the next story block in the same chat.
-5. If later images start to drift (wrong style, characters from an earlier story), paste that story's block again and type `continue from` and the label, for example `continue from ZEL-05`.
+5. If later images start to drift (wrong style, characters from an earlier story, or the hero showing up), paste that story's block again and type `continue from` and the label, for example `continue from ZEL-05`.
 6. The free Gemini app has a daily image limit. When it says you've hit it, stop and carry on the next day: open a new chat, paste Block 0, paste the same story block and type `continue from` the next label.
 7. Download the images and upload them to me as a zip, any order, any names. I'll recognise each picture, rename it, resize it and put it in the right story.
 
@@ -34,9 +34,244 @@ Rules for the whole chat:
 Reply "Ready" and wait for the first story.
 ```
 
-# Part 1 of 10 (new chat: paste Block 0 first)
+# Part 1 of 12 (new chat: paste Block 0 first)
 
-## Story 1: The Legend of Zelda: The Courier of Hateno (ZEL-01 to ZEL-07)
+## Story 1: Baldur's Gate 3: A Debt in the Lower City (BG3-01 to BG3-12)
+
+```
+NEW STORY: "A Debt in the Lower City". Forget every earlier story's style, colours and characters. Nothing from before carries over.
+
+STYLE FOR THIS STORY ONLY: Painterly dark-fantasy concept art, rich warm lantern light against cool night blues, detailed medieval harbour city, cinematic composition, no text, no logos, no watermark.
+
+CHARACTERS IN THIS STORY (draw them exactly like this every time they appear; anyone not listed is an unnamed background person):
+- Karlach: A very tall, broad-shouldered tiefling woman with red skin, two large curved horns, dark hair shaved at the sides, a scarred face, and a glowing infernal engine showing through her chest plate. She carries a huge battle-axe.
+- Astarion: A slender high elf with pale grey skin, white curly hair, red eyes and sharp fangs, in a fitted dark leather coat with a high collar, with a pair of daggers at his belt.
+- Dagny Vell: A halfling woman in her fifties with cropped iron-grey hair, small round spectacles, ink-stained fingers and a neat brown waistcoat full of pockets. A Guild signet hangs on a cord at her neck.
+- Odric Thale: A lean human man in his forties with a shaved head, a grey beard, a burn scar down one cheek, a long weathered oilskin coat, and a crossbow strapped across his back.
+
+THE READER IS THE HERO AND IS NEVER DRAWN: every image shows what they see, never them, not even their hands.
+
+Make these 12 images, 4 per reply, then wait for "next". Every image uses the style above (tag: BG3, painterly dark fantasy, warm lantern light against cool night blues, hero never shown).
+
+BG3-01 cover.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] A black wax seal stamped with a handprint that is missing one finger, torn and lying on a rough wooden table beside a guttering candle; through a small window behind it, a medieval harbour city at night with a fortress on a rock over a river. Book-cover composition.
+BG3-02 elfsong.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] Interior of a warm, crowded fantasy tavern at midday, stone fireplace, wooden beams, a narrow stair to rented rooms, travellers eating, a faint ghostly glow drifting up from a cellar door.
+BG3-03 the-wide.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] A busy lantern-lit market square in a medieval fantasy harbour city at dusk, a puppet show stall, a street preacher on a crate, city guards in red tabards, crowds, gulls.
+BG3-04 guild-den.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] A dry stone vault deep under a city reached through sewers, tall shelves of ledgers and scrolls, an iron lockbox with glowing ward runes on a table under a single oil lamp, shadows.
+BG3-05 dagny.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] Head-and-shoulders portrait of a halfling woman in her fifties with cropped iron-grey hair, small round spectacles, ink-stained fingers, a neat brown waistcoat full of pockets, a signet ring on a cord at her neck, polite but menacing expression, dark vault background. Square 1:1.
+BG3-06 lockbox.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] An open iron lockbox in a narrow night alley lit by one lantern, inside a folded parchment warrant with a sun-shaped wax seal and a silver-chased wooden stake etched with prayer script.
+BG3-07 basilisk-gate.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] A fortified medieval city gate at night with a guard checkpoint, torches, guards in red tabards searching travellers, a hound barking, heavy portcullis.
+BG3-08 wyrms-rock.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] A long stone bridge over a dark rushing river at moonset, a fortress built on a rock looming above, a lone hunter in a long oilskin coat with a crossbow on his back waiting in the middle of the bridge.
+BG3-09 odric.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] Head-and-shoulders portrait of a lean human man in his forties with a shaved head, grey beard, a burn scar down one cheek, weathered oilskin coat, crossbow strap across his chest, calm patient eyes, night background. Square 1:1.
+BG3-10 paid-in-full.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] A small purse of gold coins on a tavern table at dawn beside an empty chair and a cooling cup, pale light through the window, quiet and lonely mood.
+BG3-11 ashes.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] Burning parchment falling as glowing ash into a dark river at night below a fortress on a rock, two silhouettes on the bridge ahead seen from behind, one tall with curved horns, one slender with curly white hair.
+BG3-12 hot-engine.webp: [BG3 style: painterly dark fantasy, warm lantern light against cool night blues, hero never shown] A wet dockside alley at night seen at running height, two figures just ahead looking back over their shoulders and laughing, a huge horned woman with a glowing orange light in her chest and a slender white-haired elf, city watch whistles and lanterns far behind.
+
+When all 12 are done, say "BG3 finished" and list the labels you made.
+```
+
+## Story 2: Diablo: The Sleepless Chapel (DIA-01 to DIA-13)
+
+```
+NEW STORY: "The Sleepless Chapel". Forget every earlier story's style, colours and characters. Nothing from before carries over.
+
+STYLE FOR THIS STORY ONLY: Gothic dark-fantasy painting, desaturated cold palette with deep reds and candle gold, heavy shadows, oil-paint texture, dread and atmosphere, no text, no logos, no watermark.
+
+CHARACTERS IN THIS STORY (draw them exactly like this every time they appear; anyone not listed is an unnamed background person):
+- Lorath Nahr: An old, weathered man with a long grey beard and tired, sharp eyes, in a heavy travelling coat with a fur collar, always holding a pipe.
+- Father Mikhel: A gaunt middle-aged priest with a shaved head, deep shadows under red-rimmed eyes, cracked lips, and white-and-gold Cathedral of Light robes stained with wax.
+- Irinka: A small girl of about seven with long tangled black hair, a red wool scarf, a patched sheepskin coat and bare feet she never seems to notice.
+- Vashtul the Unresting: A tall, starved demon of grey skin stretched over long bones, with dozens of half-open eyes along its arms and a crown of melted candle wax, chained in a pit of black ice.
+
+THE READER IS THE HERO AND IS NEVER DRAWN: every image shows what they see, never them, not even their hands.
+
+Make these 13 images, 4 per reply, then wait for "next". Every image uses the style above (tag: DIA, gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown).
+
+DIA-01 cover.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] A small snowbound mountain village at dusk under a huge hanging snowfield, a stone chapel with a lit bell tower at its centre, falling snow, the empty road in seen from the traveller's own eyes, fresh footprints and lantern light on the snow.
+DIA-02 village-gate.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] A rough timber village gate in falling snow at dusk, a roadside shrine of melting candles, an old man with a long grey beard and fur-collared travelling coat smoking a pipe beside it.
+DIA-03 wakeful-square.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] Exhausted villagers with red-rimmed eyes huddled around a bonfire in a snowy village square at night, some holding each other upright, a chapel in the background.
+DIA-04 irinka.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] Head-and-shoulders portrait of a small girl about seven, asleep, long tangled black hair, red wool scarf, patched sheepskin coat, faint unsettling candlelight on her face. Square 1:1.
+DIA-05 chapel.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] Interior of a small cold stone chapel with hundreds of burned-down candles, frost on the inside of the windows, white and gold banners of a church of light, an altar.
+DIA-06 mikhel.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] Head-and-shoulders portrait of a gaunt middle-aged priest with a shaved head, deep shadows under red-rimmed eyes, cracked lips, white and gold priestly robes stained with wax, candlelight. Square 1:1.
+DIA-07 crypt.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] A round stone crypt beneath a chapel, a large circular carved seal of ancient runes in the floor with one wedge-shaped piece missing, cold mist rising through the crack, an old man holding a lantern.
+DIA-08 ossuary.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] A flooded underground ossuary with walls and ceiling of skulls, knee-deep black water with ice forming, a pale glowing stone shard under the surface, shambling skeletal shapes in the dark.
+DIA-09 offered-hand.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] A dark stone chamber full of candles whose flames all lean toward the viewer, a long starved grey hand with an eye on its palm reaching out of the shadows, inviting.
+DIA-10 the-bound-one.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] A tall starved demon of grey skin stretched over long bones, dozens of half-open eyes along its arms, a crown of melted candle wax, chained in a pit of black ice, seen from above.
+DIA-11 dawn.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] Sunrise over a small snowy mountain village, golden light, villagers asleep in doorways and around a burned-out fire, smoke curling from a chimney, peaceful.
+DIA-12 bargain.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] The view from stone chapel steps at dawn in snow, a sleeping village below, every candle flame in every window leaning toward the viewer, a faint pale glow in the frost, unsettling calm.
+DIA-13 avalanche.webp: [DIA style: gothic oil painting, cold desaturated snow tones with deep reds and candle gold, hero never shown] View from a high mountain ridge of an avalanche burying a small village below, survivors resting in heaps in the snow on the ridge, an old man with a pipe watching.
+
+When all 13 are done, say "DIA finished" and list the labels you made.
+```
+
+## Story 3: GTA 6: Valet Season (GTA-01 to GTA-12)
+
+```
+NEW STORY: "Valet Season". Forget every earlier story's style, colours and characters. Nothing from before carries over.
+
+STYLE FOR THIS STORY ONLY: Stylised neon crime-caper illustration, saturated sunset pinks, teals and purples, Miami-style beach city vibe, bold graphic look, no real brands, no text, no logos, no watermark.
+
+CHARACTERS IN THIS STORY (draw them exactly like this every time they appear; anyone not listed is an unnamed background person):
+- Marisol Ybarra: A young Latina woman with curly dark hair in a high ponytail, gold hoop earrings, a red valet jacket over a crop top, and a phone always held up filming.
+- Detective Kyle Boone: A sunburned, heavy-set white man in his forties with slicked-back thinning hair, mirrored sunglasses at night, a loud tropical shirt over a shoulder holster, and a gold watch.
+- Dez Marrero: A calm, lean man in his thirties with a shaved head, a neatly trimmed beard, a faded fishing shirt, cargo shorts and white boat shoes, with a toothpick always in his mouth.
+
+THE READER IS THE HERO AND IS NEVER DRAWN: every image shows what they see, never them, not even their hands.
+
+Make these 12 images, 4 per reply, then wait for "next". Every image uses the style above (tag: GTA, bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown).
+
+GTA-01 cover.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] A cherry-red supercar under pink and teal neon in front of a beachfront art-deco hotel at night, palm trees, a valet stand with keys on hooks, humid glow.
+GTA-02 valet-stand.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] A hotel valet stand on a neon beach street at midnight, an open trunk of a red sports car revealing a duffel bag and a glowing phone, tourists and palm trees in the background.
+GTA-03 marisol.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] Head-and-shoulders portrait of a young Latina woman with curly dark hair in a high ponytail, gold hoop earrings, red valet jacket over a crop top, holding a phone up to film, grinning, neon background. Square 1:1.
+GTA-04 the-call.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] A buzzing burner phone lying on an open duffel full of cash bundles in a car trunk, the lit entrance of a beachfront hotel behind with silhouetted figures coming down the steps.
+GTA-05 boone.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] Head-and-shoulders portrait of a sunburned heavy-set man in his forties with slicked-back thinning hair, mirrored sunglasses at night, loud tropical shirt over a shoulder holster, gold watch, sweaty smirk, neon background. Square 1:1.
+GTA-06 causeway.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] A red sports car speeding along a long straight highway causeway over dark sea at night, headlights of an SUV chasing behind, moon on the water.
+GTA-07 garage.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] A dim underground hotel parking garage at 2am, humming fluorescent lights, dripping pipes, a red sports car parked by a pillar, a figure filming from behind the pillar.
+GTA-08 keys-dock.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] A wooden fishing dock in tropical keys at sunrise, pastel water, pelicans on posts, a fast speedboat idling, a red sports car parked at the end.
+GTA-09 dez.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] Head-and-shoulders portrait of a calm lean man in his thirties with a shaved head, neatly trimmed beard, faded fishing shirt, toothpick in his mouth, sunrise harbour background. Square 1:1.
+GTA-10 keys-ending.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] The view from the passenger seat of a convertible driving north at sunrise on an ocean highway across the keys, a young friend at the wheel laughing, wind, bright sky.
+GTA-11 viral.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] A smartphone screen overflowing with hearts, likes and comment bubbles, behind it a dock with police cars and a news helicopter overhead, bright morning.
+GTA-12 back-on-stand.webp: [GTA style: bold neon crime-caper illustration, sunset pinks, teals and purples, hero never shown] A set of car keys tossed through the air toward the viewer at a neon hotel valet stand at night, a new luxury car pulling up, its driver grinning, palm trees.
+
+When all 12 are done, say "GTA finished" and list the labels you made.
+```
+
+## Story 4: Les Misérables: The Night Before the Barricade (LES-01 to LES-13)
+
+```
+NEW STORY: "The Night Before the Barricade". Forget every earlier story's style, colours and characters. Nothing from before carries over.
+
+STYLE FOR THIS STORY ONLY: Romantic 19th-century oil painting in the spirit of French Romanticism, dramatic chiaroscuro, smoke and candlelight, muted earth tones with flashes of red, historically accurate 1832 Paris, no text, no logos, no watermark.
+
+CHARACTERS IN THIS STORY (draw them exactly like this every time they appear; anyone not listed is an unnamed background person):
+- Enjolras: A young man of about twenty-two with pale, fine features like a marble statue, long blond hair, blue eyes, a dark coat buttoned to the throat and a red sash.
+- Grantaire: A rumpled young man with an unshaven, homely face, dark untidy hair, a stained waistcoat, and a bottle never far from his hand.
+- Gavroche: A skinny street boy of about eleven in trousers far too big held up by one strap, a man's jacket with torn elbows, a battered cap, and bare, dirty feet.
+- The tall stranger: A very tall man with a long, stern face, heavy sideburns, a low hat pulled down and a long grey greatcoat buttoned to the chin.
+
+THE READER IS THE HERO AND IS NEVER DRAWN: every image shows what they see, never them, not even their hands.
+
+Make these 13 images, 4 per reply, then wait for "next". Every image uses the style above (tag: LES, French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown).
+
+LES-01 cover.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] A barricade of paving stones, furniture and an overturned omnibus in a narrow medieval Paris street at night, a red flag on top lit by candles and lanterns, smoke drifting.
+LES-02 musain.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] The smoky back room of a Paris café in 1832, young students in frock coats arguing over maps of Paris by candlelight, a cynical young man with a bottle in the corner, a ragged boy warming his hands.
+LES-03 funeral.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] A huge funeral procession crossing rainy Paris in 1832 breaking into a riot, mounted dragoons charging, umbrellas, mourners and workers scattering, a hearse with plumes.
+LES-04 corinthe.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] Young men in shirtsleeves tearing up paving stones and piling them with chairs and an overturned omnibus into a barricade outside an old wine shop in a narrow 1830s Paris street.
+LES-05 javert.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] Head-and-shoulders portrait of a very tall man with a long stern face, heavy sideburns, a low hat pulled down, long grey greatcoat buttoned to the chin, cold eyes, 1830s Paris, dark background. Square 1:1.
+LES-06 night-watch.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] A quiet barricade at night in a narrow Paris street, candles flickering on paving stones, young men keeping watch, one sleeping with a bottle, stars above the rooftops.
+LES-07 wounded.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] A wounded young man carried on a door through a dark narrow Paris alley before dawn, seen from the front end of the door looking back, a broad grey-haired man in a worn coat carrying the far end, a lantern, a patrol's torchlight far off.
+LES-08 cartridges.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] A skinny street boy about eleven in oversized trousers and a man's jacket with a basket, scrambling in a smoky street in front of a barricade at dawn, bullets kicking up dust from cobbles.
+LES-09 gavroche.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] Head-and-shoulders portrait of a grinning skinny street boy about eleven, battered cap, a man's jacket with torn elbows, dirty face, bright cheeky eyes, Paris street background. Square 1:1.
+LES-10 dawn.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] View down a narrow Paris street at dawn, soldiers in shakos and a cannon facing a barricade of paving stones, drummers, smoke, grey light.
+LES-11 paris-remembers.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] Close-up of a composing stick full of lead type on a print shop bench, an ink-stained apron on a nail, a printed sheet listing names drying on a line, morning light.
+LES-12 rooftops.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] A small boy in a cap sitting among chimney pots on Paris rooftops in pale morning light, grinning at the viewer beside him, smoke rising from a street below.
+LES-13 inspector.webp: [LES style: French Romantic 1830s oil painting, chiaroscuro, smoke, earth tones with red, hero never shown] The view walking down a silent Paris street at dawn, soldiers stepping aside to let the viewer pass, a tall man in a grey greatcoat watching from a doorway.
+
+When all 13 are done, say "LES finished" and list the labels you made.
+```
+
+## Story 5: Game of Thrones: A Scribe in the Red Keep (GOT-01 to GOT-13)
+
+```
+NEW STORY: "A Scribe in the Red Keep". Forget every earlier story's style, colours and characters. Nothing from before carries over.
+
+STYLE FOR THIS STORY ONLY: Moody medieval fantasy oil painting, candlelight and deep shadow, crimson and gold accents, grounded realistic detail, cinematic, no text, no logos, no watermark, no recognisable actors.
+
+CHARACTERS IN THIS STORY (draw them exactly like this every time they appear; anyone not listed is an unnamed background person):
+- Varys: A plump, bald man with soft powdered skin, a smell of lavender, rich flowing silk robes and soft slippers, hands folded into his sleeves.
+- Petyr Baelish: A slim man of medium height with a short pointed beard touched with grey, grey-green eyes, a fine doublet and a small silver mockingbird pin at his collar.
+- Tyrion Lannister: A dwarf with a large head, mismatched eyes (one green, one black), pale blond hair, a crimson Lannister doublet and a cup of wine in hand.
+- Serjeant Hobb Tarle: A heavy-set man in a gold cloak with a broken nose, a patchy red beard, a dented half-helm and a short sword.
+
+THE READER IS THE HERO AND IS NEVER DRAWN: every image shows what they see, never them, not even their hands.
+
+Make these 13 images, 4 per reply, then wait for "next". Every image uses the style above (tag: GOT, moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown).
+
+GOT-01 cover.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A candlelit desk in a medieval castle scriptorium with an open ledger, a quill and a broken red wax seal; through an arched window, a huge castle of red stone on a hill above a crowded medieval city by the sea.
+GOT-02 scriptorium.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] Rows of scribes in plain robes copying ledgers at long desks in a hot, dusty castle scriptorium, shafts of sunlight, stacks of parchment.
+GOT-03 invitations.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] Two folded letters on a scribe's desk, one with a sprig of lavender tucked in, one sealed with a silver wax seal of a small bird, candle and quill beside them.
+GOT-04 godswood.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A pale white tree with a carved weeping face and blood-red leaves in a castle garden at dusk, a plump bald man in silk robes seen from behind feeding small birds.
+GOT-05 street-of-silk.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A warm perfumed parlour in a medieval city at night, silk hangings, low lamps, a table with two cups of wine and a small silver bird ornament, an open door to a staircase.
+GOT-06 tyrion-cellar.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A low vaulted cellar tavern lit by candles, a wine jug and two cups on a barrel table, a crimson cloak thrown over a stool, cosy and secretive.
+GOT-07 gold-cloak.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A dark narrow stone stair in a castle at night, a heavy guard in a gold cloak and dented half-helm drawing a short sword, torchlight from below.
+GOT-08 hobb.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] Head-and-shoulders portrait of a heavy-set medieval city guard with a broken nose, patchy red beard, dented half-helm and gold wool cloak, mocking grin, torchlit background. Square 1:1.
+GOT-09 the-page.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A single ledger page lying beside a guttering candle on a windowsill before dawn, a city of red roofs and a domed sept below in blue light.
+GOT-10 spiders-web.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] Close-up of a small child's hand passing a tiny folded note through a gap in a castle stone wall, candlelight, secretive.
+GOT-11 mockingbirds-coin.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A ledger page curling and burning in a brazier, a heavy purse of gold coins on a polished desk beside it, a silver bird pin.
+GOT-12 imps-scribe.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A small party on horseback riding ahead on a long road heading west under a wide golden sky, seen from the saddle of the last horse, a cart loaded with books, a castle city receding behind.
+GOT-13 braavos.webp: [GOT style: moody realistic medieval oil painting, candlelight, crimson and gold, hero never shown] A merchant ship sailing at dawn toward a colossal stone statue of a warrior straddling the entrance to a harbour city of canals.
+
+When all 13 are done, say "GOT finished" and list the labels you made.
+```
+
+# Part 2 of 12 (new chat: paste Block 0 first)
+
+## Story 6: Lookism: Transfer Day (LOOK-01 to LOOK-11)
+
+```
+NEW STORY: "Transfer Day". Forget every earlier story's style, colours and characters. Nothing from before carries over.
+
+STYLE FOR THIS STORY ONLY: Korean webtoon art style, clean bold line art, bright cel shading, dynamic angles, modern Seoul, original characters only, no text, no speech bubbles, no logos, no watermark.
+
+CHARACTERS IN THIS STORY (draw them exactly like this every time they appear; anyone not listed is an unnamed background person):
+- Daniel Park: A tall, slim, strikingly handsome teen with soft black hair falling over his forehead, gentle eyes, and a neatly worn J High uniform.
+- Vasco: A tall, heavily muscled teen with short black hair, intense eyes, a scar on his eyebrow and a sleeveless shirt under an open uniform jacket.
+- Zack Lee: A lean, athletic teen boxer with sharp eyes, neatly styled black hair and taped knuckles, wearing his uniform shirt untucked.
+- Jay Hong: A tall, quiet, good-looking teen with neat dark hair, an expensive jacket over his uniform and a face that rarely changes expression.
+- Kang Min-chul: A wiry second-year with bleached hair styled up, a smug grin, an earring, designer sneakers and a phone always in his hand.
+
+THE READER IS THE HERO AND IS NEVER DRAWN: every image shows what they see, never them, not even their hands.
+
+Make these 11 images, 4 per reply, then wait for "next". Every image uses the style above (tag: LOOK, Korean webtoon style, clean bold line art, bright cel shading, hero never shown).
+
+LOOK-01 cover.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] A modern Korean high school gate in the morning, students in navy uniforms arriving, a phone on a tripod flashing straight at the viewer with a big score number glowing on its screen, dramatic low angle.
+LOOK-02 gate.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] Students in navy school uniforms at a school gate, a large phone screen showing a leaderboard of faces with numbers, some laughing, one heavy-set boy with glasses looking down.
+LOOK-03 minchul.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] Head-and-shoulders portrait of a wiry Korean high-school boy with bleached spiky hair, an earring, smug grin, holding a phone, school rooftop background. Square 1:1.
+LOOK-04 cafeteria.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] A busy Korean school cafeteria, a lunch tray spilled on the floor in front of a heavy-set boy, students at long tables turning to watch, dramatic tension.
+LOOK-05 patrol.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] Teenage fighters in school uniforms squaring off in a narrow Seoul alley after school, neon signs, one tall muscular boy cracking his knuckles at the front, dynamic action pose.
+LOOK-06 photoshoot.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] A small fashion photo studio in Seoul with softbox lights, a tall handsome teen model posing, and an open laptop on a side table showing a grid of student photos.
+LOOK-07 rooftop.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] A Korean school rooftop at sunset, a small shed with a laptop and chargers glowing inside, city skyline behind, wind blowing.
+LOOK-08 finale.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] A school rooftop at dusk, a smug bleached-hair boy cornered against a shed with an open laptop on the ground before him, friends in heroic poses beside the viewer facing him.
+LOOK-09 burn-knuckles.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] A group of teenagers in school uniforms walking out of a school gate together at sunset, seen from among them, a big muscular leader in front looking back and laughing.
+LOOK-10 stream.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] A phone livestream screen exploding with hearts and comments, a tall handsome teen laughing in the small video window, looking at someone off-screen, bright pop colours.
+LOOK-11 just-a-student.webp: [LOOK style: Korean webtoon style, clean bold line art, bright cel shading, hero never shown] A heavy-set boy with glasses at a school gate on a bright sunny morning, smiling and holding out a bag of snacks toward the viewer.
+
+When all 11 are done, say "LOOK finished" and list the labels you made.
+```
+
+## Story 7: Yamada-kun: Offline Meetup (YAM-01 to YAM-12)
+
+```
+NEW STORY: "Offline Meetup". Forget every earlier story's style, colours and characters. Nothing from before carries over.
+
+STYLE FOR THIS STORY ONLY: Soft modern anime illustration, gentle romcom lighting, pastel highlights with cosy night tones, clean line art, original characters, no text, no UI words, no logos, no watermark.
+
+CHARACTERS IN THIS STORY (draw them exactly like this every time they appear; anyone not listed is an unnamed background person):
+- Akane Kinoshita: A young woman of about twenty with shoulder-length brown hair, bright expressive eyes, casual cute fashion (a cardigan, a skirt) and a phone with a game-charm strap.
+- Akito Yamada: A tall, slim eighteen-year-old with messy dark hair, sleepy half-lidded eyes, a pale face and a plain hoodie, usually with headphones around his neck.
+- Haru Mizuno: A gentle-looking young person in their early twenties with soft wavy auburn hair, round glasses, flour often on one sleeve, and a knitted scarf.
+- Ren: A flashy young man with dyed silver hair, a branded gaming jacket, and a confident grin.
+
+THE READER IS THE HERO AND IS NEVER DRAWN: every image shows what they see, never them, not even their hands.
+
+Make these 12 images, 4 per reply, then wait for "next". Every image uses the style above (tag: YAM, soft modern anime illustration, cosy pastel and night tones, hero never shown).
+
+YAM-01 cover.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] A gamer's desk at night in a small Tokyo apartment, a glowing monitor showing a lush fantasy forest MMORPG scene, a phone lighting up with a notification, snacks and a cat-ear headset, cosy mood.
+YAM-02 logged-out.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] A dark bedroom lit only by a computer monitor showing a fantasy game party list with one empty slot greyed out, an empty gaming chair pushed back from the desk.
+YAM-03 first-raid.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] Fantasy MMORPG characters, a healer, a ranger and a warrior, fighting a giant ancient tree boss in a glowing forest temple, magical light effects, dynamic composition.
+YAM-04 meetup.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] A cosy Japanese izakaya table at night with drinks and small dishes, a box of fresh bread, three young friends laughing and looking across the table at the viewer, one tall sleepy boy in a hoodie drinking juice.
+YAM-05 duo-queue.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] A desk at 2am lit by a monitor showing a fantasy duel, headphones, an energy drink, a voice-chat window with two avatars, rain on the window.
+YAM-06 bakery.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] Interior of a small warm Japanese bakery at dawn, trays of fresh bread, flour on the wooden counter, ovens glowing, the street still blue outside.
+YAM-07 haru.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] Head-and-shoulders portrait of a gentle young adult with soft wavy auburn hair, round glasses, flour on one sleeve, a knitted scarf, shy warm smile, bakery background. Square 1:1.
+YAM-08 tournament.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] A gaming monitor showing a tense fantasy guild battle with spell effects, a voice chat overlay of small cheering avatar icons, a keyboard and mouse glowing with coloured light.
+YAM-09 ren.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] Head-and-shoulders portrait of a flashy young man with dyed silver hair, a sporty gaming jacket, a confident smirk, neon background. Square 1:1.
+YAM-10 level-up.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] A tall boy with messy dark hair and headphones around his neck standing close to the viewer under a streetlight outside a convenience store in Tokyo at 1am, holding a can of juice, looking away shyly.
+YAM-11 player-two.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] A phone propped on a windowsill showing an active voice call, sunrise over Tokyo rooftops, a cup of coffee and a pastry beside it.
+YAM-12 party.webp: [YAM style: soft modern anime illustration, cosy pastel and night tones, hero never shown] A laptop screen with a video call grid of friends celebrating, one crying happily, one holding bread up to the camera, one quietly eating chips.
+
+When all 12 are done, say "YAM finished" and list the labels you made.
+```
+
+## Story 8: The Legend of Zelda: The Courier of Hateno (ZEL-01 to ZEL-07)
 
 ```
 NEW STORY: "The Courier of Hateno". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -63,7 +298,7 @@ ZEL-07 showdown.webp: [ZEL style: bright painterly open-world adventure, soft ce
 When all 7 are done, say "ZEL finished" and list the labels you made.
 ```
 
-## Story 2: Elden Ring: Ashes Under Liurnia (ELD-01 to ELD-07)
+## Story 9: Elden Ring: Ashes Under Liurnia (ELD-01 to ELD-07)
 
 ```
 NEW STORY: "Ashes Under Liurnia". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -90,7 +325,7 @@ ELD-07 showdown.webp: [ELD style: misty dark-fantasy oil painting, ruined grande
 When all 7 are done, say "ELD finished" and list the labels you made.
 ```
 
-## Story 3: The Witcher: The Noonwraith of Ostrovo Mill (WIT-01 to WIT-07)
+## Story 10: The Witcher: The Noonwraith of Ostrovo Mill (WIT-01 to WIT-07)
 
 ```
 NEW STORY: "The Noonwraith of Ostrovo Mill". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -117,7 +352,9 @@ WIT-07 showdown.webp: [WIT style: gritty painterly folk fantasy, muted earth ton
 When all 7 are done, say "WIT finished" and list the labels you made.
 ```
 
-## Story 4: Mass Effect: Shore Leave on the Citadel (MAS-01 to MAS-07)
+# Part 3 of 12 (new chat: paste Block 0 first)
+
+## Story 11: Mass Effect: Shore Leave on the Citadel (MAS-01 to MAS-07)
 
 ```
 NEW STORY: "Shore Leave on the Citadel". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -144,7 +381,7 @@ MAS-07 showdown.webp: [MAS style: sleek space-opera concept art, neon teal and o
 When all 7 are done, say "MAS finished" and list the labels you made.
 ```
 
-## Story 5: The Last of Us: The Library Run (TLOU-01 to TLOU-07)
+## Story 12: The Last of Us: The Library Run (TLOU-01 to TLOU-07)
 
 ```
 NEW STORY: "The Library Run". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -171,9 +408,7 @@ TLOU-07 showdown.webp: [TLOU style: muted cinematic realism, snowy overgrown rui
 When all 7 are done, say "TLOU finished" and list the labels you made.
 ```
 
-# Part 2 of 10 (new chat: paste Block 0 first)
-
-## Story 6: Stardew Valley: The Lost Lantern of the Night Market (STAR-01 to STAR-07)
+## Story 13: Stardew Valley: The Lost Lantern of the Night Market (STAR-01 to STAR-07)
 
 ```
 NEW STORY: "The Lost Lantern of the Night Market". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -200,7 +435,7 @@ STAR-07 showdown.webp: [STAR style: cosy pastel storybook illustration, soft win
 When all 7 are done, say "STAR finished" and list the labels you made.
 ```
 
-## Story 7: Resident Evil: Last Call at the Raccoon Pharmacy (RE-01 to RE-07)
+## Story 14: Resident Evil: Last Call at the Raccoon Pharmacy (RE-01 to RE-07)
 
 ```
 NEW STORY: "Last Call at the Raccoon Pharmacy". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -227,7 +462,7 @@ RE-07 showdown.webp: [RE style: gritty late-90s survival-horror painting, rain, 
 When all 7 are done, say "RE finished" and list the labels you made.
 ```
 
-## Story 8: Cyberpunk 2077: A Ghost in the Afterlife (CYB-01 to CYB-07)
+## Story 15: Cyberpunk 2077: A Ghost in the Afterlife (CYB-01 to CYB-07)
 
 ```
 NEW STORY: "A Ghost in the Afterlife". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -254,7 +489,9 @@ CYB-07 showdown.webp: [CYB style: neon cyberpunk concept art, magenta and cyan, 
 When all 7 are done, say "CYB finished" and list the labels you made.
 ```
 
-## Story 9: Red Dead Redemption 2: The Strawberry Stage (RDR-01 to RDR-07)
+# Part 4 of 12 (new chat: paste Block 0 first)
+
+## Story 16: Red Dead Redemption 2: The Strawberry Stage (RDR-01 to RDR-07)
 
 ```
 NEW STORY: "The Strawberry Stage". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -281,7 +518,7 @@ RDR-07 showdown.webp: [RDR style: cinematic western oil painting, golden-hour pi
 When all 7 are done, say "RDR finished" and list the labels you made.
 ```
 
-## Story 10: Persona 5: The Palace of Perfect Grades (P5-01 to P5-07)
+## Story 17: Persona 5: The Palace of Perfect Grades (P5-01 to P5-07)
 
 ```
 NEW STORY: "The Palace of Perfect Grades". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -308,9 +545,7 @@ P5-07 showdown.webp: [P5 style: stylish red-black-white anime pop art, bold shap
 When all 7 are done, say "P5 finished" and list the labels you made.
 ```
 
-# Part 3 of 10 (new chat: paste Block 0 first)
-
-## Story 11: Hades: A Shade on Probation (HAD-01 to HAD-07)
+## Story 18: Hades: A Shade on Probation (HAD-01 to HAD-07)
 
 ```
 NEW STORY: "A Shade on Probation". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -337,7 +572,7 @@ HAD-07 showdown.webp: [HAD style: painterly Greek underworld comic art, crimson,
 When all 7 are done, say "HAD finished" and list the labels you made.
 ```
 
-## Story 12: Fallout: Last Broadcast from Diamond City (FAL-01 to FAL-07)
+## Story 19: Fallout: Last Broadcast from Diamond City (FAL-01 to FAL-07)
 
 ```
 NEW STORY: "Last Broadcast from Diamond City". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -364,7 +599,7 @@ FAL-07 showdown.webp: [FAL style: retro-futurist post-apocalyptic illustration, 
 When all 7 are done, say "FAL finished" and list the labels you made.
 ```
 
-## Story 13: Bloodborne: The Clinic at the Bottom of the Stairs (BLD-01 to BLD-07)
+## Story 20: Bloodborne: The Clinic at the Bottom of the Stairs (BLD-01 to BLD-07)
 
 ```
 NEW STORY: "The Clinic at the Bottom of the Stairs". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -391,7 +626,9 @@ BLD-07 showdown.webp: [BLD style: gothic Victorian horror oil painting, fog, moo
 When all 7 are done, say "BLD finished" and list the labels you made.
 ```
 
-## Story 14: One Piece: The Galley of the Floating Kitchen (OP-01 to OP-07)
+# Part 5 of 12 (new chat: paste Block 0 first)
+
+## Story 21: One Piece: The Galley of the Floating Kitchen (OP-01 to OP-07)
 
 ```
 NEW STORY: "The Galley of the Floating Kitchen". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -419,7 +656,7 @@ OP-07 showdown.webp: [OP style: bright shonen anime illustration, sunny ocean bl
 When all 7 are done, say "OP finished" and list the labels you made.
 ```
 
-## Story 15: Attack on Titan: The Supply Run to Trost (AOT-01 to AOT-07)
+## Story 22: Attack on Titan: The Supply Run to Trost (AOT-01 to AOT-07)
 
 ```
 NEW STORY: "The Supply Run to Trost". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -446,9 +683,7 @@ AOT-07 showdown.webp: [AOT style: gritty anime military fantasy, colossal walls,
 When all 7 are done, say "AOT finished" and list the labels you made.
 ```
 
-# Part 4 of 10 (new chat: paste Block 0 first)
-
-## Story 16: Demon Slayer: Lanterns over Asakusa (DS-01 to DS-07)
+## Story 23: Demon Slayer: Lanterns over Asakusa (DS-01 to DS-07)
 
 ```
 NEW STORY: "Lanterns over Asakusa". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -475,7 +710,7 @@ DS-07 showdown.webp: [DS style: lush anime festival art, glowing lantern golds a
 When all 7 are done, say "DS finished" and list the labels you made.
 ```
 
-## Story 17: Jujutsu Kaisen: The Cursed Vending Machine (JJK-01 to JJK-07)
+## Story 24: Jujutsu Kaisen: The Cursed Vending Machine (JJK-01 to JJK-07)
 
 ```
 NEW STORY: "The Cursed Vending Machine". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -502,7 +737,7 @@ JJK-07 showdown.webp: [JJK style: sharp modern dark anime, deep blacks and elect
 When all 7 are done, say "JJK finished" and list the labels you made.
 ```
 
-## Story 18: Naruto: The Scroll Nobody Wanted (NAR-01 to NAR-07)
+## Story 25: Naruto: The Scroll Nobody Wanted (NAR-01 to NAR-07)
 
 ```
 NEW STORY: "The Scroll Nobody Wanted". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -529,7 +764,9 @@ NAR-07 showdown.webp: [NAR style: vivid shonen ninja anime, leafy greens and bri
 When all 7 are done, say "NAR finished" and list the labels you made.
 ```
 
-## Story 19: Spy x Family: Operation Bake Sale (SPY-01 to SPY-07)
+# Part 6 of 12 (new chat: paste Block 0 first)
+
+## Story 26: Spy x Family: Operation Bake Sale (SPY-01 to SPY-07)
 
 ```
 NEW STORY: "Operation Bake Sale". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -556,7 +793,7 @@ SPY-07 showdown.webp: [SPY style: warm retro-European anime, soft pastels, pinks
 When all 7 are done, say "SPY finished" and list the labels you made.
 ```
 
-## Story 20: Solo Leveling: The E-Rank Gate at Dawn (SOL-01 to SOL-07)
+## Story 27: Solo Leveling: The E-Rank Gate at Dawn (SOL-01 to SOL-07)
 
 ```
 NEW STORY: "The E-Rank Gate at Dawn". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -583,9 +820,7 @@ SOL-07 showdown.webp: [SOL style: dark sleek manhwa action art, deep blues and b
 When all 7 are done, say "SOL finished" and list the labels you made.
 ```
 
-# Part 5 of 10 (new chat: paste Block 0 first)
-
-## Story 21: Fullmetal Alchemist: The Automail of Rush Valley (FMA-01 to FMA-07)
+## Story 28: Fullmetal Alchemist: The Automail of Rush Valley (FMA-01 to FMA-07)
 
 ```
 NEW STORY: "The Automail of Rush Valley". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -613,7 +848,7 @@ FMA-07 showdown.webp: [FMA style: warm steampunk anime, brass and rust tones, bl
 When all 7 are done, say "FMA finished" and list the labels you made.
 ```
 
-## Story 22: Frieren: Beyond Journey's End: The Flower Field Spell (FRI-01 to FRI-07)
+## Story 29: Frieren: Beyond Journey's End: The Flower Field Spell (FRI-01 to FRI-07)
 
 ```
 NEW STORY: "The Flower Field Spell". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -640,7 +875,7 @@ FRI-07 showdown.webp: [FRI style: soft watercolor anime fantasy, gentle greens a
 When all 7 are done, say "FRI finished" and list the labels you made.
 ```
 
-## Story 23: Death Note: The Second Notebook (DN-01 to DN-07)
+## Story 30: Death Note: The Second Notebook (DN-01 to DN-07)
 
 ```
 NEW STORY: "The Second Notebook". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -667,7 +902,9 @@ DN-07 showdown.webp: [DN style: dark noir anime, deep shadows, cold greys and bl
 When all 7 are done, say "DN finished" and list the labels you made.
 ```
 
-## Story 24: Fruits Basket: The Year of the Cat Who Came Home (FB-01 to FB-07)
+# Part 7 of 12 (new chat: paste Block 0 first)
+
+## Story 31: Fruits Basket: The Year of the Cat Who Came Home (FB-01 to FB-07)
 
 ```
 NEW STORY: "The Year of the Cat Who Came Home". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -694,7 +931,7 @@ FB-07 showdown.webp: [FB style: soft shojo anime, warm pastels, gentle seasonal 
 When all 7 are done, say "FB finished" and list the labels you made.
 ```
 
-## Story 25: True Beauty: Bare Face Livestream (TB-01 to TB-07)
+## Story 32: True Beauty: Bare Face Livestream (TB-01 to TB-07)
 
 ```
 NEW STORY: "Bare Face Livestream". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -721,9 +958,7 @@ TB-07 showdown.webp: [TB style: glossy romance webtoon, sparkly soft pinks and l
 When all 7 are done, say "TB finished" and list the labels you made.
 ```
 
-# Part 6 of 10 (new chat: paste Block 0 first)
-
-## Story 26: Howl's Moving Castle: A New Door for the Moving Castle (HOWL-01 to HOWL-07)
+## Story 33: Howl's Moving Castle: A New Door for the Moving Castle (HOWL-01 to HOWL-07)
 
 ```
 NEW STORY: "A New Door for the Moving Castle". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -750,7 +985,7 @@ HOWL-07 showdown.webp: [HOWL style: Ghibli-inspired painted fantasy, lush waterc
 When all 7 are done, say "HOWL finished" and list the labels you made.
 ```
 
-## Story 27: Stranger Things: The Signal at the Arcade (ST-01 to ST-07)
+## Story 34: Stranger Things: The Signal at the Arcade (ST-01 to ST-07)
 
 ```
 NEW STORY: "The Signal at the Arcade". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -777,7 +1012,7 @@ ST-07 showdown.webp: [ST style: 80s retro sci-fi horror poster art, neon reds an
 When all 7 are done, say "ST finished" and list the labels you made.
 ```
 
-## Story 28: Star Wars: The Kyber Run (SW-01 to SW-07)
+## Story 35: Star Wars: The Kyber Run (SW-01 to SW-07)
 
 ```
 NEW STORY: "The Kyber Run". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -804,7 +1039,9 @@ SW-07 showdown.webp: [SW style: classic painted space-opera poster style, desert
 When all 7 are done, say "SW finished" and list the labels you made.
 ```
 
-## Story 29: Breaking Bad: The Car Wash Audit (BB-01 to BB-07)
+# Part 8 of 12 (new chat: paste Block 0 first)
+
+## Story 36: Breaking Bad: The Car Wash Audit (BB-01 to BB-07)
 
 ```
 NEW STORY: "The Car Wash Audit". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -831,7 +1068,7 @@ BB-07 showdown.webp: [BB style: sun-bleached desert crime drama illustration, sa
 When all 7 are done, say "BB finished" and list the labels you made.
 ```
 
-## Story 30: Squid Game: Player 457 (SQG-01 to SQG-07)
+## Story 37: Squid Game: Player 457 (SQG-01 to SQG-07)
 
 ```
 NEW STORY: "Player 457". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -858,9 +1095,7 @@ SQG-07 showdown.webp: [SQG style: stark pastel thriller illustration, teal green
 When all 7 are done, say "SQG finished" and list the labels you made.
 ```
 
-# Part 7 of 10 (new chat: paste Block 0 first)
-
-## Story 31: The Walking Dead: Seeds for the Prison Garden (TWD-01 to TWD-07)
+## Story 38: The Walking Dead: Seeds for the Prison Garden (TWD-01 to TWD-07)
 
 ```
 NEW STORY: "Seeds for the Prison Garden". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -887,7 +1122,7 @@ TWD-07 showdown.webp: [TWD style: gritty Southern apocalypse painting, washed-ou
 When all 7 are done, say "TWD finished" and list the labels you made.
 ```
 
-## Story 32: Wednesday: The Nevermore Exchange (WED-01 to WED-07)
+## Story 39: Wednesday: The Nevermore Exchange (WED-01 to WED-07)
 
 ```
 NEW STORY: "The Nevermore Exchange". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -914,7 +1149,7 @@ WED-07 showdown.webp: [WED style: gothic dark-comedy illustration, black and whi
 When all 7 are done, say "WED finished" and list the labels you made.
 ```
 
-## Story 33: Bridgerton: A Season of Scandal (BRG-01 to BRG-07)
+## Story 40: Bridgerton: A Season of Scandal (BRG-01 to BRG-07)
 
 ```
 NEW STORY: "A Season of Scandal". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -941,7 +1176,9 @@ BRG-07 showdown.webp: [BRG style: lush Regency romance painting, pastels, candle
 When all 7 are done, say "BRG finished" and list the labels you made.
 ```
 
-## Story 34: Avatar: The Last Airbender: The Ferry at Full Moon Bay (ATLA-01 to ATLA-07)
+# Part 9 of 12 (new chat: paste Block 0 first)
+
+## Story 41: Avatar: The Last Airbender: The Ferry at Full Moon Bay (ATLA-01 to ATLA-07)
 
 ```
 NEW STORY: "The Ferry at Full Moon Bay". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -969,7 +1206,7 @@ ATLA-07 showdown.webp: [ATLA style: vibrant animated-series fantasy, East Asian 
 When all 7 are done, say "ATLA finished" and list the labels you made.
 ```
 
-## Story 35: Jurassic Park: Night Shift on Isla Nublar (JP-01 to JP-07)
+## Story 42: Jurassic Park: Night Shift on Isla Nublar (JP-01 to JP-07)
 
 ```
 NEW STORY: "Night Shift on Isla Nublar". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -996,9 +1233,7 @@ JP-07 showdown.webp: [JP style: cinematic jungle adventure painting, lush greens
 When all 7 are done, say "JP finished" and list the labels you made.
 ```
 
-# Part 8 of 10 (new chat: paste Block 0 first)
-
-## Story 36: John Wick: The Continental's Night Porter (JW-01 to JW-07)
+## Story 43: John Wick: The Continental's Night Porter (JW-01 to JW-07)
 
 ```
 NEW STORY: "The Continental's Night Porter". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1025,7 +1260,7 @@ JW-07 showdown.webp: [JW style: neo-noir neon illustration, rain, gold and deep 
 When all 7 are done, say "JW finished" and list the labels you made.
 ```
 
-## Story 37: The Matrix: The Deja Vu Courier (MTX-01 to MTX-07)
+## Story 44: The Matrix: The Deja Vu Courier (MTX-01 to MTX-07)
 
 ```
 NEW STORY: "The Deja Vu Courier". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1052,7 +1287,7 @@ MTX-07 showdown.webp: [MTX style: sleek cyber-noir, green-tinted city, falling d
 When all 7 are done, say "MTX finished" and list the labels you made.
 ```
 
-## Story 38: Doctor Who: The Clockwork Tea Room (DW-01 to DW-07)
+## Story 45: Doctor Who: The Clockwork Tea Room (DW-01 to DW-07)
 
 ```
 NEW STORY: "The Clockwork Tea Room". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1079,7 +1314,9 @@ DW-07 showdown.webp: [DW style: whimsical retro sci-fi painting, 1920s elegance,
 When all 7 are done, say "DW finished" and list the labels you made.
 ```
 
-## Story 39: Harry Potter: The Vanishing Common Room (HP-01 to HP-07)
+# Part 10 of 12 (new chat: paste Block 0 first)
+
+## Story 46: Harry Potter: The Vanishing Common Room (HP-01 to HP-07)
 
 ```
 NEW STORY: "The Vanishing Common Room". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1106,7 +1343,7 @@ HP-07 showdown.webp: [HP style: cosy storybook watercolour, candlelight gold, de
 When all 7 are done, say "HP finished" and list the labels you made.
 ```
 
-## Story 40: The Lord of the Rings: The Last Ferry at Bucklebury (LOTR-01 to LOTR-07)
+## Story 47: The Lord of the Rings: The Last Ferry at Bucklebury (LOTR-01 to LOTR-07)
 
 ```
 NEW STORY: "The Last Ferry at Bucklebury". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1133,9 +1370,7 @@ LOTR-07 showdown.webp: [LOTR style: pastoral fantasy oil painting, soft greens, 
 When all 7 are done, say "LOTR finished" and list the labels you made.
 ```
 
-# Part 9 of 10 (new chat: paste Block 0 first)
-
-## Story 41: Percy Jackson and the Olympians: The Lost Lightning Pen (PJ-01 to PJ-07)
+## Story 48: Percy Jackson and the Olympians: The Lost Lightning Pen (PJ-01 to PJ-07)
 
 ```
 NEW STORY: "The Lost Lightning Pen". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1162,7 +1397,7 @@ PJ-07 showdown.webp: [PJ style: bright comic adventure illustration, camp orange
 When all 7 are done, say "PJ finished" and list the labels you made.
 ```
 
-## Story 42: The Hunger Games: The Mentor's Last Games (HG-01 to HG-07)
+## Story 49: The Hunger Games: The Mentor's Last Games (HG-01 to HG-07)
 
 ```
 NEW STORY: "The Mentor's Last Games". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1189,7 +1424,7 @@ HG-07 showdown.webp: [HG style: dystopian cinematic painting, Capitol gold and m
 When all 7 are done, say "HG finished" and list the labels you made.
 ```
 
-## Story 43: Pride and Prejudice: A Season at Netherfield (PP-01 to PP-07)
+## Story 50: Pride and Prejudice: A Season at Netherfield (PP-01 to PP-07)
 
 ```
 NEW STORY: "A Season at Netherfield". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1216,7 +1451,9 @@ PP-07 showdown.webp: [PP style: Regency watercolour, soft rose, sage green, crea
 When all 7 are done, say "PP finished" and list the labels you made.
 ```
 
-## Story 44: Sherlock Holmes: The Adventure of the Silent Clock (SH-01 to SH-07)
+# Part 11 of 12 (new chat: paste Block 0 first)
+
+## Story 51: Sherlock Holmes: The Adventure of the Silent Clock (SH-01 to SH-07)
 
 ```
 NEW STORY: "The Adventure of the Silent Clock". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1243,7 +1480,7 @@ SH-07 showdown.webp: [SH style: Victorian gaslight painting, foggy sepia, amber 
 When all 7 are done, say "SH finished" and list the labels you made.
 ```
 
-## Story 45: Dracula: The Whitby Night Nurse (DRA-01 to DRA-07)
+## Story 52: Dracula: The Whitby Night Nurse (DRA-01 to DRA-07)
 
 ```
 NEW STORY: "The Whitby Night Nurse". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1270,9 +1507,7 @@ DRA-07 showdown.webp: [DRA style: gothic Victorian painting, moonlit blues, bloo
 When all 7 are done, say "DRA finished" and list the labels you made.
 ```
 
-# Part 10 of 10 (new chat: paste Block 0 first)
-
-## Story 46: Cthulhu Mythos: The Innsmouth Lighthouse (CTH-01 to CTH-07)
+## Story 53: Cthulhu Mythos: The Innsmouth Lighthouse (CTH-01 to CTH-07)
 
 ```
 NEW STORY: "The Innsmouth Lighthouse". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1299,7 +1534,7 @@ CTH-07 showdown.webp: [CTH style: eerie 1920s weird-tale painting, sea-green, fo
 When all 7 are done, say "CTH finished" and list the labels you made.
 ```
 
-## Story 47: The Count of Monte Cristo: The Count's Apprentice (MC-01 to MC-07)
+## Story 54: The Count of Monte Cristo: The Count's Apprentice (MC-01 to MC-07)
 
 ```
 NEW STORY: "The Count's Apprentice". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1326,7 +1561,7 @@ MC-07 showdown.webp: [MC style: romantic 19th-century oil painting, candle gold,
 When all 7 are done, say "MC finished" and list the labels you made.
 ```
 
-## Story 48: Alice's Adventures in Wonderland: The Mad Hatter's Missing Hour (ALI-01 to ALI-07)
+## Story 55: Alice's Adventures in Wonderland: The Mad Hatter's Missing Hour (ALI-01 to ALI-07)
 
 ```
 NEW STORY: "The Mad Hatter's Missing Hour". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1353,7 +1588,9 @@ ALI-07 showdown.webp: [ALI style: whimsical Victorian storybook painting, candy 
 When all 7 are done, say "ALI finished" and list the labels you made.
 ```
 
-## Story 49: Dune: The Water-Seller's Daughter (DUNE-01 to DUNE-07)
+# Part 12 of 12 (new chat: paste Block 0 first)
+
+## Story 56: Dune: The Water-Seller's Daughter (DUNE-01 to DUNE-07)
 
 ```
 NEW STORY: "The Water-Seller's Daughter". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1380,7 +1617,7 @@ DUNE-07 showdown.webp: [DUNE style: epic desert sci-fi painting, burnt orange sa
 When all 7 are done, say "DUNE finished" and list the labels you made.
 ```
 
-## Story 50: The Odyssey: The Lighthouse at Ithaca (ODY-01 to ODY-07)
+## Story 57: The Odyssey: The Lighthouse at Ithaca (ODY-01 to ODY-07)
 
 ```
 NEW STORY: "The Lighthouse at Ithaca". Forget every earlier story's style, colours and characters. Nothing from before carries over.
@@ -1411,6 +1648,13 @@ When all 7 are done, say "ODY finished" and list the labels you made.
 
 | Labels | Story folder |
 |---|---|
+| BG3-01 to BG3-12 | `public/story-art/fan-bg3-a-debt-in-the-lower-city/` |
+| DIA-01 to DIA-13 | `public/story-art/fan-diablo-the-sleepless-chapel/` |
+| GTA-01 to GTA-12 | `public/story-art/fan-gta6-valet-season/` |
+| LES-01 to LES-13 | `public/story-art/fan-les-mis-the-night-before-the-barricade/` |
+| GOT-01 to GOT-13 | `public/story-art/fan-got-a-scribe-in-the-red-keep/` |
+| LOOK-01 to LOOK-11 | `public/story-art/fan-lookism-transfer-day/` |
+| YAM-01 to YAM-12 | `public/story-art/fan-yamada-lv999-offline-meetup/` |
 | ZEL-01 to ZEL-07 | `public/story-art/fan-zelda-the-courier-of-hateno/` |
 | ELD-01 to ELD-07 | `public/story-art/fan-eldenring-ashes-under-liurnia/` |
 | WIT-01 to WIT-07 | `public/story-art/fan-witcher-the-noonwraith-of-ostrovo-mill/` |

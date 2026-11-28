@@ -291,7 +291,7 @@
       ],
       "isEnding": false,
       "hint": "A Demodog's growl echoes through the empty corridor.",
-      "page": "Hawkins Lab is a ruin of cracked glass and weeds. Steve carries his bat with nails in it. \"I hate this. I hate this so much.\"\n\nDr. Albany's office is untouched: dust, coffee mugs, a corkboard of notes. You read them by flashlight. She built the Lightkeeper game as a beacon, a guiding song for anyone lost in the Upside Down. The melody is a key. Played forwards, it opens. Played backwards, it closes.\n\nAt the end of the corridor, something growls: low, wet, four-legged.\n\n\"Okay,\" whispers Steve. \"Time to go. Time to go right now.\""
+      "page": "Hawkins Lab is a ruin of cracked glass and weeds. Steve carries his bat with nails in it. \"I hate this. I hate this so much.\"\n\nDr. Albany's office is untouched: dust, coffee mugs, a corkboard of notes. You read them by flashlight. She built the Lightkeeper game as a signal, a song for anyone lost in the Upside Down. The melody is a key. Played forwards, it opens. Played backwards, it closes.\n\nAt the end of the corridor, something growls: low, wet, four-legged.\n\n\"Okay,\" whispers Steve. \"Time to go. Time to go right now.\""
     },
     {
       "id": "showdown",
@@ -425,7 +425,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "High Score",
-      "page": "You stumble to the Lightkeeper cabinet and play Dr. Albany's melody backwards, note by note, while Steve holds off the last Demodog.\n\nThe gate sighs, like something going to sleep, and closes.\n\nDr. Albany stumbles out onto the arcade floor, blinking at the normal lights. \"What year is it?\"\n\nThe Lightkeeper screen flickers. The pixel figure is gone. In its place, at the top of the high-score table, three letters: your initials.\n\nThe arcade lights burn steady and warm. For the first time all summer, nothing flickers."
+      "page": "You stumble to the Lightkeeper cabinet and play Dr. Albany's melody backwards, note by note, while Steve holds off the last Demodog.\n\nThe gate sighs, like something going to sleep, and closes.\n\nDr. Albany stumbles out onto the arcade floor, blinking at the normal lights. \"What year is it?\"\n\nThe Lightkeeper screen flickers. The pixel figure is gone. In its place, at the top of the high-score table, three letters: your initials.\n\nThe arcade lights burn steady and warm. Nothing flickers all night."
     },
     {
       "id": "run",

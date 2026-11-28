@@ -445,7 +445,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Dead Air",
-      "page": "You cut the live input. Then you pull the transmitter cable out of its socket, and you hold the loose end in your hand.\n\nDead air.\n\nNo more latches. No more footsteps. The house sounds stop, because there's nothing left to carry them.\n\nMira stays on the phone with you while you pack up, and she's waiting in her car outside when you come down. Hal texts that he's gone back inside, door locked, kettle on.\n\nDawn slowly reaches the empty microphone in the booth. What it was, you'll probably never know. What you do next is up to you."
+      "page": "You cut the live input. Then you pull the transmitter cable out of its socket, and you hold the loose end in your hand.\n\nDead air.\n\nNo more latches. No more footsteps. The house sounds stop, because there's nothing left to carry them.\n\nMira stays on the phone with you while you pack up, and she's waiting in her car outside when you come down. Hal texts that he's gone back inside, door locked, kettle on.\n\nDawn slowly reaches the empty microphone in the booth."
     },
     {
       "id": "closed_loop",
@@ -468,7 +468,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "A Knock Without a Door",
-      "page": "You route the recording to the local deck and close the loop. No live connection to the house. No connection to the transmitter. A sealed little room made of tape.\n\nThe house goes quiet. Hal confirms it: no lights, no movement.\n\nBut on the local deck, alone in the booth, the recorded knock continues, at its fixed interval. Knock. Wait. Knock. It asks nothing new. It receives no answer.\n\nMira says she'll help you decide later whether to keep the tape or wipe it.\n\nYou sit and watch the reels turn for a while. It's eerie. But it's contained. It can't get out."
+      "page": "You route the recording to the local deck and close the loop. No live connection to the house. No connection to the transmitter. A sealed little room made of tape.\n\nThe house goes quiet. Hal confirms it: no lights, no movement.\n\nBut on the local deck, alone in the booth, the recorded knock continues, at its fixed interval. Knock. Wait. Knock. It asks nothing new. It receives no answer.\n\nMira says she'll help you decide later whether to keep the tape or wipe it.\n\nYou sit and watch the reels turn for a while. It can't get out. You check the cable twice anyway."
     },
     {
       "id": "answered",
@@ -491,7 +491,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Room It Learns",
-      "page": "You open the live input. You lean toward the microphone. \"I'm here,\" you say. \"I'm listening.\"\n\nThe caller is quiet for a moment. Then it repeats your words back to you, exactly, in its soft, ordinary voice. \"I'm here. I'm listening.\"\n\nThen it begins to describe the studio. The chair you're sitting in. The mug on the desk, which you've just touched. The headphones in your hands.\n\nIt can hear you now. Everything you name. Everything you handle.\n\nIn the dark booth window, behind your own reflection, there's a shape. A hallway shape. It might be nothing. It might be a door.\n\nYou chose this. That's what makes it so unsettling."
+      "page": "You open the live input. You lean toward the microphone. \"I'm here,\" you say. \"I'm listening.\"\n\nThe caller is quiet for a moment. Then it repeats your words back to you, exactly, in its soft, ordinary voice. \"I'm here. I'm listening.\"\n\nThen it begins to describe the studio. The chair you're sitting in. The mug on the desk, which you've just touched. The headphones in your hands.\n\nIt can hear you now. Everything you name. Everything you handle.\n\nIn the dark booth window, behind your own reflection, there's a shape. A hallway shape. It might be nothing. It might be a door."
     }
   ],
   "art": {

@@ -6,7 +6,7 @@
     "category": "revenge",
     "rating": "teen",
     "mode": "story",
-    "blurb": "You were a street thief in Marseille until a mysterious count paid your debts and took you into his service. He's planning the most elegant revenge Paris has ever seen. You're his eyes and hands. But one of his targets has a child who did nothing wrong, and you're starting to wonder whether revenge is a cure or a disease.",
+    "blurb": "You were a street thief in Marseille until a mysterious count paid your debts and took you into his service. He's planning the most elegant revenge Paris has ever seen. You're his eyes and hands. But one of his targets has a child who did nothing wrong, and you're starting to wonder whether he'll stop at the men who deserve it.",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "The Count of Monte Cristo",
@@ -163,7 +163,7 @@
               "set": true
             }
           ],
-          "outcome": "The Count fences with you at dawn in his long mirrored room, as he does every morning. He is very good, and he does not let you win. Today, after a long bout, he lowers his blade and tells you, unexpectedly, about the old priest in the next cell at the Château d'If, who taught him languages and fencing and philosophy through a hole in the wall. \"He made me a man again,\" the Count says. \"I would like to have done the same for you.\" It's the most he's ever said to you. You don't know what to say back."
+          "outcome": "The Count fences with you at dawn in his long mirrored room, as he does every morning. He is very good, and he does not let you win. Today, after a long bout, he lowers his blade and tells you, unexpectedly, about the old priest in the next cell at the Château d'If, who taught him languages and fencing and philosophy through a hole in the wall. \"He made me a man again,\" the Count says. \"I would like to have done the same for you.\" Then he raises his blade again."
         },
         {
           "id": "search_for_the_old_betrayal_letter",
@@ -407,7 +407,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Justice",
-      "page": "You publish Danglars's old denunciation letter in every newspaper in Paris.\n\nBy noon, the city knows: the great banker built his fortune on a lie that sent an innocent man to prison for fourteen years. Danglars flees France in disgrace, with a single suitcase.\n\nBut his family is spared. Eugénie, free at last, goes to Italy and becomes a concert pianist, exactly what she always wanted.\n\nMonths later, you sit in a concert hall in Rome, watching her play. The Count sits beside you. When the music ends, he is quietly crying. \"Justice,\" he whispers. \"Not vengeance. I had forgotten there was a difference.\""
+      "page": "You publish Danglars's old denunciation letter in every newspaper in Paris.\n\nBy noon, the city knows: the great banker built his fortune on a lie that sent an innocent man to prison for fourteen years. Danglars flees France in disgrace, with a single suitcase.\n\nBut his family is spared. Eugénie, free at last, goes to Italy and becomes a concert pianist, exactly what she always wanted.\n\nMonths later, you sit in a concert hall in Rome, watching her play. The Count sits beside you. When the music ends, he is quietly crying, and he claps longer than anyone in the hall."
     },
     {
       "id": "wait_and_hope",
@@ -438,7 +438,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Price of Revenge",
-      "page": "You follow the Count's plan to the very end.\n\nThe false telegraph message goes out. Danglars is ruined in a day. His bank collapses; his name is mud. Villefort's household is destroyed. Eugénie flees Paris with nothing.\n\nThe Count's revenge is complete, perfect, elegant.\n\nMonths later, you stand in his empty grand salon at night, chandeliers dark, and you realise you're his heir now, rich beyond imagining. You wonder, alone in the silence, whether it was worth it. The Count, wherever he's gone, is probably wondering the same thing."
+      "page": "You follow the Count's plan to the very end.\n\nThe false telegraph message goes out. Danglars is ruined in a day. His bank collapses; his name is mud. Villefort's household is destroyed. Eugénie flees Paris with nothing.\n\nThe Count's revenge is complete, perfect, elegant.\n\nMonths later, you stand in his empty grand salon at night, chandeliers dark. You are his heir now. The servants call you my lord, and you keep turning round to see who they mean."
     }
   ],
   "art": {},

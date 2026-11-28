@@ -141,7 +141,7 @@
       ],
       "isEnding": false,
       "hint": "The courier, gasping: 'To Sietch Tabr. To Liet. Water is life.'",
-      "page": "'Water is life. Life is water. Pay for it, or die.' — street saying of Arrakeen\n\nThe heat in Arrakeen hits like a hammer. You walk the narrow stone streets in your patched stillsuit, ringing your water-seller's bell. \"Soo-soo sook! Water! Soo-soo sook!\"\n\nA hooded figure stumbles out of a doorway and collapses against you. Fremen: blue-within-blue eyes, a stillsuit torn and bloody. He presses a small message cylinder into your hand.\n\n\"To Sietch Tabr,\" he gasps. \"To Liet. Water is life.\" His eyes close.\n\nDown the street, soldiers in black armour and orange capes come running. Harkonnens. Pointing at you."
+      "page": "'Water is life. Life is water. Pay for it, or die.' (street saying of Arrakeen)\n\nThe heat in Arrakeen hits like a hammer. You walk the narrow stone streets in your patched stillsuit, ringing your water-seller's bell. \"Soo-soo sook! Water! Soo-soo sook!\"\n\nA hooded figure stumbles out of a doorway and collapses against you. Fremen: blue-within-blue eyes, a stillsuit torn and bloody. He presses a small message cylinder into your hand.\n\n\"To Sietch Tabr,\" he gasps. \"To Liet. Water is life.\" His eyes close.\n\nDown the street, soldiers in black armour and orange capes come running. Harkonnens. Pointing at you."
     },
     {
       "id": "crossroads",
@@ -426,7 +426,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Silos Open",
-      "page": "With the Harkonnen code key, Fremen fighters slip into the Harkonnen spice silos in Arrakeen and open every one of them. By dawn, the silos are empty, the spice carried away into the deep desert.\n\nCaptain Vorian Harkonnen is recalled in disgrace. The Baron is said to be furious enough to bite through a goblet.\n\nThe Fremen hold a feast in your honour, and Leyla, grudgingly, embraces you. \"City-dweller,\" she says. \"Friend.\"\n\nYou stand on a ridge at sunrise watching a Harkonnen silo, empty and broken, spilling the last of its blue spice into the sand."
+      "page": "With the Harkonnen code key, Fremen fighters slip into the Harkonnen spice silos in Arrakeen and open every one of them. By dawn, the silos are empty, the spice carried away into the deep desert.\n\nCaptain Vorian Harkonnen is recalled in disgrace. The Baron is said to be furious enough to bite through a goblet.\n\nThe Fremen hold a feast in your honour, and Leyla, grudgingly, embraces you. \"City-dweller,\" she says. \"Friend.\"\n\nFrom the ridge at sunrise you watch a Harkonnen silo, empty and broken, spill the last of its blue spice into the sand."
     },
     {
       "id": "water_of_life",
@@ -439,7 +439,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Water of Life",
-      "page": "You stand before the sietch and pour your water-skin into the tribe's water, every drop, freely.\n\nThere's a silence. Then Kynes smiles. Leyla laughs.\n\nThat night, in a ceremony you don't fully understand, you're given a Fremen name, a crysknife of your own and a place among the people.\n\nYou stand on a dune beside Leyla at twin moonrise, the desert silver and endless before you, and you are no longer a water-seller from the city. You are Fremen. And the desert, at last, is home."
+      "page": "You stand before the sietch and pour your water-skin into the tribe's water, every drop, freely.\n\nThere's a silence. Then Kynes smiles. Leyla laughs.\n\nThat night, in a ceremony you don't fully understand, you're given a Fremen name, a crysknife of your own and a place among the people.\n\nYou stand on a dune beside Leyla at twin moonrise, the desert silver and endless before you. She teaches you the Fremen word for the wind that comes before dawn. You get it wrong. She makes you say it again."
     }
   ],
   "art": {},

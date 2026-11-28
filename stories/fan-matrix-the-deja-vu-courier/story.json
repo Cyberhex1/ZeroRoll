@@ -409,7 +409,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Locked Out",
-      "page": "You reach into the code and turn the key.\n\nAcross the city, the hidden district seals itself shut. When Agent Kroll lunges back into a new body and runs for it, his code simply bounces off, like rain off glass.\n\nBack on the Nebuchadnezzar, the crew is cheering. Trinity pulls off her cracked sunglasses and smiles at you, a real one.\n\nSomewhere in the Matrix, there's now a place glowing green on every rebel screen. A place where no agent can ever enter."
+      "page": "You reach into the code and turn the key.\n\nAcross the city, the hidden district seals itself shut. When Agent Kroll lunges back into a new body and runs for it, his code simply bounces off, like rain off glass.\n\nBack on the Nebuchadnezzar, the crew is cheering. Trinity pulls off her cracked sunglasses and smiles at you, a real one.\n\nSomewhere in the Matrix, there's now a place glowing green on every rebel screen."
     },
     {
       "id": "the_garden",
@@ -427,7 +427,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Garden",
-      "page": "You set the seed down on the wet rooftop and step back.\n\nIt sinks into the concrete like water. Then, block by block, the hidden district blooms: streets of glowing trees with leaves made of code, quiet parks, warm windows.\n\nFar below, people step out of doorways, blinking, awake for the first time and safe.\n\nIn the middle of it, a small old man in a cardigan waves up at you with his watering can."
+      "page": "You set the seed down on the wet rooftop and step back.\n\nIt sinks into the concrete like water. Then, block by block, the hidden district blooms: streets of glowing trees with leaves made of code, quiet parks, warm windows.\n\nFar below, people step out of doorways, blinking, awake and safe.\n\nIn the middle of it, a small old man in a cardigan waves up at you with his watering can."
     },
     {
       "id": "real_world",
@@ -440,7 +440,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Real World",
-      "page": "You pick up the ringing phone.\n\nThe world falls away. You wake up gasping in cold, slimy liquid, cables in your arms, in a pod among a million pods under a dead black sky.\n\nThen there's light, and hands pulling you out, and you're lying on the metal floor of a ship. Trinity is kneeling over you.\n\nMorpheus's voice: \"Welcome to the real world.\"\n\nLater, someone hands you a bowl of grey, snot-like porridge. It's the worst thing you've ever tasted. It's real."
+      "page": "You pick up the ringing phone.\n\nThe world falls away. You wake up gasping in cold, slimy liquid, cables in your arms, in a pod among a million pods under a dead black sky.\n\nThen there's light, and hands pulling you out, and you're lying on the metal floor of a ship. Trinity is kneeling over you.\n\nMorpheus's voice: \"Welcome to the real world.\"\n\nLater, someone hands you a bowl of grey, snot-like porridge. It's the worst thing you've ever tasted. You eat all of it."
     }
   ],
   "art": {},

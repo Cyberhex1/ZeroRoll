@@ -426,7 +426,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Sixty Seconds",
-      "page": "You plug the device into the control room console while Livia is shouting at a technician.\n\nFor sixty seconds, every screen in Panem goes dark. Then it shows the truth: the hunger, the punishments, the mentors' tears, the children. The districts watch in silence.\n\nChaos breaks out in the control room. The Games are halted in the confusion; Juniper and Ash survive the night on a rooftop.\n\nNobody ever proves it was you. But a few months later, on a district wall, someone paints a bird with its wings spread wide, and under it the words: SIXTY SECONDS. You keep your head down. You keep the spark alive."
+      "page": "You plug the device into the control room console while Livia is shouting at a technician.\n\nFor sixty seconds, every screen in Panem goes dark. Then it shows the truth: the hunger, the punishments, the mentors' tears, the children. The districts watch in silence.\n\nChaos breaks out in the control room. The Games are halted in the confusion; Juniper and Ash survive the night on a rooftop.\n\nNobody ever proves it was you. But a few months later, on a district wall, someone paints a bird with its wings spread wide, and under it the words: SIXTY SECONDS. You keep your head down. You don't paint over it."
     },
     {
       "id": "the_mentor_who_said_no",
@@ -439,7 +439,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Mentor Who Said No",
-      "page": "You stand up in front of the mentor-room camera, live, and you say, very calmly: \"No. I won't mentor children to their deaths. Not anymore.\"\n\nThe cameras cut away. Peacekeepers take you out of the room.\n\nThe Capitol punishes you: your house, your privileges, your freedom. But the districts saw it. Every one of them.\n\nAsh survives the flood. Juniper doesn't, but she dies a symbol, defiant to the end, and her name is whispered across Panem. You stand on your district's platform, older, poorer, unbroken, as the cameras film you, and you look straight into them."
+      "page": "You stand up in front of the mentor-room camera, live, and you say, very calmly: \"No. I won't mentor children to their deaths. Not anymore.\"\n\nThe cameras cut away. Peacekeepers take you out of the room.\n\nThe Capitol punishes you: your house, your privileges, your freedom. But the districts saw it. Every one of them.\n\nAsh survives the flood. Juniper doesn't, but she dies a symbol, defiant to the end, and her name is whispered across Panem. You stand on your district's platform as the cameras film you, and you look straight into them."
     }
   ],
   "art": {},

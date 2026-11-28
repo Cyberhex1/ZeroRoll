@@ -6,7 +6,7 @@
     "category": "fantasy",
     "rating": "teen",
     "mode": "story",
-    "blurb": "You're an E-rank hunter, the weakest of the weak, and your raid team just abandoned you inside a gate that was supposed to be easy. The only other person left is a quiet guy in a black hoodie who fights like he's playing a game only he can see. The boss room door is opening. Your rank won't save you. Maybe he will.",
+    "blurb": "You're an E-rank hunter, the weakest of the weak, and your raid team just abandoned you inside a gate that was supposed to be easy. The only other person left is a quiet guy in a black hoodie who fights like he's playing a game only he can see. The boss room door is opening.",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Solo Leveling",
@@ -407,7 +407,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Iron Fang Falls",
-      "page": "You walk out of the gate at dawn and straight to the Hunters Association office, the recording in your hand.\n\nThey play it once. The room goes silent. Then very busy.\n\nBy evening, Iron Fang is being raided. Ma Dongsu's licence is revoked on live television. A new rule is announced the next week: no guild may send E-ranks into a gate without a senior escort.\n\nJinho throws a party. You pay your rent with the Association's reward cheque and still have money left over for the first time in your life."
+      "page": "You walk out of the gate at dawn and straight to the Hunters Association office, the recording in your hand.\n\nThey play it once. The room goes silent. Then very busy.\n\nBy evening, Iron Fang is being raided. Ma Dongsu's licence is revoked on live television. A new rule is announced the next week: no guild may send E-ranks into a gate without a senior escort.\n\nJinho throws a party. You pay your rent with the Association's reward cheque and still have enough left over for new boots."
     },
     {
       "id": "level_up",
@@ -425,7 +425,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Level Up",
-      "page": "The werewolf king roars, and in the half-second after, its throat opens exactly the way the carving showed.\n\nYou move.\n\nYour cheap dagger finds the gap in its armour. The king falls like a mountain.\n\nFor a moment, a glowing blue window flickers in front of your eyes, like something from a game: a single word you can't quite read. Then it's gone. You look at Jinwoo. He's smirking.\n\nYou walk out of the gate into the dawn. Your legs are shaking. But somehow, you feel stronger than you did when you walked in."
+      "page": "The werewolf king roars, and in the half-second after, its throat opens exactly the way the carving showed.\n\nYou move.\n\nYour cheap dagger finds the gap in its armour. The king falls like a mountain.\n\nFor a moment, a glowing blue window flickers in front of your eyes, like something from a game: a single word you can't quite read. Then it's gone. You look at Jinwoo. He's smirking.\n\nYou walk out of the gate into the dawn. Your legs are shaking. You open your status window. Strength: up by one. You laugh out loud, alone, outside the gate."
     },
     {
       "id": "weakest_no_more",

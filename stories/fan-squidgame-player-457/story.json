@@ -6,7 +6,7 @@
     "category": "real_life",
     "rating": "mature",
     "mode": "story",
-    "blurb": "A man in a suit beat you at a children's game in a subway station and handed you a card with circles, triangles and squares. Now you wake in a green tracksuit with 455 strangers, a giant doll and a prize that could pay every debt you have. You notice a guard whose hands are shaking. Survival is the game. Getting everyone out is a different one.",
+    "blurb": "A man in a suit beat you at a children's game in a subway station and handed you a card with circles, triangles and squares. Now you wake in a green tracksuit with 455 strangers, a giant doll and a prize that could pay every debt you have. You notice a guard whose hands are shaking.",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Squid Game",
@@ -194,7 +194,7 @@
       ],
       "isEnding": false,
       "hint": "Player 112, softly: 'Everyone here owes something. Not everyone deserves this.'",
-      "page": "That night in the dormitory, nobody sleeps. The first game took so many. People sit in silence on the bunks. Some cry. Some stare.\n\nPlayer 112 sits beside you and folds her hands. \"Everyone here owes something,\" she says quietly. \"Not everyone deserves this.\"\n\nWhen the guards deliver dinner, the square-masked one with the shaking hands drops a tray at your feet. Under the bread is a scrap of paper. \"Help me find my brother. Tonight. The stairs. —M.\"\n\nA rumour spreads through the dormitory: if a majority of players vote to stop, the games must end."
+      "page": "That night in the dormitory, nobody sleeps. The first game took so many. People sit in silence on the bunks. Some cry. Some stare.\n\nPlayer 112 sits beside you and folds her hands. \"Everyone here owes something,\" she says quietly. \"Not everyone deserves this.\"\n\nWhen the guards deliver dinner, the square-masked one with the shaking hands drops a tray at your feet. Under the bread is a scrap of paper. \"Help me find my brother. Tonight. The stairs. M.\"\n\nA rumour spreads through the dormitory: if a majority of players vote to stop, the games must end."
     },
     {
       "id": "path_a",
@@ -406,7 +406,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Coast Guard",
-      "page": "You slip the VIP list and the coordinates into Min-jae's glove. He disappears that night.\n\nAt dawn, the island wakes to the sound of engines. Police boats. Coast Guard helicopters. Searchlights sweeping across the pastel stairs.\n\nThe VIPs are dragged out of their gilded viewing room in handcuffs. And in a cell deep below, Min-jae finds his brother, thin and alive.\n\nYou and Player 112 stand on the beach as the sun rises, wrapped in blankets, among dozens of others in green tracksuits. Nobody says anything. Nobody needs to."
+      "page": "You slip the VIP list and the coordinates into Min-jae's glove. He disappears that night.\n\nAt dawn, the island wakes to the sound of engines. Police boats. Coast Guard helicopters. Searchlights sweeping across the pastel stairs.\n\nThe VIPs are dragged out of their gilded viewing room in handcuffs. And in a cell deep below, Min-jae finds his brother, thin and alive.\n\nYou and Player 112 stand on the beach as the sun rises, wrapped in blankets, among dozens of others in green tracksuits. Somebody passes round a thermos of barley tea."
     },
     {
       "id": "majority",
@@ -424,7 +424,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Majority",
-      "page": "Player 112 calls the vote. The count is read out over the speakers in that terrible cheerful voice: a majority.\n\nThe games are over.\n\nYou're released, dazed, onto the streets of Seoul at dawn with no money and no explanation, still wearing your green tracksuits. People stare.\n\nPlayer 112 takes your arm. \"I know a place.\" It's a tiny restaurant with six seats and a grandmother behind the counter. She orders two bowls of hot soup, and you eat in silence, and it is the best thing you have ever tasted."
+      "page": "Player 112 calls the vote. The count is read out over the speakers in that terrible cheerful voice: a majority.\n\nThe games are over.\n\nYou're released, dazed, onto the streets of Seoul at dawn with no money and no explanation, still wearing your green tracksuits. People stare.\n\nPlayer 112 takes your arm. \"I know a place.\" It's a tiny restaurant with six seats and a grandmother behind the counter. She orders two bowls of hot soup, and you eat in silence, and the grandmother refills your bowls without asking."
     },
     {
       "id": "winner",

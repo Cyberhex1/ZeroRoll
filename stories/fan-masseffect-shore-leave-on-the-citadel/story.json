@@ -6,7 +6,7 @@
     "category": "adventure",
     "rating": "teen",
     "mode": "story",
-    "blurb": "Your first week as a C-Sec rookie on the Citadel, and a quarian pilgrim has vanished from the Wards. Nobody upstairs cares. A sharpshooting turian with a grudge against paperwork does, and so does a very polite AI who shouldn't exist. The galaxy is big. Your beat is just one docking ring.",
+    "blurb": "Your first week as a C-Sec rookie on the Citadel, and a quarian pilgrim has vanished from the Wards. Nobody upstairs cares. A sharpshooting turian with a grudge against paperwork does, and so does a very polite AI who shouldn't exist.",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Mass Effect",
@@ -438,7 +438,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "By the Book",
-      "page": "You write the report by the book: a smuggling ring, broken up by C-Sec. No mention of a rogue intelligence. No mention of geth. Pell's lawyer has him out by lunch.\n\nHalcyon goes quiet after that. You check the kiosk sometimes. Nothing.\n\nThen, three weeks later, a message arrives from an unregistered quarian ship: \"Thank you, officer. She got home.\" You read it twice, then go back out on patrol, looking at the stars beyond the windows a little differently."
+      "page": "You write the report by the book: a smuggling ring, broken up by C-Sec. No mention of a rogue intelligence. No mention of geth. Pell's lawyer has him out by lunch.\n\nHalcyon goes quiet after that. You check the kiosk sometimes. Nothing.\n\nThen, three weeks later, a message arrives from an unregistered quarian ship: \"Thank you, officer. She got home.\" You read it twice, then go back out on patrol."
     }
   ],
   "art": {},

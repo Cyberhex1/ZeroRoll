@@ -6,7 +6,7 @@
     "category": "zombie",
     "rating": "mature",
     "mode": "story",
-    "blurb": "You work the night shift at a small pharmacy in Raccoon City. Tonight the customers are getting sick, the phones are dead, and a S.T.A.R.S. officer just kicked in your back door asking for a cure that Umbrella swears doesn't exist. You have the keys to the cold room. That makes you important.",
+    "blurb": "You work the night shift at a small pharmacy in Raccoon City. Tonight the customers are getting sick, the phones are dead, and a S.T.A.R.S. officer just kicked in your back door asking for a cure that Umbrella swears doesn't exist. You have the keys to the cold room, and suddenly everyone wants them.",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Resident Evil",
@@ -425,7 +425,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Umbrella Exposed",
-      "page": "You find a police radio still working on the roof and read Umbrella's order out on every channel. \"Eliminate all witnesses.\" You read the executive's name twice.\n\nAcross the city, survivors hear it. Some of them stop running toward the men in black Umbrella gear. Some of them live because of it.\n\nYou and Jill escape on the chopper with the order folded in your pocket. It's not over; it's the start of a very long fight. As you fly away, flames climb over a giant Umbrella billboard, and the red-and-white logo burns."
+      "page": "You find a police radio still working on the roof and read Umbrella's order out on every channel. \"Eliminate all witnesses.\" You read the executive's name twice.\n\nAcross the city, survivors hear it. Some of them stop running toward the men in black Umbrella gear. Some of them live because of it.\n\nYou and Jill escape on the chopper with the order folded in your pocket. As you fly away, flames climb over a giant Umbrella billboard, and the red-and-white logo burns."
     },
     {
       "id": "just_survive",
@@ -438,7 +438,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Just Survive",
-      "page": "The crate is lost when the pharmacy floor finally gives way. You don't look back for it.\n\nInstead you pull the wounded mechanic across the plank, then two more survivors from the stairwell, and you all pile into the chopper as it lifts. Jill is the last one in.\n\nYou don't save the city. You save who you can. As the helicopter climbs, you look down at the burning streets, the store keys still clutched in your fist, and realise you never let go of them all night."
+      "page": "The crate is lost when the pharmacy floor finally gives way. You don't look back for it.\n\nInstead you pull the wounded mechanic across the plank, then two more survivors from the stairwell, and you all pile into the chopper as it lifts. Jill is the last one in.\n\nAs the helicopter climbs, you look down at the burning streets, the store keys still clutched in your fist, and realise you never let go of them all night."
     }
   ],
   "art": {},

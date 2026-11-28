@@ -163,7 +163,7 @@
               "set": true
             }
           ],
-          "outcome": "Wren can't sleep, so you sit up together under the floating candles and you teach her the trick to the moving staircases: count to three, step on the fourth. You tell her about the time you fell into a vanishing step in your first year and had to be pulled out by a ghost. She laughs, properly, for the first time. \"I thought Hogwarts would be scary,\" she says. \"It is a bit. But it's better with a friend.\" She falls asleep with her notebook under her cheek."
+          "outcome": "Wren can't sleep, so you sit up together under the floating candles and you teach her the trick to the moving staircases: count to three, step on the fourth. You tell her about the time you fell into a vanishing step in your first year and had to be pulled out by a ghost. She laughs, properly. \"I thought Hogwarts would be scary,\" she says. \"It is a bit. But it's better with a friend.\" She falls asleep with her notebook under her cheek."
         },
         {
           "id": "sneak_into_the_restricted_section",
@@ -425,7 +425,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "A Second Chance",
-      "page": "You show Professor Longbottom the forged ledger page.\n\nHe reads it slowly. Then he goes to find Cassius, not angry, just sad. You learn later that Cassius had been failing everything, terrified of his parents, and tried to hide his marks by folding the room where the report cards were kept.\n\nHe isn't expelled. He gets tutoring, and help, and a very long talk.\n\nA week later, you find Cassius in the library with Wren, explaining Charms homework to her with enormous patience. He looks up at you, and for the first time since you've known him, he looks honest. \"Thank you,\" he says."
+      "page": "You show Professor Longbottom the forged ledger page.\n\nHe reads it slowly. Then he goes to find Cassius, not angry, just sad. You learn later that Cassius had been failing everything, terrified of his parents, and tried to hide his marks by folding the room where the report cards were kept.\n\nHe isn't expelled. He gets tutoring, and help, and a very long talk.\n\nA week later, you find Cassius in the library with Wren, explaining Charms homework to her with enormous patience. He looks up at you, ink on his nose, and doesn't look away. \"Thank you,\" he says."
     },
     {
       "id": "hogwarts_decides",

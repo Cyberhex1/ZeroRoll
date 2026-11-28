@@ -389,7 +389,7 @@
         "home"
       ],
       "isEnding": false,
-      "page": "The gate of Wall Rose rises ahead, and the bells are ringing for you. Behind you, smoke over the fields. The wagon creaks along, loaded. Everyone who rode out is still riding.\n\nHange rides beside you, covered in dust and grinning. Sasha is asleep in the saddle.\n\nThe question now isn't whether you survived. It's what you're going to tell the people behind the walls."
+      "page": "The gate of Wall Rose rises ahead, and the bells are ringing for you. Behind you, smoke over the fields. The wagon creaks along, loaded. Everyone who rode out is still riding.\n\nHange rides beside you, covered in dust and grinning. Sasha is asleep in the saddle.\n\nNow you have to decide what to tell the people behind the walls."
     },
     {
       "id": "gas_for_the_walls",
@@ -407,7 +407,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Gas for the Walls",
-      "page": "You walk into the Military Police office and put Gustav Rehn's ledger on the captain's desk.\n\nHe's arrested that night. Every stolen canister is returned to the Garrison. For the first time in months, the Trost wall is fully supplied.\n\nA week later, someone pins a new badge on your jacket.\n\nAt sunset, you stand on top of Wall Rose watching soldiers refill their ODM gear, gas hissing into the tanks. Every one of those hisses is a life that might come back from outside. You helped with that."
+      "page": "You walk into the Military Police office and put Gustav Rehn's ledger on the captain's desk.\n\nHe's arrested that night. Every stolen canister is returned to the Garrison. For the first time in months, the Trost wall is fully supplied.\n\nA week later, someone pins a new badge on your jacket.\n\nAt sunset the refilling line on top of Wall Rose is twenty soldiers long, gas hissing into the tanks. Someone has chalked your name on the fuel shed door. It's spelled wrong. Nobody fixes it."
     },
     {
       "id": "the_titan_that_spoke",

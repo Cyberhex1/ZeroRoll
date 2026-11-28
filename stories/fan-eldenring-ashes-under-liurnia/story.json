@@ -6,7 +6,7 @@
     "category": "fantasy",
     "rating": "teen",
     "mode": "story",
-    "blurb": "You are Tarnished, called back to the Lands Between with nothing but a lantern and a debt. A lost wolf knight, a merchant who smiles too much, and a sorcerer's sealed tower all want something from you on the flooded plains of Liurnia. Grace guides you. It does not protect you.",
+    "blurb": "You are Tarnished, called back to the Lands Between with nothing but a lantern and a debt. A lost wolf knight, a merchant who smiles too much, and a sorcerer's sealed tower all want something from you on the flooded plains of Liurnia.",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Elden Ring",
@@ -290,7 +290,7 @@
       ],
       "isEnding": false,
       "hint": "Blaidd growls: 'It reforms when it touches the lake. Keep it on the bridge.'",
-      "page": "The crystal bridge shimmers across the lake like frozen moonlight. In the middle stands its guardian: a giant made of blue crystal shards, its body cracking and re-forming with every step.\n\n\"It reforms when it touches the lake,\" Blaidd growls, lifting his greatsword. \"Keep it on the bridge.\"\n\nThe fight is glass and thunder. Shards scream past your face. Blaidd howls and charges, and the giant turns its full weight on him, and that is the opening you need.\n\nWhen the last crystal falls silent, the bridge leads you to the tower steps. In a scorch mark by the door lies a letter half burned, in a careful hand: \"The Academy means to use the map to imprison her. I have taken it so they cannot. Forgive me, wolf. —Y.\""
+      "page": "The crystal bridge shimmers across the lake like frozen moonlight. In the middle stands its guardian: a giant made of blue crystal shards, its body cracking and re-forming with every step.\n\n\"It reforms when it touches the lake,\" Blaidd growls, lifting his greatsword. \"Keep it on the bridge.\"\n\nThe fight is glass and thunder. Shards scream past your face. Blaidd howls and charges, and the giant turns its full weight on him, and that is the opening you need.\n\nWhen the last crystal falls silent, the bridge leads you to the tower steps. In a scorch mark by the door lies a letter half burned, in a careful hand: \"The Academy means to use the map to imprison her. I have taken it so they cannot. Forgive me, wolf. Y.\""
     },
     {
       "id": "showdown",
@@ -437,7 +437,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Your Own Grace",
-      "page": "While the others argue, you walk to the window, lantern raised. The silver light finds a road nobody else can see, a thread of gold leading east across the water toward the vast glowing tree on the horizon.\n\nNo one stops you. Perhaps no one notices.\n\nYou whistle for your spirit horse and ride down into the mist. Behind you the tower bell finally rings, once, for no reason anyone will ever know. Ahead of you the thread of gold runs on, over water and ruin and the bones of old kings, toward something only you are meant to find."
+      "page": "While the others argue, you walk to the window, lantern raised. The silver light finds a road nobody else can see, a thread of gold leading east across the water toward the vast glowing tree on the horizon.\n\nNo one stops you. Perhaps no one notices.\n\nYou whistle for your spirit horse and ride down into the mist. Behind you the tower bell finally rings, once, for no reason anyone will ever know. Ahead of you the thread of gold runs on, over water and ruin and the bones of old kings, toward whatever is waiting at the end of it."
     }
   ],
   "art": {},

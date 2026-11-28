@@ -243,7 +243,7 @@
       ],
       "isEnding": false,
       "hint": "Megaera picks up the pillow by one corner: 'Hypnos.' Somewhere, a snore stops guiltily.",
-      "page": "You search the House with Megaera so close behind you that you can feel her wings twitch.\n\nThe kitchen: nothing but ambrosia. The administrative chamber: too much paperwork. Then Hypnos' front desk. Underneath it, there's a fluffy pillow with a big blob of red wax stuck to it, stamped with the seal of Hades and Poseidon both. Beside it, faint ghostly footprints, the shuffling kind a very sleepy shade would leave, lead away down the hall.\n\nMegaera picks up the pillow by one corner. \"Hypnos.\"\n\nSomewhere above, a snore stops guiltily.\n\nShe looks at you, and for the first time her glare softens by a fraction. \"Fine. It wasn't you.\""
+      "page": "You search the House with Megaera so close behind you that you can feel her wings twitch.\n\nThe kitchen: nothing but ambrosia. The administrative chamber: too much paperwork. Then Hypnos' front desk. Underneath it, there's a fluffy pillow with a big blob of red wax stuck to it, stamped with the seal of Hades and Poseidon both. Beside it, faint ghostly footprints, the shuffling kind a very sleepy shade would leave, lead away down the hall.\n\nMegaera picks up the pillow by one corner. \"Hypnos.\"\n\nSomewhere above, a snore stops guiltily.\n\nShe looks at you, and her glare softens by a fraction. \"Fine. It wasn't you.\""
     },
     {
       "id": "path_b",
@@ -407,7 +407,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Sleeping on the Job",
-      "page": "You hold up the pillow with the wax seal stuck to it. \"Lord Hades, it was an accident. Hypnos fell asleep on it. He's been working very hard.\"\n\nHypnos opens one eye. \"That's true. I'm exhausted. Constantly.\"\n\nHades pinches the bridge of his nose. He sentences Hypnos to an eternity of filing, which Hypnos accepts as a long-term nap opportunity.\n\nMegaera passes you in the hall later and nods, just once. From a Fury, that's a medal. Your probation is lifted by the end of the week. The last thing you see that night is Hypnos snoring on a mountain of paperwork, Cerberus curled up beside him."
+      "page": "You hold up the pillow with the wax seal stuck to it. \"Lord Hades, it was an accident. Hypnos fell asleep on it. He's been working very hard.\"\n\nHypnos opens one eye. \"That's true. I'm exhausted. Constantly.\"\n\nHades pinches the bridge of his nose. He sentences Hypnos to an eternity of filing, which Hypnos accepts as a long-term nap opportunity.\n\nMegaera passes you in the hall later and nods, just once. Your probation is lifted by the end of the week. The last thing you see that night is Hypnos snoring on a mountain of paperwork, Cerberus curled up beside him."
     },
     {
       "id": "signed_in_ash",
@@ -438,7 +438,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "The Clerk Who Took the Fall",
-      "page": "You step forward. \"It was me. I lost it.\"\n\nSilence. Hypnos opens both eyes. Zagreus stares at you. Hades sentences you to scrubbing the courtyard pool for one hundred years.\n\nBut on the first night, there are footsteps beside you. Zagreus, with a mop. \"Can't let you have all the fun.\" Then Megaera, without a word. Then, yawning, Hypnos.\n\nThe four of you scrub the blood-red pool by torchlight, laughing at nothing, and you realise that being dead in the House of Hades might not be so bad after all."
+      "page": "You step forward. \"It was me. I lost it.\"\n\nSilence. Hypnos opens both eyes. Zagreus stares at you. Hades sentences you to scrubbing the courtyard pool for one hundred years.\n\nBut on the first night, there are footsteps beside you. Zagreus, with a mop. \"Can't let you have all the fun.\" Then Megaera, without a word. Then, yawning, Hypnos.\n\nThe four of you scrub the blood-red pool by torchlight, laughing at nothing, until the mop handle snaps and nobody can stop."
     }
   ],
   "art": {},

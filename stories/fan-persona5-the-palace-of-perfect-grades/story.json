@@ -163,7 +163,7 @@
               "set": true
             }
           ],
-          "outcome": "You ask why they do this. Joker stirs his coffee. \"Because nobody else does.\" Morgana talks for ten minutes about justice and getting his true form back, and somewhere in the middle of it, Joker slides you a plate of curry and you realise you've been accepted. Morgana finishes: \"And also the sushi. Thieves get sushi.\" Joker smirks. You laugh for the first time this week."
+          "outcome": "You ask why they do this. Joker stirs his coffee. \"Because nobody else does.\" Morgana talks for ten minutes about justice and getting his true form back, and somewhere in the middle of it, Joker slides you a plate of curry without asking if you want one. Morgana finishes: \"And also the sushi. Thieves get sushi.\" Joker smirks. You laugh, which you haven't done all week."
         },
         {
           "id": "infiltrate_the_palace_s_archive_nave",
@@ -425,7 +425,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Assembly Hall",
-      "page": "The morning assembly is boring until the speakers crackle. \"Our partner at Shujin is very reliable. The usual fee, yes.\"\n\nFive hundred students turn to look at Mr. Saeki. His face changes. His heart has already changed. He walks to the microphone and confesses, right there.\n\nIn the crowd, Ann finds you and high-fives so hard your hand stings.\n\nAt lunch, the girl from the stairwell is sitting with friends, laughing about something completely ordinary. She looks like a different person. Maybe she finally is."
+      "page": "The morning assembly is boring until the speakers crackle. \"Our partner at Shujin is very reliable. The usual fee, yes.\"\n\nFive hundred students turn to look at Mr. Saeki. His face changes. His heart has already changed. He walks to the microphone and confesses, right there.\n\nIn the crowd, Ann finds you and high-fives so hard your hand stings.\n\nAt lunch, the girl from the stairwell is sitting with friends, laughing about something completely ordinary. She doesn't look over at you, and you're glad."
     },
     {
       "id": "a_quiet_theft",

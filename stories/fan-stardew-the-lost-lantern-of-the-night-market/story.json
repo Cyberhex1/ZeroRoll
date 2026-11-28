@@ -162,7 +162,7 @@
               "set": true
             }
           ],
-          "outcome": "You buy two hot chocolates and spread Abigail's notebook between you. She has drawn a map of the whole town with suspects circled in red, including, worryingly, the Mayor. You plan late into the evening, laughing at her wilder theories. When the Saloon closes, she says, \"This is the best thing that's happened all winter,\" and you realise you agree."
+          "outcome": "You buy two hot chocolates and spread Abigail's notebook between you. She has drawn a map of the whole town with suspects circled in red, including, worryingly, the Mayor. You plan late into the evening, laughing at her wilder theories. When the Saloon closes, she says, \"This is the best thing that's happened all winter,\" and you clink mugs."
         },
         {
           "id": "follow_the_footprints_up_the_mountain",
@@ -333,7 +333,7 @@
       ],
       "isEnding": false,
       "hint": "Lewis taps his glass: 'Ahem. I'm sorry to say we have a thief among us...'",
-      "page": "The night before the festival, Lewis calls a town meeting at the Saloon. Everyone is there, wrapped in scarves, steaming mugs in hand.\n\nLewis taps his glass. \"Ahem. I'm sorry to say we have a thief among us. And I have it on good authority that it's that man in the tent—\"\n\nThe door creaks open. Snow blows in. Every head turns to look at you and Abigail.\n\nThrough the window you can see Linus standing outside in the snow, lantern-less, too nervous to come in."
+      "page": "The night before the festival, Lewis calls a town meeting at the Saloon. Everyone is there, wrapped in scarves, steaming mugs in hand.\n\nLewis taps his glass. \"Ahem. I'm sorry to say we have a thief among us. And I have it on good authority that it's that man in the tent...\"\n\nThe door creaks open. Snow blows in. Every head turns to look at you and Abigail.\n\nThrough the window you can see Linus standing outside in the snow, lantern-less, too nervous to come in."
     },
     {
       "id": "finale",
@@ -406,7 +406,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Linus' Lantern",
-      "page": "Linus walks down to the beach with the great lantern held high, the snow-owl perched on his shoulder, wing healed.\n\nLewis meets him at the dock, takes off his cap, and apologises in front of the whole town. Linus doesn't know what to do with his hands.\n\nThey hang the lantern on the first boat. Out in the bay, a voice rises: the mermaid, singing a song about warmth in winter.\n\nLater, at the Saloon, Gus pulls out a chair at the big table and says, \"Linus. Sit.\" And for the first time since you moved here, Linus does."
+      "page": "Linus walks down to the beach with the great lantern held high, the snow-owl perched on his shoulder, wing healed.\n\nLewis meets him at the dock, takes off his cap, and apologises in front of the whole town. Linus doesn't know what to do with his hands.\n\nThey hang the lantern on the first boat. Out in the bay, a voice rises: the mermaid, singing a song about warmth in winter.\n\nLater, at the Saloon, Gus pulls out a chair at the big table and says, \"Linus. Sit.\" And Linus does."
     },
     {
       "id": "junimo_light",

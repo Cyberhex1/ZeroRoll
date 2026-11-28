@@ -6,7 +6,7 @@
     "category": "adventure",
     "rating": "mature",
     "mode": "story",
-    "blurb": "Night City runs on favours, chrome and bad decisions. You're a nobody runner who just picked up a stolen braindance chip at the Afterlife, and now a fixer, a corpo and a braindance editor all want what's on it. Watch it, sell it, or burn it. In this city, all three can get you killed.",
+    "blurb": "Night City runs on favours, chrome and bad decisions. You're a nobody runner who just picked up a stolen braindance chip at the Afterlife, and now a fixer, a corpo and a braindance editor all want what's on it. Watch it, sell it, or burn it.",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "Cyberpunk 2077",
@@ -407,7 +407,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "No Fixer Is Safe",
-      "page": "You send Rhea's files to every fixer in Night City at once.\n\nBy dawn, everyone knows: Rhea Okafor sold her own runners to Arasaka. Her contacts disappear. Her booth at the Afterlife is empty by nightfall. Kenji Mori is quietly recalled to Tokyo.\n\nA week later, you walk into the Afterlife and the bartender slides you a drink without being asked. Somebody's already carved your name into the old booth. Night City has decided you're somebody."
+      "page": "You send Rhea's files to every fixer in Night City at once.\n\nBy dawn, everyone knows: Rhea Okafor sold her own runners to Arasaka. Her contacts disappear. Her booth at the Afterlife is empty by nightfall. Kenji Mori is quietly recalled to Tokyo.\n\nA week later, you walk into the Afterlife and the bartender slides you a drink without being asked. Somebody's already carved your name into the old booth, next to Johnny's."
     },
     {
       "id": "the_world_watches",

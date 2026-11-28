@@ -290,7 +290,7 @@
       ],
       "isEnding": false,
       "hint": "The little girl's voice calls the player's name. She has never heard it.",
-      "page": "The mill road is quiet. Too quiet. Then a little voice: \"Mama? Mama, where are you?\"\n\nA small girl in a ragged blue dress stands in the road, crying. Grey skin. White hair. Two little curved horns. Silver eyes with nothing behind them.\n\nFern lifts her staff without a word.\n\nBeyond the girl, in a mossy shrine, you find carving on the altar in a hand you know from the notebook: the second half of the spell, and a note. \"Frieren, I knew you'd forget. Come back in eighty years or so. —Elsa.\"\n\nBehind you, the little voice calls your name. It has never heard your name."
+      "page": "The mill road is quiet. Too quiet. Then a little voice: \"Mama? Mama, where are you?\"\n\nA small girl in a ragged blue dress stands in the road, crying. Grey skin. White hair. Two little curved horns. Silver eyes with nothing behind them.\n\nFern lifts her staff without a word.\n\nBeyond the girl, in a mossy shrine, you find carving on the altar in a hand you know from the notebook: the second half of the spell, and a note. \"Frieren, I knew you'd forget. Come back in eighty years or so. Elsa.\"\n\nBehind you, the little voice calls your name. It has never heard your name."
     },
     {
       "id": "showdown",
@@ -406,7 +406,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Elsa's Field",
-      "page": "You read the hermit's half aloud, and Frieren's hand rests over yours on the notebook, adding the magic you don't have.\n\nThe field beside the mill road shivers. Then it blooms, all at once: blue and gold, as far as the eye can see. Elsa's favourite colours. You didn't know that until now.\n\nFrieren smiles. Not her small sleepy smile, but a real one. \"I remember now. She wanted me to see this.\"\n\nThe next morning the party leaves Oberlind, walking through waves of flowers, Stark sneezing, Fern patient, Frieren looking back just once."
+      "page": "You read the hermit's half aloud, and Frieren's hand rests over yours on the notebook, adding the magic you don't have.\n\nThe field beside the mill road shivers. Then it blooms, all at once: blue and gold, as far as the eye can see. Elsa's favourite colours. You didn't know that until now.\n\nFrieren smiles with her whole face. \"I remember now. She wanted me to see this.\"\n\nThe next morning the party leaves Oberlind, walking through waves of flowers, Stark sneezing, Fern patient, Frieren looking back just once."
     },
     {
       "id": "in_eighty_years_or_so",

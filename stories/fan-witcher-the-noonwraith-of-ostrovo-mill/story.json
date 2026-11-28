@@ -6,7 +6,7 @@
     "category": "fantasy",
     "rating": "teen",
     "mode": "story",
-    "blurb": "Your village hired a witcher to kill the ghost haunting the old mill, and you got stuck being his guide because you know the fields. But the wraith isn't just killing people, it's looking for someone, and the miller's family is lying about why. The witcher only cares about the coin. You care about the truth.",
+    "blurb": "Your village hired a witcher to kill the ghost haunting the old mill, and you got stuck being his guide because you know the fields. But the wraith isn't just killing people, it's looking for someone, and the miller's family is lying about why.",
     "author": "ZeroRoll fan fiction",
     "source": {
       "title": "The Witcher",
@@ -163,7 +163,7 @@
               "set": true
             }
           ],
-          "outcome": "You tear your loaf in half and hand him a piece. He looks at it like nobody has offered him bread in a year. While you eat on a fence rail, you ask what being a witcher is like. \"Long roads. Short pay. People who hire you and spit after you.\" He chews. \"Bread's good.\" It's the most he's said all morning, and for some reason you feel like you passed a test."
+          "outcome": "You tear your loaf in half and hand him a piece. He looks at it like nobody has offered him bread in a year. While you eat on a fence rail, you ask what being a witcher is like. \"Long roads. Short pay. People who hire you and spit after you.\" He chews. \"Bread's good.\" He offers you the heel of the loaf."
         },
         {
           "id": "search_the_old_mill",
@@ -425,7 +425,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Laid to Rest",
-      "page": "You strike a match. The lace catches quickly, like it's been waiting. As it burns, you say her name, gently, the way Dorota said it: \"Ilka. You can rest now.\"\n\nThe wraith stops. The cracked skin smooths. For one moment a young woman stands in the wheat in the sunlight, plain and lovely, smiling at someone none of you can see. Then she's gone.\n\nDorota cries into her apron, from relief, not grief. Geralt says nothing, but on his way out of the village he leaves a few crowns on her table.\n\nThe next morning, for the first time in nine years, the mill sails turn in the wind."
+      "page": "You strike a match. The lace catches quickly, like it's been waiting. As it burns, you say her name, gently, the way Dorota said it: \"Ilka. You can rest now.\"\n\nThe wraith stops. The cracked skin smooths. For one moment a young woman stands in the wheat in the sunlight, plain and lovely, smiling at someone none of you can see. Then she's gone.\n\nDorota cries into her apron, from relief, not grief. Geralt says nothing, but on his way out of the village he leaves a few crowns on her table.\n\nThe next morning, after nine years standing still, the mill sails turn in the wind."
     },
     {
       "id": "silver_and_coin",

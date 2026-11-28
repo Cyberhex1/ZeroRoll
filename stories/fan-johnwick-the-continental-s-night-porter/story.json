@@ -408,7 +408,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "Excommunicado",
-      "page": "You lay the elevator log on Winston's desk, and beside it, the footage. The gold ring on the panel.\n\nWinston reads it. He looks at Viktor for a long time.\n\n\"You conducted business on Continental grounds,\" he says. \"And then you tried to blame my staff.\" He picks up a phone. \"Mr. Sarno, you are excommunicado. Effective in one hour.\"\n\nViktor's smile finally disappears.\n\nAt dawn, you're back behind the front desk, in a new jacket with a new pin. Charon glances at you and nods once. Outside, the sun comes up gold over the city."
+      "page": "You lay the elevator log on Winston's desk, and beside it, the footage. The gold ring on the panel.\n\nWinston reads it. He looks at Viktor for a long time.\n\n\"You conducted business on Continental grounds,\" he says. \"And then you tried to blame my staff.\" He picks up a phone. \"Mr. Sarno, you are excommunicado. Effective in one hour.\"\n\nViktor's smile finally disappears.\n\nAt dawn, you're back behind the front desk, in a new jacket with a new pin. Charon glances at you and nods once, then hands you the night's ledger."
     },
     {
       "id": "a_marker_honoured",
@@ -439,7 +439,7 @@
       "exits": [],
       "isEnding": true,
       "endingTitle": "A Porter's Revenge",
-      "page": "You walk out of the Continental at dawn, out past the brass doors, off the grounds. Viktor is waiting in the rain across the street. He knew you would come.\n\nWhat happens between you is quick, and quiet, and final.\n\nWhen it's over, you look up. In a high window of the hotel, Winston is watching. He says nothing. He doesn't need to.\n\nYou're not a porter anymore. You know that. You turn your collar up against the rain and walk away down the empty street, alone."
+      "page": "You walk out of the Continental at dawn, out past the brass doors, off the grounds. Viktor is waiting in the rain across the street. He knew you would come.\n\nWhat happens between you is quick, and quiet, and final.\n\nWhen it's over, you look up. In a high window of the hotel, Winston is watching. He says nothing. He doesn't need to.\n\nYou leave your ring of keys on the front desk. You turn your collar up against the rain and walk away down the empty street, alone."
     }
   ],
   "art": {},
